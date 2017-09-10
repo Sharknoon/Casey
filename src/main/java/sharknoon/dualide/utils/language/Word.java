@@ -11,5 +11,6 @@ package sharknoon.dualide.utils.language;
  * @author frank
  */
 public enum Word {
-    
+    RUN
+
 }

@@ -7,6 +7,7 @@ package sharknoon.dualide.utils.language.lanugages;
 
 import java.util.Locale;
 import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -19,6 +20,6 @@ public class German extends Language {
     }
 
     {
-        
+        add(Word.RUN, "Los!");
     }
 }

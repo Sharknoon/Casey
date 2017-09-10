@@ -15,6 +15,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
+import sharknoon.dualide.utils.settings.FileUtils;
 
 /**
  * FXML Controller class
@@ -23,10 +26,14 @@ import javafx.scene.text.TextFlow;
  */
 public class FXMLController implements Initializable {
 
-    Main main;
+    private static FXMLController controller;
 
-    public void registerMain(Main main) {
-        this.main = main;
+    public FXMLController() {
+        controller = this;
+    }
+
+    public static FXMLController getInstance() {
+        return controller;
     }
 
     @FXML
@@ -41,7 +48,7 @@ public class FXMLController implements Initializable {
     @FXML
     public void onRunButton(ActionEvent e) {
         Platform.runLater(() -> {
-            setConsoleOutput(main.compileLua(textAreaLuaCode.getText()));
+            setConsoleOutput(Main.getInstance().compileLua(textAreaLuaCode.getText()));
         });
     }
 
@@ -54,7 +61,7 @@ public class FXMLController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        Language.set(Word.RUN, buttonRun);
     }
 
 }

@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
-import sharknoon.dualide.utils.settings.FirstRunInit;
+import sharknoon.dualide.utils.settings.FileUtils;
 import sharknoon.dualide.utils.settings.Props;
 
 /**
@@ -25,9 +25,15 @@ import sharknoon.dualide.utils.settings.Props;
  */
 public class Main extends Application {
 
+    private static Main main;
+
+    public Main() {
+        main = this;
+    }
+
     @Override
     public void init() {
-        FirstRunInit.init();
+        FileUtils.init();
     }
 
     @Override
@@ -35,7 +41,6 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader();
         Parent root = loader.load(getClass().getResource("/fxml/FXML.fxml").openStream());
         FXMLController controller = loader.getController();
-        controller.registerMain(this);
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/fxml.css");
@@ -52,6 +57,10 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    
+    public static Main getInstance(){
+        return main;
+    }
 
     public String compileLua(String lua) {
         Globals globals = JsePlatform.standardGlobals();
@@ -67,4 +76,6 @@ public class Main extends Application {
         }
     }
 
+    
+    
 }

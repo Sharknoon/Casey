@@ -6,7 +6,6 @@
 package sharknoon.dualide.utils.settings;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -18,46 +17,54 @@ import java.util.Properties;
  */
 public class Props {
 
-    private static final Properties PROPS = new Properties();
-    private static final String PATH = "props/properties.props";
-    private static boolean initialized = false;
+    private static Properties PROPS;
+    private static final String PATH = "props/props.properties";
 
-    static {
-        //Optional<InputStream> props = FileUtils.getFile(PATH);
-        /*if (props.isPresent()) {
+    private static void init() {
+        Optional<Path> propertiesFile = FileUtils.getFile(PATH, true);
+        if (propertiesFile.isPresent()) {
             try {
-                PROPS.load(Files.newInputStream(props.get()));
-                initialized = true;
-            } catch (IOException ex) {
-                Logger.error("Could not load properties file", ex);
+                PROPS = new Properties();
+                PROPS.load(Files.newInputStream(propertiesFile.get()));
+            } catch (IllegalArgumentException | UnsupportedOperationException | IOException | SecurityException ex) {
+                Logger.error("Could not load Properties file", ex);
+                PROPS = new Properties();
             }
         } else {
-            Logger.error("Could not find properties file");
-        }*/
+            Logger.error("Could not find Properties file");
+            PROPS = new Properties();
+        }
     }
 
     public static Optional<String> get(String name) {
+        if (PROPS == null) {
+            init();
+        }
         String prop = PROPS.getProperty(name);
         return Optional.ofNullable(prop);
     }
 
     public static void set(String name, String value) {
+        if (PROPS == null) {
+            init();
+        }
         PROPS.setProperty(name, value);
         onChange();
     }
 
     private static void onChange() {
-        if (initialized) {
-            /*Optional<Path> path = FileUtils.createAndGetFile(PATH);
-            if (path.isPresent()) {
-                try {
-                    PROPS.store(Files.newOutputStream(path.get()), null);
-                } catch (IOException ex) {
-                    Logger.error("Could not save Properties", ex);
-                }
-            } else {
-                Logger.error("Could not save Properties file, file not found");
-            }*/
+        if (PROPS == null) {
+            init();
+        }
+        Optional<Path> propertiesFile = FileUtils.createAndGetFile(PATH, true);
+        if (propertiesFile.isPresent()) {
+            try {
+                PROPS.store(Files.newOutputStream(propertiesFile.get()), null);
+            } catch (IOException ex) {
+                Logger.error("Could not save Properties", ex);
+            }
+        } else {
+            Logger.error("Could not save Properties file, file not found");
         }
     }
 }

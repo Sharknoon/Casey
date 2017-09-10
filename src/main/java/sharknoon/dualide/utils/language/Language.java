@@ -5,10 +5,8 @@
  */
 package sharknoon.dualide.utils.language;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -76,7 +74,19 @@ public abstract class Language {
     }
 
     //User-specific Part--------------------------------------------------------
-    private static Language currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(Props.get("language").orElse("")), ENGLISH);
+    private static Language currentLanguage;
+
+    static {
+        String languagePropertyKey = "language";
+        String languageFromPropertiesFile = Props.get(languagePropertyKey).orElse("");
+        String languageTagFromSystem = System.getProperty("user.language");
+        if (languageFromPropertiesFile.isEmpty()) {//If no language has been set
+            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageTagFromSystem), ENGLISH);
+            Props.set(languagePropertyKey, currentLanguage.getLanguageTag());
+        } else {//If a language has already been set, either manually or through a previous run
+            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageFromPropertiesFile), ENGLISH);
+        }
+    }
 
     /**
      * Returns a word in the language og the user User
@@ -172,8 +182,8 @@ public abstract class Language {
     }
 
     public static void changeLanguage(Language language) {
-        currentLanguage = language;
-        Props.set("language", language.getLanguageTag());
+        currentLanguage = language == null ? currentLanguage : language;
+        Props.set("language", currentLanguage.getLanguageTag());
         refreshAllControls();
         refreshAllCustoms();
     }

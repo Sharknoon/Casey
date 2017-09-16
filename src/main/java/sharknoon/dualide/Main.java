@@ -12,6 +12,8 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
@@ -39,7 +41,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(getClass().getResource("/fxml/FXML.fxml").openStream());
+        Parent root = loader.load(getClass().getResource("/fxml/FXMLDocument.fxml").openStream());
         FXMLController controller = loader.getController();
 
         Scene scene = new Scene(root);
@@ -57,8 +59,8 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
-    public static Main getInstance(){
+
+    public static Main getInstance() {
         return main;
     }
 
@@ -76,6 +78,4 @@ public class Main extends Application {
         }
     }
 
-    
-    
 }

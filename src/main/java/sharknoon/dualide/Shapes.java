@@ -1,5 +1,6 @@
-package drag.n.drop.demo;
+package sharknoon.dualide;
 
+import java.security.KeyFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +12,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -35,7 +34,7 @@ public class Shapes {
     private static final double START_HIGHT = 100;
     private static final double START_WIDTH = 200;
 
-    public static Block createProcessBlock(FXMLDocumentController c) {
+    public static Block createProcessBlock(FXMLController c) {
         Rectangle processRectangle = new Rectangle(PROCESS_WIDTH, PROCESS_HIGHT);
         processRectangle.setFill(Color.WHITE);
         setStrokeProperties(processRectangle);
@@ -43,7 +42,7 @@ public class Shapes {
         return new Block(processRectangle, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.TOP, Side.BOTTOM);
     }
 
-    public static Block createDecisionBlock(FXMLDocumentController c) {
+    public static Block createDecisionBlock(FXMLController c) {
         Polygon decisionpolygon = new Polygon(
                 DECISION_WIDTH / 2, 0,//oben mitte
                 DECISION_WIDTH, DECISION_HIGHT / 2,
@@ -55,7 +54,7 @@ public class Shapes {
         return new Block(decisionpolygon, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.TOP, Side.BOTTOM, Side.RIGHT);
     }
 
-    public static Block createStartBlock(FXMLDocumentController c) {
+    public static Block createStartBlock(FXMLController c) {
         Rectangle startRectangle = new Rectangle(START_WIDTH, START_HIGHT);
         startRectangle.setArcWidth(100);
         startRectangle.setArcHeight(100);
@@ -65,7 +64,7 @@ public class Shapes {
         return new Block(startRectangle, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.BOTTOM);
     }
 
-    public static Block createEndBlock(FXMLDocumentController c) {
+    public static Block createEndBlock(FXMLController c) {
         Rectangle startRectangle = new Rectangle(START_WIDTH, START_HIGHT);
         startRectangle.setArcWidth(100);
         startRectangle.setArcHeight(100);
@@ -98,7 +97,8 @@ public class Shapes {
     public static class Block {
 
         //Settings
-        private final Duration opacityDuration = Duration.millis(150);
+        private static final Duration DITS_MOVING_DURATION = Duration.millis(50);
+        private static final double DOTS_MOVING_DISTANCE = 5;
 
         public final AnchorPane pane = new AnchorPane();
         public final Shape shape;
@@ -135,28 +135,32 @@ public class Shapes {
 
         private void createDots(Side... dotSides) {
             for (Side dotSide : dotSides) {
-                Circle dot = new Circle(10, Color.BLACK);
+                Circle dot = new Circle(10, Color.RED);
                 dot.setOpacity(0);
                 dot.setOnMouseEntered(this::onMouseEntered);
                 dot.setOnMouseExited(this::onMouseExited);
-                DropShadow shadow = new DropShadow(10, Color.WHITE);
-                dot.setEffect(shadow);
+                //DropShadow shadow = new DropShadow(10, Color.WHITE);
+                //dot.setEffect(shadow);
                 switch (dotSide) {
                     case BOTTOM:
                         dot.setCenterX(shape.getLayoutBounds().getWidth() / 2);
                         dot.setCenterY(shape.getLayoutBounds().getHeight());
+                        dot.setTranslateY(-DOTS_MOVING_DISTANCE);
                         break;
                     case LEFT:
                         dot.setCenterX(0);
                         dot.setCenterY(shape.getLayoutBounds().getHeight() / 2);
+                        dot.setTranslateX(DOTS_MOVING_DISTANCE);
                         break;
                     case RIGHT:
                         dot.setCenterX(shape.getLayoutBounds().getWidth());
                         dot.setCenterY(shape.getLayoutBounds().getHeight() / 2);
+                        dot.setTranslateX(-DOTS_MOVING_DISTANCE);
                         break;
                     case TOP:
                         dot.setCenterX(shape.getLayoutBounds().getWidth() / 2);
                         dot.setCenterY(0);
+                        dot.setTranslateY(DOTS_MOVING_DISTANCE);
                         break;
                 }
                 dots.add(dot);
@@ -166,32 +170,58 @@ public class Shapes {
 
         private void onMouseEntered(MouseEvent event) {
             dotsShowTimeline.getKeyFrames().clear();
-            dots.forEach(dot -> dotsShowTimeline
-                    .getKeyFrames().addAll(
-                            new KeyFrame(Duration.ZERO,
-                                    new KeyValue(dot.opacityProperty(), dot.getOpacity())
-                            ),
-                            new KeyFrame(opacityDuration,
-                                    new KeyValue(dot.opacityProperty(), 1)
-                            )
-                    )
-            );
+            dots.forEach(dot -> {
+                KeyValue movingStart;
+                KeyValue movingEnd;
+                KeyValue opacityStart = new KeyValue(dot.opacityProperty(), dot.getOpacity());
+                KeyValue opacityEnd = new KeyValue(dot.opacityProperty(), 1);
+                if (dot.getCenterX() == 0) {//left
+                    movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
+                    movingEnd = new KeyValue(dot.translateXProperty(), 0);
+                } else if (dot.getCenterY() == 0) {//top
+                    movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
+                    movingEnd = new KeyValue(dot.translateYProperty(), 0);
+                } else if (dot.getCenterX() < shape.getLayoutBounds().getWidth()) {//bottom
+                    movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
+                    movingEnd = new KeyValue(dot.translateYProperty(), 0);
+                } else {//right
+                    movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
+                    movingEnd = new KeyValue(dot.translateXProperty(), 0);
+                }
+                dotsShowTimeline.getKeyFrames().addAll(
+                        new KeyFrame(Duration.ZERO, movingStart, opacityStart),
+                        new KeyFrame(DITS_MOVING_DURATION, movingEnd, opacityEnd)
+                );
+            });
             dotsRemoveTimeline.stop();
             dotsShowTimeline.play();
         }
 
         private void onMouseExited(MouseEvent event) {
             dotsRemoveTimeline.getKeyFrames().clear();
-            dots.forEach(dot -> dotsRemoveTimeline
-                    .getKeyFrames().addAll(
-                            new KeyFrame(Duration.ZERO,
-                                    new KeyValue(dot.opacityProperty(), dot.getOpacity())
-                            ),
-                            new KeyFrame(opacityDuration,
-                                    new KeyValue(dot.opacityProperty(), 0)
-                            )
-                    )
-            );
+            dots.forEach(dot -> {
+                KeyValue movingStart;
+                KeyValue movingEnd;
+                KeyValue opacityStart = new KeyValue(dot.opacityProperty(), dot.getOpacity());
+                KeyValue opacityEnd = new KeyValue(dot.opacityProperty(), 0);
+                if (dot.getCenterX() == 0) {//left
+                    movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
+                    movingEnd = new KeyValue(dot.translateXProperty(), DOTS_MOVING_DISTANCE);
+                } else if (dot.getCenterY() == 0) {//top
+                    movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
+                    movingEnd = new KeyValue(dot.translateYProperty(), DOTS_MOVING_DISTANCE);
+                } else if (dot.getCenterX() < shape.getLayoutBounds().getWidth()) {//bottom
+                    movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
+                    movingEnd = new KeyValue(dot.translateYProperty(), -DOTS_MOVING_DISTANCE);
+                } else {//right
+                    movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
+                    movingEnd = new KeyValue(dot.translateXProperty(), -DOTS_MOVING_DISTANCE);
+                }
+                dotsRemoveTimeline.getKeyFrames().addAll(
+                        new KeyFrame(Duration.ZERO, movingStart, opacityStart),
+                        new KeyFrame(DITS_MOVING_DURATION, movingEnd, opacityEnd)
+                );
+            });
             dotsShowTimeline.stop();
             dotsRemoveTimeline.play();
         }

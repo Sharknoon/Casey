@@ -1,5 +1,6 @@
 package sharknoon.dualide;
 
+import com.sun.scenario.effect.impl.state.LinearConvolveRenderState;
 import sharknoon.dualide.Shapes;
 import sharknoon.dualide.Shapes.Block;
 import java.net.URL;
@@ -11,8 +12,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
@@ -20,6 +24,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
 
@@ -34,8 +40,8 @@ public class FXMLController implements Initializable {
 
     double oldMouseX;
     double oldMouseY;
-    double oldImageX;
-    double oldImageY;
+    double oldWorkspaceX;
+    double oldWorkspaceY;
 
     boolean mouseOverShape = false;
     //Settings
@@ -75,24 +81,29 @@ public class FXMLController implements Initializable {
 
     public void onMousePressedFromBlock(MouseEvent event) {
         mouseOverShape = true;
-        oldMouseX = event.getSceneX();
-        oldMouseY = event.getSceneY();
-        Node node = ((Node) event.getSource());
-        Block block = Shapes.getBlock(node);
-        oldImageX = block.pane.getTranslateX();
-        oldImageY = block.pane.getTranslateY();
+        menu.hide();
+        if (event.isPrimaryButtonDown()) {//moving
+            Node node = ((Node) event.getSource());
+            Block block = Shapes.getBlock(node);
+            oldMouseX = event.getSceneX();
+            oldMouseY = event.getSceneY();
+            oldWorkspaceX = block.pane.getTranslateX();
+            oldWorkspaceY = block.pane.getTranslateY();
 
-        Timeline fadeInTimeline = block.fadeInTimeline;
-        Timeline fadeOutTimeline = block.fadeOutTimeline;
-        fadeInTimeline.getKeyFrames().clear();
-        DropShadow dropShadow = (DropShadow) block.shape.getEffect();
-        fadeInTimeline.getKeyFrames().addAll(new KeyFrame(Duration.ZERO,
-                new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius())),
-                new KeyFrame(blockShadowDuration,
-                        new KeyValue(dropShadow.radiusProperty(), blockShadowRadius)));
-
-        fadeOutTimeline.stop();
-        fadeInTimeline.play();
+            Timeline fadeInTimeline = block.fadeInTimeline;
+            Timeline fadeOutTimeline = block.fadeOutTimeline;
+            fadeInTimeline.getKeyFrames().clear();
+            DropShadow dropShadow = (DropShadow) block.shape.getEffect();
+            fadeInTimeline.getKeyFrames().addAll(
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius())
+                    ),
+                    new KeyFrame(blockShadowDuration,
+                            new KeyValue(dropShadow.radiusProperty(), blockShadowRadius)
+                    ));
+            fadeOutTimeline.stop();
+            fadeInTimeline.play();
+        }
     }
 
     public void onMouseReleasedFromBlock(MouseEvent event) {
@@ -114,38 +125,53 @@ public class FXMLController implements Initializable {
     }
 
     public void onMouseDraggedFromBlock(MouseEvent event) {
-        Node node = ((Node) event.getSource());
-        Pane pane = Shapes.getBlock(node).pane;
-        double newX = event.getSceneX();
-        double newY = event.getSceneY();
-        double deltaX = (newX - oldMouseX) / anchorPane.getScaleX();
-        double deltaY = (newY - oldMouseY) / anchorPane.getScaleY();
-        double absoluteX = oldImageX + deltaX;
-        double absoluteY = oldImageY + deltaY;
+        if (event.isPrimaryButtonDown()) {
+            Node node = ((Node) event.getSource());
+            Pane pane = Shapes.getBlock(node).pane;
+            double newX = event.getSceneX();
+            double newY = event.getSceneY();
+            double deltaX = (newX - oldMouseX) / anchorPane.getScaleX();
+            double deltaY = (newY - oldMouseY) / anchorPane.getScaleY();
+            double absoluteX = oldWorkspaceX + deltaX;
+            double absoluteY = oldWorkspaceY + deltaY;
 
-        if ((absoluteX - paddingInsideWorkSpace) % gridSnappingX > gridSnappingX / 2) {
-            absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + gridSnappingX + paddingInsideWorkSpace;
-        } else {
-            absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + paddingInsideWorkSpace;
-        }
-        if ((absoluteY - paddingInsideWorkSpace) % gridSnappingY > gridSnappingY / 2) {
-            absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + gridSnappingY + paddingInsideWorkSpace;
-        } else {
-            absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + paddingInsideWorkSpace;
-        }
+            if ((absoluteX - paddingInsideWorkSpace) % gridSnappingX > gridSnappingX / 2) {
+                absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + gridSnappingX + paddingInsideWorkSpace;
+            } else {
+                absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + paddingInsideWorkSpace;
+            }
+            if ((absoluteY - paddingInsideWorkSpace) % gridSnappingY > gridSnappingY / 2) {
+                absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + gridSnappingY + paddingInsideWorkSpace;
+            } else {
+                absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + paddingInsideWorkSpace;
+            }
 
-        if ((absoluteX + pane.getLayoutBounds().getWidth() + paddingInsideWorkSpace) > maxWorkSpaceX) {
-            absoluteX = maxWorkSpaceX - paddingInsideWorkSpace - pane.getLayoutBounds().getWidth();
-        } else if ((absoluteX - paddingInsideWorkSpace) < 0) {
-            absoluteX = paddingInsideWorkSpace;
+            if ((absoluteX + pane.getLayoutBounds().getWidth() + paddingInsideWorkSpace) > maxWorkSpaceX) {
+                absoluteX = maxWorkSpaceX - paddingInsideWorkSpace - pane.getLayoutBounds().getWidth();
+            } else if ((absoluteX - paddingInsideWorkSpace) < 0) {
+                absoluteX = paddingInsideWorkSpace;
+            }
+            if ((absoluteY + pane.getLayoutBounds().getHeight() + paddingInsideWorkSpace) > maxWorkSpaceY) {
+                absoluteY = maxWorkSpaceY - paddingInsideWorkSpace - pane.getLayoutBounds().getHeight();
+            } else if ((absoluteY - paddingInsideWorkSpace) < 0) {
+                absoluteY = paddingInsideWorkSpace;
+            }
+            pane.setTranslateX(absoluteX);
+            pane.setTranslateY(absoluteY);
         }
-        if ((absoluteY + pane.getLayoutBounds().getHeight() + paddingInsideWorkSpace) > maxWorkSpaceY) {
-            absoluteY = maxWorkSpaceY - paddingInsideWorkSpace - pane.getLayoutBounds().getHeight();
-        } else if ((absoluteY - paddingInsideWorkSpace) < 0) {
-            absoluteY = paddingInsideWorkSpace;
-        }
-        pane.setTranslateX(absoluteX);
-        pane.setTranslateY(absoluteY);
+    }
+
+    private ContextMenu menu = new ContextMenu();
+
+    public void onContextMenuRequestedFromBlock(ContextMenuEvent event) {
+        Shape shape = (Shape) event.getSource();
+        MenuItem deleteItem = new MenuItem("Delete");
+        deleteItem.setOnAction(e -> System.out.println("delete"));
+        MenuItem deleteItem2 = new MenuItem("Delete2");
+        deleteItem2.setOnAction(e -> System.out.println("delete2"));
+        menu = new ContextMenu(deleteItem, deleteItem2);
+        menu.setAutoHide(true);
+        menu.show(shape, event.getScreenX(), event.getScreenY());
     }
 
     @FXML
@@ -200,13 +226,28 @@ public class FXMLController implements Initializable {
         anchorPane.getTransforms().clear();
     }
 
+    private final Rectangle selectionRectangle = new Rectangle();
+
     @FXML
     private void onMousePressed(MouseEvent event) {
         if (!mouseOverShape) {
             oldMouseX = event.getSceneX();
             oldMouseY = event.getSceneY();
-            oldImageX = anchorPane.getTranslateX();
-            oldImageY = anchorPane.getTranslateY();
+            oldWorkspaceX = anchorPane.getTranslateX();
+            oldWorkspaceY = anchorPane.getTranslateY();
+            if (event.isSecondaryButtonDown()) {
+            } else if (event.isPrimaryButtonDown()) {
+                selectionRectangle.setVisible(true);
+                System.out.println("---");
+                double newX = event.getSceneX();
+                double newY = event.getSceneY() - 90;
+                System.out.println(newX);
+                double absoluteX = oldWorkspaceX + newX;
+                System.out.println(absoluteX);
+                double absoluteY = oldWorkspaceY + newY;
+                selectionRectangle.setTranslateX(absoluteX);
+                selectionRectangle.setTranslateY(absoluteY);
+            }
         }
     }
 
@@ -217,21 +258,45 @@ public class FXMLController implements Initializable {
             double newY = event.getSceneY();
             double deltaX = newX - oldMouseX;
             double deltaY = newY - oldMouseY;
-            anchorPane.setTranslateX(oldImageX + deltaX);
-            anchorPane.setTranslateY(oldImageY + deltaY);
+            if (event.isSecondaryButtonDown()) {//Move workspace
+                anchorPane.setTranslateX(oldWorkspaceX + deltaX);
+                anchorPane.setTranslateY(oldWorkspaceY + deltaY);
+            } else if (event.isPrimaryButtonDown()) {//create selection rectangle
+                selectionRectangle.setWidth(deltaX / anchorPane.getScaleX());
+                selectionRectangle.setHeight(deltaY / anchorPane.getScaleY());
+            }
         }
+    }
+
+    @FXML
+    private void onMouseReleased(MouseEvent event) {
+        selectionRectangle.setVisible(false);
+        selectionRectangle.setWidth(0);
+        selectionRectangle.setHeight(0);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        createSelectionRectangle();
+        drawLineAroundWorkspace();
+        addNewBlock(Shapes.createStartBlock(this));
+    }
+
+    private void createSelectionRectangle() {
+        selectionRectangle.setFill(Color.LIGHTBLUE);
+        selectionRectangle.setOpacity(0.4);
+        selectionRectangle.setStrokeWidth(1);
+        selectionRectangle.setStroke(Color.BLUE);
+        selectionRectangle.setVisible(false);
+        anchorPane.getChildren().add(selectionRectangle);
+    }
+
+    private void drawLineAroundWorkspace() {
         Line left = createStroke(0, 0, 0, maxWorkSpaceY);
         Line right = createStroke(maxWorkSpaceX, 0, maxWorkSpaceX, maxWorkSpaceY);
         Line top = createStroke(0, 0, maxWorkSpaceX, 0);
         Line bottom = createStroke(0, maxWorkSpaceY, maxWorkSpaceX, maxWorkSpaceY);
         anchorPane.getChildren().addAll(left, right, top, bottom);
-
-        Block start = Shapes.createStartBlock(this);
-        addNewBlock(start);
     }
 
     private static Line createStroke(double startX, double startY, double endX, double endY) {

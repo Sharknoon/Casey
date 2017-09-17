@@ -11,6 +11,7 @@ import javafx.animation.Timeline;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -39,7 +40,12 @@ public class Shapes {
         processRectangle.setFill(Color.WHITE);
         setStrokeProperties(processRectangle);
         addDropShadowEffect(processRectangle);
-        return new Block(processRectangle, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.TOP, Side.BOTTOM);
+        return new Block(processRectangle,
+                c::onMousePressedFromBlock,
+                c::onMouseReleasedFromBlock,
+                c::onMouseDraggedFromBlock,
+                c::onContextMenuRequestedFromBlock,
+                Side.TOP, Side.BOTTOM);
     }
 
     public static Block createDecisionBlock(FXMLController c) {
@@ -51,7 +57,12 @@ public class Shapes {
         decisionpolygon.setFill(Color.WHEAT);
         setStrokeProperties(decisionpolygon);
         addDropShadowEffect(decisionpolygon);
-        return new Block(decisionpolygon, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.TOP, Side.BOTTOM, Side.RIGHT);
+        return new Block(decisionpolygon,
+                c::onMousePressedFromBlock,
+                c::onMouseReleasedFromBlock,
+                c::onMouseDraggedFromBlock,
+                c::onContextMenuRequestedFromBlock,
+                Side.TOP, Side.BOTTOM, Side.RIGHT);
     }
 
     public static Block createStartBlock(FXMLController c) {
@@ -61,7 +72,12 @@ public class Shapes {
         startRectangle.setFill(Color.LIGHTGREEN);
         setStrokeProperties(startRectangle);
         addDropShadowEffect(startRectangle);
-        return new Block(startRectangle, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.BOTTOM);
+        return new Block(startRectangle,
+                c::onMousePressedFromBlock,
+                c::onMouseReleasedFromBlock,
+                c::onMouseDraggedFromBlock,
+                c::onContextMenuRequestedFromBlock,
+                Side.BOTTOM);
     }
 
     public static Block createEndBlock(FXMLController c) {
@@ -71,7 +87,12 @@ public class Shapes {
         startRectangle.setFill(Color.LIGHTCORAL);
         setStrokeProperties(startRectangle);
         addDropShadowEffect(startRectangle);
-        return new Block(startRectangle, c::onMousePressedFromBlock, c::onMouseReleasedFromBlock, c::onMouseDraggedFromBlock, Side.TOP);
+        return new Block(startRectangle,
+                c::onMousePressedFromBlock,
+                c::onMouseReleasedFromBlock,
+                c::onMouseDraggedFromBlock,
+                c::onContextMenuRequestedFromBlock,
+                Side.TOP);
     }
 
     private static void setStrokeProperties(Shape shape) {
@@ -114,15 +135,22 @@ public class Shapes {
          * @param onMousePressed
          * @param onMouseReleased
          * @param onMouseDragged
+         * @param onContextMenueRequested
          * @param dots 0 = bottom, 1 = top and bottom, 2 = all sides, 3 = top
          * and bottom and right, 4 = top
          */
-        public Block(Shape shape, Consumer<MouseEvent> onMousePressed, Consumer<MouseEvent> onMouseReleased, Consumer<MouseEvent> onMouseDragged, Side... dots) {
+        public Block(Shape shape,
+                Consumer<MouseEvent> onMousePressed,
+                Consumer<MouseEvent> onMouseReleased,
+                Consumer<MouseEvent> onMouseDragged,
+                Consumer<ContextMenuEvent> onContextMenueRequested,
+                Side... dots) {
             pane.getChildren().add(shape);
             this.shape = shape;
             shape.setOnMousePressed(onMousePressed::accept);
             shape.setOnMouseReleased(onMouseReleased::accept);
             shape.setOnMouseDragged(onMouseDragged::accept);
+            shape.setOnContextMenuRequested(onContextMenueRequested::accept);
             shape.setOnMouseEntered(this::onMouseEntered);
             shape.setOnMouseExited(this::onMouseExited);
             register();
@@ -135,12 +163,13 @@ public class Shapes {
 
         private void createDots(Side... dotSides) {
             for (Side dotSide : dotSides) {
-                Circle dot = new Circle(10, Color.RED);
+                Circle dot = new Circle(10, Color.BLACK);
                 dot.setOpacity(0);
                 dot.setOnMouseEntered(this::onMouseEntered);
                 dot.setOnMouseExited(this::onMouseExited);
-                //DropShadow shadow = new DropShadow(10, Color.WHITE);
-                //dot.setEffect(shadow);
+                DropShadow shadow = new DropShadow(25, Color.WHITE);
+                shadow.setSpread(0.5);
+                dot.setEffect(shadow);
                 switch (dotSide) {
                     case BOTTOM:
                         dot.setCenterX(shape.getLayoutBounds().getWidth() / 2);

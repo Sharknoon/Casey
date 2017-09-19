@@ -104,7 +104,7 @@ public class Shapes {
         private static final Color BLOCK_SHADOW_SELECTION_COLOR = Color.CORNFLOWERBLUE;
         private static final Duration BLOCK_SHADOW_MOVING_DURATION = Duration.millis(150);
         private static final double BLOCK_SHADOW_MOVING_RADIUS = 100;
-        private static final Color BLOCK_SHADOW_MOVING_COLOR = Color.CORNFLOWERBLUE;
+        private static final Color BLOCK_SHADOW_MOVING_COLOR = Color.valueOf("0095ed");
 
         public final AnchorPane pane = new AnchorPane();
         public final Shape shape;
@@ -186,7 +186,7 @@ public class Shapes {
 
         private static void setStrokeProperties(Shape shape) {
             shape.setStroke(Color.BLACK);
-            shape.setStrokeWidth(7);
+            shape.setStrokeWidth(3);
             shape.setStrokeType(StrokeType.INSIDE);
         }
 
@@ -198,7 +198,7 @@ public class Shapes {
             shape.setEffect(dropShadow);
         }
 
-        private boolean mousePressed;
+        private static boolean mousePressed;
 
         private void onMouseEntered(MouseEvent event) {
             mouseOverShape.accept(true);

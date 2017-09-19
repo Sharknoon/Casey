@@ -1,28 +1,43 @@
 package sharknoon.dualide;
 
 import com.sun.scenario.effect.impl.state.LinearConvolveRenderState;
+import java.io.IOException;
 import sharknoon.dualide.Shapes;
 import sharknoon.dualide.Shapes.Block;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -30,6 +45,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
+import sharknoon.dualide.utils.settings.FileUtils;
 
 /**
  *
@@ -39,6 +55,9 @@ public class FXMLController implements Initializable {
 
     @FXML
     private AnchorPane anchorPane;
+
+    @FXML
+    private TabPane tabpane;
 
     double oldMouseX;
     double oldMouseY;
@@ -151,6 +170,8 @@ public class FXMLController implements Initializable {
                 } else if (absoluteY - paddingInsideWorkSpace < 0) {
                     absoluteY = paddingInsideWorkSpace;
                 }
+                //availability check
+
                 pane.setTranslateX(absoluteX);
                 pane.setTranslateY(absoluteY);
             }
@@ -332,16 +353,25 @@ public class FXMLController implements Initializable {
     }
 
     private void drawLineAroundWorkspace() {
-        Line left = createStroke(0, 0, 0, maxWorkSpaceY);
-        Line right = createStroke(maxWorkSpaceX, 0, maxWorkSpaceX, maxWorkSpaceY);
-        Line top = createStroke(0, 0, maxWorkSpaceX, 0);
-        Line bottom = createStroke(0, maxWorkSpaceY, maxWorkSpaceX, maxWorkSpaceY);
-        anchorPane.getChildren().addAll(left, right, top, bottom);
+        try {
+            Line left = createStroke(0, 0, 0, maxWorkSpaceY);
+            Line right = createStroke(maxWorkSpaceX, 0, maxWorkSpaceX, maxWorkSpaceY);
+            Line top = createStroke(0, 0, maxWorkSpaceX, 0);
+            Line bottom = createStroke(0, maxWorkSpaceY, maxWorkSpaceX, maxWorkSpaceY);
+            anchorPane.getChildren().addAll(left, right, top, bottom);
+
+            Path path = FileUtils.getFile("images/landscape.jpg", true).orElse(null);
+            Image image = new Image(Files.newInputStream(path));
+            tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+            anchorPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.75), CornerRadii.EMPTY, Insets.EMPTY)));
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private static Line createStroke(double startX, double startY, double endX, double endY) {
         Line s = new Line(startX, startY, endX, endY);
-        s.setStrokeWidth(10);
+        s.setStrokeWidth(3);
         s.setStroke(Color.BLACK);
         s.setStrokeType(StrokeType.OUTSIDE);
         return s;

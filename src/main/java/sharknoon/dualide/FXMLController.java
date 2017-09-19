@@ -86,11 +86,6 @@ public class FXMLController implements Initializable {
         if (event.isPrimaryButtonDown()) {//moving
             Node node = ((Node) event.getSource());
             Block block = Shapes.getBlock(node);
-            oldMouseX = event.getSceneX();
-            oldMouseY = event.getSceneY();
-            oldX = block.pane.getTranslateX();
-            oldY = block.pane.getTranslateY();
-
             Timeline fadeInTimeline = block.fadeInTimeline;
             Timeline fadeOutTimeline = block.fadeOutTimeline;
             fadeInTimeline.getKeyFrames().clear();
@@ -115,12 +110,14 @@ public class FXMLController implements Initializable {
         Timeline fadeInTimeline = block.fadeInTimeline;
         Timeline fadeOutTimeline = block.fadeOutTimeline;
         fadeOutTimeline.getKeyFrames().clear();
-        fadeOutTimeline.getKeyFrames().addAll(new KeyFrame(Duration.ZERO,
-                new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius())),
+        fadeOutTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius())
+                ),
                 new KeyFrame(blockShadowDuration,
                         new KeyValue(dropShadow.radiusProperty(), 0)
-                ));
-
+                )
+        );
         fadeInTimeline.stop();
         fadeOutTimeline.play();
     }
@@ -129,32 +126,25 @@ public class FXMLController implements Initializable {
         if (event.isPrimaryButtonDown()) {
             Node node = ((Node) event.getSource());
             Pane pane = Shapes.getBlock(node).pane;
-            double newX = event.getSceneX();
-            double newY = event.getSceneY();
-            double deltaX = (newX - oldMouseX) / anchorPane.getScaleX();
-            double deltaY = (newY - oldMouseY) / anchorPane.getScaleY();
-            double absoluteX = oldX + deltaX;
-            double absoluteY = oldY + deltaY;
+            Point2D localCoordinates = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+            double absoluteX = localCoordinates.getX() - paddingInsideWorkSpace;
+            double absoluteY = localCoordinates.getY() - paddingInsideWorkSpace;
 
-            if ((absoluteX - paddingInsideWorkSpace) % gridSnappingX > gridSnappingX / 2) {
-                absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + gridSnappingX + paddingInsideWorkSpace;
-            } else {
-                absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + paddingInsideWorkSpace;
-            }
-            if ((absoluteY - paddingInsideWorkSpace) % gridSnappingY > gridSnappingY / 2) {
-                absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + gridSnappingY + paddingInsideWorkSpace;
-            } else {
-                absoluteY = (absoluteY - paddingInsideWorkSpace) - ((absoluteY - paddingInsideWorkSpace) % gridSnappingY) + paddingInsideWorkSpace;
-            }
+            //snapping
+            absoluteX -= absoluteX % gridSnappingX;
+            absoluteY -= absoluteY % gridSnappingY;
 
-            if ((absoluteX + pane.getLayoutBounds().getWidth() + paddingInsideWorkSpace) > maxWorkSpaceX) {
+            //range check
+            absoluteX += paddingInsideWorkSpace;
+            absoluteY += paddingInsideWorkSpace;
+            if (absoluteX + pane.getLayoutBounds().getWidth() + paddingInsideWorkSpace > maxWorkSpaceX) {
                 absoluteX = maxWorkSpaceX - paddingInsideWorkSpace - pane.getLayoutBounds().getWidth();
-            } else if ((absoluteX - paddingInsideWorkSpace) < 0) {
+            } else if (absoluteX - paddingInsideWorkSpace < 0) {
                 absoluteX = paddingInsideWorkSpace;
             }
-            if ((absoluteY + pane.getLayoutBounds().getHeight() + paddingInsideWorkSpace) > maxWorkSpaceY) {
+            if (absoluteY + pane.getLayoutBounds().getHeight() + paddingInsideWorkSpace > maxWorkSpaceY) {
                 absoluteY = maxWorkSpaceY - paddingInsideWorkSpace - pane.getLayoutBounds().getHeight();
-            } else if ((absoluteY - paddingInsideWorkSpace) < 0) {
+            } else if (absoluteY - paddingInsideWorkSpace < 0) {
                 absoluteY = paddingInsideWorkSpace;
             }
             pane.setTranslateX(absoluteX);

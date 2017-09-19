@@ -11,6 +11,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -40,8 +41,8 @@ public class FXMLController implements Initializable {
 
     double oldMouseX;
     double oldMouseY;
-    double oldWorkspaceX;
-    double oldWorkspaceY;
+    double oldX;//used for workspace moving as well as slectrion rectangle drawing
+    double oldY;
 
     boolean mouseOverShape = false;
     //Settings
@@ -87,8 +88,8 @@ public class FXMLController implements Initializable {
             Block block = Shapes.getBlock(node);
             oldMouseX = event.getSceneX();
             oldMouseY = event.getSceneY();
-            oldWorkspaceX = block.pane.getTranslateX();
-            oldWorkspaceY = block.pane.getTranslateY();
+            oldX = block.pane.getTranslateX();
+            oldY = block.pane.getTranslateY();
 
             Timeline fadeInTimeline = block.fadeInTimeline;
             Timeline fadeOutTimeline = block.fadeOutTimeline;
@@ -132,8 +133,8 @@ public class FXMLController implements Initializable {
             double newY = event.getSceneY();
             double deltaX = (newX - oldMouseX) / anchorPane.getScaleX();
             double deltaY = (newY - oldMouseY) / anchorPane.getScaleY();
-            double absoluteX = oldWorkspaceX + deltaX;
-            double absoluteY = oldWorkspaceY + deltaY;
+            double absoluteX = oldX + deltaX;
+            double absoluteY = oldY + deltaY;
 
             if ((absoluteX - paddingInsideWorkSpace) % gridSnappingX > gridSnappingX / 2) {
                 absoluteX = (absoluteX - paddingInsideWorkSpace) - ((absoluteX - paddingInsideWorkSpace) % gridSnappingX) + gridSnappingX + paddingInsideWorkSpace;
@@ -176,7 +177,7 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void onScroll(ScrollEvent event) {
-        zoom(anchorPane, event.getDeltaY() < 0 ? 1 / zoomFactor : zoomFactor, event.getSceneX(), event.getSceneY() - 90);
+        zoom(anchorPane, event.getDeltaY() < 0 ? 1 / zoomFactor : zoomFactor, event.getSceneX(), event.getSceneY());
     }
 
     @FXML
@@ -196,7 +197,7 @@ public class FXMLController implements Initializable {
         }
 
         double newRelativeScale = (newAbsoluteScale / oldAbsoluteScale) - 1;
-        Bounds bounds = node.localToParent(node.getBoundsInLocal());
+        Bounds bounds = node.localToScene(node.getBoundsInLocal());
 
         double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
         double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
@@ -233,20 +234,21 @@ public class FXMLController implements Initializable {
         if (!mouseOverShape) {
             oldMouseX = event.getSceneX();
             oldMouseY = event.getSceneY();
-            oldWorkspaceX = anchorPane.getTranslateX();
-            oldWorkspaceY = anchorPane.getTranslateY();
             if (event.isSecondaryButtonDown()) {
+                oldX = anchorPane.getTranslateX();
+                oldY = anchorPane.getTranslateY();
             } else if (event.isPrimaryButtonDown()) {
+                Point2D localCoordinates = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+                if (localCoordinates.getX() < 0 || localCoordinates.getX() > maxWorkSpaceX
+                        || localCoordinates.getY() < 0 || localCoordinates.getY() > maxWorkSpaceY) {
+                    return;
+                }
                 selectionRectangle.setVisible(true);
-                System.out.println("---");
-                double newX = event.getSceneX();
-                double newY = event.getSceneY() - 90;
-                System.out.println(newX);
-                double absoluteX = oldWorkspaceX + newX;
-                System.out.println(absoluteX);
-                double absoluteY = oldWorkspaceY + newY;
-                selectionRectangle.setTranslateX(absoluteX);
-                selectionRectangle.setTranslateY(absoluteY);
+                oldX = localCoordinates.getX();
+                oldY = localCoordinates.getY();
+
+                selectionRectangle.setTranslateX(oldX);
+                selectionRectangle.setTranslateY(oldY);
             }
         }
     }
@@ -254,16 +256,48 @@ public class FXMLController implements Initializable {
     @FXML
     private void onDrag(MouseEvent event) {
         if (!mouseOverShape) {
-            double newX = event.getSceneX();
-            double newY = event.getSceneY();
-            double deltaX = newX - oldMouseX;
-            double deltaY = newY - oldMouseY;
+            double deltaX = event.getSceneX() - oldMouseX;
+            double deltaY = event.getSceneY() - oldMouseY;
             if (event.isSecondaryButtonDown()) {//Move workspace
-                anchorPane.setTranslateX(oldWorkspaceX + deltaX);
-                anchorPane.setTranslateY(oldWorkspaceY + deltaY);
+                anchorPane.setTranslateX(oldX + deltaX);
+                anchorPane.setTranslateY(oldY + deltaY);
             } else if (event.isPrimaryButtonDown()) {//create selection rectangle
-                selectionRectangle.setWidth(deltaX / anchorPane.getScaleX());
-                selectionRectangle.setHeight(deltaY / anchorPane.getScaleY());
+                double width = deltaX / anchorPane.getScaleX();
+                double hight = deltaY / anchorPane.getScaleY();
+                Point2D localCoordinates = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+                double localX = localCoordinates.getX();
+                double localY = localCoordinates.getY();
+                if (oldX + width > maxWorkSpaceX) {
+                    width = maxWorkSpaceX - oldX;
+                } else if (oldX + width < 0) {
+                    width = -oldX;
+                }
+                if (oldY + hight > maxWorkSpaceY) {
+                    hight = maxWorkSpaceY - oldY;
+                } else if (oldY + hight < 0) {
+                    hight = -oldY;
+                }
+
+                if (width > 0) {
+                    selectionRectangle.setTranslateX(oldX);
+                    selectionRectangle.setWidth(width);
+                } else {
+                    if (localX < 0) {
+                        localX = 0;
+                    }
+                    selectionRectangle.setTranslateX(localX);
+                    selectionRectangle.setWidth(-width);
+                }
+                if (hight > 0) {
+                    selectionRectangle.setTranslateY(oldY);
+                    selectionRectangle.setHeight(hight);
+                } else {
+                    if (localY < 0) {
+                        localY = 0;
+                    }
+                    selectionRectangle.setTranslateY(localY);
+                    selectionRectangle.setHeight(-hight);
+                }
             }
         }
     }

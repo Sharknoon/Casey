@@ -2,11 +2,11 @@ package sharknoon.dualide;
 
 import com.sun.scenario.effect.impl.state.LinearConvolveRenderState;
 import java.io.IOException;
-import sharknoon.dualide.Shapes;
-import sharknoon.dualide.Shapes.Block;
+import sharknoon.dualide.ui.blocks.Blocks;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -16,9 +16,11 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -45,6 +47,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
+import sharknoon.dualide.ui.blocks.Block;
+import sharknoon.dualide.ui.blocks.BlockGroup;
 import sharknoon.dualide.utils.settings.FileUtils;
 
 /**
@@ -61,7 +65,7 @@ public class FXMLController implements Initializable {
 
     double oldMouseX;
     double oldMouseY;
-    double oldX;//used for workspace moving as well as slectrion rectangle drawing
+    double oldX;//used for workspace moving as well as slection rectangle drawing
     double oldY;
 
     boolean mouseOverShape = false;
@@ -76,40 +80,35 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void addNewProcess() {
-        Block proc = Shapes.createProcessBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block proc = Blocks.createProcessBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
         addNewBlock(proc);
     }
 
     @FXML
     private void addNewDecision() {
-        Block dec = Shapes.createDecisionBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block dec = Blocks.createDecisionBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
         addNewBlock(dec);
     }
 
     @FXML
     private void addNewEnd() {
-        Block end = Shapes.createEndBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block end = Blocks.createEndBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
         addNewBlock(end);
     }
 
     private void addNewBlock(Block block) {
-        anchorPane.getChildren().add(block.pane);
-        block.pane.setTranslateX(paddingInsideWorkSpace);
-        block.pane.setTranslateY(paddingInsideWorkSpace);
+        block.addTo(anchorPane);
+        block.setMinX(paddingInsideWorkSpace);
+        block.setMinY(paddingInsideWorkSpace);
     }
 
-    double minX = maxWorkSpaceX;
-    double minY = maxWorkSpaceY;
-    double maxX = 0;
-    double maxY = 0;
     double lastAbsoluteX = -1;
     double lastAbsoluteY = -1;
 
     public void onMouseDraggedFromBlock(MouseEvent event) {
         if (event.isPrimaryButtonDown()) {
             Node node = ((Node) event.getSource());
-            Block block = Shapes.getBlock(node);
-            Pane pane = block.pane;
+            Block block = Blocks.getBlock(node);
             Point2D localCoordinates = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
             double absoluteX = localCoordinates.getX() - paddingInsideWorkSpace;
             double absoluteY = localCoordinates.getY() - paddingInsideWorkSpace;
@@ -117,63 +116,54 @@ public class FXMLController implements Initializable {
             //snapping
             absoluteX -= absoluteX % gridSnappingX;
             absoluteY -= absoluteY % gridSnappingY;
+            absoluteX += paddingInsideWorkSpace;
+            absoluteY += paddingInsideWorkSpace;
 
             if (absoluteX == lastAbsoluteX && absoluteY == lastAbsoluteY) {
                 return;//much better performance
             }
 
-            absoluteX += paddingInsideWorkSpace;
-            absoluteY += paddingInsideWorkSpace;
-
-            if (block.selected) {//multi-selection
-                double deltaX = absoluteX - pane.getTranslateX();
-                double deltaY = absoluteY - pane.getTranslateY();
+            if (block.isSelected()) {//multi-selection
+                double deltaX = absoluteX - block.getMinX();
+                double deltaY = absoluteY - block.getMinY();
                 //range check
-                Collection<Block> allBlocks = Shapes.getAllBlocks();
-                minX = maxWorkSpaceX;
-                minY = maxWorkSpaceY;
-                maxX = 0;
-                maxY = 0;
-                allBlocks.stream().forEach(b -> {
-                    minX = Math.min(minX, b.pane.getTranslateX());
-                    minY = Math.min(minY, b.pane.getTranslateY());
-                    maxX = Math.max(maxX, b.pane.getTranslateX() + b.pane.getWidth());
-                    maxY = Math.max(maxY, b.pane.getTranslateY() + b.pane.getHeight());
-                });
-                if (minX + deltaX >= paddingInsideWorkSpace
-                        && maxX + deltaX <= maxWorkSpaceX - paddingInsideWorkSpace) {
-                    allBlocks.stream()
-                            .filter(b -> b.selected)
-                            .map(b -> b.pane)
-                            .forEach(p -> {
-                                p.setTranslateX(p.getTranslateX() + deltaX);
-                            });
+                BlockGroup selectedBlocks = Blocks.getSelectedBlocks();
+                Bounds bounds = selectedBlocks.getBounds();
+                if (bounds.getMinX() + deltaX < paddingInsideWorkSpace
+                        || bounds.getMaxX() + deltaX > maxWorkSpaceX - paddingInsideWorkSpace) {
+                    deltaX = 0;
                 }
-                if (minY + deltaY >= paddingInsideWorkSpace
-                        && maxY + deltaY <= maxWorkSpaceY - paddingInsideWorkSpace) {
-                    allBlocks.stream()
-                            .filter(b -> b.selected)
-                            .map(b -> b.pane)
-                            .forEach(p -> {
-                                p.setTranslateY(p.getTranslateY() + deltaY);
-                            });
+                if (bounds.getMinY() + deltaY < paddingInsideWorkSpace
+                        || bounds.getMaxY() + deltaY > maxWorkSpaceY - paddingInsideWorkSpace) {
+                    deltaY = 0;
+                }
+                final double finalDeltaX = deltaX;
+                final double finalDeltaY = deltaY;
+                //Existing block check
+                if (selectedBlocks.canMoveTo(deltaX, deltaY)) {
+                    selectedBlocks.getBlocks().forEach(b -> {
+                        b.setMinX(b.getMinX() + finalDeltaX);
+                        b.setMinY(b.getMinY() + finalDeltaY);
+                    });
                 }
             } else {//single selection
                 //range check
-                if (absoluteX + pane.getLayoutBounds().getWidth() + paddingInsideWorkSpace > maxWorkSpaceX) {
+                if (absoluteX + block.getWidth() + paddingInsideWorkSpace > maxWorkSpaceX) {
                     absoluteX = lastAbsoluteX;
                 } else if (absoluteX - paddingInsideWorkSpace < 0) {
                     absoluteX = paddingInsideWorkSpace;
                 }
-                if (absoluteY + pane.getLayoutBounds().getHeight() + paddingInsideWorkSpace > maxWorkSpaceY) {
+                if (absoluteY + block.getHeight() + paddingInsideWorkSpace > maxWorkSpaceY) {
                     absoluteY = lastAbsoluteY;
                 } else if (absoluteY - paddingInsideWorkSpace < 0) {
                     absoluteY = paddingInsideWorkSpace;
                 }
-                //availability check
-
-                pane.setTranslateX(absoluteX);
-                pane.setTranslateY(absoluteY);
+                //Existing block check
+                if (block.canMoveTo(absoluteX, absoluteY)) {
+                    //Final translation setting
+                    block.setMinX(absoluteX);
+                    block.setMinY(absoluteY);
+                }
             }
             lastAbsoluteX = absoluteX;
             lastAbsoluteY = absoluteY;
@@ -312,11 +302,11 @@ public class FXMLController implements Initializable {
                 final double finalWidth = width;
                 final double finalHight = hight;
 
-                Shapes.getAllBlocks().stream().forEach(b -> {
-                    if (b.pane.getTranslateX() > translateX
-                            && b.pane.getTranslateY() > translateY
-                            && b.pane.getTranslateX() + b.pane.getWidth() < translateX + finalWidth
-                            && b.pane.getTranslateY() + b.pane.getHeight() < translateY + finalHight) {
+                Blocks.getAllBlocks().stream().forEach(b -> {
+                    if (b.getMinX() > translateX
+                            && b.getMinY() > translateY
+                            && b.getMinX() + b.getWidth() < translateX + finalWidth
+                            && b.getMinY() + b.getHeight() < translateY + finalHight) {
                         b.select();
                     } else {
                         b.unselect();
@@ -332,7 +322,7 @@ public class FXMLController implements Initializable {
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
         if (!mouseOverShape && oldMouseX == event.getSceneX() && oldMouseY == event.getSceneY()) {
-            Shapes.getAllBlocks().forEach(b -> b.unselect());
+            Blocks.unselectAll();
         }
     }
 
@@ -340,7 +330,7 @@ public class FXMLController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         createSelectionRectangle();
         drawLineAroundWorkspace();
-        addNewBlock(Shapes.createStartBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b));
+        addNewBlock(Blocks.createStartBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b));
     }
 
     private void createSelectionRectangle() {
@@ -362,7 +352,7 @@ public class FXMLController implements Initializable {
 
             Path path = FileUtils.getFile("images/landscape.jpg", true).orElse(null);
             Image image = new Image(Files.newInputStream(path));
-            tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+            //tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
             anchorPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.75), CornerRadii.EMPTY, Insets.EMPTY)));
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -41,6 +42,7 @@ public abstract class Block implements Moveable {
     private static final Duration BLOCK_SHADOW_MOVING_DURATION = Duration.millis(150);
     private static final double BLOCK_SHADOW_MOVING_RADIUS = 100;
     private static final Color BLOCK_SHADOW_MOVING_COLOR = Color.valueOf("0095ed");
+    private static final Duration BLOCK_MOVING_DURATION = Duration.millis(50);
 
     private final AnchorPane pane = new AnchorPane();
     private final Shape shape;
@@ -48,6 +50,8 @@ public abstract class Block implements Moveable {
     public final Timeline shadowRemoveTimeline = new Timeline();
     public final Timeline dotsShowTimeline = new Timeline();
     public final Timeline dotsRemoveTimeline = new Timeline();
+    public final Timeline movingXTimeline = new Timeline();
+    public final Timeline movingYTimeline = new Timeline();
     public final List<Circle> dots = new ArrayList<>();
     private boolean selected;
     private static boolean mousePressed;
@@ -83,12 +87,30 @@ public abstract class Block implements Moveable {
 
     @Override
     public void setMinX(double x) {
-        pane.setTranslateX(x);
+        movingXTimeline.getKeyFrames().clear();
+        movingXTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
+                ),
+                new KeyFrame(BLOCK_MOVING_DURATION,
+                        new KeyValue(pane.translateXProperty(), x)
+                ));
+        movingXTimeline.stop();
+        movingXTimeline.play();
     }
 
     @Override
     public void setMinY(double y) {
-        pane.setTranslateY(y);
+        movingYTimeline.getKeyFrames().clear();
+        movingYTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
+                ),
+                new KeyFrame(BLOCK_MOVING_DURATION,
+                        new KeyValue(pane.translateYProperty(), y)
+                ));
+        movingYTimeline.stop();
+        movingYTimeline.play();
     }
 
     @Override
@@ -135,7 +157,7 @@ public abstract class Block implements Moveable {
      * @return
      */
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
-        Bounds newBounds = new BoundingBox(x + 1, y + 1, getWidth() - 2, getHeight() - 2);
+        Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
         return Blocks
                 .getAllBlocks()
                 .stream()
@@ -149,10 +171,6 @@ public abstract class Block implements Moveable {
 
     Shape getShape() {
         return shape;
-    }
-
-    public void addTo(Pane pane) {
-        pane.getChildren().add(this.pane);
     }
 
     private void createDots(Side... dotSides) {
@@ -269,7 +287,13 @@ public abstract class Block implements Moveable {
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
             mousePressed = true;
-            highlight();
+            if (selected) {
+                Blocks.getAllBlocks().stream()
+                        .filter(Block::isSelected)
+                        .forEach(Block::highlight);
+            } else {
+                highlight();
+            }
             oldMouseX = event.getSceneX();
             oldMouseY = event.getSceneY();
         }
@@ -295,7 +319,13 @@ public abstract class Block implements Moveable {
     public void onMouseReleased(MouseEvent event) {
         showDots();
         mousePressed = false;
-        unhighlight();
+        if (selected) {
+            Blocks.getAllBlocks().stream()
+                    .filter(Block::isSelected)
+                    .forEach(Block::unhighlight);
+        } else {
+            unhighlight();
+        }
         if (oldMouseX == event.getSceneX() && oldMouseY == event.getSceneY()) {
             select();
         }
@@ -322,11 +352,24 @@ public abstract class Block implements Moveable {
     private ContextMenu menu = new ContextMenu();
 
     public void onContextMenuRequested(ContextMenuEvent event) {
-        MenuItem deleteItem = new MenuItem("Delete");
-        deleteItem.setOnAction(e -> System.out.println("delete"));
-        MenuItem deleteItem2 = new MenuItem("Delete2");
-        deleteItem2.setOnAction(e -> System.out.println("delete2"));
-        menu = new ContextMenu(deleteItem, deleteItem2);
+        menu.getItems().clear();
+        if (getClass() != Start.class) {
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                if (selected) {
+                    Collection<Block> allBlocks = Blocks.getAllBlocks();
+                    List<Block> toRemove = Blocks.getAllBlocks().stream()
+                            .filter(Block::isSelected)
+                            .filter(b -> b.getClass() != Start.class)
+                            .collect(Collectors.toList());
+                    toRemove.forEach(Block::remove);
+                } else {
+                    remove();
+                }
+            });
+            menu.getItems().add(deleteItem);
+        }
+        //...
         menu.setAutoHide(true);
         menu.show(shape, event.getScreenX(), event.getScreenY());
     }
@@ -389,5 +432,14 @@ public abstract class Block implements Moveable {
         dotsShowTimeline.stop();
         dotsRemoveTimeline.stop();
         dotsRemoveTimeline.play();
+    }
+
+    public void addTo(Pane pane) {
+        pane.getChildren().add(this.pane);
+    }
+
+    public void remove() {
+        Blocks.unregisterBlock(this);
+        ((Pane) pane.getParent()).getChildren().remove(pane);
     }
 }

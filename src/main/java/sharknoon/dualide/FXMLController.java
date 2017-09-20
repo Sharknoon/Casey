@@ -74,7 +74,7 @@ public class FXMLController implements Initializable {
     final Duration zoomDuration = Duration.millis(100);
     final double maxWorkSpaceX = 5000;
     final double maxWorkSpaceY = 3000;
-    final double gridSnappingX = 200;
+    final double gridSnappingX = 100;
     final double gridSnappingY = 100;
     final double paddingInsideWorkSpace = 50;
 
@@ -352,7 +352,7 @@ public class FXMLController implements Initializable {
 
             Path path = FileUtils.getFile("images/landscape.jpg", true).orElse(null);
             Image image = new Image(Files.newInputStream(path));
-            //tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+            tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
             anchorPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.75), CornerRadii.EMPTY, Insets.EMPTY)));
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);

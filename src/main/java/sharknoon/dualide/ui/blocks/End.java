@@ -25,8 +25,8 @@ public class End extends Block {
     private static Supplier<Shape> createEndShapeSupplier() {
         return () -> {
             Rectangle rectangle = new Rectangle(END_WIDTH, END_HIGHT);
-            rectangle.setArcWidth(100);
-            rectangle.setArcHeight(100);
+            rectangle.setArcWidth(END_HIGHT < END_WIDTH ? END_HIGHT : END_WIDTH);
+            rectangle.setArcHeight(END_HIGHT < END_WIDTH ? END_HIGHT : END_WIDTH);
             rectangle.setFill(Color.RED);
             return rectangle;
         };

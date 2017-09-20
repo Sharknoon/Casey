@@ -25,8 +25,8 @@ public class Start extends Block {
     private static Supplier<Shape> createStartShapeSupplier() {
         return () -> {
             Rectangle rectangle = new Rectangle(START_WIDTH, START_HIGHT);
-            rectangle.setArcWidth(100);
-            rectangle.setArcHeight(100);
+            rectangle.setArcWidth(START_HIGHT < START_WIDTH ? START_HIGHT : START_WIDTH);
+            rectangle.setArcHeight(START_HIGHT < START_WIDTH ? START_HIGHT : START_WIDTH);
             rectangle.setFill(Color.GREEN);
             return rectangle;
         };

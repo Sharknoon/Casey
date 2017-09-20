@@ -38,6 +38,10 @@ public class Blocks {
     static void registerBlock(Block block) {
         SHAPE_TO_BLOCK.put(block.getShape(), block);
     }
+    
+    static void unregisterBlock(Block block){
+        SHAPE_TO_BLOCK.remove(block.getShape());
+    }
 
     public static void unselectAll() {
         SHAPE_TO_BLOCK.values().forEach(b -> b.unselect());

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sharknoon.dualide.FXMLController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sharknoon.dualide.ui.FXMLController">
    <center>
       <TabPane fx:id="tabpane" onMouseDragged="#onDrag" onMousePressed="#onMousePressed" onMouseReleased="#onMouseReleased" onScroll="#onScroll" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -33,19 +33,19 @@
          <children>
             <MenuBar>
                <menus>
-                  <Menu mnemonicParsing="false" text="File" />
-                  <Menu mnemonicParsing="false" text="Edit">
-                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#addNewProcess" text="Add Process" />
-                        <MenuItem mnemonicParsing="false" onAction="#addNewDecision" text="Add Decision" />
-                        <MenuItem mnemonicParsing="false" onAction="#addNewEnd" text="Add End" />
-                     </items>
+                  <Menu mnemonicParsing="false" text="IDE">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Settings" />
+                    </items>
                   </Menu>
                </menus>
             </MenuBar>
             <ToolBar>
                <items>
                   <Button mnemonicParsing="false" onAction="#resetZoom" text="Reset" />
+                  <Button fx:id="buttonAddDecision" mnemonicParsing="false" onAction="#addNewDecision" text="add Decision" />
+                  <Button fx:id="buttonAddProcess" mnemonicParsing="false" onAction="#addNewProcess" text="add Process" />
+                  <Button fx:id="buttonAddEnd" mnemonicParsing="false" onAction="#addNewEnd" text="add End" />
                </items>
             </ToolBar>
          </children>

@@ -5,6 +5,7 @@
  */
 package sharknoon.dualide;
 
+import sharknoon.dualide.ui.FXMLController;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;

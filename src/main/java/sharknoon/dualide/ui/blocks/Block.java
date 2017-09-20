@@ -2,7 +2,6 @@ package sharknoon.dualide.ui.blocks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -13,7 +12,6 @@ import javafx.animation.Timeline;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
@@ -52,7 +50,7 @@ public abstract class Block implements Moveable {
     public final Timeline dotsRemoveTimeline = new Timeline();
     public final Timeline movingXTimeline = new Timeline();
     public final Timeline movingYTimeline = new Timeline();
-    public final List<Circle> dots = new ArrayList<>();
+    private final List<Circle> dots = new ArrayList<>();
     private boolean selected;
     private static boolean mousePressed;
     private final Consumer<Boolean> mouseOverShape;
@@ -317,7 +315,9 @@ public abstract class Block implements Moveable {
     }
 
     public void onMouseReleased(MouseEvent event) {
-        showDots();
+        if (shape.contains(event.getX(), event.getY())) {
+            showDots();
+        }
         mousePressed = false;
         if (selected) {
             Blocks.getAllBlocks().stream()

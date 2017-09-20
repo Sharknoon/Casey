@@ -1,13 +1,10 @@
-package sharknoon.dualide;
+package sharknoon.dualide.ui;
 
-import com.sun.scenario.effect.impl.state.LinearConvolveRenderState;
 import java.io.IOException;
 import sharknoon.dualide.ui.blocks.Blocks;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalTime;
-import java.util.Collection;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,19 +13,14 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
 import javafx.scene.control.TabPane;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
@@ -40,11 +32,9 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.blocks.Block;
@@ -62,6 +52,18 @@ public class FXMLController implements Initializable {
 
     @FXML
     private TabPane tabpane;
+
+    @FXML
+    Menu IDE;
+
+    @FXML
+    Button buttonAddDecision;
+
+    @FXML
+    Button buttonAddProcess;
+
+    @FXML
+    Button buttonAddEnd;
 
     double oldMouseX;
     double oldMouseY;

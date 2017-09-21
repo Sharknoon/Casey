@@ -2,6 +2,7 @@ package sharknoon.dualide.ui.blocks;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.scene.Node;
@@ -13,22 +14,22 @@ import javafx.scene.input.MouseEvent;
  */
 public class Blocks {
 
-    public static Block createStartBlock(Consumer<MouseEvent> onMouseDragged,
+    public static Block createStartBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
             Consumer<Boolean> mouseOverShape) {
         return new Start(onMouseDragged, mouseOverShape);
     }
 
-    public static Block createEndBlock(Consumer<MouseEvent> onMouseDragged,
+    public static Block createEndBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
             Consumer<Boolean> mouseOverShape) {
         return new End(onMouseDragged, mouseOverShape);
     }
 
-    public static Block createDecisionBlock(Consumer<MouseEvent> onMouseDragged,
+    public static Block createDecisionBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
             Consumer<Boolean> mouseOverShape) {
         return new Decision(onMouseDragged, mouseOverShape);
     }
 
-    public static Block createProcessBlock(Consumer<MouseEvent> onMouseDragged,
+    public static Block createProcessBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
             Consumer<Boolean> mouseOverShape) {
         return new Process(onMouseDragged, mouseOverShape);
     }

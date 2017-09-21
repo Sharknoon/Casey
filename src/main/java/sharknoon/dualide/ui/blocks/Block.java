@@ -3,6 +3,7 @@ package sharknoon.dualide.ui.blocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public abstract class Block implements Moveable {
      * bottom and right, 4 = top
      */
     public Block(
-            Consumer<MouseEvent> onMouseDragged,
+            BiConsumer<MouseEvent, Boolean> onMouseDragged,
             Consumer<Boolean> mouseOverShape,
             Supplier<Shape> shapeSupplier,
             Side... dots) {
@@ -73,7 +74,7 @@ public abstract class Block implements Moveable {
         this.mouseOverShape = mouseOverShape;
         shape.setOnMousePressed(this::onMousePressed);
         shape.setOnMouseReleased(this::onMouseReleased);
-        shape.setOnMouseDragged(onMouseDragged::accept);
+        shape.setOnMouseDragged(event -> onMouseDragged.accept(event, newDragSwitch));
         shape.setOnContextMenuRequested(this::onContextMenuRequested);
         shape.setOnMouseEntered(this::onMouseEntered);
         shape.setOnMouseExited(this::onMouseExited);
@@ -85,30 +86,32 @@ public abstract class Block implements Moveable {
 
     @Override
     public void setMinX(double x) {
-        movingXTimeline.getKeyFrames().clear();
-        movingXTimeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.ZERO,
-                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
-                ),
-                new KeyFrame(BLOCK_MOVING_DURATION,
-                        new KeyValue(pane.translateXProperty(), x)
-                ));
-        movingXTimeline.stop();
-        movingXTimeline.play();
+//        movingXTimeline.getKeyFrames().clear();
+//        movingXTimeline.getKeyFrames().addAll(
+//                new KeyFrame(Duration.ZERO,
+//                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
+//                ),
+//                new KeyFrame(BLOCK_MOVING_DURATION,
+//                        new KeyValue(pane.translateXProperty(), x)
+//                ));
+//        movingXTimeline.stop();
+//        movingXTimeline.play();
+        pane.setTranslateX(x);
     }
 
     @Override
     public void setMinY(double y) {
-        movingYTimeline.getKeyFrames().clear();
-        movingYTimeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.ZERO,
-                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
-                ),
-                new KeyFrame(BLOCK_MOVING_DURATION,
-                        new KeyValue(pane.translateYProperty(), y)
-                ));
-        movingYTimeline.stop();
-        movingYTimeline.play();
+//        movingYTimeline.getKeyFrames().clear();
+//        movingYTimeline.getKeyFrames().addAll(
+//                new KeyFrame(Duration.ZERO,
+//                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
+//                ),
+//                new KeyFrame(BLOCK_MOVING_DURATION,
+//                        new KeyValue(pane.translateYProperty(), y)
+//                ));
+//        movingYTimeline.stop();
+//        movingYTimeline.play();
+        pane.setTranslateY(y);
     }
 
     @Override
@@ -276,10 +279,13 @@ public abstract class Block implements Moveable {
         }
     }
 
+    boolean newDragSwitch = false;
+
     double oldMouseX;
     double oldMouseY;
 
     public void onMousePressed(MouseEvent event) {
+        newDragSwitch = !newDragSwitch;
         removeDots();
         mouseOverShape.accept(true);
         menu.hide();

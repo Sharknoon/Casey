@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.blocks;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.geometry.Side;
@@ -18,7 +19,7 @@ public class Start extends Block {
     private static final double START_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.BOTTOM};
 
-    public Start(Consumer<MouseEvent> onMouseDragged, Consumer<Boolean> mouseOverShape) {
+    public Start(BiConsumer<MouseEvent, Boolean> onMouseDragged, Consumer<Boolean> mouseOverShape) {
         super(onMouseDragged, mouseOverShape, createStartShapeSupplier(), SIDES);
     }
 

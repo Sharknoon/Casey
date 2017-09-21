@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.blocks;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.geometry.Side;
@@ -18,7 +19,7 @@ public class Decision extends Block {
     private static final double DECISION_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.TOP, Side.BOTTOM, Side.RIGHT};
 
-    public Decision(Consumer<MouseEvent> onMouseDragged, Consumer<Boolean> mouseOverShape) {
+    public Decision(BiConsumer<MouseEvent, Boolean> onMouseDragged, Consumer<Boolean> mouseOverShape) {
         super(onMouseDragged, mouseOverShape, createDecisionShapeSupplier(), SIDES);
     }
 

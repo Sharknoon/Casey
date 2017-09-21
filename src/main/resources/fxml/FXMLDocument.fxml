@@ -35,7 +35,7 @@
                <menus>
                   <Menu mnemonicParsing="false" text="IDE">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Settings" />
+                      <MenuItem mnemonicParsing="false" onAction="#openSettings" text="Settings" />
                     </items>
                   </Menu>
                </menus>

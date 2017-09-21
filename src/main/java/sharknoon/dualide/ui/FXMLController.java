@@ -5,6 +5,8 @@ import sharknoon.dualide.ui.blocks.Blocks;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,11 +14,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.TabPane;
@@ -36,10 +41,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.blocks.Block;
 import sharknoon.dualide.ui.blocks.BlockGroup;
+import sharknoon.dualide.ui.settings.FXMLSettingsSceneController;
 import sharknoon.dualide.utils.settings.FileUtils;
+import sharknoon.dualide.utils.settings.Props;
 
 /**
  *
@@ -104,30 +112,81 @@ public class FXMLController implements Initializable {
         block.setMinY(paddingInsideWorkSpace);
     }
 
-    double lastAbsoluteX = -1;
-    double lastAbsoluteY = -1;
+    @FXML
+    private void openSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            Parent root = loader.load(getClass().getResource("/fxml/FXMLSettingsScene.fxml").openStream());
+            FXMLSettingsSceneController controller = loader.getController();
 
-    public void onMouseDraggedFromBlock(MouseEvent event) {
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("/styles/fxml.css");
+
+            Stage settingsStage = new Stage();
+            settingsStage.setTitle(Props.get("name").orElse("Unnamed Dual Universe IDE"));
+            settingsStage.setScene(scene);
+            settingsStage.setMaximized(true);
+            settingsStage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    Map<Block, Integer> lastX = new HashMap<>();
+    Map<Block, Integer> lastY = new HashMap<>();
+    boolean lastDragSwitch = false;
+
+    public void onMouseDraggedFromBlock(MouseEvent event, boolean newDragSwitch) {
         if (event.isPrimaryButtonDown()) {
-            Node node = ((Node) event.getSource());
-            Block block = Blocks.getBlock(node);
-            Point2D localCoordinates = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
-            double absoluteX = localCoordinates.getX() - paddingInsideWorkSpace;
-            double absoluteY = localCoordinates.getY() - paddingInsideWorkSpace;
+            Block block = Blocks.getBlock((Node) event.getSource());
+            Point2D localMouse = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
 
-            //snapping
-            absoluteX -= absoluteX % gridSnappingX;
-            absoluteY -= absoluteY % gridSnappingY;
-            absoluteX += paddingInsideWorkSpace;
-            absoluteY += paddingInsideWorkSpace;
+            double mouseX = localMouse.getX();
+            double mouseY = localMouse.getY();
 
-            if (absoluteX == lastAbsoluteX && absoluteY == lastAbsoluteY) {
-                return;//much better performance
+            double mouseXWithoutPadding = mouseX - paddingInsideWorkSpace;
+            double mouseYWithoutPadding = mouseY - paddingInsideWorkSpace;
+
+            int mouseGridIndexX = (int) (mouseXWithoutPadding / gridSnappingX);
+            int mouseGridIndexY = (int) (mouseYWithoutPadding / gridSnappingY);
+
+            if (newDragSwitch != lastDragSwitch || !lastX.containsKey(block)) {
+                lastX.put(block, mouseGridIndexX);
+                lastDragSwitch = newDragSwitch;
+            }
+            if (newDragSwitch != lastDragSwitch || !lastY.containsKey(block)) {
+                lastY.put(block, mouseGridIndexY);
+                lastDragSwitch = newDragSwitch;
+            }
+
+            int lastMouseGridIndexX = lastX.get(block);
+            int lastMouseGridIndexY = lastY.get(block);
+
+            if (mouseGridIndexX == lastMouseGridIndexX && mouseGridIndexY == lastMouseGridIndexY) {
+                return;
+            }
+            lastX.put(block, mouseGridIndexX);
+            lastY.put(block, mouseGridIndexY);
+
+            double deltaX = 0;
+            double deltaY = 0;
+
+            if (true) {
+                return;
+            }
+            
+            if (mouseGridIndexX > lastMouseGridIndexX) {
+                deltaX = gridSnappingX;
+            } else if (mouseGridIndexX < lastMouseGridIndexX) {
+                deltaX = -gridSnappingX;
+            }
+            if (mouseGridIndexY > lastMouseGridIndexY) {
+                deltaY = gridSnappingY;
+            } else if (mouseGridIndexY < lastMouseGridIndexY) {
+                deltaY = -gridSnappingY;
             }
 
             if (block.isSelected()) {//multi-selection
-                double deltaX = absoluteX - block.getMinX();
-                double deltaY = absoluteY - block.getMinY();
                 //range check
                 BlockGroup selectedBlocks = Blocks.getSelectedBlocks();
                 Bounds bounds = selectedBlocks.getBounds();
@@ -150,16 +209,20 @@ public class FXMLController implements Initializable {
                 }
             } else {//single selection
                 //range check
-                if (absoluteX + block.getWidth() + paddingInsideWorkSpace > maxWorkSpaceX) {
-                    absoluteX = lastAbsoluteX;
-                } else if (absoluteX - paddingInsideWorkSpace < 0) {
-                    absoluteX = paddingInsideWorkSpace;
+                if (block.getMaxX() + deltaX + paddingInsideWorkSpace > maxWorkSpaceX) {
+                    deltaX = 0;
+                } else if (block.getMinX() + deltaX - paddingInsideWorkSpace < 0) {
+                    deltaX = 0;
                 }
-                if (absoluteY + block.getHeight() + paddingInsideWorkSpace > maxWorkSpaceY) {
-                    absoluteY = lastAbsoluteY;
-                } else if (absoluteY - paddingInsideWorkSpace < 0) {
-                    absoluteY = paddingInsideWorkSpace;
+                if (block.getMaxY() + deltaY + paddingInsideWorkSpace > maxWorkSpaceY) {
+                    deltaY = 0;
+                } else if (block.getMinY() + deltaY - paddingInsideWorkSpace < 0) {
+                    deltaY = 0;
                 }
+
+                double absoluteX = block.getMinX() + deltaX;
+                double absoluteY = block.getMinY() + deltaY;
+
                 //Existing block check
                 if (block.canMoveTo(absoluteX, absoluteY)) {
                     //Final translation setting
@@ -167,8 +230,6 @@ public class FXMLController implements Initializable {
                     block.setMinY(absoluteY);
                 }
             }
-            lastAbsoluteX = absoluteX;
-            lastAbsoluteY = absoluteY;
         }
     }
 
@@ -354,7 +415,7 @@ public class FXMLController implements Initializable {
 
             Path path = FileUtils.getFile("images/landscape.jpg", true).orElse(null);
             Image image = new Image(Files.newInputStream(path));
-            tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+            //tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
             anchorPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.75), CornerRadii.EMPTY, Insets.EMPTY)));
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);

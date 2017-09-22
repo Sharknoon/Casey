@@ -191,6 +191,34 @@ public abstract class Block implements Moveable {
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
     }
 
+    @Override
+    public boolean canMoveToX(double x) {
+        return canMoveToX(x, true);
+    }
+
+    public boolean canMoveToX(double x, boolean ignoreSelection) {
+        double x2 = x + getWidth();
+        return Blocks
+                .getAllBlocks()
+                .stream()
+                .filter(b -> ignoreSelection || !b.isSelected())
+                .noneMatch(b -> b != this && (x2 < b.getMinX() || x > b.getMaxX()));
+    }
+
+    @Override
+    public boolean canMoveToY(double y) {
+        return canMoveToY(y, true);
+    }
+
+    public boolean canMoveToY(double y, boolean ignoreSelection) {
+        double y2 = y + getHeight();
+        return Blocks
+                .getAllBlocks()
+                .stream()
+                .filter(b -> ignoreSelection || !b.isSelected())
+                .noneMatch(b -> b != this && (y2 < b.getMinY() || y > b.getMaxY()));
+    }
+
     public boolean isSelected() {
         return selected;
     }

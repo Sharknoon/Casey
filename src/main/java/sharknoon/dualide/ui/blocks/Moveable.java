@@ -31,6 +31,10 @@ public interface Moveable {
 
     public boolean canMoveTo(double x, double y);
 
+    public boolean canMoveToX(double x);
+
+    public boolean canMoveToY(double y);
+
     public default Bounds getBounds() {
         return new BoundingBox(getMinX(), getMinY(), getWidth(), getHeight());
     }

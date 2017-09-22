@@ -223,27 +223,40 @@ public class FXMLController implements Initializable {
             lastY.put(block, currentMouseGridY);
 
             if (block.isSelected()) {
-                HashMap<Shape, Double[]> futureShadows = new HashMap<>();
-                boolean allowed = Blocks.getSelectedBlocks().stream()
+                HashMap<Shape, Double> futureXShadows = new HashMap<>();
+                HashMap<Shape, Double> futureYShadows = new HashMap<>();
+                boolean xAllowed = Blocks.getSelectedBlocks().stream()
                         .allMatch(b -> {
                             Shape shadow = b.getShadow();
                             double newX = b.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
-                            double newY = b.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
-                            futureShadows.put(shadow, new Double[]{newX, newY});
-                            return isInsideWorkspace(b, newX, newY) && b.canMoveTo(newX, newY, true);
+                            futureXShadows.put(shadow, newX);
+                            return isXInsideWorkspace(b, newX) && b.canMoveToX(newX, true);
                         });
-                if (allowed) {
-                    futureShadows.forEach((s, c) -> {
-                        s.setTranslateX(c[0]);
-                        s.setTranslateY(c[1]);
+                if (xAllowed) {
+                    futureXShadows.forEach((s, n) -> {
+                        s.setTranslateX(n);
+                    });
+                }
+                boolean yAllowed = Blocks.getSelectedBlocks().stream()
+                        .allMatch(b -> {
+                            Shape shadow = b.getShadow();
+                            double newY = b.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
+                            futureYShadows.put(shadow, newY);
+                            return isYInsideWorkspace(b, newY) && b.canMoveToY(newY, true);
+                        });
+                if (yAllowed) {
+                    futureYShadows.forEach((s, n) -> {
+                        s.setTranslateY(n);
                     });
                 }
             } else {
                 Shape shadow = block.getShadow();
                 double newX = block.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
                 double newY = block.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
-                if (isInsideWorkspace(block, newX, newY) && block.canMoveTo(newX, newY)) {
+                if (isXInsideWorkspace(block, newX) && block.canMoveToX(newX)) {
                     shadow.setTranslateX(newX);
+                }
+                if (isYInsideWorkspace(block, newY) && block.canMoveToY(newY)) {
                     shadow.setTranslateY(newY);
                 }
             }
@@ -274,12 +287,17 @@ public class FXMLController implements Initializable {
         }
     }
 
-    private boolean isInsideWorkspace(Block b, double x, double y) {
+    private boolean isXInsideWorkspace(Block b, double x) {
         if (x < 0 + paddingInsideWorkSpace) {
             return false;
         } else if (x + b.getWidth() > maxWorkSpaceX - paddingInsideWorkSpace) {
             return false;
-        } else if (y < 0 + paddingInsideWorkSpace) {
+        }
+        return true;
+    }
+
+    private boolean isYInsideWorkspace(Block b, double y) {
+        if (y < 0 + paddingInsideWorkSpace) {
             return false;
         } else if (y + b.getHeight() > maxWorkSpaceY - paddingInsideWorkSpace) {
             return false;

@@ -2,11 +2,9 @@ package sharknoon.dualide.ui.blocks;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
+import sharknoon.dualide.ui.BlockEventHandler;
 
 /**
  *
@@ -14,24 +12,20 @@ import javafx.scene.input.MouseEvent;
  */
 public class Blocks {
 
-    public static Block createStartBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
-            Consumer<Boolean> mouseOverShape) {
-        return new Start(onMouseDragged, mouseOverShape);
+    public static Block createStartBlock(BlockEventHandler handler) {
+        return new Start(handler);
     }
 
-    public static Block createEndBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
-            Consumer<Boolean> mouseOverShape) {
-        return new End(onMouseDragged, mouseOverShape);
+    public static Block createEndBlock(BlockEventHandler handler) {
+        return new End(handler);
     }
 
-    public static Block createDecisionBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
-            Consumer<Boolean> mouseOverShape) {
-        return new Decision(onMouseDragged, mouseOverShape);
+    public static Block createDecisionBlock(BlockEventHandler handler) {
+        return new Decision(handler);
     }
 
-    public static Block createProcessBlock(BiConsumer<MouseEvent, Boolean> onMouseDragged,
-            Consumer<Boolean> mouseOverShape) {
-        return new Process(onMouseDragged, mouseOverShape);
+    public static Block createProcessBlock(BlockEventHandler handler) {
+        return new Process(handler);
     }
 
     private static final HashMap<Node, Block> SHAPE_TO_BLOCK = new HashMap<>();
@@ -39,8 +33,8 @@ public class Blocks {
     static void registerBlock(Block block) {
         SHAPE_TO_BLOCK.put(block.getShape(), block);
     }
-    
-    static void unregisterBlock(Block block){
+
+    static void unregisterBlock(Block block) {
         SHAPE_TO_BLOCK.remove(block.getShape());
     }
 
@@ -56,7 +50,15 @@ public class Blocks {
         return SHAPE_TO_BLOCK.values();
     }
 
-    public static BlockGroup getSelectedBlocks() {
+    public static Collection<Block> getSelectedBlocks() {
+        return SHAPE_TO_BLOCK
+                .values()
+                .stream()
+                .filter(Block::isSelected)
+                .collect(Collectors.toList());
+    }
+
+    public static BlockGroup getSelectedBlocksGroup() {
         return new BlockGroup(SHAPE_TO_BLOCK
                 .values()
                 .stream()

@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import sharknoon.dualide.ui.BlockEventHandler;
 
 /**
  *
@@ -19,8 +20,8 @@ public class Process extends Block {
     private static final double PROCESS_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.TOP, Side.BOTTOM};
 
-    public Process(BiConsumer<MouseEvent, Boolean> onMouseDragged, Consumer<Boolean> mouseOverShape) {
-        super(onMouseDragged, mouseOverShape, createProcessShapeSupplier(), SIDES);
+    public Process(BlockEventHandler handler) {
+        super(handler, createProcessShapeSupplier(), SIDES);
     }
 
     private static Supplier<Shape> createProcessShapeSupplier() {

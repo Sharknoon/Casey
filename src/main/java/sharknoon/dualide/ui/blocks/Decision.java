@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
+import sharknoon.dualide.ui.BlockEventHandler;
 
 /**
  *
@@ -19,8 +20,8 @@ public class Decision extends Block {
     private static final double DECISION_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.TOP, Side.BOTTOM, Side.RIGHT};
 
-    public Decision(BiConsumer<MouseEvent, Boolean> onMouseDragged, Consumer<Boolean> mouseOverShape) {
-        super(onMouseDragged, mouseOverShape, createDecisionShapeSupplier(), SIDES);
+    public Decision(BlockEventHandler handler) {
+        super(handler, createDecisionShapeSupplier(), SIDES);
     }
 
     private static Supplier<Shape> createDecisionShapeSupplier() {

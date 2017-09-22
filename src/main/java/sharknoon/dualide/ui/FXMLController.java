@@ -5,6 +5,7 @@ import sharknoon.dualide.ui.blocks.Blocks;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -40,6 +41,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -90,26 +92,40 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void addNewProcess() {
-        Block proc = Blocks.createProcessBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block proc = Blocks.createProcessBlock(getHandler());
         addNewBlock(proc);
     }
 
     @FXML
     private void addNewDecision() {
-        Block dec = Blocks.createDecisionBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block dec = Blocks.createDecisionBlock(getHandler());
         addNewBlock(dec);
     }
 
     @FXML
     private void addNewEnd() {
-        Block end = Blocks.createEndBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b);
+        Block end = Blocks.createEndBlock(getHandler());
         addNewBlock(end);
     }
 
+    private BlockEventHandler handler;
+
+    private BlockEventHandler getHandler() {
+        if (handler == null) {
+            handler = new BlockEventHandler(
+                    this::onMousePressedFromBlock,
+                    this::onMouseReleasedFromBlock,
+                    this::onMouseDraggedFromBlock,
+                    this::onMouseEnteredFromBlock,
+                    this::onMouseExitedFromBlock);
+        }
+        return handler;
+    }
+
     private void addNewBlock(Block block) {
-        block.addTo(anchorPane);
         block.setMinX(paddingInsideWorkSpace);
         block.setMinY(paddingInsideWorkSpace);
+        block.addTo(anchorPane);
     }
 
     @FXML
@@ -132,105 +148,143 @@ public class FXMLController implements Initializable {
         }
     }
 
+    int startMouseGridX;
+    int startMouseGridY;
+
+    public void onMousePressedFromBlock(MouseEvent event) {
+        mouseOverShape = true;
+        lastDragSwitch = !lastDragSwitch;
+        Block block = Blocks.getBlock((Node) event.getSource());
+        if (block.isSelected()) {
+            Blocks.getSelectedBlocks().forEach(b -> {
+                b.tmpX = b.getMinX();
+                b.tmpY = b.getMinY();
+            });
+        } else {
+            block.tmpX = block.getMinX();
+            block.tmpY = block.getMinY();
+        }
+        Point2D localMouseStart = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+        startMouseGridX = (int) ((localMouseStart.getX() - paddingInsideWorkSpace) / gridSnappingX);
+        startMouseGridY = (int) ((localMouseStart.getY() - paddingInsideWorkSpace) / gridSnappingY);
+    }
+
     Map<Block, Integer> lastX = new HashMap<>();
     Map<Block, Integer> lastY = new HashMap<>();
     boolean lastDragSwitch = false;
+    boolean currentDragSwitch = true;
 
-    public void onMouseDraggedFromBlock(MouseEvent event, boolean newDragSwitch) {
+    public void onMouseDraggedFromBlock(MouseEvent event) {
         if (event.isPrimaryButtonDown()) {
             Block block = Blocks.getBlock((Node) event.getSource());
             Point2D localMouse = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+            Point2D localOldMouse = anchorPane.sceneToLocal(oldMouseX, oldMouseY);
 
             double mouseX = localMouse.getX();
             double mouseY = localMouse.getY();
 
+            //dragging part
+            double deltaX = mouseX - localOldMouse.getX();
+            double deltaY = mouseY - localOldMouse.getY();
+
+            if (block.isSelected()) {
+                Blocks.getSelectedBlocksGroup().getBlocks().forEach(b -> {
+                    b.setMinX(b.tmpX + deltaX);
+                    b.setMinY(b.tmpY + deltaY);
+                });
+            } else {
+                block.setMinX(block.tmpX + deltaX);
+                block.setMinY(block.tmpY + deltaY);
+            }
+
+            //shadow part
             double mouseXWithoutPadding = mouseX - paddingInsideWorkSpace;
             double mouseYWithoutPadding = mouseY - paddingInsideWorkSpace;
 
-            int mouseGridIndexX = (int) (mouseXWithoutPadding / gridSnappingX);
-            int mouseGridIndexY = (int) (mouseYWithoutPadding / gridSnappingY);
+            int currentMouseGridX = (int) (mouseXWithoutPadding / gridSnappingX);
+            int currentMouseGridY = (int) (mouseYWithoutPadding / gridSnappingY);
 
-            if (newDragSwitch != lastDragSwitch || !lastX.containsKey(block)) {
-                lastX.put(block, mouseGridIndexX);
-                lastDragSwitch = newDragSwitch;
+            if (currentDragSwitch != lastDragSwitch || !lastX.containsKey(block)) {
+                lastX.put(block, currentMouseGridX);
+                lastDragSwitch = currentDragSwitch;
             }
-            if (newDragSwitch != lastDragSwitch || !lastY.containsKey(block)) {
-                lastY.put(block, mouseGridIndexY);
-                lastDragSwitch = newDragSwitch;
+            if (currentDragSwitch != lastDragSwitch || !lastY.containsKey(block)) {
+                lastY.put(block, currentMouseGridY);
+                lastDragSwitch = currentDragSwitch;
             }
 
-            int lastMouseGridIndexX = lastX.get(block);
-            int lastMouseGridIndexY = lastY.get(block);
+            int lastMouseGridX = lastX.get(block);
+            int lastMouseGridY = lastY.get(block);
 
-            if (mouseGridIndexX == lastMouseGridIndexX && mouseGridIndexY == lastMouseGridIndexY) {
+            if (currentMouseGridX == lastMouseGridX && currentMouseGridY == lastMouseGridY) {
                 return;
             }
-            lastX.put(block, mouseGridIndexX);
-            lastY.put(block, mouseGridIndexY);
+            lastX.put(block, currentMouseGridX);
+            lastY.put(block, currentMouseGridY);
 
-            double deltaX = 0;
-            double deltaY = 0;
-
-            if (true) {
-                return;
-            }
-            
-            if (mouseGridIndexX > lastMouseGridIndexX) {
-                deltaX = gridSnappingX;
-            } else if (mouseGridIndexX < lastMouseGridIndexX) {
-                deltaX = -gridSnappingX;
-            }
-            if (mouseGridIndexY > lastMouseGridIndexY) {
-                deltaY = gridSnappingY;
-            } else if (mouseGridIndexY < lastMouseGridIndexY) {
-                deltaY = -gridSnappingY;
-            }
-
-            if (block.isSelected()) {//multi-selection
-                //range check
-                BlockGroup selectedBlocks = Blocks.getSelectedBlocks();
-                Bounds bounds = selectedBlocks.getBounds();
-                if (bounds.getMinX() + deltaX < paddingInsideWorkSpace
-                        || bounds.getMaxX() + deltaX > maxWorkSpaceX - paddingInsideWorkSpace) {
-                    deltaX = 0;
-                }
-                if (bounds.getMinY() + deltaY < paddingInsideWorkSpace
-                        || bounds.getMaxY() + deltaY > maxWorkSpaceY - paddingInsideWorkSpace) {
-                    deltaY = 0;
-                }
-                final double finalDeltaX = deltaX;
-                final double finalDeltaY = deltaY;
-                //Existing block check
-                if (selectedBlocks.canMoveTo(deltaX, deltaY)) {
-                    selectedBlocks.getBlocks().forEach(b -> {
-                        b.setMinX(b.getMinX() + finalDeltaX);
-                        b.setMinY(b.getMinY() + finalDeltaY);
+            if (block.isSelected()) {
+                HashMap<Shape, Double[]> futureShadows = new HashMap<>();
+                boolean allowed = Blocks.getSelectedBlocks().stream()
+                        .allMatch(b -> {
+                            Shape shadow = b.getShadow();
+                            double newX = b.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
+                            double newY = b.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
+                            futureShadows.put(shadow, new Double[]{newX, newY});
+                            return isInsideWorkspace(b, newX, newY) && b.canMoveTo(newX, newY, true);
+                        });
+                if (allowed) {
+                    futureShadows.forEach((s, c) -> {
+                        s.setTranslateX(c[0]);
+                        s.setTranslateY(c[1]);
                     });
                 }
-            } else {//single selection
-                //range check
-                if (block.getMaxX() + deltaX + paddingInsideWorkSpace > maxWorkSpaceX) {
-                    deltaX = 0;
-                } else if (block.getMinX() + deltaX - paddingInsideWorkSpace < 0) {
-                    deltaX = 0;
-                }
-                if (block.getMaxY() + deltaY + paddingInsideWorkSpace > maxWorkSpaceY) {
-                    deltaY = 0;
-                } else if (block.getMinY() + deltaY - paddingInsideWorkSpace < 0) {
-                    deltaY = 0;
-                }
-
-                double absoluteX = block.getMinX() + deltaX;
-                double absoluteY = block.getMinY() + deltaY;
-
-                //Existing block check
-                if (block.canMoveTo(absoluteX, absoluteY)) {
-                    //Final translation setting
-                    block.setMinX(absoluteX);
-                    block.setMinY(absoluteY);
+            } else {
+                Shape shadow = block.getShadow();
+                double newX = block.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
+                double newY = block.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
+                if (isInsideWorkspace(block, newX, newY) && block.canMoveTo(newX, newY)) {
+                    shadow.setTranslateX(newX);
+                    shadow.setTranslateY(newY);
                 }
             }
         }
+    }
+
+    public void onMouseReleasedFromBlock(MouseEvent event) {
+        Block block = Blocks.getBlock((Node) event.getSource());
+        if (block.isSelected()) {
+            Blocks.getSelectedBlocks().forEach(b -> {
+                b.setMinXAnimated(b.getShadow().getTranslateX());
+                b.setMinYAnimated(b.getShadow().getTranslateY());
+            });
+        } else {
+            System.out.println(block.getShadow().getTranslateX());
+            block.setMinXAnimated(block.getShadow().getTranslateX());
+            block.setMinYAnimated(block.getShadow().getTranslateY());
+        }
+    }
+
+    public void onMouseEnteredFromBlock(MouseEvent event) {
+        mouseOverShape = true;
+    }
+
+    public void onMouseExitedFromBlock(MouseEvent event) {
+        if (!event.isPrimaryButtonDown()) {
+            mouseOverShape = false;
+        }
+    }
+
+    private boolean isInsideWorkspace(Block b, double x, double y) {
+        if (x < 0 + paddingInsideWorkSpace) {
+            return false;
+        } else if (x + b.getWidth() > maxWorkSpaceX - paddingInsideWorkSpace) {
+            return false;
+        } else if (y < 0 + paddingInsideWorkSpace) {
+            return false;
+        } else if (y + b.getHeight() > maxWorkSpaceY - paddingInsideWorkSpace) {
+            return false;
+        }
+        return true;
     }
 
     @FXML
@@ -393,7 +447,7 @@ public class FXMLController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         createSelectionRectangle();
         drawLineAroundWorkspace();
-        addNewBlock(Blocks.createStartBlock(this::onMouseDraggedFromBlock, b -> mouseOverShape = b));
+        addNewBlock(Blocks.createStartBlock(getHandler()));
     }
 
     private void createSelectionRectangle() {

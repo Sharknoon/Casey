@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import sharknoon.dualide.ui.BlockEventHandler;
 
 /**
  *
@@ -19,8 +20,8 @@ public class Start extends Block {
     private static final double START_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.BOTTOM};
 
-    public Start(BiConsumer<MouseEvent, Boolean> onMouseDragged, Consumer<Boolean> mouseOverShape) {
-        super(onMouseDragged, mouseOverShape, createStartShapeSupplier(), SIDES);
+    public Start(BlockEventHandler handler) {
+        super(handler, createStartShapeSupplier(), SIDES);
     }
 
     private static Supplier<Shape> createStartShapeSupplier() {

@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.blocks;
 
+import java.awt.Paint;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,6 +26,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
+import sharknoon.dualide.ui.BlockEventHandler;
 
 /**
  *
@@ -42,9 +44,12 @@ public abstract class Block implements Moveable {
     private static final double BLOCK_SHADOW_MOVING_RADIUS = 100;
     private static final Color BLOCK_SHADOW_MOVING_COLOR = Color.valueOf("0095ed");
     private static final Duration BLOCK_MOVING_DURATION = Duration.millis(50);
+    private static final Color SHADOW_STROKE_COLOR = Color.GREY;
+    private static final double SHADOW_STROKE_WIDTH = 5;
 
     private final AnchorPane pane = new AnchorPane();
-    private final Shape shape;
+    private final Shape blockShape;
+    private final Shape shadowShape;
     public final Timeline shadowShowTimeline = new Timeline();
     public final Timeline shadowRemoveTimeline = new Timeline();
     public final Timeline dotsShowTimeline = new Timeline();
@@ -53,75 +58,95 @@ public abstract class Block implements Moveable {
     public final Timeline movingYTimeline = new Timeline();
     private final List<Circle> dots = new ArrayList<>();
     private boolean selected;
-    private static boolean mousePressed;
-    private final Consumer<Boolean> mouseOverShape;
+    private final BlockEventHandler handler;
+    public double tmpX;
+    public double tmpY;
 
     /**
      *
+     * @param handler
      * @param shapeSupplier
-     * @param onMouseDragged
-     * @param mouseOverShape
      * @param dots 0 = bottom, 1 = top and bottom, 2 = all sides, 3 = top and
      * bottom and right, 4 = top
      */
     public Block(
-            BiConsumer<MouseEvent, Boolean> onMouseDragged,
-            Consumer<Boolean> mouseOverShape,
+            BlockEventHandler handler,
             Supplier<Shape> shapeSupplier,
             Side... dots) {
-        this.shape = shapeSupplier.get();
-        pane.getChildren().add(shape);
-        this.mouseOverShape = mouseOverShape;
-        shape.setOnMousePressed(this::onMousePressed);
-        shape.setOnMouseReleased(this::onMouseReleased);
-        shape.setOnMouseDragged(event -> onMouseDragged.accept(event, newDragSwitch));
-        shape.setOnContextMenuRequested(this::onContextMenuRequested);
-        shape.setOnMouseEntered(this::onMouseEntered);
-        shape.setOnMouseExited(this::onMouseExited);
-        setStrokeProperties(shape);
-        addDropShadowEffect(shape);
+        this.blockShape = shapeSupplier.get();
+        pane.getChildren().add(blockShape);
+        this.shadowShape = createShadow(blockShape);
+        this.handler = handler;
+        blockShape.setOnMousePressed(this::onMousePressed);
+        blockShape.setOnMouseReleased(this::onMouseReleased);
+        blockShape.setOnMouseDragged(event -> handler.onMouseDragged.accept(event));
+        blockShape.setOnContextMenuRequested(this::onContextMenuRequested);
+        blockShape.setOnMouseEntered(this::onMouseEntered);
+        blockShape.setOnMouseExited(this::onMouseExited);
+        setStrokeProperties(blockShape);
+        addDropShadowEffect(blockShape);
         createDots(dots);
         Blocks.registerBlock(this);
     }
 
+    private static Shape createShadow(Shape original) {
+        Shape shadow = Shape.union(original, original);
+        shadow.setFill(Color.rgb(0, 0, 0, 0));
+        shadow.setStroke(SHADOW_STROKE_COLOR);
+        shadow.setStrokeWidth(SHADOW_STROKE_WIDTH);
+        shadow.setStrokeType(StrokeType.INSIDE);
+        shadow.setEffect(null);
+        return shadow;
+    }
+
+    public Shape getShadow() {
+        return shadowShape;
+    }
+
     @Override
     public void setMinX(double x) {
-//        movingXTimeline.getKeyFrames().clear();
-//        movingXTimeline.getKeyFrames().addAll(
-//                new KeyFrame(Duration.ZERO,
-//                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
-//                ),
-//                new KeyFrame(BLOCK_MOVING_DURATION,
-//                        new KeyValue(pane.translateXProperty(), x)
-//                ));
-//        movingXTimeline.stop();
-//        movingXTimeline.play();
         pane.setTranslateX(x);
+    }
+
+    public void setMinXAnimated(double x) {
+        movingXTimeline.getKeyFrames().clear();
+        movingXTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
+                ),
+                new KeyFrame(BLOCK_MOVING_DURATION,
+                        new KeyValue(pane.translateXProperty(), x)
+                ));
+        movingXTimeline.stop();
+        movingXTimeline.play();
     }
 
     @Override
     public void setMinY(double y) {
-//        movingYTimeline.getKeyFrames().clear();
-//        movingYTimeline.getKeyFrames().addAll(
-//                new KeyFrame(Duration.ZERO,
-//                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
-//                ),
-//                new KeyFrame(BLOCK_MOVING_DURATION,
-//                        new KeyValue(pane.translateYProperty(), y)
-//                ));
-//        movingYTimeline.stop();
-//        movingYTimeline.play();
         pane.setTranslateY(y);
+    }
+
+    public void setMinYAnimated(double y) {
+        movingYTimeline.getKeyFrames().clear();
+        movingYTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
+                ),
+                new KeyFrame(BLOCK_MOVING_DURATION,
+                        new KeyValue(pane.translateYProperty(), y)
+                ));
+        movingYTimeline.stop();
+        movingYTimeline.play();
     }
 
     @Override
     public double getWidth() {
-        return shape.getLayoutBounds().getWidth();
+        return blockShape.getLayoutBounds().getWidth();
     }
 
     @Override
     public double getHeight() {
-        return shape.getLayoutBounds().getHeight();
+        return blockShape.getLayoutBounds().getHeight();
     }
 
     @Override
@@ -171,7 +196,7 @@ public abstract class Block implements Moveable {
     }
 
     Shape getShape() {
-        return shape;
+        return blockShape;
     }
 
     private void createDots(Side... dotSides) {
@@ -185,22 +210,22 @@ public abstract class Block implements Moveable {
             dot.setEffect(shadow);
             switch (dotSide) {
                 case BOTTOM:
-                    dot.setCenterX(shape.getLayoutBounds().getWidth() / 2);
-                    dot.setCenterY(shape.getLayoutBounds().getHeight());
+                    dot.setCenterX(blockShape.getLayoutBounds().getWidth() / 2);
+                    dot.setCenterY(blockShape.getLayoutBounds().getHeight());
                     dot.setTranslateY(-DOTS_MOVING_DISTANCE);
                     break;
                 case LEFT:
                     dot.setCenterX(0);
-                    dot.setCenterY(shape.getLayoutBounds().getHeight() / 2);
+                    dot.setCenterY(blockShape.getLayoutBounds().getHeight() / 2);
                     dot.setTranslateX(DOTS_MOVING_DISTANCE);
                     break;
                 case RIGHT:
-                    dot.setCenterX(shape.getLayoutBounds().getWidth());
-                    dot.setCenterY(shape.getLayoutBounds().getHeight() / 2);
+                    dot.setCenterX(blockShape.getLayoutBounds().getWidth());
+                    dot.setCenterY(blockShape.getLayoutBounds().getHeight() / 2);
                     dot.setTranslateX(-DOTS_MOVING_DISTANCE);
                     break;
                 case TOP:
-                    dot.setCenterX(shape.getLayoutBounds().getWidth() / 2);
+                    dot.setCenterX(blockShape.getLayoutBounds().getWidth() / 2);
                     dot.setCenterY(0);
                     dot.setTranslateY(DOTS_MOVING_DISTANCE);
                     break;
@@ -225,8 +250,8 @@ public abstract class Block implements Moveable {
     }
 
     private void onMouseEntered(MouseEvent event) {
-        mouseOverShape.accept(true);
-        if (!mousePressed) {
+        handler.onMouseEntered.accept(event);
+        if (!event.isPrimaryButtonDown()) {
             showDots();
         }
     }
@@ -235,7 +260,7 @@ public abstract class Block implements Moveable {
         if (!selected) {
             selected = true;
             shadowShowTimeline.getKeyFrames().clear();
-            DropShadow dropShadow = (DropShadow) shape.getEffect();
+            DropShadow dropShadow = (DropShadow) blockShape.getEffect();
             shadowShowTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -252,16 +277,14 @@ public abstract class Block implements Moveable {
     }
 
     private void onMouseExited(MouseEvent event) {
+        handler.onMouseExited.accept(event);
         removeDots();
-        if (!mousePressed) {
-            mouseOverShape.accept(false);
-        }
     }
 
     public void unselect() {
         if (selected) {
             selected = false;
-            DropShadow dropShadow = (DropShadow) shape.getEffect();
+            DropShadow dropShadow = (DropShadow) blockShape.getEffect();
             shadowRemoveTimeline.getKeyFrames().clear();
             shadowRemoveTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
@@ -279,18 +302,14 @@ public abstract class Block implements Moveable {
         }
     }
 
-    boolean newDragSwitch = false;
-
     double oldMouseX;
     double oldMouseY;
 
     public void onMousePressed(MouseEvent event) {
-        newDragSwitch = !newDragSwitch;
+        handler.onMousePressed.accept(event);
         removeDots();
-        mouseOverShape.accept(true);
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
-            mousePressed = true;
             if (selected) {
                 Blocks.getAllBlocks().stream()
                         .filter(Block::isSelected)
@@ -305,7 +324,7 @@ public abstract class Block implements Moveable {
 
     public void highlight() {
         shadowShowTimeline.getKeyFrames().clear();
-        DropShadow dropShadow = (DropShadow) shape.getEffect();
+        DropShadow dropShadow = (DropShadow) blockShape.getEffect();
         shadowShowTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -321,10 +340,10 @@ public abstract class Block implements Moveable {
     }
 
     public void onMouseReleased(MouseEvent event) {
-        if (shape.contains(event.getX(), event.getY())) {
+        handler.onMouseReleased.accept(event);
+        if (blockShape.contains(event.getX(), event.getY())) {
             showDots();
         }
-        mousePressed = false;
         if (selected) {
             Blocks.getAllBlocks().stream()
                     .filter(Block::isSelected)
@@ -338,7 +357,7 @@ public abstract class Block implements Moveable {
     }
 
     public void unhighlight() {
-        DropShadow dropShadow = (DropShadow) shape.getEffect();
+        DropShadow dropShadow = (DropShadow) blockShape.getEffect();
         shadowRemoveTimeline.getKeyFrames().clear();
         shadowRemoveTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
@@ -377,7 +396,7 @@ public abstract class Block implements Moveable {
         }
         //...
         menu.setAutoHide(true);
-        menu.show(shape, event.getScreenX(), event.getScreenY());
+        menu.show(blockShape, event.getScreenX(), event.getScreenY());
     }
 
     private void showDots() {
@@ -393,7 +412,7 @@ public abstract class Block implements Moveable {
             } else if (dot.getCenterY() == 0) {//top
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), 0);
-            } else if (dot.getCenterX() < shape.getLayoutBounds().getWidth()) {//bottom
+            } else if (dot.getCenterX() < blockShape.getLayoutBounds().getWidth()) {//bottom
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), 0);
             } else {//right
@@ -423,7 +442,7 @@ public abstract class Block implements Moveable {
             } else if (dot.getCenterY() == 0) {//top
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), DOTS_MOVING_DISTANCE);
-            } else if (dot.getCenterX() < shape.getLayoutBounds().getWidth()) {//bottom
+            } else if (dot.getCenterX() < blockShape.getLayoutBounds().getWidth()) {//bottom
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), -DOTS_MOVING_DISTANCE);
             } else {//right
@@ -441,7 +460,9 @@ public abstract class Block implements Moveable {
     }
 
     public void addTo(Pane pane) {
-        pane.getChildren().add(this.pane);
+        shadowShape.setTranslateX(this.pane.getTranslateX());
+        shadowShape.setTranslateY(this.pane.getTranslateY());
+        pane.getChildren().addAll(shadowShape, this.pane);
     }
 
     public void remove() {

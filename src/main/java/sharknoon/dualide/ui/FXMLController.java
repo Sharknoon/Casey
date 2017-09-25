@@ -265,7 +265,6 @@ public class FXMLController implements Initializable {
                 b.setMinYAnimated(b.getShadow().getTranslateY());
             });
         } else {
-            System.out.println(block.getShadow().getTranslateX());
             block.setMinXAnimated(block.getShadow().getTranslateX());
             block.setMinYAnimated(block.getShadow().getTranslateY());
         }

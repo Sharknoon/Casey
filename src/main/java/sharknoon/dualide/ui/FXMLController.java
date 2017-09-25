@@ -33,10 +33,6 @@ import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -46,7 +42,6 @@ import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.blocks.Block;
-import sharknoon.dualide.ui.blocks.BlockGroup;
 import sharknoon.dualide.ui.settings.FXMLSettingsSceneController;
 import sharknoon.dualide.utils.settings.FileUtils;
 import sharknoon.dualide.utils.settings.Props;
@@ -157,12 +152,12 @@ public class FXMLController implements Initializable {
         Block block = Blocks.getBlock((Node) event.getSource());
         if (block.isSelected()) {
             Blocks.getSelectedBlocks().forEach(b -> {
-                b.tmpX = b.getMinX();
-                b.tmpY = b.getMinY();
+                b.startX = b.getMinX();
+                b.startY = b.getMinY();
             });
         } else {
-            block.tmpX = block.getMinX();
-            block.tmpY = block.getMinY();
+            block.startX = block.getMinX();
+            block.startY = block.getMinY();
         }
         Point2D localMouseStart = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
         startMouseGridX = (int) ((localMouseStart.getX() - paddingInsideWorkSpace) / gridSnappingX);
@@ -189,12 +184,12 @@ public class FXMLController implements Initializable {
 
             if (block.isSelected()) {
                 Blocks.getSelectedBlocksGroup().getBlocks().forEach(b -> {
-                    b.setMinX(b.tmpX + deltaX);
-                    b.setMinY(b.tmpY + deltaY);
+                    b.setMinX(b.startX + deltaX);
+                    b.setMinY(b.startY + deltaY);
                 });
             } else {
-                block.setMinX(block.tmpX + deltaX);
-                block.setMinY(block.tmpY + deltaY);
+                block.setMinX(block.startX + deltaX);
+                block.setMinY(block.startY + deltaY);
             }
 
             //shadow part
@@ -223,40 +218,39 @@ public class FXMLController implements Initializable {
             lastY.put(block, currentMouseGridY);
 
             if (block.isSelected()) {
-                HashMap<Shape, Double> futureXShadows = new HashMap<>();
-                HashMap<Shape, Double> futureYShadows = new HashMap<>();
-                boolean xAllowed = Blocks.getSelectedBlocks().stream()
-                        .allMatch(b -> {
-                            Shape shadow = b.getShadow();
-                            double newX = b.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
-                            futureXShadows.put(shadow, newX);
-                            return isXInsideWorkspace(b, newX) && b.canMoveToX(newX, true);
-                        });
-                if (xAllowed) {
-                    futureXShadows.forEach((s, n) -> {
-                        s.setTranslateX(n);
-                    });
+                Collection<Block> blocks = Blocks.getSelectedBlocks();
+                Map<Block, Double[]> futureShadows = new HashMap<>();
+                boolean canMoveInX = true;
+                boolean canMoveInY = true;
+                for (Block b : blocks) {
+                    double newX = b.startX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
+                    double newY = b.startY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
+                    canMoveInX = canMoveInX ? isXInsideWorkspace(b, newX) : false;
+                    canMoveInY = canMoveInY ? isYInsideWorkspace(b, newY) : false;
+                    if (!b.canMoveTo(newX, newY, false)) {
+                        return;
+                    }
+                    futureShadows.put(b, new Double[]{newX, newY});
                 }
-                boolean yAllowed = Blocks.getSelectedBlocks().stream()
-                        .allMatch(b -> {
-                            Shape shadow = b.getShadow();
-                            double newY = b.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
-                            futureYShadows.put(shadow, newY);
-                            return isYInsideWorkspace(b, newY) && b.canMoveToY(newY, true);
-                        });
-                if (yAllowed) {
-                    futureYShadows.forEach((s, n) -> {
-                        s.setTranslateY(n);
-                    });
-                }
+                boolean finalMoveX = canMoveInX;
+                boolean finalMoveY = canMoveInY;
+                futureShadows.forEach((b, c) -> {
+                    if (finalMoveX) {
+                        b.getShadow().setTranslateX(c[0]);
+                    }
+                    if (finalMoveY) {
+                        b.getShadow().setTranslateY(c[1]);
+                    }
+                });
             } else {
                 Shape shadow = block.getShadow();
-                double newX = block.tmpX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
-                double newY = block.tmpY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
-                if (isXInsideWorkspace(block, newX) && block.canMoveToX(newX)) {
+                double newX = block.startX + ((currentMouseGridX - startMouseGridX) * gridSnappingX);
+                double newY = block.startY + ((currentMouseGridY - startMouseGridY) * gridSnappingY);
+                boolean isSpaceFree = block.canMoveTo(newX, newY);
+                if (isSpaceFree && isXInsideWorkspace(block, newX)) {
                     shadow.setTranslateX(newX);
                 }
-                if (isYInsideWorkspace(block, newY) && block.canMoveToY(newY)) {
+                if (isSpaceFree && isYInsideWorkspace(block, newY)) {
                     shadow.setTranslateY(newY);
                 }
             }

@@ -74,32 +74,6 @@ public final class BlockGroup implements Moveable {
                 .allMatch(b -> b.canMoveTo(b.getMinX() + x, b.getMinY() + y, false));
     }
 
-    /**
-     * delta value!
-     *
-     * @param x
-     * @return
-     */
-    @Override
-    public boolean canMoveToX(double x) {
-        return blocks
-                .stream()
-                .allMatch(b -> b.canMoveToX(b.getMinX() + x, false));
-    }
-
-    /**
-     * delta value1
-     *
-     * @param y
-     * @return
-     */
-    @Override
-    public boolean canMoveToY(double y) {
-        return blocks
-                .stream()
-                .allMatch(b -> b.canMoveToY(b.getMinY() + y, false));
-    }
-
     public Collection<Block> getBlocks() {
         return blocks;
     }

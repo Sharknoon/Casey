@@ -467,6 +467,6 @@ public abstract class Block implements Moveable {
 
     public void remove() {
         Blocks.unregisterBlock(flowchart, this);
-        ((Pane) pane.getParent()).getChildren().remove(pane);
+        ((Pane) pane.getParent()).getChildren().removeAll(shadowShape, pane);
     }
 }

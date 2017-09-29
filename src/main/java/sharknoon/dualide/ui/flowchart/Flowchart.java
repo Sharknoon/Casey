@@ -197,6 +197,7 @@ public class Flowchart {
         double minY = origin.getY() - Settings.paddingInsideWorkSpace;
         minY -= (minY % Settings.gridSnappingY);
         minY += Settings.paddingInsideWorkSpace;
+        //TODO check if space is free, move location otherwise
         block.setMinX(minX);
         block.setMinY(minY);
         block.addTo(root);

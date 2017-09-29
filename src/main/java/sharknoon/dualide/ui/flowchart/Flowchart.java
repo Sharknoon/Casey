@@ -169,12 +169,10 @@ public class Flowchart {
 
     private void addStartBlock() {
         Block startBlock = Blocks.createStartBlock(this);
-        double screneHeight = Screen.getPrimary().getVisualBounds().getHeight();
+        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
         double minX = (Settings.maxWorkSpaceX / 2) - (startBlock.getWidth() / 2);
-        double minY = (Settings.maxWorkSpaceY / 2) - (screneHeight / 2) + Settings.gridSnappingY;
-        double x = minX - (minX % Settings.gridSnappingX) + Settings.paddingInsideWorkSpace;
-        double y = minY - (minY % Settings.gridSnappingY) + Settings.paddingInsideWorkSpace;
-        addBlock(startBlock, new Point2D(x, y));
+        double minY = (Settings.maxWorkSpaceY / 2) - (screenHeight / 2) + Settings.gridSnappingY;
+        addBlock(startBlock, new Point2D(minX, minY));
     }
 
     public void addEndBlock(Point2D origin) {
@@ -193,8 +191,14 @@ public class Flowchart {
     }
 
     private void addBlock(Block block, Point2D origin) {
-        block.setMinX(origin.getX());
-        block.setMinY(origin.getY());
+        double minX = origin.getX() - Settings.paddingInsideWorkSpace;
+        minX -= (minX % Settings.gridSnappingX);
+        minX += Settings.paddingInsideWorkSpace;
+        double minY = origin.getY() - Settings.paddingInsideWorkSpace;
+        minY -= (minY % Settings.gridSnappingY);
+        minY += Settings.paddingInsideWorkSpace;
+        block.setMinX(minX);
+        block.setMinY(minY);
         block.addTo(root);
     }
 

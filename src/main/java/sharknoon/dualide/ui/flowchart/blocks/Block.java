@@ -235,8 +235,8 @@ public abstract class Block implements Moveable {
 
     private static void setStrokeProperties(Shape shape) {
         shape.setStroke(Color.BLACK);
-        shape.setStrokeWidth(3);
-        shape.setStrokeType(StrokeType.INSIDE);
+        shape.setStrokeWidth(1);
+        shape.setStrokeType(StrokeType.CENTERED);
     }
 
     private static void addDropShadowEffect(Shape shape) {

@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.blocks;
+package sharknoon.dualide.ui.flowchart.blocks.block;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -8,7 +8,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
-import sharknoon.dualide.ui.BlockEventHandler;
+import sharknoon.dualide.ui.flowchart.BlockEventHandler;
+import sharknoon.dualide.ui.flowchart.Flowchart;
+import sharknoon.dualide.ui.flowchart.blocks.Block;
 
 /**
  *
@@ -20,8 +22,8 @@ public class Decision extends Block {
     private static final double DECISION_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.TOP, Side.BOTTOM, Side.RIGHT};
 
-    public Decision(BlockEventHandler handler) {
-        super(handler, createDecisionShapeSupplier(), SIDES);
+    public Decision(Flowchart flowchart) {
+        super(flowchart, createDecisionShapeSupplier(), SIDES);
     }
 
     private static Supplier<Shape> createDecisionShapeSupplier() {

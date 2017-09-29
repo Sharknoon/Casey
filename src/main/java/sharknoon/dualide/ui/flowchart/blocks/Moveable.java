@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.blocks;
+package sharknoon.dualide.ui.flowchart.blocks;
 
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;

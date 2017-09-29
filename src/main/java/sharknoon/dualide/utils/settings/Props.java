@@ -56,15 +56,11 @@ public class Props {
         if (PROPS == null) {
             init();
         }
-        Optional<Path> propertiesFile = FileUtils.createAndGetFile(PATH, true);
-        if (propertiesFile.isPresent()) {
-            try {
-                PROPS.store(Files.newOutputStream(propertiesFile.get()), null);
-            } catch (IOException ex) {
-                Logger.error("Could not save Properties", ex);
-            }
-        } else {
-            Logger.error("Could not save Properties file, file not found");
+        Path propertiesFile = FileUtils.createAndGetFile(PATH, true);
+        try {
+            PROPS.store(Files.newOutputStream(propertiesFile), null);
+        } catch (IOException ex) {
+            Logger.error("Could not save Properties", ex);
         }
     }
 }

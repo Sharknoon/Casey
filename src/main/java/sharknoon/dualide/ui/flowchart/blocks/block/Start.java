@@ -1,14 +1,12 @@
-package sharknoon.dualide.ui.blocks;
+package sharknoon.dualide.ui.flowchart.blocks.block;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.geometry.Side;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import sharknoon.dualide.ui.BlockEventHandler;
+import sharknoon.dualide.ui.flowchart.Flowchart;
+import sharknoon.dualide.ui.flowchart.blocks.Block;
 
 /**
  *
@@ -20,8 +18,8 @@ public class Start extends Block {
     private static final double START_WIDTH = 200;
     private static final Side[] SIDES = new Side[]{Side.BOTTOM};
 
-    public Start(BlockEventHandler handler) {
-        super(handler, createStartShapeSupplier(), SIDES);
+    public Start(Flowchart flowchart) {
+        super(flowchart, createStartShapeSupplier(), SIDES);
     }
 
     private static Supplier<Shape> createStartShapeSupplier() {

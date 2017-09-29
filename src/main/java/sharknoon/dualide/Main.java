@@ -5,10 +5,12 @@
  */
 package sharknoon.dualide;
 
-import sharknoon.dualide.ui.FXMLController;
+import sharknoon.dualide.ui.MainController;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -40,16 +42,18 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(getClass().getResource("/fxml/FXMLDocument.fxml").openStream());
-        FXMLController controller = loader.getController();
+        Path fxmlPath = FileUtils.createAndGetFile("fxml/FXMLDocument.fxml", true);
+        Parent root = loader.load(Files.newInputStream(fxmlPath));
+        MainController controller = loader.getController();
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add("/styles/fxml.css");
+        scene.getStylesheets().add("res/styles/fxml.css");
 
         primaryStage.setTitle(Props.get("name").orElse("Unnamed Dual Universe IDE"));
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();
+        //controller.initAfterSceneInit();
     }
 
     /**

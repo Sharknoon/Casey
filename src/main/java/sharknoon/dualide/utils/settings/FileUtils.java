@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,9 +32,9 @@ public class FileUtils {
     private static Path publicPath;
     private static final String PRIVATE_DIR = "user.dir";
     private static final String PUBLIC_DIR = "user.home";
-    private static final String PRIVATE_DIR_NAME = "settings";
+    private static final String PRIVATE_DIR_NAME = ".dualide";
     private static final String PUBLIC_DIR_NAME = "DualIDE";
-    private static final String RESSOURCES_TO_BE_COPIED_NAME = "toBeCopied";
+    private static final String RESSOURCES_TO_BE_COPIED_NAME = "res";
 
     public static void init() {
         if (privatePath == null || publicPath == null) {
@@ -55,8 +56,8 @@ public class FileUtils {
                     | SecurityException | UnsupportedOperationException | IOException ex) {
                 System.err.println("Error during public folder generation \n" + ex);//Logger not yet initialized
             }
+            copyRessourcesToPrivateDir();
         }
-        copyRessourcesToPrivateDir();
     }
 
     /**
@@ -88,6 +89,20 @@ public class FileUtils {
             Logger.error("Security error: " + fileName, ex);
         }
         return Optional.ofNullable(file);
+    }
+
+    public static Optional<InputStream> getFileAsStream(String fileName, boolean privateFile) {
+        Optional<Path> file = getFile(fileName, privateFile);
+        if (file.isPresent()) {
+            Path path = file.get();
+            try {
+                InputStream s = Files.newInputStream(path);
+                return Optional.ofNullable(s);
+            } catch (UnsupportedOperationException | IOException | SecurityException ex) {
+                Logger.warning("Could not open File as Stream: " + fileName, ex);
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -126,16 +141,29 @@ public class FileUtils {
      * @param privateFile
      * @return The requested file
      */
-    public static Optional<Path> createAndGetFile(String path, boolean privateFile) {
+    public static Path createAndGetFile(String path, boolean privateFile) {
         init();
         path = clearPathString(path);
         try {
             createFile(path, privateFile);
-            return getFile(path, privateFile);
+            return getFile(path, privateFile).orElse(null);
         } catch (InvalidPathException ex) {
             Logger.error("Could not create File " + path, ex);
         }
-        return Optional.empty();
+        return null;
+    }
+
+    public static InputStream createAndGetFileAsStream(String path, boolean privateField) {
+        Path path2 = createAndGetFile(path, privateField);
+        if (path2 == null) {
+            return null;
+        }
+        try {
+            return Files.newInputStream(path2);
+        } catch (UnsupportedOperationException | IOException | SecurityException ex) {
+            Logger.warning("Could not open or create File as Stream: " + path, ex);
+        }
+        return null;
     }
 
     /**
@@ -201,6 +229,9 @@ public class FileUtils {
 
     private static void copyRessourcesToPrivateDir() {
         try {
+            if (Files.list(privatePath).findAny().isPresent()) {
+                return;
+            }
             String jarPath = FileUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             JarFile jar = new JarFile(jarPath);
             jar.stream()
@@ -208,8 +239,8 @@ public class FileUtils {
                     .filter(entry -> !entry.isDirectory())
                     .forEach(entry -> {
                         try {
-                            String nameWithoutFirstFolder = entry.getName().substring(RESSOURCES_TO_BE_COPIED_NAME.length() + 1);
-                            Path filePath = privatePath.resolve(nameWithoutFirstFolder);
+                            String name = entry.getName().substring(RESSOURCES_TO_BE_COPIED_NAME.length() + 1);
+                            Path filePath = privatePath.resolve(name);
                             InputStream inputStream = jar.getInputStream(entry);
                             Files.createDirectories(filePath.getParent());
                             if (!Files.exists(filePath)) {

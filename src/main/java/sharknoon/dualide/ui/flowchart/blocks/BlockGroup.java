@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.blocks;
+package sharknoon.dualide.ui.flowchart.blocks;
 
 import java.util.Collection;
 import java.util.List;

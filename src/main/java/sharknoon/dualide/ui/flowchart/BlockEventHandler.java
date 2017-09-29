@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui;
+package sharknoon.dualide.ui.flowchart;
 
 import java.util.function.Consumer;
 import javafx.scene.input.MouseEvent;

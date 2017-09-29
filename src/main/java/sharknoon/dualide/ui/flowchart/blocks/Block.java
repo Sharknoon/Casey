@@ -1,11 +1,9 @@
-package sharknoon.dualide.ui.blocks;
+package sharknoon.dualide.ui.flowchart.blocks;
 
-import java.awt.Paint;
+import sharknoon.dualide.ui.flowchart.blocks.block.Start;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
@@ -26,7 +24,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
-import sharknoon.dualide.ui.BlockEventHandler;
+import sharknoon.dualide.ui.flowchart.BlockEventHandler;
+import sharknoon.dualide.ui.flowchart.Flowchart;
 
 /**
  *
@@ -50,43 +49,42 @@ public abstract class Block implements Moveable {
     private final AnchorPane pane = new AnchorPane();
     private final Shape blockShape;
     private final Shape shadowShape;
-    public final Timeline shadowShowTimeline = new Timeline();
-    public final Timeline shadowRemoveTimeline = new Timeline();
-    public final Timeline dotsShowTimeline = new Timeline();
-    public final Timeline dotsRemoveTimeline = new Timeline();
-    public final Timeline movingXTimeline = new Timeline();
-    public final Timeline movingYTimeline = new Timeline();
+    private final Timeline shadowShowTimeline = new Timeline();
+    private final Timeline shadowRemoveTimeline = new Timeline();
+    private final Timeline dotsShowTimeline = new Timeline();
+    private final Timeline dotsRemoveTimeline = new Timeline();
+    private final Timeline movingXTimeline = new Timeline();
+    private final Timeline movingYTimeline = new Timeline();
     private final List<Circle> dots = new ArrayList<>();
+    private final Flowchart flowchart;
     private boolean selected;
-    private final BlockEventHandler handler;
     public double startX;
     public double startY;
 
     /**
      *
-     * @param handler
+     * @param flowchart
      * @param shapeSupplier
      * @param dots 0 = bottom, 1 = top and bottom, 2 = all sides, 3 = top and
      * bottom and right, 4 = top
      */
     public Block(
-            BlockEventHandler handler,
+            Flowchart flowchart,
             Supplier<Shape> shapeSupplier,
             Side... dots) {
         this.blockShape = shapeSupplier.get();
         pane.getChildren().add(blockShape);
         this.shadowShape = createShadow(blockShape);
-        this.handler = handler;
+        this.flowchart = flowchart;
         blockShape.setOnMousePressed(this::onMousePressed);
         blockShape.setOnMouseReleased(this::onMouseReleased);
-        blockShape.setOnMouseDragged(event -> handler.onMouseDragged.accept(event));
         blockShape.setOnContextMenuRequested(this::onContextMenuRequested);
         blockShape.setOnMouseEntered(this::onMouseEntered);
         blockShape.setOnMouseExited(this::onMouseExited);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
         createDots(dots);
-        Blocks.registerBlock(this);
+        Blocks.registerBlock(flowchart, this);
     }
 
     private static Shape createShadow(Shape original) {
@@ -185,7 +183,7 @@ public abstract class Block implements Moveable {
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
         return Blocks
-                .getAllBlocks()
+                .getAllBlocks(flowchart)
                 .stream()
                 .filter(b -> ignoreSelection || !b.isSelected())
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
@@ -250,7 +248,7 @@ public abstract class Block implements Moveable {
     }
 
     private void onMouseEntered(MouseEvent event) {
-        handler.onMouseEntered.accept(event);
+        flowchart.setMouseOverShape(true);
         if (!event.isPrimaryButtonDown()) {
             showDots();
         }
@@ -277,7 +275,9 @@ public abstract class Block implements Moveable {
     }
 
     private void onMouseExited(MouseEvent event) {
-        handler.onMouseExited.accept(event);
+        if (!event.isPrimaryButtonDown()) {
+            flowchart.setMouseOverShape(false);
+        }
         removeDots();
     }
 
@@ -306,12 +306,13 @@ public abstract class Block implements Moveable {
     double oldMouseY;
 
     public void onMousePressed(MouseEvent event) {
-        handler.onMousePressed.accept(event);
+        flowchart.setMouseOverShape(true);
+        Blocks.setCurrentBlock(flowchart, this);
         removeDots();
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
             if (selected) {
-                Blocks.getAllBlocks().stream()
+                Blocks.getAllBlocks(flowchart).stream()
                         .filter(Block::isSelected)
                         .forEach(Block::highlight);
             } else {
@@ -340,12 +341,11 @@ public abstract class Block implements Moveable {
     }
 
     public void onMouseReleased(MouseEvent event) {
-        handler.onMouseReleased.accept(event);
         if (blockShape.contains(event.getX(), event.getY())) {
             showDots();
         }
         if (selected) {
-            Blocks.getAllBlocks().stream()
+            Blocks.getAllBlocks(flowchart).stream()
                     .filter(Block::isSelected)
                     .forEach(Block::unhighlight);
         } else {
@@ -382,8 +382,8 @@ public abstract class Block implements Moveable {
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(e -> {
                 if (selected) {
-                    Collection<Block> allBlocks = Blocks.getAllBlocks();
-                    List<Block> toRemove = Blocks.getAllBlocks().stream()
+                    Collection<Block> allBlocks = Blocks.getAllBlocks(flowchart);
+                    List<Block> toRemove = Blocks.getAllBlocks(flowchart).stream()
                             .filter(Block::isSelected)
                             .filter(b -> b.getClass() != Start.class)
                             .collect(Collectors.toList());
@@ -466,7 +466,7 @@ public abstract class Block implements Moveable {
     }
 
     public void remove() {
-        Blocks.unregisterBlock(this);
+        Blocks.unregisterBlock(flowchart, this);
         ((Pane) pane.getParent()).getChildren().remove(pane);
     }
 }

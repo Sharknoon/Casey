@@ -24,8 +24,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
-import sharknoon.dualide.ui.flowchart.BlockEventHandler;
 import sharknoon.dualide.ui.flowchart.Flowchart;
+import sharknoon.dualide.ui.flowchart.UISettings;
 
 /**
  *
@@ -57,6 +57,8 @@ public abstract class Block implements Moveable {
     private final Timeline movingYTimeline = new Timeline();
     private final List<Circle> dots = new ArrayList<>();
     private final Flowchart flowchart;
+    private final double shapeWidth;
+    private final double shapeHeight;
     private boolean selected;
     public double startX;
     public double startY;
@@ -73,6 +75,8 @@ public abstract class Block implements Moveable {
             Supplier<Shape> shapeSupplier,
             Side... dots) {
         this.blockShape = shapeSupplier.get();
+        shapeWidth = blockShape.getBoundsInLocal().getWidth();
+        shapeHeight = blockShape.getBoundsInLocal().getHeight();
         pane.getChildren().add(blockShape);
         this.shadowShape = createShadow(blockShape);
         this.flowchart = flowchart;
@@ -139,12 +143,12 @@ public abstract class Block implements Moveable {
 
     @Override
     public double getWidth() {
-        return blockShape.getLayoutBounds().getWidth();
+        return shapeWidth;
     }
 
     @Override
     public double getHeight() {
-        return blockShape.getLayoutBounds().getHeight();
+        return shapeHeight;
     }
 
     @Override
@@ -208,22 +212,22 @@ public abstract class Block implements Moveable {
             dot.setEffect(shadow);
             switch (dotSide) {
                 case BOTTOM:
-                    dot.setCenterX(blockShape.getLayoutBounds().getWidth() / 2);
-                    dot.setCenterY(blockShape.getLayoutBounds().getHeight());
+                    dot.setCenterX(shapeWidth / 2);
+                    dot.setCenterY(shapeHeight);
                     dot.setTranslateY(-DOTS_MOVING_DISTANCE);
                     break;
                 case LEFT:
                     dot.setCenterX(0);
-                    dot.setCenterY(blockShape.getLayoutBounds().getHeight() / 2);
+                    dot.setCenterY(shapeHeight / 2);
                     dot.setTranslateX(DOTS_MOVING_DISTANCE);
                     break;
                 case RIGHT:
-                    dot.setCenterX(blockShape.getLayoutBounds().getWidth());
-                    dot.setCenterY(blockShape.getLayoutBounds().getHeight() / 2);
+                    dot.setCenterX(shapeWidth);
+                    dot.setCenterY(shapeHeight / 2);
                     dot.setTranslateX(-DOTS_MOVING_DISTANCE);
                     break;
                 case TOP:
-                    dot.setCenterX(blockShape.getLayoutBounds().getWidth() / 2);
+                    dot.setCenterX(shapeWidth / 2);
                     dot.setCenterY(0);
                     dot.setTranslateY(DOTS_MOVING_DISTANCE);
                     break;
@@ -351,7 +355,8 @@ public abstract class Block implements Moveable {
         } else {
             unhighlight();
         }
-        if (oldMouseX == event.getSceneX() && oldMouseY == event.getSceneY()) {
+        if (Math.abs(oldMouseX - event.getSceneX()) <= UISettings.blockSelectionThreshold
+                && Math.abs(oldMouseY - event.getSceneY()) <= UISettings.blockSelectionThreshold) {
             select();
         }
     }
@@ -412,7 +417,7 @@ public abstract class Block implements Moveable {
             } else if (dot.getCenterY() == 0) {//top
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), 0);
-            } else if (dot.getCenterX() < blockShape.getLayoutBounds().getWidth()) {//bottom
+            } else if (dot.getCenterX() < shapeWidth) {//bottom
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), 0);
             } else {//right
@@ -442,7 +447,7 @@ public abstract class Block implements Moveable {
             } else if (dot.getCenterY() == 0) {//top
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), DOTS_MOVING_DISTANCE);
-            } else if (dot.getCenterX() < blockShape.getLayoutBounds().getWidth()) {//bottom
+            } else if (dot.getCenterX() < shapeWidth) {//bottom
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
                 movingEnd = new KeyValue(dot.translateYProperty(), -DOTS_MOVING_DISTANCE);
             } else {//right

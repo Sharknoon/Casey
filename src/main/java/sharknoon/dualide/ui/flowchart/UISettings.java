@@ -7,7 +7,7 @@ import javafx.util.Duration;
  *
  * @author Josua Frank
  */
-public class Settings {
+public class UISettings {
 
     public static double zoomFactor = 1.5;
     public static Duration zoomDuration = Duration.millis(100);
@@ -18,37 +18,50 @@ public class Settings {
     public static double paddingInsideWorkSpace = 50;
     public static double workspaceLineWidth = 3;
     public static Color workspaceLineColor = Color.BLACK;
+    public static double contextMenuThreshold = 2;
+    public static double blockSelectionThreshold = 2;
 
     public static void setZoomFactor(double zoomFactor) {
-        Settings.zoomFactor = zoomFactor;
+        UISettings.zoomFactor = zoomFactor;
     }
 
     public static void setZoomDuration(Duration zoomDuration) {
-        Settings.zoomDuration = zoomDuration;
+        UISettings.zoomDuration = zoomDuration;
     }
 
     public static void setMaxWorkSpaceX(double maxWorkSpaceX) {
-        Settings.maxWorkSpaceX = maxWorkSpaceX;
+        UISettings.maxWorkSpaceX = maxWorkSpaceX;
     }
 
     public static void setMaxWorkSpaceY(double maxWorkSpaceY) {
-        Settings.maxWorkSpaceY = maxWorkSpaceY;
+        UISettings.maxWorkSpaceY = maxWorkSpaceY;
     }
 
     public static void setGridSnappingX(double gridSnappingX) {
-        Settings.gridSnappingX = gridSnappingX;
+        UISettings.gridSnappingX = gridSnappingX;
     }
 
     public static void setGridSnappingY(double gridSnappingY) {
-        Settings.gridSnappingY = gridSnappingY;
+        UISettings.gridSnappingY = gridSnappingY;
     }
 
     public static void setPaddingInsideWorkSpace(double paddingInsideWorkSpace) {
-        Settings.paddingInsideWorkSpace = paddingInsideWorkSpace;
+        UISettings.paddingInsideWorkSpace = paddingInsideWorkSpace;
     }
 
     public static void setWorkspaceLineWidth(double workspaceLineWidth) {
-        Settings.workspaceLineWidth = workspaceLineWidth;
+        UISettings.workspaceLineWidth = workspaceLineWidth;
     }
 
+    public static void setWorkspaceLineColor(Color workspaceLineColor) {
+        UISettings.workspaceLineColor = workspaceLineColor;
+    }
+
+    public static void setContextMenuThreshold(double contextMenuThreshold) {
+        UISettings.contextMenuThreshold = contextMenuThreshold;
+    }
+
+    public static void setBlockSelectionThreshold(double blockSelectionThreshold) {
+        UISettings.blockSelectionThreshold = blockSelectionThreshold;
+    }
 }

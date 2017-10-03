@@ -1,7 +1,5 @@
 package sharknoon.dualide.ui.flowchart;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -33,18 +31,21 @@ public class WorkspaceContextMenu {
     }
 
     public void onContextMenuRequested(Point2D workspaceOrigin, Point2D screenOrigin, Node originNode) {
-        if (!screenOrigin.equals(origin)) {
+        if (Math.abs(origin.getX() - screenOrigin.getX()) > UISettings.contextMenuThreshold) {
+            return;
+        }
+        if (Math.abs(origin.getY() - screenOrigin.getY()) > UISettings.contextMenuThreshold) {
             return;
         }
         double x = workspaceOrigin.getX();
         double y = workspaceOrigin.getY();
-        if (x < 0 + Settings.paddingInsideWorkSpace) {
+        if (x < 0 + UISettings.paddingInsideWorkSpace) {
             return;
-        } else if (x > Settings.maxWorkSpaceX - Settings.paddingInsideWorkSpace) {
+        } else if (x > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace) {
             return;
-        } else if (y < 0 + Settings.paddingInsideWorkSpace) {
+        } else if (y < 0 + UISettings.paddingInsideWorkSpace) {
             return;
-        } else if (y > Settings.maxWorkSpaceY - Settings.paddingInsideWorkSpace) {
+        } else if (y > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace) {
             return;
         }
 

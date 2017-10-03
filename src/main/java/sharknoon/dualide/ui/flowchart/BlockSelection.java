@@ -34,8 +34,8 @@ public class BlockSelection {
     }
 
     public void onMousePressed(Point2D localCoordinates) {
-        if (localCoordinates.getX() < 0 || localCoordinates.getX() > Settings.maxWorkSpaceX
-                || localCoordinates.getY() < 0 || localCoordinates.getY() > Settings.maxWorkSpaceY) {
+        if (localCoordinates.getX() < 0 || localCoordinates.getX() > UISettings.maxWorkSpaceX
+                || localCoordinates.getY() < 0 || localCoordinates.getY() > UISettings.maxWorkSpaceY) {
             return;
         }
         selectionRectangle.setVisible(true);
@@ -51,13 +51,13 @@ public class BlockSelection {
         double currentY = localCoordinates.getY();
         double width = currentX - startX;
         double hight = currentY - startY;
-        if (startX + width > Settings.maxWorkSpaceX) {
-            width = Settings.maxWorkSpaceX - startX;
+        if (startX + width > UISettings.maxWorkSpaceX) {
+            width = UISettings.maxWorkSpaceX - startX;
         } else if (startX + width < 0) {
             width = -startX;
         }
-        if (startY + hight > Settings.maxWorkSpaceY) {
-            hight = Settings.maxWorkSpaceY - startY;
+        if (startY + hight > UISettings.maxWorkSpaceY) {
+            hight = UISettings.maxWorkSpaceY - startY;
         } else if (startY + hight < 0) {
             hight = -startY;
         }

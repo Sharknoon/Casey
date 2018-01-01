@@ -18,9 +18,15 @@
          <children>
             <MenuBar>
                <menus>
-                  <Menu mnemonicParsing="false" text="IDE">
+                  <Menu fx:id="menuIDE" mnemonicParsing="false" text="IDE">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Settings" />
+                    </items>
+                  </Menu>
+                  <Menu fx:id="menuDUFM" mnemonicParsing="false" text="DUFM">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="start" />
+                        <MenuItem mnemonicParsing="false" text="stop" />
                     </items>
                   </Menu>
                </menus>

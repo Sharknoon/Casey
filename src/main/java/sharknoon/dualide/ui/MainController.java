@@ -18,6 +18,7 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import sharknoon.dualide.radio.stations.DUFM;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.utils.settings.FileUtils;
 
@@ -33,7 +34,10 @@ public class MainController implements Initializable {
     private final Map<Tab, Flowchart> tabs = new HashMap<>();
 
     @FXML
-    Menu IDE;
+    Menu menuIDE;
+    
+    @FXML
+    Menu menuDUFM;
 
     @FXML
     Button buttonAddFlowchart;
@@ -68,6 +72,13 @@ public class MainController implements Initializable {
             createNewFlowchart("Hello World");
         });
         //setBackgroundImage();
+        menuIDE.fire();
+        menuDUFM.getItems().get(0).setOnAction((event) -> {
+            DUFM.start();
+        });
+        menuDUFM.getItems().get(1).setOnAction((event) -> {
+            DUFM.stop();
+        });
     }
 
     private Optional<Flowchart> getCurrentFlowchart() {

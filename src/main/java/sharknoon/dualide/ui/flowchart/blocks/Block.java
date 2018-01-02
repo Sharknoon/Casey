@@ -24,27 +24,16 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
+import sharknoon.dualide.ui.flowchart.Line;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.UISettings;
+import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
  *
  * @author Josua Frank
  */
 public abstract class Block implements Moveable {
-
-    //Settings
-    private static final Duration DOTS_MOVING_DURATION = Duration.millis(50);
-    private static final double DOTS_MOVING_DISTANCE = 5;
-    private static final Duration BLOCK_SHADOW_SELECTION_DURATION = Duration.millis(50);
-    private static final double BLOCK_SHADOW_SELECTION_RADIUS = 50;
-    private static final Color BLOCK_SHADOW_SELECTION_COLOR = Color.CORNFLOWERBLUE;
-    private static final Duration BLOCK_SHADOW_MOVING_DURATION = Duration.millis(150);
-    private static final double BLOCK_SHADOW_MOVING_RADIUS = 100;
-    private static final Color BLOCK_SHADOW_MOVING_COLOR = Color.valueOf("0095ed");
-    private static final Duration BLOCK_MOVING_DURATION = Duration.millis(50);
-    private static final Color SHADOW_STROKE_COLOR = Color.GREY;
-    private static final double SHADOW_STROKE_WIDTH = 5;
 
     private final AnchorPane pane = new AnchorPane();
     private final Shape blockShape;
@@ -56,6 +45,7 @@ public abstract class Block implements Moveable {
     private final Timeline movingXTimeline = new Timeline();
     private final Timeline movingYTimeline = new Timeline();
     private final List<Circle> dots = new ArrayList<>();
+    private final List<Line> lines = new ArrayList<>();
     private final Flowchart flowchart;
     private final double shapeWidth;
     private final double shapeHeight;
@@ -94,8 +84,8 @@ public abstract class Block implements Moveable {
     private static Shape createShadow(Shape original) {
         Shape shadow = Shape.union(original, original);
         shadow.setFill(Color.rgb(0, 0, 0, 0));
-        shadow.setStroke(SHADOW_STROKE_COLOR);
-        shadow.setStrokeWidth(SHADOW_STROKE_WIDTH);
+        shadow.setStroke(UISettings.SHADOW_STROKE_COLOR);
+        shadow.setStrokeWidth(UISettings.SHADOW_STROKE_WIDTH);
         shadow.setStrokeType(StrokeType.INSIDE);
         shadow.setEffect(null);
         return shadow;
@@ -116,7 +106,7 @@ public abstract class Block implements Moveable {
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(pane.translateXProperty(), pane.getTranslateX())
                 ),
-                new KeyFrame(BLOCK_MOVING_DURATION,
+                new KeyFrame(UISettings.BLOCK_MOVING_DURATION,
                         new KeyValue(pane.translateXProperty(), x)
                 ));
         movingXTimeline.stop();
@@ -134,7 +124,7 @@ public abstract class Block implements Moveable {
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(pane.translateYProperty(), pane.getTranslateY())
                 ),
-                new KeyFrame(BLOCK_MOVING_DURATION,
+                new KeyFrame(UISettings.BLOCK_MOVING_DURATION,
                         new KeyValue(pane.translateYProperty(), y)
                 ));
         movingYTimeline.stop();
@@ -207,6 +197,8 @@ public abstract class Block implements Moveable {
             dot.setOpacity(0);
             dot.setOnMouseEntered(this::onMouseEntered);
             dot.setOnMouseExited(this::onMouseExited);
+            dot.setOnMousePressed(this::onMousePressedOnDot);
+            dot.setOnMouseReleased(this::onMouseReleasedOnDot);
             DropShadow shadow = new DropShadow(25, Color.WHITE);
             shadow.setSpread(0.5);
             dot.setEffect(shadow);
@@ -214,22 +206,22 @@ public abstract class Block implements Moveable {
                 case BOTTOM:
                     dot.setCenterX(shapeWidth / 2);
                     dot.setCenterY(shapeHeight);
-                    dot.setTranslateY(-DOTS_MOVING_DISTANCE);
+                    dot.setTranslateY(-UISettings.DOTS_MOVING_DISTANCE);
                     break;
                 case LEFT:
                     dot.setCenterX(0);
                     dot.setCenterY(shapeHeight / 2);
-                    dot.setTranslateX(DOTS_MOVING_DISTANCE);
+                    dot.setTranslateX(UISettings.DOTS_MOVING_DISTANCE);
                     break;
                 case RIGHT:
                     dot.setCenterX(shapeWidth);
                     dot.setCenterY(shapeHeight / 2);
-                    dot.setTranslateX(-DOTS_MOVING_DISTANCE);
+                    dot.setTranslateX(-UISettings.DOTS_MOVING_DISTANCE);
                     break;
                 case TOP:
                     dot.setCenterX(shapeWidth / 2);
                     dot.setCenterY(0);
-                    dot.setTranslateY(DOTS_MOVING_DISTANCE);
+                    dot.setTranslateY(UISettings.DOTS_MOVING_DISTANCE);
                     break;
             }
             dots.add(dot);
@@ -247,7 +239,7 @@ public abstract class Block implements Moveable {
         DropShadow dropShadow = new DropShadow();
         dropShadow.setSpread(0.5);
         dropShadow.setRadius(0.0);
-        dropShadow.setColor(BLOCK_SHADOW_SELECTION_COLOR);
+        dropShadow.setColor(UISettings.BLOCK_SHADOW_SELECTION_COLOR);
         shape.setEffect(dropShadow);
     }
 
@@ -268,9 +260,9 @@ public abstract class Block implements Moveable {
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(BLOCK_SHADOW_SELECTION_DURATION,
-                            new KeyValue(dropShadow.radiusProperty(), BLOCK_SHADOW_SELECTION_RADIUS),
-                            new KeyValue(dropShadow.colorProperty(), BLOCK_SHADOW_SELECTION_COLOR)
+                    new KeyFrame(UISettings.BLOCK_SHADOW_SELECTION_DURATION,
+                            new KeyValue(dropShadow.radiusProperty(), UISettings.BLOCK_SHADOW_SELECTION_RADIUS),
+                            new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SHADOW_SELECTION_COLOR)
                     ));
             shadowRemoveTimeline.stop();
             shadowShowTimeline.stop();
@@ -295,9 +287,9 @@ public abstract class Block implements Moveable {
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(BLOCK_SHADOW_SELECTION_DURATION,
+                    new KeyFrame(UISettings.BLOCK_SHADOW_SELECTION_DURATION,
                             new KeyValue(dropShadow.radiusProperty(), 0),
-                            new KeyValue(dropShadow.colorProperty(), BLOCK_SHADOW_SELECTION_COLOR)
+                            new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SHADOW_SELECTION_COLOR)
                     )
             );
             shadowShowTimeline.stop();
@@ -327,6 +319,19 @@ public abstract class Block implements Moveable {
         }
     }
 
+    public void onMousePressedOnDot(MouseEvent event){
+        flowchart.setMouseOverShape(true);
+        Blocks.setCurrentBlock(flowchart, this);
+        removeDots();
+        menu.hide();
+        if (event.isPrimaryButtonDown()) {//connecting
+            oldMouseX = event.getSceneX();
+            oldMouseY = event.getSceneY();
+            Line line = Lines.createLine(flowchart, this);
+            Lines.setCurrentLine(flowchart, line);
+        }
+    }
+    
     public void highlight() {
         shadowShowTimeline.getKeyFrames().clear();
         DropShadow dropShadow = (DropShadow) blockShape.getEffect();
@@ -335,9 +340,9 @@ public abstract class Block implements Moveable {
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                         new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                 ),
-                new KeyFrame(BLOCK_SHADOW_MOVING_DURATION,
-                        new KeyValue(dropShadow.radiusProperty(), BLOCK_SHADOW_MOVING_RADIUS),
-                        new KeyValue(dropShadow.colorProperty(), BLOCK_SHADOW_MOVING_COLOR)
+                new KeyFrame(UISettings.BLOCK_SHADOW_MOVING_DURATION,
+                        new KeyValue(dropShadow.radiusProperty(), UISettings.BLOCK_SHADOW_MOVING_RADIUS),
+                        new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SHADOW_MOVING_COLOR)
                 ));
         shadowRemoveTimeline.stop();
         shadowShowTimeline.stop();
@@ -360,6 +365,10 @@ public abstract class Block implements Moveable {
             select();
         }
     }
+    
+    public void onMouseReleasedOnDot(MouseEvent event){
+        
+    }
 
     public void unhighlight() {
         DropShadow dropShadow = (DropShadow) blockShape.getEffect();
@@ -369,9 +378,9 @@ public abstract class Block implements Moveable {
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                         new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                 ),
-                new KeyFrame(BLOCK_SHADOW_MOVING_DURATION,
-                        new KeyValue(dropShadow.radiusProperty(), selected ? BLOCK_SHADOW_SELECTION_RADIUS : 0),
-                        new KeyValue(dropShadow.colorProperty(), BLOCK_SHADOW_SELECTION_COLOR)
+                new KeyFrame(UISettings.BLOCK_SHADOW_MOVING_DURATION,
+                        new KeyValue(dropShadow.radiusProperty(), selected ? UISettings.BLOCK_SHADOW_SELECTION_RADIUS : 0),
+                        new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SHADOW_SELECTION_COLOR)
                 )
         );
         shadowShowTimeline.stop();
@@ -426,7 +435,7 @@ public abstract class Block implements Moveable {
             }
             dotsShowTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO, movingStart, opacityStart),
-                    new KeyFrame(DOTS_MOVING_DURATION, movingEnd, opacityEnd)
+                    new KeyFrame(UISettings.DOTS_MOVING_DURATION, movingEnd, opacityEnd)
             );
         });
         dotsRemoveTimeline.stop();
@@ -443,20 +452,20 @@ public abstract class Block implements Moveable {
             KeyValue opacityEnd = new KeyValue(dot.opacityProperty(), 0);
             if (dot.getCenterX() == 0) {//left
                 movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), DOTS_MOVING_DISTANCE);
+                movingEnd = new KeyValue(dot.translateXProperty(), UISettings.DOTS_MOVING_DISTANCE);
             } else if (dot.getCenterY() == 0) {//top
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), DOTS_MOVING_DISTANCE);
+                movingEnd = new KeyValue(dot.translateYProperty(), UISettings.DOTS_MOVING_DISTANCE);
             } else if (dot.getCenterX() < shapeWidth) {//bottom
                 movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), -DOTS_MOVING_DISTANCE);
+                movingEnd = new KeyValue(dot.translateYProperty(), -UISettings.DOTS_MOVING_DISTANCE);
             } else {//right
                 movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), -DOTS_MOVING_DISTANCE);
+                movingEnd = new KeyValue(dot.translateXProperty(), -UISettings.DOTS_MOVING_DISTANCE);
             }
             dotsRemoveTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO, movingStart, opacityStart),
-                    new KeyFrame(DOTS_MOVING_DURATION, movingEnd, opacityEnd)
+                    new KeyFrame(UISettings.DOTS_MOVING_DURATION, movingEnd, opacityEnd)
             );
         });
         dotsShowTimeline.stop();

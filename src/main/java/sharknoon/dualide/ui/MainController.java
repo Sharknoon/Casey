@@ -31,16 +31,21 @@ public class MainController implements Initializable {
     @FXML
     private TabPane tabpane;
     private Tab currentTab;
-    private final Map<Tab, Flowchart> tabs = new HashMap<>();
+    private final Map<Tab, Flowchart> TABS = new HashMap<>();
+    private static MainController controller;
 
     @FXML
     Menu menuIDE;
-    
+
     @FXML
     Menu menuDUFM;
 
     @FXML
     Button buttonAddFlowchart;
+
+    public MainController() {
+        controller = this;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -68,11 +73,13 @@ public class MainController implements Initializable {
         tabpane.setOnContextMenuRequested((event) -> {
             getCurrentFlowchart().ifPresent(f -> f.onContextMenuRequested(event));
         });
+        tabpane.setOnKeyReleased((event) -> {
+            getCurrentFlowchart().ifPresent(f -> f.onKeyReleased(event));
+        });
         buttonAddFlowchart.setOnAction((event) -> {
             createNewFlowchart("Hello World");
         });
         //setBackgroundImage();
-        menuIDE.fire();
         menuDUFM.getItems().get(0).setOnAction((event) -> {
             DUFM.start();
         });
@@ -81,20 +88,20 @@ public class MainController implements Initializable {
         });
     }
 
-    private Optional<Flowchart> getCurrentFlowchart() {
-        return Optional.ofNullable(tabs.get(currentTab));
+    public static Optional<Flowchart> getCurrentFlowchart() {
+        return Optional.ofNullable(controller.TABS.get(controller.currentTab));
     }
 
-    public void createNewFlowchart(String title) {
+    public static void createNewFlowchart(String title) {
         Tab tab = new Tab(title);
-        tabs.put(tab, new Flowchart(tab));
-        tabpane.getTabs().add(tab);
+        controller.TABS.put(tab, new Flowchart(tab));
+        controller.tabpane.getTabs().add(tab);
     }
 
-    private void setBackgroundImage() {
+    private static void setBackgroundImage() {
         InputStream stream = FileUtils.getFileAsStream("images/landscape.jpg", true).orElse(null);
         Image image = new Image(stream);
-        tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+        controller.tabpane.setBackground(new Background(new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
     }
 
 }

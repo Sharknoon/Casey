@@ -10,6 +10,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
@@ -36,6 +37,7 @@ public class Flowchart {
     private final BlockMoving bm = new BlockMoving(this);
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
+    private final Keyboard kb = new Keyboard(this);
     private boolean mouseOverShape = false;
 
     public Flowchart(Tab tab) {
@@ -99,6 +101,10 @@ public class Flowchart {
                 (Node) event.getSource());
     }
 
+    public void onKeyReleased(KeyEvent event) {
+        kb.onKeyReleased(event);
+    }
+
     public void onScroll(ScrollEvent event) {
         zoom(root, event.getDeltaY() < 0 ? 1 / UISettings.zoomFactor : UISettings.zoomFactor, event.getSceneX(), event.getSceneY());
     }
@@ -143,6 +149,7 @@ public class Flowchart {
         bm.init();
         wm.init();
         wc.init();
+        kb.init();
         drawLineAroundWorkspace();
         centerWorkspaceView();
         addStartBlock();
@@ -178,9 +185,42 @@ public class Flowchart {
         double minY = origin.getY() - UISettings.paddingInsideWorkSpace;
         minY -= (minY % UISettings.gridSnappingY);
         minY += UISettings.paddingInsideWorkSpace;
-        //TODO check if space is free, move location otherwise
-        block.setMinX(minX);
-        block.setMinY(minY);
+
+        int counter = 1;
+        byte amountMoved = 0;
+        boolean secondMove = false;
+        int side = 0;
+        double newX = minX;
+        double newY = minY;
+
+        while (!Blocks.isSpaceFree(block, newX, newY)) {
+            switch (side) {
+                case 0://Upwards
+                    newY = newY - UISettings.gridSnappingY;
+                    break;
+                case 1://Right
+                    newX = newX + UISettings.gridSnappingX;
+                    break;
+                case 2://Downwards
+                    newY = newY + UISettings.gridSnappingY;
+                    break;
+                case 3://Left
+                    newX = newX - UISettings.gridSnappingX;
+                    break;
+            }
+            amountMoved++;
+            if (amountMoved >= counter) {
+                side = side > 2 ? 0 : side + 1;
+                amountMoved = 0;
+                if (secondMove) {
+                    counter++;
+                }
+                secondMove = !secondMove;
+            }
+        }
+
+        block.setMinX(newX);
+        block.setMinY(newY);
         block.addTo(root);
     }
 

@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javafx.geometry.Point2D;
 import sharknoon.dualide.ui.flowchart.Flowchart;
+import sharknoon.dualide.ui.flowchart.UISettings;
 
 /**
  *
@@ -63,8 +65,8 @@ public class Blocks {
     public static Block getCurrentBlock(Flowchart flowchart) {
         return CURRENT_BLOCK.get(flowchart);
     }
-    
-    public static void setCurrentBlock(Flowchart flowchart, Block block){
+
+    public static void setCurrentBlock(Flowchart flowchart, Block block) {
         CURRENT_BLOCK.put(flowchart, block);
     }
 
@@ -86,6 +88,18 @@ public class Blocks {
                 .stream()
                 .filter(Block::isSelected)
                 .collect(Collectors.toList()));
+    }
+
+    public static boolean isSpaceFree(Block block, double x, double y) {
+        boolean isSpaceFree = block.canMoveTo(x, y);
+        return isSpaceFree && isInsideWorkspace(block, x, y);
+    }
+
+    public static boolean isInsideWorkspace(Block b, double x, double y) {
+        return !(x < 0 + UISettings.paddingInsideWorkSpace 
+                || y < 0 + UISettings.paddingInsideWorkSpace 
+                || x + b.getWidth() > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace
+                || y + b.getHeight() > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
     }
 
 }

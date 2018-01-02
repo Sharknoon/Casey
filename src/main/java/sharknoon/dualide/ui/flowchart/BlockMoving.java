@@ -36,6 +36,9 @@ public class BlockMoving {
     public void onMousePressed(Point2D localMouse) {
         lastDragSwitch = !lastDragSwitch;
         Block block = Blocks.getCurrentBlock(flowchart);
+        if (block == null) {
+            return;
+        }
         if (block.isSelected()) {
             Blocks.getSelectedBlocks(flowchart).forEach(b -> {
                 b.startX = b.getMinX();
@@ -53,6 +56,9 @@ public class BlockMoving {
 
     public void onMouseDragged(Point2D localMouse) {
         Block block = Blocks.getCurrentBlock(flowchart);
+        if (block == null) {
+            return;
+        }
 
         double currentX = localMouse.getX();
         double currentY = localMouse.getY();
@@ -137,6 +143,9 @@ public class BlockMoving {
 
     public void onMouseReleased() {
         Block block = Blocks.getCurrentBlock(flowchart);
+        if (block == null) {
+            return;
+        }
         if (block.isSelected()) {
             Blocks.getSelectedBlocks(flowchart).forEach(b -> {
                 b.setMinXAnimated(b.getShadow().getTranslateX());

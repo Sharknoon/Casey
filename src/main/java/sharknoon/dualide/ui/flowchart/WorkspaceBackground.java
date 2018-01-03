@@ -27,10 +27,8 @@ import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.util.Duration;
 import sharknoon.dualide.Main;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.utils.settings.Logger;
@@ -42,11 +40,12 @@ import sharknoon.dualide.utils.settings.Ressources;
  */
 public class WorkspaceBackground implements Exitable {
 
-    final ImageView view1;
-    final ImageView view2;
-    final List<Path> images = new ArrayList<>();
-    int counter = 0;
-    final ScheduledExecutorService imageChangingScheduler = Executors.newScheduledThreadPool(1);
+    private final ImageView view1;
+    private final ImageView view2;
+    private final List<Path> images = new ArrayList<>();
+    private int counter = 0;
+    private final ScheduledExecutorService imageChangingScheduler = Executors.newScheduledThreadPool(1);
+    private ImageView toBeResizedAsSoonAsAImageIsInIt = null;
 
     public static void setBackground(ImageView imageView1, ImageView imageView2) {
         WorkspaceBackground wb = new WorkspaceBackground(imageView1, imageView2);
@@ -64,6 +63,10 @@ public class WorkspaceBackground implements Exitable {
                     counter = 0;
                 }
                 setImage(images.get(counter));
+                if (toBeResizedAsSoonAsAImageIsInIt != null) {
+                    resizeImage(toBeResizedAsSoonAsAImageIsInIt);
+                    toBeResizedAsSoonAsAImageIsInIt = null;
+                }
             } catch (Exception e) {
                 Logger.error("Could not change the background image", e);
             }
@@ -136,6 +139,7 @@ public class WorkspaceBackground implements Exitable {
     private void resizeImage(ImageView view) {
         Image image = view.getImage();
         if (image == null) {
+            toBeResizedAsSoonAsAImageIsInIt = view;
             return;
         }
         double imageHeight = image.getHeight();

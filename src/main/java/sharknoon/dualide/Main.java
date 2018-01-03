@@ -5,22 +5,18 @@
  */
 package sharknoon.dualide;
 
-import sharknoon.dualide.ui.MainController;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.JsePlatform;
-import sharknoon.dualide.radio.stations.DUFM;
-import sharknoon.dualide.utils.settings.FileUtils;
+import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.utils.settings.Ressources;
 import sharknoon.dualide.utils.settings.Props;
 
 /**
@@ -29,32 +25,34 @@ import sharknoon.dualide.utils.settings.Props;
  */
 public class Main extends Application {
 
-    private static Main main;
-
-    public Main() {
-        main = this;
-    }
-
-    @Override
-    public void init() {
-        FileUtils.init();
-    }
+    public static Stage stage;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        Ressources.resetRessources(true);
+        stage = primaryStage;
         FXMLLoader loader = new FXMLLoader();
-        Path fxmlPath = FileUtils.createAndGetFile("fxml/FXMLDocument.fxml", true);
+        Path fxmlPath = Ressources.createAndGetFile("MainFXML.fxml", true);
         Parent root = loader.load(Files.newInputStream(fxmlPath));
-        MainController controller = loader.getController();
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add("res/styles/fxml.css");
+        scene.getStylesheets().add("sharknoon/dualide/MainCSS.css");
 
-        primaryStage.setTitle(Props.get("name").orElse("Unnamed Dual Universe IDE"));
-        primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.show();
-        //controller.initAfterSceneInit();
+        stage.setTitle(Props.get("name").orElse("Unnamed Dual Universe IDE"));
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    private static final List<Exitable> EXITABLES = new ArrayList<>();
+
+    public static void registerExitable(Exitable exitable) {
+        EXITABLES.add(exitable);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        EXITABLES.forEach(Exitable::onExit);
     }
 
     /**
@@ -62,24 +60,6 @@ public class Main extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public static Main getInstance() {
-        return main;
-    }
-
-    public String compileLua(String lua) {
-        Globals globals = JsePlatform.standardGlobals();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        globals.STDOUT = new PrintStream(baos);
-        globals.STDERR = new PrintStream(baos);
-        try {
-            LuaValue chunk = globals.load(lua);
-            chunk.call();
-            return baos.toString();
-        } catch (Exception e) {
-            return e.getMessage();
-        }
     }
 
 }

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javafx.geometry.Point2D;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.UISettings;
 
@@ -44,7 +43,7 @@ public class Blocks {
         if (BLOCKS.containsKey(flowchart)) {
             BLOCKS.get(flowchart).add(block);
         } else {
-            ArrayList list = new ArrayList();
+            ArrayList<Block> list = new ArrayList<>();
             list.add(block);
             BLOCKS.put(flowchart, list);
         }

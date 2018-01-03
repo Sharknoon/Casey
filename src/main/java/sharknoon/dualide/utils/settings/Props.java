@@ -21,17 +21,12 @@ public class Props {
     private static final String PATH = "props/props.properties";
 
     private static void init() {
-        Optional<Path> propertiesFile = FileUtils.getFile(PATH, true);
-        if (propertiesFile.isPresent()) {
-            try {
-                PROPS = new Properties();
-                PROPS.load(Files.newInputStream(propertiesFile.get()));
-            } catch (IllegalArgumentException | UnsupportedOperationException | IOException | SecurityException ex) {
-                Logger.error("Could not load Properties file", ex);
-                PROPS = new Properties();
-            }
-        } else {
-            Logger.error("Could not find Properties file");
+        Path propertiesFile = Ressources.createAndGetFile(PATH, true);
+        try {
+            PROPS = new Properties();
+            PROPS.load(Files.newInputStream(propertiesFile));
+        } catch (IllegalArgumentException | UnsupportedOperationException | IOException | SecurityException ex) {
+            Logger.error("Could not load Properties file", ex);
             PROPS = new Properties();
         }
     }
@@ -56,7 +51,7 @@ public class Props {
         if (PROPS == null) {
             init();
         }
-        Path propertiesFile = FileUtils.createAndGetFile(PATH, true);
+        Path propertiesFile = Ressources.createAndGetFile(PATH, true);
         try {
             PROPS.store(Files.newOutputStream(propertiesFile), null);
         } catch (IOException ex) {

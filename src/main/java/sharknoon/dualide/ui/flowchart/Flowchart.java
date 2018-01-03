@@ -18,7 +18,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
@@ -159,7 +158,7 @@ public class Flowchart {
         Block startBlock = Blocks.createStartBlock(this);
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
         double minX = (UISettings.maxWorkSpaceX / 2) - (startBlock.getWidth() / 2);
-        double minY = (UISettings.maxWorkSpaceY / 2) - (screenHeight / 2) + UISettings.gridSnappingY;
+        double minY = (UISettings.maxWorkSpaceY / 2) - (screenHeight / 2) + UISettings.blockGridSnappingY;
         addBlock(startBlock, new Point2D(minX, minY));
     }
 
@@ -180,10 +179,10 @@ public class Flowchart {
 
     private void addBlock(Block block, Point2D origin) {
         double minX = origin.getX() - UISettings.paddingInsideWorkSpace;
-        minX -= (minX % UISettings.gridSnappingX);
+        minX -= (minX % UISettings.blockGridSnappingX);
         minX += UISettings.paddingInsideWorkSpace;
         double minY = origin.getY() - UISettings.paddingInsideWorkSpace;
-        minY -= (minY % UISettings.gridSnappingY);
+        minY -= (minY % UISettings.blockGridSnappingY);
         minY += UISettings.paddingInsideWorkSpace;
 
         int counter = 1;
@@ -196,16 +195,16 @@ public class Flowchart {
         while (!Blocks.isSpaceFree(block, newX, newY)) {
             switch (side) {
                 case 0://Upwards
-                    newY = newY - UISettings.gridSnappingY;
+                    newY = newY - UISettings.blockGridSnappingY;
                     break;
                 case 1://Right
-                    newX = newX + UISettings.gridSnappingX;
+                    newX = newX + UISettings.blockGridSnappingX;
                     break;
                 case 2://Downwards
-                    newY = newY + UISettings.gridSnappingY;
+                    newY = newY + UISettings.blockGridSnappingY;
                     break;
                 case 3://Left
-                    newX = newX - UISettings.gridSnappingX;
+                    newX = newX - UISettings.blockGridSnappingX;
                     break;
             }
             amountMoved++;
@@ -238,7 +237,7 @@ public class Flowchart {
         Line top = createStroke(0, 0, UISettings.maxWorkSpaceX, 0);
         Line bottom = createStroke(0, UISettings.maxWorkSpaceY, UISettings.maxWorkSpaceX, UISettings.maxWorkSpaceY);
         root.getChildren().addAll(left, right, top, bottom);
-        root.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.75), CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setBackground(new Background(new BackgroundFill(UISettings.workspaceBackgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     private static Line createStroke(double startX, double startY, double endX, double endY) {

@@ -134,5 +134,15 @@
             <artifactId>controlsfx</artifactId>
             <version>8.40.13</version>
         </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jaadec</groupId>
+            <artifactId>jaad</artifactId>
+            <version>0.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jfoenix</groupId>
+            <artifactId>jfoenix</artifactId>
+            <version>1.11.1</version>
+        </dependency>
     </dependencies>
 </project>

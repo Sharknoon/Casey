@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.flowchart;
 
+import javafx.scene.layout.Pane;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
 
 /**
@@ -15,6 +16,10 @@ public class Line {
     public Line(Block startBlock) {
         this.startBlock = startBlock;
         
+    }
+    
+    public void addTo(Pane pane){
+        //pane.getChildren().add(pane)
     }
 
 }

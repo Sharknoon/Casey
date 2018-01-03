@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent;
  */
 public final class BlockEventHandler {
 
-    private final Consumer EMPTY = e -> {
+    private final Consumer<MouseEvent> EMPTY = e -> {
     };
 
     public final Consumer<MouseEvent> onMousePressed;

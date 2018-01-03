@@ -1,6 +1,7 @@
 package sharknoon.dualide.ui.flowchart;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.geometry.Point2D;
@@ -50,8 +51,8 @@ public class BlockMoving {
         }
         startX = localMouse.getX();
         startY = localMouse.getY();
-        startGridX = (int) ((localMouse.getX() - UISettings.paddingInsideWorkSpace) / UISettings.gridSnappingX);
-        startGridY = (int) ((localMouse.getY() - UISettings.paddingInsideWorkSpace) / UISettings.gridSnappingY);
+        startGridX = (int) ((localMouse.getX() - UISettings.paddingInsideWorkSpace) / UISettings.blockGridSnappingX);
+        startGridY = (int) ((localMouse.getY() - UISettings.paddingInsideWorkSpace) / UISettings.blockGridSnappingY);
     }
 
     public void onMouseDragged(Point2D localMouse) {
@@ -81,8 +82,8 @@ public class BlockMoving {
         double currentXWithoutPadding = currentX - UISettings.paddingInsideWorkSpace;
         double currentYWithoutPadding = currentY - UISettings.paddingInsideWorkSpace;
 
-        int currentGridX = (int) (currentXWithoutPadding / UISettings.gridSnappingX);
-        int currentGridY = (int) (currentYWithoutPadding / UISettings.gridSnappingY);
+        int currentGridX = (int) (currentXWithoutPadding / UISettings.blockGridSnappingX);
+        int currentGridY = (int) (currentYWithoutPadding / UISettings.blockGridSnappingY);
 
         if (currentDragSwitch != lastDragSwitch || !lastGridX.containsKey(block)) {
             lastGridX.put(block, currentGridX);
@@ -108,8 +109,8 @@ public class BlockMoving {
             boolean canMoveInX = true;
             boolean canMoveInY = true;
             for (Block b : blocks) {
-                double newX = b.startX + ((currentGridX - startGridX) * UISettings.gridSnappingX);
-                double newY = b.startY + ((currentGridY - startGridY) * UISettings.gridSnappingY);
+                double newX = b.startX + ((currentGridX - startGridX) * UISettings.blockGridSnappingX);
+                double newY = b.startY + ((currentGridY - startGridY) * UISettings.blockGridSnappingY);
                 canMoveInX = canMoveInX ? isXInsideWorkspace(b, newX) : false;
                 canMoveInY = canMoveInY ? isYInsideWorkspace(b, newY) : false;
                 if (!b.canMoveTo(newX, newY, false)) {
@@ -129,8 +130,8 @@ public class BlockMoving {
             });
         } else {
             Shape shadow = block.getShadow();
-            double newX = block.startX + ((currentGridX - startGridX) * UISettings.gridSnappingX);
-            double newY = block.startY + ((currentGridY - startGridY) * UISettings.gridSnappingY);
+            double newX = block.startX + ((currentGridX - startGridX) * UISettings.blockGridSnappingX);
+            double newY = block.startY + ((currentGridY - startGridY) * UISettings.blockGridSnappingY);
             boolean isSpaceFree = block.canMoveTo(newX, newY);
             if (isSpaceFree && isXInsideWorkspace(block, newX)) {
                 shadow.setTranslateX(newX);

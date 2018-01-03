@@ -1,14 +1,10 @@
 package sharknoon.dualide.ui.flowchart.blocks.block;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.geometry.Side;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
-import sharknoon.dualide.ui.flowchart.BlockEventHandler;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
 
@@ -33,7 +29,7 @@ public class Decision extends Block {
                     DECISION_WIDTH, DECISION_HIGHT / 2,
                     DECISION_WIDTH / 2, DECISION_HIGHT,
                     0, DECISION_HIGHT / 2);
-            polygon.setFill(Color.ORANGE);
+            polygon.setFill(Color.rgb(0, 0, 0, 0.5));
             return polygon;
         };
     }

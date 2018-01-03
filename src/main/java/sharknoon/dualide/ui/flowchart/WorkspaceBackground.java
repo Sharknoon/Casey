@@ -24,8 +24,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import sharknoon.dualide.Main;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.utils.settings.Logger;
@@ -37,17 +42,19 @@ import sharknoon.dualide.utils.settings.Ressources;
  */
 public class WorkspaceBackground implements Exitable {
 
-    final ImageView view;
+    final ImageView view1;
+    final ImageView view2;
     final List<Path> images = new ArrayList<>();
     int counter = 0;
     final ScheduledExecutorService imageChangingScheduler = Executors.newScheduledThreadPool(1);
 
-    public static void setBackground(ImageView view){
-        WorkspaceBackground wb = new WorkspaceBackground(view);
+    public static void setBackground(ImageView imageView1, ImageView imageView2) {
+        WorkspaceBackground wb = new WorkspaceBackground(imageView1, imageView2);
     }
-    
-    private WorkspaceBackground(ImageView view) {
-        this.view = view;
+
+    private WorkspaceBackground(ImageView imageView1, ImageView imageView2) {
+        view1 = imageView1;
+        view2 = imageView2;
         reloadImages();
         imageChangingScheduler.scheduleAtFixedRate(() -> {
             try {
@@ -60,15 +67,29 @@ public class WorkspaceBackground implements Exitable {
             } catch (Exception e) {
                 Logger.error("Could not change the background image", e);
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, (long) UISettings.workspaceBackgroundImageDuration.toMillis(), TimeUnit.MILLISECONDS);
         Main.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             stageWidth = newValue.doubleValue();
-            resizeImage();
+            resizeImage(view1);
+            resizeImage(view2);
         });
         Main.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
             stageHeight = newValue.doubleValue();
-            resizeImage();
+            resizeImage(view1);
+            resizeImage(view2);
         });
+        fadeToView1 = new Timeline(
+                new KeyFrame(UISettings.workspaceBackgroundFadingDuration,
+                        new KeyValue(view1.opacityProperty(), 1),
+                        new KeyValue(view2.opacityProperty(), 0)
+                )
+        );
+        fadeToView2 = new Timeline(
+                new KeyFrame(UISettings.workspaceBackgroundFadingDuration,
+                        new KeyValue(view1.opacityProperty(), 0),
+                        new KeyValue(view2.opacityProperty(), 1)
+                )
+        );
         Main.registerExitable(this);
     }
 
@@ -92,15 +113,27 @@ public class WorkspaceBackground implements Exitable {
             }
         });
     }
-    double stageHeight = 0;
-    double stageWidth = 0;
+    private double stageHeight = 0;
+    private double stageWidth = 0;
+    private boolean viewToggle = false;
+    private final Timeline fadeToView1;
+    private final Timeline fadeToView2;
 
     private void setImage(Path path) {
         Image image = new Image("file:///" + path.toString());
-        view.setImage(image);
+        if (viewToggle) {
+            view1.setImage(image);
+            fadeToView2.stop();
+            fadeToView1.playFromStart();
+        } else {
+            view2.setImage(image);
+            fadeToView1.stop();
+            fadeToView2.playFromStart();
+        }
+        viewToggle = !viewToggle;
     }
 
-    private void resizeImage() {
+    private void resizeImage(ImageView view) {
         Image image = view.getImage();
         if (image == null) {
             return;

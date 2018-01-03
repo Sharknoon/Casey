@@ -1,6 +1,5 @@
 package sharknoon.dualide.ui;
 
-import com.jfoenix.controls.JFXTabPane;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.Group;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.WorkspaceBackground;
@@ -25,10 +25,13 @@ public class MainController implements Initializable {
 
     @FXML
     private TabPane tabPane;
-    
+
     @FXML
-    private ImageView imageViewBackground;
-    
+    private ImageView imageView1;
+
+    @FXML
+    private ImageView imageView2;
+
     private Tab currentTab;
     private final Map<Tab, Flowchart> TABS = new HashMap<>();
     private static MainController controller;
@@ -76,10 +79,10 @@ public class MainController implements Initializable {
         buttonAddFlowchart.setOnAction((event) -> {
             createNewFlowchart("Hello World");
         });
-        WorkspaceBackground.setBackground(imageViewBackground);
+        WorkspaceBackground.setBackground(imageView1,imageView2);
         Radio.init(toolbarRadio);
     }
-    
+
     public static Optional<Flowchart> getCurrentFlowchart() {
         return Optional.ofNullable(controller.TABS.get(controller.currentTab));
     }

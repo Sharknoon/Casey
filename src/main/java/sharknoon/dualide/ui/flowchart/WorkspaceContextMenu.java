@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import sharknoon.dualide.ui.flowchart.blocks.Blocks;
 
 /**
  *
@@ -55,7 +56,7 @@ public class WorkspaceContextMenu {
         } else {
             menu.hide();
         }
-        if (!flowchart.isMouseOverShape()) {
+        if (!Blocks.isMouseOverBlock()) {
             MenuItem addNewDecisionBlockItem = new MenuItem("Add Decision Block");
             MenuItem addNewProgressBlockItem = new MenuItem("Add Progress Block");
             MenuItem addNewEndBlockItem = new MenuItem("Add End Block");

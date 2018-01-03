@@ -37,7 +37,6 @@ public class Flowchart {
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
     private final Keyboard kb = new Keyboard(this);
-    private boolean mouseOverShape = false;
 
     public Flowchart(Tab tab) {
         tab.setContent(root);
@@ -47,17 +46,13 @@ public class Flowchart {
     public void add(Node node) {
         root.getChildren().add(node);
     }
-
-    public boolean isMouseOverShape() {
-        return mouseOverShape;
-    }
-
-    public void setMouseOverShape(boolean mouseOverShape) {
-        this.mouseOverShape = mouseOverShape;
+    
+    public void remove(Node node){
+        root.getChildren().remove(node);
     }
 
     public void onMousePressed(MouseEvent event) {
-        if (!mouseOverShape) {
+        if (!Blocks.isMouseOverBlock()) {
             if (event.isPrimaryButtonDown()) {
                 bs.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isSecondaryButtonDown()) {
@@ -72,7 +67,7 @@ public class Flowchart {
     }
 
     public void onMouseDragged(MouseEvent event) {
-        if (!mouseOverShape) {
+        if (!Blocks.isMouseOverBlock()) {
             if (event.isPrimaryButtonDown()) {
                 bs.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isSecondaryButtonDown()) {
@@ -86,7 +81,7 @@ public class Flowchart {
     }
 
     public void onMouseReleased(MouseEvent event) {
-        if (!mouseOverShape) {
+        if (!Blocks.isMouseOverBlock()) {
             bs.onMouseReleased(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
         } else {
             bm.onMouseReleased();

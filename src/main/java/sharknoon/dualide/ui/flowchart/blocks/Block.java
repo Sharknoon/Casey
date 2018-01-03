@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.flowchart.blocks;
 
+import sharknoon.dualide.ui.flowchart.dots.Dot;
 import sharknoon.dualide.ui.flowchart.blocks.block.Start;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +12,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -24,9 +26,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
-import sharknoon.dualide.ui.flowchart.Line;
+import sharknoon.dualide.ui.flowchart.lines.Line;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.UISettings;
+import sharknoon.dualide.ui.flowchart.dots.Dots;
 import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
@@ -41,10 +44,10 @@ public abstract class Block implements Moveable {
     private final Timeline shadowShowTimeline = new Timeline();
     private final Timeline shadowRemoveTimeline = new Timeline();
     private final Timeline dotsShowTimeline = new Timeline();
-    private final Timeline dotsRemoveTimeline = new Timeline();
+    private final Timeline dotsHideTimeline = new Timeline();
     private final Timeline movingXTimeline = new Timeline();
     private final Timeline movingYTimeline = new Timeline();
-    private final List<Circle> dots = new ArrayList<>();
+    private final List<Dot> dots = new ArrayList<>();
     private final List<Line> lines = new ArrayList<>();
     private final Flowchart flowchart;
     private final double shapeWidth;
@@ -193,39 +196,9 @@ public abstract class Block implements Moveable {
 
     private void createDots(Side... dotSides) {
         for (Side dotSide : dotSides) {
-            Circle dot = new Circle(10, Color.BLACK);
-            dot.setOpacity(0);
-            dot.setOnMouseEntered(this::onMouseEntered);
-            dot.setOnMouseExited(this::onMouseExited);
-            dot.setOnMousePressed(this::onMousePressedOnDot);
-            dot.setOnMouseReleased(this::onMouseReleasedOnDot);
-            DropShadow shadow = new DropShadow(25, Color.WHITE);
-            shadow.setSpread(0.5);
-            dot.setEffect(shadow);
-            switch (dotSide) {
-                case BOTTOM:
-                    dot.setCenterX(shapeWidth / 2);
-                    dot.setCenterY(shapeHeight);
-                    dot.setTranslateY(-UISettings.dotsMovingDistance);
-                    break;
-                case LEFT:
-                    dot.setCenterX(0);
-                    dot.setCenterY(shapeHeight / 2);
-                    dot.setTranslateX(UISettings.dotsMovingDistance);
-                    break;
-                case RIGHT:
-                    dot.setCenterX(shapeWidth);
-                    dot.setCenterY(shapeHeight / 2);
-                    dot.setTranslateX(-UISettings.dotsMovingDistance);
-                    break;
-                case TOP:
-                    dot.setCenterX(shapeWidth / 2);
-                    dot.setCenterY(0);
-                    dot.setTranslateY(UISettings.dotsMovingDistance);
-                    break;
-            }
+            Dot dot = Dot.createDot(this, dotSide);
+            dot.addTo(pane);
             dots.add(dot);
-            pane.getChildren().add(dot);
         }
     }
 
@@ -243,9 +216,9 @@ public abstract class Block implements Moveable {
         shape.setEffect(dropShadow);
     }
 
-    private void onMouseEntered(MouseEvent event) {
-        flowchart.setMouseOverShape(true);
-        if (!event.isPrimaryButtonDown()) {
+    void onMouseEntered(MouseEvent event) {
+        Blocks.setMouseOverBlock(this);
+        if (!event.isPrimaryButtonDown() || Lines.isLineDrawing()) {
             showDots();
         }
     }
@@ -270,11 +243,13 @@ public abstract class Block implements Moveable {
         }
     }
 
-    private void onMouseExited(MouseEvent event) {
+    void onMouseExited(MouseEvent event) {
         if (!event.isPrimaryButtonDown()) {
-            flowchart.setMouseOverShape(false);
+            Blocks.removeMouseOverBlock();
         }
-        removeDots();
+        if (!Lines.isLineDrawing() && !Dots.isMouseOverDot()) {
+            hideDots();
+        }
     }
 
     public void unselect() {
@@ -298,13 +273,13 @@ public abstract class Block implements Moveable {
         }
     }
 
-    double oldMouseX;
-    double oldMouseY;
+    public double oldMouseX;
+    public double oldMouseY;
 
     public void onMousePressed(MouseEvent event) {
-        flowchart.setMouseOverShape(true);
-        Blocks.setCurrentBlock(flowchart, this);
-        removeDots();
+        Blocks.setMouseOverBlock(this);
+        Blocks.setWorkingBlock(flowchart, this);
+        hideDots();
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
             if (selected) {
@@ -320,18 +295,6 @@ public abstract class Block implements Moveable {
         this.pane.toFront();
     }
 
-    public void onMousePressedOnDot(MouseEvent event){
-        flowchart.setMouseOverShape(true);
-        Blocks.setCurrentBlock(flowchart, this);
-        menu.hide();
-        if (event.isPrimaryButtonDown()) {//connecting
-            oldMouseX = event.getSceneX();
-            oldMouseY = event.getSceneY();
-            Line line = Lines.createLine(flowchart, this);
-            Lines.setCurrentLine(flowchart, line);
-        }
-    }
-    
     public void highlight() {
         shadowShowTimeline.getKeyFrames().clear();
         DropShadow dropShadow = (DropShadow) blockShape.getEffect();
@@ -350,6 +313,7 @@ public abstract class Block implements Moveable {
     }
 
     public void onMouseReleased(MouseEvent event) {
+        Lines.removeLineDrawing();
         if (blockShape.contains(event.getX(), event.getY())) {
             showDots();
         }
@@ -364,10 +328,6 @@ public abstract class Block implements Moveable {
                 && Math.abs(oldMouseY - event.getSceneY()) <= UISettings.blockSelectionThreshold) {
             select();
         }
-    }
-    
-    public void onMouseReleasedOnDot(MouseEvent event){
-        
     }
 
     public void unhighlight() {
@@ -416,61 +376,21 @@ public abstract class Block implements Moveable {
     private void showDots() {
         dotsShowTimeline.getKeyFrames().clear();
         dots.forEach(dot -> {
-            KeyValue movingStart;
-            KeyValue movingEnd;
-            KeyValue opacityStart = new KeyValue(dot.opacityProperty(), dot.getOpacity());
-            KeyValue opacityEnd = new KeyValue(dot.opacityProperty(), 1);
-            if (dot.getCenterX() == 0) {//left
-                movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), 0);
-            } else if (dot.getCenterY() == 0) {//top
-                movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), 0);
-            } else if (dot.getCenterX() < shapeWidth) {//bottom
-                movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), 0);
-            } else {//right
-                movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), 0);
-            }
-            dotsShowTimeline.getKeyFrames().addAll(
-                    new KeyFrame(Duration.ZERO, movingStart, opacityStart),
-                    new KeyFrame(UISettings.dotsMovingDuration, movingEnd, opacityEnd)
-            );
+            dotsShowTimeline.getKeyFrames().addAll(dot.show());
         });
-        dotsRemoveTimeline.stop();
+        dotsHideTimeline.stop();
         dotsShowTimeline.stop();
         dotsShowTimeline.play();
     }
 
-    private void removeDots() {
-        dotsRemoveTimeline.getKeyFrames().clear();
+    private void hideDots() {
+        dotsHideTimeline.getKeyFrames().clear();
         dots.forEach(dot -> {
-            KeyValue movingStart;
-            KeyValue movingEnd;
-            KeyValue opacityStart = new KeyValue(dot.opacityProperty(), dot.getOpacity());
-            KeyValue opacityEnd = new KeyValue(dot.opacityProperty(), 0);
-            if (dot.getCenterX() == 0) {//left
-                movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), UISettings.dotsMovingDistance);
-            } else if (dot.getCenterY() == 0) {//top
-                movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), UISettings.dotsMovingDistance);
-            } else if (dot.getCenterX() < shapeWidth) {//bottom
-                movingStart = new KeyValue(dot.translateYProperty(), dot.getTranslateY());
-                movingEnd = new KeyValue(dot.translateYProperty(), -UISettings.dotsMovingDistance);
-            } else {//right
-                movingStart = new KeyValue(dot.translateXProperty(), dot.getTranslateX());
-                movingEnd = new KeyValue(dot.translateXProperty(), -UISettings.dotsMovingDistance);
-            }
-            dotsRemoveTimeline.getKeyFrames().addAll(
-                    new KeyFrame(Duration.ZERO, movingStart, opacityStart),
-                    new KeyFrame(UISettings.dotsMovingDuration, movingEnd, opacityEnd)
-            );
+            dotsHideTimeline.getKeyFrames().addAll(dot.hide());
         });
         dotsShowTimeline.stop();
-        dotsRemoveTimeline.stop();
-        dotsRemoveTimeline.play();
+        dotsHideTimeline.stop();
+        dotsHideTimeline.play();
     }
 
     public void addTo(Pane pane) {
@@ -484,4 +404,8 @@ public abstract class Block implements Moveable {
         ((Pane) pane.getParent()).getChildren().removeAll(shadowShape, pane);
     }
     
+    public Flowchart getFlowchart(){
+        return flowchart;
+    }
+
 }

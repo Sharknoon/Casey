@@ -66,6 +66,10 @@ public class UISettings {
     public static double predictionShadowStrokeWidth = blockBorderStrokeWidth;
     //The threshold in which a moving mouse is counted as a movement or a click for the selection of a block
     public static double blockSelectionThreshold = 2;
+    //The Color of the dots around the block
+    public static Color blockDotColor = Color.BLACK;
+    //The radius of the dots around the block
+    public static double blockDotRadius = 10;
     //
     //***Line***
     //The grid snapping of the x axis of a line, typically the same as the y axis and half of the blocks snapping

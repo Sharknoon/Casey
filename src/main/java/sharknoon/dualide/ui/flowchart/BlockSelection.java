@@ -107,7 +107,7 @@ public class BlockSelection {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        if (!flowchart.isMouseOverShape() && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
+        if (!Blocks.isMouseOverBlock() && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
             Blocks.unselectAll(flowchart);
         }
     }

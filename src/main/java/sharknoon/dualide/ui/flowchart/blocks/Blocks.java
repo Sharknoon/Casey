@@ -65,7 +65,7 @@ public class Blocks {
         return CURRENT_BLOCK.get(flowchart);
     }
 
-    public static void setCurrentBlock(Flowchart flowchart, Block block) {
+    public static void setWorkingBlock(Flowchart flowchart, Block block) {
         CURRENT_BLOCK.put(flowchart, block);
     }
 
@@ -101,4 +101,18 @@ public class Blocks {
                 || y + b.getHeight() > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
     }
 
+    private static Block mouseOverBlock = null;
+    
+    public static void setMouseOverBlock(Block block){
+        mouseOverBlock = block;
+    }
+    
+    public static boolean isMouseOverBlock(){
+        return mouseOverBlock != null;
+    }
+    
+    public static void removeMouseOverBlock(){
+        mouseOverBlock = null;
+    }
+    
 }

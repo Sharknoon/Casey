@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.Shape;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
 import sharknoon.dualide.ui.flowchart.blocks.Blocks;
+import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
  *
@@ -57,7 +58,7 @@ public class BlockMoving {
 
     public void onMouseDragged(Point2D localMouse) {
         Block block = Blocks.getCurrentBlock(flowchart);
-        if (block == null) {
+        if (block == null || Lines.isLineDrawing()) {
             return;
         }
 

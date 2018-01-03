@@ -66,7 +66,7 @@ public class Collections {
         if (map == null) {
             return new SilentUnmodifiableMap<>(new HashMap<>());
         }
-        return new SilentUnmodifiableMap(map);
+        return new SilentUnmodifiableMap<>(map);
     }
 
     static class SilentUnmodifiableCollection<E> implements Collection<E>, Serializable {

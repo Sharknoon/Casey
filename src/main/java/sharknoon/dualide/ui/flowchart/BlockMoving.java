@@ -37,7 +37,7 @@ public class BlockMoving {
 
     public void onMousePressed(Point2D localMouse) {
         lastDragSwitch = !lastDragSwitch;
-        Block block = Blocks.getCurrentBlock(flowchart);
+        Block block = Blocks.getWorkingBlock(flowchart);
         if (block == null) {
             return;
         }
@@ -57,7 +57,7 @@ public class BlockMoving {
     }
 
     public void onMouseDragged(Point2D localMouse) {
-        Block block = Blocks.getCurrentBlock(flowchart);
+        Block block = Blocks.getWorkingBlock(flowchart);
         if (block == null || Lines.isLineDrawing()) {
             return;
         }
@@ -144,7 +144,7 @@ public class BlockMoving {
     }
 
     public void onMouseReleased() {
-        Block block = Blocks.getCurrentBlock(flowchart);
+        Block block = Blocks.getWorkingBlock(flowchart);
         if (block == null) {
             return;
         }

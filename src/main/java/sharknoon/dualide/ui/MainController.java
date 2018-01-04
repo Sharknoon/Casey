@@ -70,6 +70,9 @@ public class MainController implements Initializable {
         tabPane.setOnMouseReleased((event) -> {
             getCurrentFlowchart().ifPresent(f -> f.onMouseReleased(event));
         });
+        tabPane.setOnMouseMoved((event) -> {
+            getCurrentFlowchart().ifPresent(f -> f.onMouseMoved(event));
+        });
         tabPane.setOnContextMenuRequested((event) -> {
             getCurrentFlowchart().ifPresent(f -> f.onContextMenuRequested(event));
         });
@@ -79,7 +82,7 @@ public class MainController implements Initializable {
         buttonAddFlowchart.setOnAction((event) -> {
             createNewFlowchart("Hello World");
         });
-        WorkspaceBackground.setBackground(imageView1,imageView2);
+        WorkspaceBackground.setBackground(imageView1, imageView2);
         Radio.init(toolbarRadio);
     }
 

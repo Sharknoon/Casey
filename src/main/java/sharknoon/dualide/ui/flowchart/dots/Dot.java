@@ -17,6 +17,7 @@ package sharknoon.dualide.ui.flowchart.dots;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +29,7 @@ import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.lines.Line;
 import sharknoon.dualide.ui.flowchart.UISettings;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
+import sharknoon.dualide.ui.flowchart.blocks.Blocks;
 import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
@@ -51,12 +53,11 @@ public class Dot {
         this.block = block;
         this.flowchart = block.getFlowchart();
 
-        circle = new Circle(UISettings.blockDotRadius, UISettings.blockDotColor);
+        circle = new Circle(UISettings.dotRadius, UISettings.dotColor);
         circle.setOpacity(0);
         circle.setOnMouseEntered(this::onMouseEntered);
         circle.setOnMouseExited(this::onMouseExited);
-        circle.setOnMousePressed(this::onMousePressed);
-        circle.setOnMouseReleased(this::onMouseReleased);
+        circle.setOnMouseClicked(this::onMouseClicked);
         DropShadow shadow = new DropShadow(25, Color.WHITE);
         shadow.setSpread(0.5);
         circle.setEffect(shadow);
@@ -84,8 +85,11 @@ public class Dot {
         }
     }
 
+    private Pane parentPane;
+
     public void addTo(Pane pane) {
         pane.getChildren().add(circle);
+        parentPane = pane;
     }
 
     public KeyFrame[] show() {
@@ -139,32 +143,44 @@ public class Dot {
         };
     }
 
+    /**
+     * relative to the scene
+     *
+     * @return
+     */
     public double getCenterX() {
-        return circle.getCenterX();
+        return block.getMinX() + circle.getCenterX();
     }
 
+    /**
+     * relative to the scene
+     *
+     * @return
+     */
     public double getCenterY() {
-        return circle.getCenterY();
+        return block.getMinY() + circle.getCenterY();
     }
 
-    private void onMouseEntered(MouseEvent event){
+    private void onMouseEntered(MouseEvent event) {
         Dots.setMouseOverDot(this);
-    }
-    
-    private void onMouseExited(MouseEvent event){
-        Dots.removeMouseOverDot();
-    }
-    
-    private void onMousePressed(MouseEvent event) {
-        Line line = Lines.createLine(flowchart, this);
-        Lines.setLineDrawing(line);
+        block.showDots();
+        Blocks.setMouseOverBlock(block);
     }
 
-    private void onMouseReleased(MouseEvent event) {
-        if (Lines.isLineDrawing()) {//connecting the two lines
-            Lines.getDrawingLine().setEndDot(this);
+    private void onMouseExited(MouseEvent event) {
+        Dots.removeMouseOverDot();
+        block.hideDots();
+        Blocks.removeMouseOverBlock();
+    }
+
+    private void onMouseClicked(MouseEvent event) {
+        if (!Lines.isLineDrawing()) {
+            Line line = Lines.createLine(flowchart, this);
+            Lines.setLineDrawing(line);
+        } else {
+            //TODO
         }
-        Lines.removeLineDrawing();
+
     }
 
     public Block getBlock() {
@@ -174,4 +190,5 @@ public class Dot {
     public Flowchart getFlowchart() {
         return flowchart;
     }
+
 }

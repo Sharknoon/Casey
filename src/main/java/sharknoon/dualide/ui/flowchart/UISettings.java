@@ -9,7 +9,9 @@ import javafx.util.Duration;
  */
 public class UISettings {
 
+    //
     //***Workspace***
+    //
     //Zoomfactor of the main zoom of the workspace
     public static double zoomFactor = 1.5;
     //The duration of the zoom mentioned above
@@ -31,9 +33,10 @@ public class UISettings {
     //The fading Duration between the background images
     public static Duration workspaceBackgroundFadingDuration = Duration.seconds(1);
     //The period of a image being in the background before being changed
-    public static Duration workspaceBackgroundImageDuration = Duration.seconds(5);
+    public static Duration workspaceBackgroundImageDuration = Duration.seconds(60);
     //
     //***Block***
+    //
     //The width of the stroke of the border
     public static double blockBorderStrokeWidth = 1;
     //The color of the stroke of the border
@@ -42,10 +45,6 @@ public class UISettings {
     public static double blockGridSnappingX = 100;
     //The grid spapping of the y axis of a block
     public static double blockGridSnappingY = 100;
-    //The duration of the dots of a block to move in and out
-    public static Duration dotsMovingDuration = Duration.millis(50);
-    //The distance the dots travel in and out
-    public static double dotsMovingDistance = 5;
     //The duration of the selection shadow to appear
     public static Duration selectionShadowDuration = Duration.millis(50);
     //The radius of the selection shadow
@@ -66,16 +65,27 @@ public class UISettings {
     public static double predictionShadowStrokeWidth = blockBorderStrokeWidth;
     //The threshold in which a moving mouse is counted as a movement or a click for the selection of a block
     public static double blockSelectionThreshold = 2;
+    //
+    //***Dot***
+    //
+    //The duration of the dots of a block to move in and out
+    public static Duration dotsMovingDuration = Duration.millis(50);
+    //The distance the dots travel in and out
+    public static double dotsMovingDistance = 5;
     //The Color of the dots around the block
-    public static Color blockDotColor = Color.BLACK;
+    public static Color dotColor = Color.BLACK;
     //The radius of the dots around the block
-    public static double blockDotRadius = 10;
+    public static double dotRadius = 10;
     //
     //***Line***
+    //
     //The grid snapping of the x axis of a line, typically the same as the y axis and half of the blocks snapping
     public static double lineGridSnappingX = 50;
     //The grid snapping of the y axis of a line
     public static double lineGridSnappingY = 50;
-    
-    
+    //The color of the Line
+    public static Color lineColor = Color.BLACK;
+    //The width of the line
+    public static double lineWidth = dotRadius * 2;
+
 }

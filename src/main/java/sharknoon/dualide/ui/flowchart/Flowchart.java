@@ -19,10 +19,12 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
 import sharknoon.dualide.ui.flowchart.blocks.Blocks;
+import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
  *
@@ -37,6 +39,7 @@ public class Flowchart {
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
     private final Keyboard kb = new Keyboard(this);
+    private final LineDrawing ld = new LineDrawing(this);
 
     public Flowchart(Tab tab) {
         tab.setContent(root);
@@ -46,8 +49,8 @@ public class Flowchart {
     public void add(Node node) {
         root.getChildren().add(node);
     }
-    
-    public void remove(Node node){
+
+    public void remove(Node node) {
         root.getChildren().remove(node);
     }
 
@@ -85,6 +88,13 @@ public class Flowchart {
             bs.onMouseReleased(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
         } else {
             bm.onMouseReleased();
+
+        }
+    }
+
+    public void onMouseMoved(MouseEvent event) {
+        if (Lines.isLineDrawing()) {
+            ld.onMouseMoved(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
         }
     }
 

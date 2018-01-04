@@ -38,4 +38,5 @@ public class Dots {
     public static Dot getMouseOverDot() {
         return mouseOverDot;
     }
+
 }

@@ -223,6 +223,9 @@ public abstract class Block implements Moveable {
         }
     }
 
+    /**
+     * Shows the smaller shadow of a selection of that block
+     */
     public void select() {
         if (!selected) {
             selected = true;
@@ -295,6 +298,9 @@ public abstract class Block implements Moveable {
         this.pane.toFront();
     }
 
+    /**
+     * Shows the bigger shadow, e.g. for the movement of the block
+     */
     public void highlight() {
         shadowShowTimeline.getKeyFrames().clear();
         DropShadow dropShadow = (DropShadow) blockShape.getEffect();
@@ -327,6 +333,9 @@ public abstract class Block implements Moveable {
         if (Math.abs(oldMouseX - event.getSceneX()) <= UISettings.blockSelectionThreshold
                 && Math.abs(oldMouseY - event.getSceneY()) <= UISettings.blockSelectionThreshold) {
             select();
+        }
+        if (Blocks.getWorkingBlock(flowchart) == this && !event.isControlDown()) {//Klick on this block
+            Blocks.getSelectedBlocks(flowchart).stream().filter(b -> b != this).forEach(Block::unselect);
         }
     }
 
@@ -373,7 +382,7 @@ public abstract class Block implements Moveable {
         menu.show(blockShape, event.getScreenX(), event.getScreenY());
     }
 
-    private void showDots() {
+    public void showDots() {
         dotsShowTimeline.getKeyFrames().clear();
         dots.forEach(dot -> {
             dotsShowTimeline.getKeyFrames().addAll(dot.show());
@@ -383,7 +392,7 @@ public abstract class Block implements Moveable {
         dotsShowTimeline.play();
     }
 
-    private void hideDots() {
+    public void hideDots() {
         dotsHideTimeline.getKeyFrames().clear();
         dots.forEach(dot -> {
             dotsHideTimeline.getKeyFrames().addAll(dot.hide());
@@ -403,8 +412,8 @@ public abstract class Block implements Moveable {
         Blocks.unregisterBlock(flowchart, this);
         ((Pane) pane.getParent()).getChildren().removeAll(shadowShape, pane);
     }
-    
-    public Flowchart getFlowchart(){
+
+    public Flowchart getFlowchart() {
         return flowchart;
     }
 

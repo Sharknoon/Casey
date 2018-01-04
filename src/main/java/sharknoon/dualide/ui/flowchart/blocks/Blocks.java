@@ -9,7 +9,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.UISettings;
 
@@ -61,7 +64,7 @@ public class Blocks {
         }
     }
 
-    public static Block getCurrentBlock(Flowchart flowchart) {
+    public static Block getWorkingBlock(Flowchart flowchart) {
         return CURRENT_BLOCK.get(flowchart);
     }
 
@@ -95,24 +98,24 @@ public class Blocks {
     }
 
     public static boolean isInsideWorkspace(Block b, double x, double y) {
-        return !(x < 0 + UISettings.paddingInsideWorkSpace 
-                || y < 0 + UISettings.paddingInsideWorkSpace 
+        return !(x < 0 + UISettings.paddingInsideWorkSpace
+                || y < 0 + UISettings.paddingInsideWorkSpace
                 || x + b.getWidth() > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace
                 || y + b.getHeight() > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
     }
 
     private static Block mouseOverBlock = null;
-    
-    public static void setMouseOverBlock(Block block){
+
+    public static void setMouseOverBlock(Block block) {
         mouseOverBlock = block;
     }
-    
-    public static boolean isMouseOverBlock(){
+
+    public static boolean isMouseOverBlock() {
         return mouseOverBlock != null;
     }
-    
-    public static void removeMouseOverBlock(){
+
+    public static void removeMouseOverBlock() {
         mouseOverBlock = null;
     }
-    
+
 }

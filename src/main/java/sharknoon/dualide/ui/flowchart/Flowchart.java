@@ -98,6 +98,12 @@ public class Flowchart {
         }
     }
 
+    public void onMouseClicked(MouseEvent event) {
+        if (Lines.isLineDrawing()) {
+            ld.onMouseClicked(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+        }
+    }
+
     public void onContextMenuRequested(ContextMenuEvent event) {
         wc.onContextMenuRequested(
                 root.sceneToLocal(event.getSceneX(), event.getSceneY()),

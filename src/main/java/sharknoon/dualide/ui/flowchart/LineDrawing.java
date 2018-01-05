@@ -15,13 +15,7 @@
  */
 package sharknoon.dualide.ui.flowchart;
 
-import java.util.Optional;
 import javafx.geometry.Point2D;
-import javafx.scene.input.MouseEvent;
-import sharknoon.dualide.ui.flowchart.blocks.Block;
-import sharknoon.dualide.ui.flowchart.blocks.Blocks;
-import sharknoon.dualide.ui.flowchart.dots.Dot;
-import sharknoon.dualide.ui.flowchart.dots.Dots;
 import sharknoon.dualide.ui.flowchart.lines.Line;
 import sharknoon.dualide.ui.flowchart.lines.Lines;
 
@@ -38,6 +32,10 @@ public class LineDrawing {
     }
 
     private boolean vertical = true;
+    private boolean negative = false;
+    private double lastPointX = -1;
+    private double lastPointY = -1;
+    private boolean allowed = true;
 
     public void onMouseMoved(Point2D local) {
         double x = local.getX();
@@ -45,30 +43,96 @@ public class LineDrawing {
 
         Line line = Lines.getDrawingLine();
 
-        double lastCornerX = line.getLastCornerX();
-        double lastCornerY = line.getLastCornerY();
+        double oldCornerX = line.getLastCornerX();
+        double oldCornerY = line.getLastCornerY();
 
-        vertical = Math.abs(y - lastCornerY) > Math.abs(x - lastCornerX);
+        vertical = Math.abs(y - oldCornerY) > Math.abs(x - oldCornerX);
 
-        double newCornerX, newCornerY;
+        double lineGridSnapping = vertical
+                ? UISettings.lineGridSnappingY
+                : UISettings.lineGridSnappingX;
+
+        double oldCorner = vertical ? oldCornerY : oldCornerX;
+        double newPoint;
         if (vertical) {
-            newCornerY = y - (y % UISettings.lineGridSnappingY);
-            if (y % UISettings.lineGridSnappingY > UISettings.lineGridSnappingY / 2) {
-                newCornerY += UISettings.lineGridSnappingY;
-            }
-            if (line.canExtendTo(newCornerY, vertical)) {
-                line.extend(newCornerY, vertical);
+            newPoint = y - (y % lineGridSnapping);
+            if (y % lineGridSnapping > lineGridSnapping / 2) {
+                newPoint += lineGridSnapping;
             }
         } else {
-            newCornerX = x - (x % UISettings.lineGridSnappingX);
-            if (x % UISettings.lineGridSnappingX > UISettings.lineGridSnappingX / 2) {
-                newCornerX += UISettings.lineGridSnappingX;
+            newPoint = x - (x % lineGridSnapping);
+            if (x % lineGridSnapping > lineGridSnapping / 2) {
+                newPoint += lineGridSnapping;
             }
-            if (line.canExtendTo(newCornerX, vertical)) {
-                line.extend(newCornerX, vertical);
+        }
+        if (lastPointX < 0) {
+            lastPointX = oldCornerX;
+        }
+        if (lastPointY < 0) {
+            lastPointY = oldCornerY;
+        }
+        if (newPoint == (vertical ? lastPointY : lastPointX)) {
+            return;
+        }
+        //System.out.println("corner: " + oldCorner + ", lastpoint: " + (vertical ? lastPointY : lastPointX) + ", newpoint: " + newPoint);
+        negative = newPoint < oldCorner;
+
+        double nextPoint = oldCorner;
+        line.removePointsSinceLastCorner();
+        if (nextPoint != newPoint) {
+            while (true) {
+                if (negative) {
+                    nextPoint -= lineGridSnapping;
+                    if (nextPoint < newPoint) {
+                        return;
+                    }
+                } else {
+                    nextPoint += lineGridSnapping;
+                    if (nextPoint > newPoint) {
+                        return;
+                    }
+                }
+                if (vertical) {
+                    lastPointY = nextPoint;
+                } else {
+                    lastPointX = nextPoint;
+                }
+                if (line.canExtendTo(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY)) {
+                    allowed = true;
+                    line.extend(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
+                } else {
+                    allowed = false;
+                    if (vertical) {
+                        lastPointY = newPoint;
+                    } else {
+                        lastPointX = newPoint;
+                    }
+                    return;
+                }
+            }
+        } else {
+            if (vertical) {
+                lastPointY = nextPoint;
+            } else {
+                lastPointX = nextPoint;
+            }
+            if (line.canExtendTo(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY)) {
+                allowed = true;
+                line.extend(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
+            } else {
+                allowed = false;
             }
         }
 
+    }
+
+    public void onMouseClicked(Point2D local) {
+        Line line = Lines.getDrawingLine();
+        if (allowed) {
+            line.addCorner();
+        } else {
+            line.destroy();
+        }
     }
 
 }

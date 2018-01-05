@@ -14,7 +14,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.utils.settings.Ressources;
@@ -29,6 +28,11 @@ public class Main extends Application {
     public static Stage stage;
 
     @Override
+    public void init() throws Exception {
+        System.setProperty("javafx.animation.framerate", "144");
+    }
+
+    @Override
     public void start(Stage primaryStage) throws IOException {
         Ressources.resetRessources(true);
         stage = primaryStage;
@@ -38,11 +42,12 @@ public class Main extends Application {
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/MainCSS.css");
-        
+
         stage.setTitle(Props.get("name").orElse("Unnamed Dual Universe IDE"));
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
+
     }
 
     private static final List<Exitable> EXITABLES = new ArrayList<>();

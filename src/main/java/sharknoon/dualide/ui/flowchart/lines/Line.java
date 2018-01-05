@@ -33,11 +33,11 @@ public class Line {
         this.flowchart = flowchart;
         this.startX = this.startDot.getCenterX();
         this.startY = this.startDot.getCenterY();
-        line = new Polyline(startX, startY);
-        lastCorner = new Point2D(startX, startY);
-        points.add(lastCorner);
+        line = new Polyline();
         line.setStroke(UISettings.lineColor);
         line.setStrokeWidth(UISettings.lineWidth);
+        addPoint(startX, startY);
+        addCorner();
         this.flowchart.add(line);
 
     }
@@ -48,11 +48,12 @@ public class Line {
             destroy();
             return;
         }
-        createNewCorner(dot.getCenterX(), dot.getCenterY());
+        //createNewCorner(dot.getCenterX(), dot.getCenterY());
     }
 
     public void destroy() {
         flowchart.remove(line);
+        Lines.removeLineDrawing();
     }
 
     public double getLastCornerX() {
@@ -63,9 +64,10 @@ public class Line {
         return lastCorner.getY();
     }
 
-    public void addPoint(double x, double y) {
+    private void addPoint(double x, double y) {
         line.getPoints().addAll(x, y);
-        points.add(new Point2D(x, y));
+        Point2D point = new Point2D(x, y);
+        points.add(point);
     }
 
     /**
@@ -77,87 +79,56 @@ public class Line {
         return points.get(points.size() - 1);
     }
 
-    public void removeLastPoint() {
-        int size = line.getPoints().size();
-        line.getPoints().remove(size - 2, size);
-        points.remove(points.size() - 1);
+    public void removePointsSinceLastCorner() {
+        int lastPoints = getPointsSinceLastCorner().size();
+        int pointsSize = points.size();
+        for (int i = 0; i < lastPoints; i++) {
+            points.remove(pointsSize - 1 - i);
+        }
+        line.getPoints().remove((pointsSize * 2) - (lastPoints * 2), pointsSize * 2);
     }
 
     public Point2D getLastCorner() {
         return lastCorner;
     }
 
-    public boolean canExtendTo(double newValue, boolean vertical) {
+    public List<Point2D> getPointsSinceLastCorner() {
+        List<Point2D> pointsSinceLastCorner = new ArrayList<>();
+        for (int i = points.size() - 1; i >= 0; i--) {
+            if (!lastCorner.equals(points.get(i))) {
+                pointsSinceLastCorner.add(points.get(i));
+            } else {
+                return pointsSinceLastCorner;
+            }
+        }
+        return pointsSinceLastCorner;
+    }
+
+    public boolean canExtendTo(double x, double y) {
         //TODO check between complete line
-        Bounds newLine = new BoundingBox(getLastCornerX(), getLastCornerY(), vertical ? 1 : newValue, vertical ? newValue : 1);
-        boolean noBlock;
-        if (vertical) {
-//            Blocks
-//                    .getAllBlocks(flowchart)
-//                    .stream()
-//                    .map(b -> b.getBounds())
-//                    .noneMatch(b -> b.contains(vertical));
-        }
-        noBlock = Blocks
+
+        boolean noBlock = Blocks
                 .getAllBlocks(flowchart)
                 .stream()
-                .noneMatch(block -> block.getBounds().contains(newLine.getMaxX(), newLine.getMaxY()));
+                .noneMatch(block -> block.getBounds().contains(x, y));
 
-        noBlock = Blocks
-                .getAllBlocks(flowchart)
-                .stream()
-                .filter(b -> b != startDot.getBlock())
-                .noneMatch(block -> block.getBounds().intersects(newLine));
-
-        boolean insideWorkspace;
-        if (vertical) {
-            insideWorkspace = !(newValue < 0 + UISettings.paddingInsideWorkSpace
-                    || newValue > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
-        } else {
-            insideWorkspace = !(newValue < 0 + UISettings.paddingInsideWorkSpace
-                    || newValue > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace);
-        }
+        boolean insideWorkspace = !(x < 0 + UISettings.paddingInsideWorkSpace
+                || x > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace
+                || y < 0 + UISettings.paddingInsideWorkSpace
+                || y > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
 
 //        boolean notMyLine = points
 //                .stream()
 //                .noneMatch(p -> p.getX() == x && p.getY() == y);
-        return /*noBlock &&*/ insideWorkspace;
+        return noBlock && insideWorkspace;
     }
 
-    public boolean vertical = true;
-    public double lastValue = 0;
-
-    public void extend(double newValue, boolean vertical) {
-        if (this.vertical == vertical && newValue == lastValue) {
-            return;
-        }
-        if (this.vertical != vertical) {
-            for (int i = points.size() - 1; i >= 0; i--) {
-                Point2D point = points.get(i);
-                if (point != lastCorner) {
-                    removeLastPoint();
-                } else {
-                    break;
-                }
-            }
-            this.vertical = vertical;
-        }
-        if (Math.abs(newValue) < Math.abs(lastValue)) {
-            removeLastPoint();
-        } else {
-            double x = vertical ? getLastCornerX() : newValue;
-            double y = vertical ? newValue : getLastCornerY();
-            addPoint(x, y);
-        }
-        System.out.println("lastvalue: " + lastValue + ", newvalue: " + newValue);
-        lastValue = newValue;
+    public void extend(double x, double y) {
+        addPoint(x, y);
     }
 
-    public void createNewCorner(double x, double y) {
-        line.getPoints().addAll(x, y);
-        Point2D corner = new Point2D(x, y);
-        lastCorner = corner;
-        points.add(corner);
+    public void addCorner() {
+        lastCorner = getLastPoint();
     }
 
 }

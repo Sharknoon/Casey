@@ -73,6 +73,9 @@ public class MainController implements Initializable {
         tabPane.setOnMouseMoved((event) -> {
             getCurrentFlowchart().ifPresent(f -> f.onMouseMoved(event));
         });
+        tabPane.setOnMouseClicked((event) -> {
+            getCurrentFlowchart().ifPresent(f -> f.onMouseClicked(event));
+        });
         tabPane.setOnContextMenuRequested((event) -> {
             getCurrentFlowchart().ifPresent(f -> f.onContextMenuRequested(event));
         });

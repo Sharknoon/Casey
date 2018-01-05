@@ -1,6 +1,7 @@
 package sharknoon.dualide.ui.flowchart.lines;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class Lines {
     }
 
     private static final Map<Flowchart, List<Line>> LINES = new HashMap<>();
+    private static final List<Line> EMPTY = new ArrayList<>();
 
     private static Line lineDrawing = null;
 
@@ -40,9 +42,19 @@ public class Lines {
     public static void removeLineDrawing() {
         lineDrawing = null;
     }
-    
-    public static Line getDrawingLine(){
+
+    public static Line getDrawingLine() {
         return lineDrawing;
+    }
+
+    public static Collection<Line> getAllLines(Flowchart flowchart) {
+        return LINES.getOrDefault(flowchart, EMPTY);
+    }
+
+    public static void unregisterLine(Flowchart flowchart, Line line) {
+        if (LINES.containsKey(flowchart)) {
+            LINES.get(flowchart).remove(line);
+        }
     }
 
 }

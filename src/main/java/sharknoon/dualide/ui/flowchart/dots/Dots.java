@@ -15,13 +15,24 @@
  */
 package sharknoon.dualide.ui.flowchart.dots;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  *
  * @author Josua Frank
  */
 public class Dots {
 
+    private static final Set<Dot> DOTS = new HashSet<>();
     private static Dot mouseOverDot = null;
+
+    public static void registerDot(Dot dot) {
+        DOTS.add(dot);
+    }
 
     public static void setMouseOverDot(Dot dot) {
         mouseOverDot = dot;
@@ -37,6 +48,14 @@ public class Dots {
 
     public static Dot getMouseOverDot() {
         return mouseOverDot;
+    }
+
+    public static Optional<Dot> isOverDot(double x, double y) {
+        //System.out.println("X: " + x + ", Y: " + y);
+        //DOTS.forEach(dot -> System.out.print("DotX: " + dot.getCenterX() + ", DotY: " + dot.getCenterY()));
+        return DOTS.stream()
+                .filter(d -> d.getCenterX() == x && d.getCenterY() == y)
+                .findFirst();
     }
 
 }

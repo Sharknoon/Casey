@@ -7,9 +7,11 @@ import sharknoon.dualide.ui.flowchart.blocks.block.End;
 import sharknoon.dualide.ui.flowchart.blocks.block.Decision;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -38,15 +40,15 @@ public class Blocks {
         return new Process(flowchart);
     }
 
-    private static final Map<Flowchart, List<Block>> BLOCKS = new HashMap<>();
+    private static final Map<Flowchart, Set<Block>> BLOCKS = new HashMap<>();
     private static final Map<Flowchart, Block> CURRENT_BLOCK = new HashMap<>();
-    private static final List<Block> EMPTY = new ArrayList<>();
+    private static final Set<Block> EMPTY = new HashSet<>();
 
     static void registerBlock(Flowchart flowchart, Block block) {
         if (BLOCKS.containsKey(flowchart)) {
             BLOCKS.get(flowchart).add(block);
         } else {
-            ArrayList<Block> list = new ArrayList<>();
+            Set<Block> list = new HashSet<>();
             list.add(block);
             BLOCKS.put(flowchart, list);
         }

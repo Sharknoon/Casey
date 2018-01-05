@@ -99,7 +99,7 @@ public class LineDrawing {
                 }
                 if (line.canExtendTo(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY)) {
                     allowed = true;
-                    line.extend(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
+                    line.addPoint(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
                 } else {
                     allowed = false;
                     if (vertical) {
@@ -118,7 +118,7 @@ public class LineDrawing {
             }
             if (line.canExtendTo(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY)) {
                 allowed = true;
-                line.extend(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
+                line.addPoint(vertical ? oldCornerX : nextPoint, vertical ? nextPoint : oldCornerY);
             } else {
                 allowed = false;
             }
@@ -131,7 +131,7 @@ public class LineDrawing {
         if (allowed) {
             line.addCorner();
         } else {
-            line.destroy();
+            line.remove();
         }
     }
 

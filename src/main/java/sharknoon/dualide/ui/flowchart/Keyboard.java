@@ -6,6 +6,8 @@ import javafx.scene.input.KeyEvent;
 import sharknoon.dualide.ui.flowchart.blocks.Block;
 import sharknoon.dualide.ui.flowchart.blocks.Blocks;
 import sharknoon.dualide.ui.flowchart.blocks.block.Start;
+import sharknoon.dualide.ui.flowchart.lines.Line;
+import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
  *
@@ -27,17 +29,31 @@ public class Keyboard {
             case DELETE:
                 onDELETE();
                 break;
+            case ESCAPE:
+                onESCAPE();
+                break;
         }
     }
 
     private void onDELETE() {
-        List<Block> selectedBlocks = Blocks
+        List<Block> blocksToDelete = Blocks
                 .getAllBlocks(flowchart)
                 .stream()
                 .filter(Block::isSelected)
                 .filter(b -> b.getClass() != Start.class)
                 .collect(Collectors.toList());
-        selectedBlocks
-                .forEach(Block::remove);
+        blocksToDelete.forEach(Block::remove);//Maybe a concurrentmodificationexception
+        List<Line> linesToDelete = Lines.getAllLines(flowchart)
+                .stream()
+                .filter(Line::isSelected)
+                .collect(Collectors.toList());
+        linesToDelete.forEach(Line::remove);
+
+    }
+
+    private void onESCAPE() {
+        if (Lines.isLineDrawing()) {
+            Lines.getDrawingLine().remove();
+        }
     }
 }

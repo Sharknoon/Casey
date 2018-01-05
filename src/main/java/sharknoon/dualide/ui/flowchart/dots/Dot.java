@@ -83,16 +83,15 @@ public class Dot {
                 circle.setTranslateY(UISettings.dotsMovingDistance);
                 break;
         }
+        Dots.registerDot(this);
     }
-
-    private Pane parentPane;
 
     public void addTo(Pane pane) {
         pane.getChildren().add(circle);
-        parentPane = pane;
     }
 
     public KeyFrame[] show() {
+        block.toFront();
         KeyValue movingStart;
         KeyValue movingEnd;
         KeyValue opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
@@ -175,12 +174,16 @@ public class Dot {
 
     private void onMouseClicked(MouseEvent event) {
         if (!Lines.isLineDrawing()) {
-            Line line = Lines.createLine(flowchart, this);
-            Lines.setLineDrawing(line);
+            Line drawingLine = Lines.createLine(flowchart, this);
+            line = drawingLine;
+            Lines.setLineDrawing(drawingLine);
         } else {
-            //TODO
+            Line drawingLine = Lines.getDrawingLine();
+            line = drawingLine;
+            Lines.removeLineDrawing();
+            drawingLine.setEndDot(this);
         }
-
+        block.toFront();
     }
 
     public Block getBlock() {
@@ -189,6 +192,11 @@ public class Dot {
 
     public Flowchart getFlowchart() {
         return flowchart;
+    }
+
+    public void removeLine() {
+        line = null;
+        block.hideDots();
     }
 
 }

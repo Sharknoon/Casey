@@ -84,8 +84,14 @@ public class UISettings {
     //The grid snapping of the y axis of a line
     public static double lineGridSnappingY = 50;
     //The color of the Line
-    public static Color lineColor = Color.BLACK;
+    public static Color lineColor = Color.WHITE;
     //The width of the line
-    public static double lineWidth = dotRadius * 2;
+    public static double lineWidth = 5;
+    //The duration of the selection shadow to appear
+    public static Duration lineSelectionShadowDuration = Duration.millis(50);
+    //The radius of the selection shadow
+    public static double lineSelectionShadowRadius = 50;
+    //The color of the selection shadow
+    public static Color lineSelectionShadowColor = Color.CORNFLOWERBLUE;
 
 }

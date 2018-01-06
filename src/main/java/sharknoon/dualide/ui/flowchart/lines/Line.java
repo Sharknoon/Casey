@@ -152,12 +152,10 @@ public class Line {
     }
 
     public void onMouseClicked(MouseEvent event) {
-        if (Lines.isLineDrawing()) {
-
-        } else {
+        if (!Lines.isLineDrawing()) {
             if (selected) {
                 unselect();
-            }else{
+            } else {
                 select();
             }
         }
@@ -206,6 +204,22 @@ public class Line {
 
     public boolean isSelected() {
         return selected;
+    }
+
+    public double getMinX() {
+        return line.getBoundsInParent().getMinX();
+    }
+
+    public double getMinY() {
+        return line.getBoundsInParent().getMinY();
+    }
+
+    public double getWidth() {
+        return line.getBoundsInParent().getWidth();
+    }
+
+    public double getHeight() {
+        return line.getBoundsInParent().getHeight();
     }
 
 }

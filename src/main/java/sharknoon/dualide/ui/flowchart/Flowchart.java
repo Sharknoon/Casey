@@ -34,7 +34,7 @@ public class Flowchart {
 
     private final AnchorPane root = new AnchorPane();
     private final Timeline zoomTimeline = new Timeline();
-    private final BlockSelection bs = new BlockSelection(this);
+    private final Selection bs = new Selection(this);
     private final BlockMoving bm = new BlockMoving(this);
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
@@ -73,7 +73,7 @@ public class Flowchart {
         if (!Blocks.isMouseOverBlock()) {
             if (event.isPrimaryButtonDown()) {
                 bs.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
-            } else if (event.isSecondaryButtonDown()) {
+            } else if (event.isMiddleButtonDown()) {
                 wm.onMouseDragged(event.getSceneX(), event.getSceneY());
             }
         } else {
@@ -86,9 +86,9 @@ public class Flowchart {
     public void onMouseReleased(MouseEvent event) {
         if (!Blocks.isMouseOverBlock()) {
             bs.onMouseReleased(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+            
         } else {
             bm.onMouseReleased();
-
         }
     }
 

@@ -32,12 +32,12 @@ public class WorkspaceContextMenu {
     }
 
     public void onContextMenuRequested(Point2D workspaceOrigin, Point2D screenOrigin, Node originNode) {
-        if (Math.abs(origin.getX() - screenOrigin.getX()) > UISettings.contextMenuThreshold) {
-            return;
-        }
-        if (Math.abs(origin.getY() - screenOrigin.getY()) > UISettings.contextMenuThreshold) {
-            return;
-        }
+//        if (Math.abs(origin.getX() - screenOrigin.getX()) > UISettings.contextMenuThreshold) {
+//            return;
+//        }
+//        if (Math.abs(origin.getY() - screenOrigin.getY()) > UISettings.contextMenuThreshold) {
+//            return;
+//        }
         double x = workspaceOrigin.getX();
         double y = workspaceOrigin.getY();
         if (x < 0 + UISettings.paddingInsideWorkSpace) {

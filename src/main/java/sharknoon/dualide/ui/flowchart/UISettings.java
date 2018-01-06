@@ -28,8 +28,8 @@ public class UISettings {
     public static Color workspaceLineColor = Color.BLACK;
     //The color of the background of the workspace
     public static Color workspaceBackgroundColor = Color.rgb(0, 0, 0, 0.50);
-    //The threshold in which a moving mouse is counted as a movement or a click for the context menue
-    public static double contextMenuThreshold = 2;
+//    //The threshold in which a moving mouse is counted as a movement or a click for the context menue
+//    public static double contextMenuThreshold = 2;
     //The fading Duration between the background images
     public static Duration workspaceBackgroundFadingDuration = Duration.seconds(1);
     //The period of a image being in the background before being changed
@@ -63,8 +63,8 @@ public class UISettings {
     public static Color predictionShadowStrokeColor = Color.GREY;
     //The width of the shadow stroke of the block
     public static double predictionShadowStrokeWidth = blockBorderStrokeWidth;
-    //The threshold in which a moving mouse is counted as a movement or a click for the selection of a block
-    public static double blockSelectionThreshold = 2;
+//    //The threshold in which a moving mouse is counted as a movement or a click for the selection of a block
+//    public static double blockSelectionThreshold = 2;
     //
     //***Dot***
     //

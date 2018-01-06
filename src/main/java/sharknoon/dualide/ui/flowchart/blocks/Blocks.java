@@ -1,6 +1,5 @@
 package sharknoon.dualide.ui.flowchart.blocks;
 
-import java.util.ArrayList;
 import sharknoon.dualide.ui.flowchart.blocks.block.Start;
 import sharknoon.dualide.ui.flowchart.blocks.block.Process;
 import sharknoon.dualide.ui.flowchart.blocks.block.End;
@@ -8,13 +7,9 @@ import sharknoon.dualide.ui.flowchart.blocks.block.Decision;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import sharknoon.dualide.ui.flowchart.Flowchart;
 import sharknoon.dualide.ui.flowchart.UISettings;
 

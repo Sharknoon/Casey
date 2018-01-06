@@ -73,6 +73,7 @@ public abstract class Block implements Moveable {
         this.flowchart = flowchart;
         blockShape.setOnMousePressed(this::onMousePressed);
         blockShape.setOnMouseReleased(this::onMouseReleased);
+        blockShape.setOnMouseClicked(this::onMouseClicked);
         blockShape.setOnContextMenuRequested(this::onContextMenuRequested);
         blockShape.setOnMouseEntered(this::onMouseEntered);
         blockShape.setOnMouseExited(this::onMouseExited);
@@ -328,13 +329,17 @@ public abstract class Block implements Moveable {
         } else {
             unhighlight();
         }
-        if (Math.abs(oldMouseX - event.getSceneX()) <= UISettings.blockSelectionThreshold
-                && Math.abs(oldMouseY - event.getSceneY()) <= UISettings.blockSelectionThreshold) {
-            select();
-        }
+//        if (Math.abs(oldMouseX - event.getSceneX()) <= UISettings.blockSelectionThreshold
+//                && Math.abs(oldMouseY - event.getSceneY()) <= UISettings.blockSelectionThreshold) {
+//              select(); 
+//        }
         if (Blocks.getWorkingBlock(flowchart) == this && !event.isControlDown()) {//Klick on this block
             Blocks.getSelectedBlocks(flowchart).stream().filter(b -> b != this).forEach(Block::unselect);
         }
+    }
+
+    public void onMouseClicked(MouseEvent event) {
+        select();
     }
 
     public void unhighlight() {

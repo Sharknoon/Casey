@@ -4,19 +4,20 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sharknoon.dualide.ui.flowchart.blocks.Blocks;
+import sharknoon.dualide.ui.flowchart.lines.Lines;
 
 /**
  *
  * @author Josua Frank
  */
-public class BlockSelection {
+public class Selection {
 
     private final Flowchart flowchart;
     private final Rectangle selectionRectangle = new Rectangle();
     private double startX = 0;
     private double startY = 0;
 
-    public BlockSelection(Flowchart controller) {
+    public Selection(Flowchart controller) {
         this.flowchart = controller;
     }
 
@@ -99,6 +100,17 @@ public class BlockSelection {
                 b.select();
             } else {
                 b.unselect();
+            }
+        });
+
+        Lines.getAllLines(flowchart).stream().forEach(l -> {
+            if (l.getMinX() > translateX
+                    && l.getMinY() > translateY
+                    && l.getMinX() + l.getWidth() < translateX + finalWidth
+                    && l.getMinY() + l.getHeight() < translateY + finalHight) {
+                l.select();
+            } else {
+                l.unselect();
             }
         });
     }

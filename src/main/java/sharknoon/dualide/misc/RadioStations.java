@@ -15,18 +15,26 @@
  */
 package sharknoon.dualide.misc;
 
-import sharknoon.dualide.ui.MainApplication;
-
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
-public interface Exitable {
+public enum RadioStations {
+    //DUFM du-radio.com
+    DUFM("http://ns511142.ip-198-27-66.net:8048/stream");
+    //Hopefully more to come
+
+    private final String url;
+
+    private RadioStations(String url) {
+        this.url = url;
+    }
 
     /**
-     * This method is being called as soon as the program exits
+     * Returns the URL if this radio
+     * @return The URL of this radio
      */
-    public void onExit();
+    public String getURL() {
+        return url;
+    }
 }

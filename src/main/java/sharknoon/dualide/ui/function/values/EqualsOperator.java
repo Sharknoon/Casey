@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
-
-import sharknoon.dualide.ui.MainApplication;
+package sharknoon.dualide.ui.function.values;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
-public interface Exitable {
+public class EqualsOperator extends BiOperator<BooleanValue, Value, Value>{
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    @Override
+    public BooleanValue getValue() {
+        return new BooleanValue(firstArgument.equals(secondArgument));
+    }
+    
 }

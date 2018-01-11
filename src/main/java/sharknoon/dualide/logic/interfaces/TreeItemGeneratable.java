@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
+package sharknoon.dualide.logic.interfaces;
 
-import sharknoon.dualide.ui.MainApplication;
+import javafx.scene.control.TreeItem;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
-public interface Exitable {
+public interface TreeItemGeneratable {
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    public TreeItem createTreeItem();
 }

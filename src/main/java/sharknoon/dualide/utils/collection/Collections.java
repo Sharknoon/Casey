@@ -1,7 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2018 Shark Industries.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package sharknoon.dualide.utils.collection;
 
@@ -19,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +39,13 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
 /**
  *
  * @author frank
  */
 public class Collections {
-    
+
     /**
      * Makes a List to a unmodifiable List, which prohibites any changes.
      * Otherwise the {@link Collections#unmodifiableList(List)} method, this
@@ -41,7 +53,7 @@ public class Collections {
      * just does nothing.
      *
      * @param <T> The Type of the List
-     * @param list The list to be converted
+     * @param list The List to be converted
      * @return The unmodifiable silent List
      */
     public static <T> List<T> silentUnmodifiableList(List<? extends T> list) {
@@ -49,6 +61,23 @@ public class Collections {
             return new SilentUnmodifiableList<>(new ArrayList<>());
         }
         return new SilentUnmodifiableList<>(list);
+    }
+
+    /**
+     * Makes a Set to a unmodifiable Set, which prohibites any changes.
+     * Otherwise the {@link Collections#unmodifiableSet(Set)} method, this
+     * Set will <b>not</b> throw any errors if you want to change something, it
+     * just does nothing.
+     *
+     * @param <T> The Type of the List
+     * @param set The Set to be converted
+     * @return The unmodifiable silent Set
+     */
+    public static <T> Set<T> silentUnmodifiableSet(Set<? extends T> set) {
+        if (set == null) {
+            return new SilentUnmodifiableSet<>(new HashSet<>());
+        }
+        return new SilentUnmodifiableSet<>(set);
     }
 
     /**
@@ -785,5 +814,5 @@ public class Collections {
 
     static boolean eq(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
-}
+    }
 }

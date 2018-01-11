@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
-
-import sharknoon.dualide.ui.MainApplication;
+package sharknoon.dualide.ui.function.values;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
+ * @param <T>
  */
-public interface Exitable {
+public interface Returnable<T> {
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    public T getValue();
 }

@@ -13,20 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
-
-import sharknoon.dualide.ui.MainApplication;
+package sharknoon.dualide.ui.function.values;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
+ * @param <T> The type of the value
  */
-public interface Exitable {
+abstract class Value<T> implements Returnable<T>{
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    private T value;
+
+    protected Value(T value) {
+        this.value = value;
+    }
+
+    @Override
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+    
+    abstract T getDefault();
+
 }

@@ -1,7 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2018 Shark Industries.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package sharknoon.dualide.utils.language;
 
@@ -11,6 +21,15 @@ package sharknoon.dualide.utils.language;
  * @author frank
  */
 public enum Word {
-    RUN
+    RUN,
+    NEW_PROJECT_DIALOG_TITLE,
+    NEW_PROJECT_DIALOG_HEADER_TEXT,
+    NEW_PROJECT_DIALOG_CONTENT_TEXT,
+    WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT,
+    WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT,
+    TREE_VIEW_ROOT_ITEM_NAME,
+    WELCOME_SITE_TAB_TITLE,
+    MENUBAR_OPTIONS_TEXT,
+    MENUBAR_OPTIONS_LANGUAGE_TEXT
 
 }

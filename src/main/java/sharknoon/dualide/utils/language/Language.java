@@ -1,7 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2018 Shark Industries.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package sharknoon.dualide.utils.language;
 
@@ -10,12 +20,13 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javafx.scene.control.Labeled;
 import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.language.lanugages.English;
 import sharknoon.dualide.utils.language.lanugages.German;
-import sharknoon.dualide.utils.settings.Props;
+import sharknoon.dualide.utils.settings.IDEProps;
 
 /**
  *
@@ -31,9 +42,10 @@ import sharknoon.dualide.utils.settings.Props;
 public abstract class Language {
 
     //Static Part---------------------------------------------------------------
+    private static final String LANGUAGE_PROPERTY_KEY = "language";
     private static final HashMap<Locale, Language> LANGUAGES = new HashMap<>();
-    public static final Language ENGLISH = new English(Locale.ENGLISH);
-    public static final Language GERMAN = new German(Locale.GERMAN);
+    public static final Language ENGLISH = new English();
+    public static final Language GERMAN = new German();
     //ADD NEW LANGUAGES HERE
 
     /**
@@ -56,11 +68,22 @@ public abstract class Language {
         return Collections.silentUnmodifiableMap(LANGUAGES);
     }
 
+    /**
+     * Returns the Language for the Locale or English if this language isnt
+     * available
+     *
+     * @param locale
+     * @return
+     */
+    public static Language forLocale(Locale locale) {
+        return LANGUAGES.getOrDefault(locale, ENGLISH);
+    }
+
     //Part to be inherited by Language classes----------------------------------
     private final Map<Word, String> words = new HashMap<>();
     private final Locale locale;
 
-    public Language(Locale locale) {
+    protected Language(Locale locale) {
         this.locale = locale;
         LANGUAGES.put(locale, this);
     }
@@ -73,18 +96,21 @@ public abstract class Language {
         return locale.toLanguageTag();
     }
 
+    public Locale getLocale() {
+        return locale;
+    }
+
     //User-specific Part--------------------------------------------------------
     private static Language currentLanguage;
 
     static {
-        String languagePropertyKey = "language";
-        String languageFromPropertiesFile = Props.get(languagePropertyKey).orElse("");
+        Optional<String> languageFromPropertiesFile = IDEProps.get(LANGUAGE_PROPERTY_KEY);
         String languageTagFromSystem = System.getProperty("user.language");
-        if (languageFromPropertiesFile.isEmpty()) {//If no language has been set
+        if (!languageFromPropertiesFile.isPresent()) {//If no language has been set
             currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageTagFromSystem), ENGLISH);
-            Props.set(languagePropertyKey, currentLanguage.getLanguageTag());
+            IDEProps.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
         } else {//If a language has already been set, either manually or through a previous run
-            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageFromPropertiesFile), ENGLISH);
+            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageFromPropertiesFile.get()), ENGLISH);
         }
     }
 
@@ -122,7 +148,7 @@ public abstract class Language {
      *
      * If the User changes the Language:<br><br>
      * 1. The word is being translated<br>
-     * 3. The translated word enters the ValueSetter which sets the
+     * 2. The translated word enters the ValueSetter which sets the
      * value<br><br>
      *
      * Example:<br>
@@ -143,6 +169,33 @@ public abstract class Language {
      */
     public static void setCustom(Word word, ValueSetter setter) {
         setCustom(word, null, setter);
+    }
+
+    /**
+     * Sets a custom text to a custom object<br><br>
+     *
+     * If the User changes the Language:<br><br>
+     * 1. A empty Word enteres the Stringmodifier<br>
+     * 2. The potentially modified word enters the ValueSetter which sets the
+     * value<br><br>
+     *
+     * Example:<br>
+     * <pre>
+     * {@code
+     * Textfield field = ... ;
+     * Language.setCustom(s -> Language.getLanguage().toString(), v -> field.setPlaceholder(v));
+     * }
+     * </pre> In this Example you have a Textfield.<br>
+     * You want to set a specific Text as Placeholder (If you just want to use
+     * the Standard field.setValue(...) you can use the
+     * {@link #set(Word, Component)} for that).<br>
+     * You set the modified string as placeholder for your textfield as example.
+     *
+     * @param modifier
+     * @param setter
+     */
+    public static void setCustom(StringModifier modifier, ValueSetter setter) {
+        setCustom(null, modifier, setter);
     }
 
     /**
@@ -183,9 +236,13 @@ public abstract class Language {
 
     public static void changeLanguage(Language language) {
         currentLanguage = language == null ? currentLanguage : language;
-        Props.set("language", currentLanguage.getLanguageTag());
+        IDEProps.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
         refreshAllControls();
         refreshAllCustoms();
+    }
+
+    public static Language getLanguage() {
+        return currentLanguage;
     }
 
     private static void refreshAllCustoms() {

@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
-
-import sharknoon.dualide.ui.MainApplication;
+package sharknoon.dualide.ui.function.values;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
-public interface Exitable {
+abstract class BiOperator<R extends Returnable, A1 extends Returnable, A2 extends Returnable> extends Operator<R> {
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    public A1 firstArgument;
+    public A2 secondArgument;
+
+    public A1 getFirstArgument() {
+        return firstArgument;
+    }
+
+    public A2 getSecondArgument() {
+        return secondArgument;
+    }
+
+    public void setFirstArgument(A1 firstArgument) {
+        this.firstArgument = firstArgument;
+    }
+
+    public void setSecondArgument(A2 secondArgument) {
+        this.secondArgument = secondArgument;
+    }
+
 }

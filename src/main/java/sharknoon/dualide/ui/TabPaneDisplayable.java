@@ -13,20 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
+package sharknoon.dualide.ui;
 
-import sharknoon.dualide.ui.MainApplication;
+import javafx.scene.Node;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import sharknoon.dualide.logic.Item;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
- *
+ * This interface is being used to signal, that this can be displayed in the tabpane
  * @author Josua Frank
  */
-public interface Exitable {
+public interface TabPaneDisplayable {
 
     /**
-     * This method is being called as soon as the program exits
+     * The Pane of the Tab in the Tabpane
+     * @return 
      */
-    public void onExit();
+    public Pane getPane();
+    
+    /**
+     * The Name of the Tab in the Tabpane
+     * @return 
+     */
+    public String getName();
+    
+    /**
+     * The Icon of the Tab in the Tabpane
+     * @return 
+     */
+    public Node getIcon();
 }

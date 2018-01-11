@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.misc;
+package sharknoon.dualide.logic;
 
-import sharknoon.dualide.ui.MainApplication;
+import sharknoon.dualide.ui.TabPaneDisplayable;
 
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
-public interface Exitable {
+public abstract class Item implements TabPaneDisplayable {
 
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    private String name;
+
+    public Item(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
 }

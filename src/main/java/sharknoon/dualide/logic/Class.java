@@ -15,53 +15,25 @@
  */
 package sharknoon.dualide.logic;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import sharknoon.dualide.logic.interfaces.ClassChildren;
-import sharknoon.dualide.logic.interfaces.PackageChildren;
-import sharknoon.dualide.logic.interfaces.FunctionParent;
-import java.util.ArrayList;
-import java.util.List;
-import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
-import javafx.scene.layout.Pane;
-import org.controlsfx.glyphfont.FontAwesome;
-import sharknoon.dualide.logic.interfaces.VariableParent;
-import sharknoon.dualide.utils.collection.Collections;
+import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.clazz.ClassSite;
 
 /**
  *
  * @author Josua Frank
  */
-public class Class extends Item implements PackageChildren, FunctionParent, VariableParent {
+public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
 
-    private Package package_;
-
-    private final List<ClassChildren> children = new ArrayList<>();
-
-    public Class(String name) {
-        super(name);
-    }
-
-    public List<ClassChildren> getChildren() {
-        return Collections.silentUnmodifiableList(children);
+    public Class(Package parent, String name) {
+        super(parent, name);
     }
 
     @Override
-    public TreeItem createTreeItem() {
-        TreeItem classItem = new TreeItem(getName(), getIcon());
-        children.forEach(c -> classItem.getChildren().add(c.createTreeItem()));
-        return classItem;
+    protected Site<Class> createSite() {
+        return new ClassSite(this);
     }
 
-    @Override
-    public Pane getPane() {
-        return new Pane();
-    }
+ 
 
-    @Override
-    public Node getIcon() {
-        return GlyphsDude.createIcon(FontAwesomeIcon.ADJUST);
-    }
 
 }

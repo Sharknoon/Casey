@@ -15,56 +15,22 @@
  */
 package sharknoon.dualide.logic;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import sharknoon.dualide.logic.interfaces.PackageParent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
-import javafx.scene.layout.Pane;
-import sharknoon.dualide.utils.collection.Collections;
+import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.project.ProjectSite;
 
 /**
  *
  * @author Josua Frank
  */
-public class Project extends Item implements PackageParent {
+public class Project extends Item<Project, Welcome, Package> {
 
-    private static final Set<Project> PROJECTS = new LinkedHashSet<>();
-    
-    public static Set<Project> getAllProjects(){
-        return Collections.silentUnmodifiableSet(PROJECTS);
-    }
-    
-    private final List<Package> packages = new ArrayList<>();
-
-    public Project(String name) {
-        super(name);
-        PROJECTS.add(this);
-    }
-
-    public List<Package> getPackages() {
-        return Collections.silentUnmodifiableList(packages);
+    public Project(Welcome parent, String name) {
+        super(parent, name);
     }
 
     @Override
-    public TreeItem createTreeItem() {
-        TreeItem projectItem = new TreeItem(getName(), getIcon());
-        packages.forEach(p -> projectItem.getChildren().add(p.createTreeItem()));
-        return projectItem;
+    protected Site<Project> createSite() {
+        return new ProjectSite(this);
     }
 
-    @Override
-    public Pane getPane() {
-        return new Pane();
-    }
-
-    @Override
-    public Node getIcon() {
-        return GlyphsDude.createIcon(FontAwesomeIcon.ALIGN_LEFT);
-    }
 }

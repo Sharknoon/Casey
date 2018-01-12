@@ -13,24 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.ui.sites.package_;
 
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.scene.Node;
+import javafx.scene.control.TreeItem;
+import javafx.scene.layout.Pane;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
+import sharknoon.dualide.logic.Package;
 
 /**
  *
  * @author Josua Frank
  */
-public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
+public class PackageSite extends Site<Package> {
 
-    public Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
-        super(parent, name);
+    public PackageSite(Package item) {
+        super(item);
     }
 
     @Override
-    protected Site<Package> createSite() {
-        return new PackageSite(this);
+    public Pane getTabContentPane() {
+        return new Pane();
+    }
+
+    @Override
+    public String getTabName() {
+        return getItem().getName();
+    }
+
+    @Override
+    public Node getTabIcon() {
+        return GlyphsDude.createIcon(FontAwesomeIcon.ADJUST);
     }
 
 }

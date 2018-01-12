@@ -15,40 +15,22 @@
  */
 package sharknoon.dualide.logic;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
-import javafx.scene.layout.Pane;
-import sharknoon.dualide.logic.interfaces.ClassChildren;
-import sharknoon.dualide.logic.interfaces.PackageChildren;
-import sharknoon.dualide.logic.interfaces.VariableParent;
+import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.variable.VariableSite;
 
 /**
  *
  * @author Josua Frank
  */
-public class Variable extends Item implements ClassChildren, PackageChildren {
+public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
-    private VariableParent parent;
-
-    public Variable(String name) {
-        super(name);
+    public Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
+        super(parent, name);
     }
 
     @Override
-    public TreeItem createTreeItem() {
-        TreeItem variableItem = new TreeItem(getName(), getIcon());
-        return variableItem;
+    protected Site<Variable> createSite() {
+        return new VariableSite(this);
     }
 
-    @Override
-    public Pane getPane() {
-        return new Pane();
-    }
-    
-        @Override
-    public Node getIcon() {
-        return GlyphsDude.createIcon(FontAwesomeIcon.AMBULANCE);
-    }
 }

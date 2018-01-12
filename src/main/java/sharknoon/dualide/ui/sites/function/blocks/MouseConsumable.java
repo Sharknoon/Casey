@@ -13,26 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.ui.sites.function.blocks;
 
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
 
 /**
+ * This interface is used to mark a type as eventconsuable
  *
  * @author Josua Frank
  */
-public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Variable> {
+public interface MouseConsumable {
 
-    public Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
-        super(parent, name);
-    }
+    public abstract void onMousePressed(MouseEvent event);
 
-    @Override
-    protected Site<Function> createSite() {
-        return new FunctionSite(this);
-    }
+    public abstract void onMouseDragged(MouseEvent event);
 
+    public abstract void onMouseReleased(MouseEvent event);
 
+    public abstract void onMouseClicked(MouseEvent event);
 
+    public abstract void onContextMenuRequested(ContextMenuEvent event);
+
+    public abstract void onMouseEntered(MouseEvent event);
+
+    public abstract void onMouseExited(MouseEvent event);
 }

@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
-
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
+package sharknoon.dualide.ui.sites.function.values;
 
 /**
  *
  * @author Josua Frank
  */
-public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
-
-    public Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
-        super(parent, name);
-    }
+public class MultiplyOperator extends BiOperator<NumberValue, NumberValue, NumberValue> {
 
     @Override
-    protected Site<Package> createSite() {
-        return new PackageSite(this);
+    public NumberValue getValue() {
+        return new NumberValue(firstArgument.getValue() * secondArgument.getValue());
     }
 
 }

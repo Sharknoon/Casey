@@ -15,32 +15,20 @@
  */
 package sharknoon.dualide.ui;
 
-import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTreeView;
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.ui.function.Function;
-import sharknoon.dualide.ui.function.WorkspaceBackground;
-import sharknoon.dualide.ui.welcome.WelcomeSite;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
+import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.function.WorkspaceBackground;
+import sharknoon.dualide.ui.menubar.MenuBar;
+import sharknoon.dualide.ui.sites.Site;
 
 /**
  *
@@ -52,7 +40,7 @@ public class MainController implements Initializable {
     private TabPane tabPane;
 
     @FXML
-    private TreeView treeView;
+    private TreeView<Site> treeView;
 
     @FXML
     private Menu menuOptions;
@@ -62,9 +50,6 @@ public class MainController implements Initializable {
 
     @FXML
     private ImageView imageView2;
-
-    private static Tab currentTab;
-    private static final Map<Tab, TabPaneDisplayable> TABS = new HashMap<>();
 
     @FXML
     Button buttonAddFunction;
@@ -77,11 +62,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //init of currentTab
-        currentTab = tabPane.getSelectionModel().getSelectedItem();
-        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            currentTab = newValue;
-        });
         //init of handlers
         tabPane.setOnScroll((event) -> {
             getCurrentFunction().ifPresent(f -> f.onScroll(event));
@@ -112,62 +92,25 @@ public class MainController implements Initializable {
             getCurrentFunction().ifPresent(f -> f.onKeyReleased(event));
         });
         buttonAddFunction.setOnAction((event) -> {
-            createNewFunction("Hello World");
+            
         });
         WorkspaceBackground.setBackground(imageView1, imageView2);
-        initOptionsMenu();
-        showWelcomeScreen();
+        MenuBar.initOptionsMenu(menuOptions);
+        ItemTreeView.init();
+        ItemTabPane.init();
     }
 
-    public static Optional<Function> getCurrentFunction() {
+    public static Optional<FunctionSite> getCurrentFunction() {
         return Optional.empty();
     }
 
-    public static void showWelcomeScreen() {
-        addTab(new WelcomeSite());
-    }
 
-    public static void createNewFunction(String title) {
-        Tab tab = new Tab(title);
-        //controller.TABS.put(tab, new Function(tab));
-        //controller.tabPane.getTabs().add(tab);
-    }
-
-    private static void addTab(TabPaneDisplayable displayable) {
-        Tab newTab = new Tab(displayable.getName(), displayable.getPane());
-        newTab.setGraphic(displayable.getIcon());
-        TABS.put(newTab, displayable);
-        controller.tabPane.getTabs().add(newTab);
-    }
-
-    public static TreeView getTreeView() {
+    public static TreeView<Site> getTreeView() {
         return controller.treeView;
     }
-
-    private static void initOptionsMenu() {
-        Menu menuOptions = controller.menuOptions;
-        Language.setCustom(Word.MENUBAR_OPTIONS_TEXT, s -> menuOptions.setText(s));
-        menuOptions.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.COG));
-
-        Menu menuLanguage = new Menu();
-        Language.setCustom(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, s -> menuLanguage.setText(s));
-        menuLanguage.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.LANGUAGE));
-        menuOptions.getItems().add(menuLanguage);
-
-        Language.getAllLanguages().forEach((loc, lang) -> {
-            MenuItem menuItemLanguage = new MenuItem();
-            Language.setCustom(
-                    e -> loc.getDisplayLanguage(Language.getLanguage().getLocale()),
-                    s -> menuItemLanguage.setText(s));
-            //menuItemLanguage.setGraphic(value);
-            menuItemLanguage.setId(loc.getLanguage());
-            menuItemLanguage.setOnAction((event) -> {
-                Locale l = new Locale(menuItemLanguage.getId());
-                Language.changeLanguage(Language.forLocale(l));
-            });
-            menuLanguage.getItems().add(menuItemLanguage);
-        });
-
+    
+    public static TabPane getTabPane(){
+        return controller.tabPane;
     }
 
 }

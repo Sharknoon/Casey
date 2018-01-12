@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
-
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
+package sharknoon.dualide.ui.sites.function.values;
 
 /**
  *
  * @author Josua Frank
  */
-public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
+abstract class BiOperator<R extends Returnable, A1 extends Returnable, A2 extends Returnable> extends Operator<R> {
 
-    public Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
-        super(parent, name);
+    public A1 firstArgument;
+    public A2 secondArgument;
+
+    public A1 getFirstArgument() {
+        return firstArgument;
     }
 
-    @Override
-    protected Site<Package> createSite() {
-        return new PackageSite(this);
+    public A2 getSecondArgument() {
+        return secondArgument;
+    }
+
+    public void setFirstArgument(A1 firstArgument) {
+        this.firstArgument = firstArgument;
+    }
+
+    public void setSecondArgument(A2 secondArgument) {
+        this.secondArgument = secondArgument;
     }
 
 }

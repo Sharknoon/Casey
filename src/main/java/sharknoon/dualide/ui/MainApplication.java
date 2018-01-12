@@ -26,6 +26,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.misc.Initializable;
 import sharknoon.dualide.utils.settings.Ressources;
 
 /**
@@ -35,6 +36,11 @@ import sharknoon.dualide.utils.settings.Ressources;
 public class MainApplication extends Application {
 
     public static Stage stage;
+
+    @Override
+    public void init() throws Exception {
+        INITIALIZABLES.forEach(Initializable::init);
+    }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -54,7 +60,12 @@ public class MainApplication extends Application {
 
     }
 
+    private static final List<Initializable> INITIALIZABLES = new ArrayList<>();
     private static final List<Exitable> EXITABLES = new ArrayList<>();
+
+    public static void registerInitializable(Initializable initializable) {
+        INITIALIZABLES.add(initializable);
+    }
 
     public static void registerExitable(Exitable exitable) {
         EXITABLES.add(exitable);

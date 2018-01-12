@@ -16,21 +16,33 @@
 package sharknoon.dualide.logic;
 
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
+import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
  * @author Josua Frank
  */
-public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
+public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
 
-    public Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
+    private Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
         super(parent, name);
     }
 
+    private static Welcome welcome;
+
+    public static Welcome getWelcome() {
+        if (welcome == null) {
+            welcome = new Welcome(null, "");
+            Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
+        }
+        return welcome;
+    }
+
     @Override
-    protected Site<Package> createSite() {
-        return new PackageSite(this);
+    protected Site<Welcome> createSite() {
+        return new WelcomeSite(this);
     }
 
 }

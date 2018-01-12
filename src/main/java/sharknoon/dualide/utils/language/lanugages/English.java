@@ -32,6 +32,19 @@ public class English extends Language {
     {
         add(Word.RUN, "Run!");
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");
+        add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Enter projectname");
+        add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projectname");
+        add(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, "Create new project");
+        add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Load existing project");
+        add(Word.WELCOME_SITE_TAB_TITLE, "Welcome");
+        add(Word.MENUBAR_OPTIONS_TEXT, "Options");
+        add(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, "Lanuage");
+        add(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, "Rename package");
+        add(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, "Delete package");
+        add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Add package");
+        add(Word.NEW_PACKAGE_DIALOG_TITLE, "Create new package");
+        add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Enter packagename");
+        add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Packagename");
     }
 
 }

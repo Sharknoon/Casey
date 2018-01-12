@@ -32,5 +32,18 @@ public class German extends Language {
     {
         add(Word.RUN, "Los!");
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
+        add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Projektname eingeben");
+        add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projektname");
+        add(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, "Neues Projekt anlegen");
+        add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Vorhandenes Projekt laden");
+        add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
+        add(Word.MENUBAR_OPTIONS_TEXT, "Optionen");
+        add(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, "Sprache");
+        add(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
+        add(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
+        add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
+        add(Word.NEW_PACKAGE_DIALOG_TITLE, "Neues Paket anlegen");
+        add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Paketname eingeben");
+        add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
     }
 }

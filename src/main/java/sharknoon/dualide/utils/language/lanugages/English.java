@@ -45,6 +45,17 @@ public class English extends Language {
         add(Word.NEW_PACKAGE_DIALOG_TITLE, "Create new package");
         add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Enter packagename");
         add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Packagename");
+        add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Rename package");
+        add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Enter new packagename");
+        add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Packagename");
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Delete package ::");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Really delete package ::?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "All content of the package :: will be deleted permanently!");
+        add(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, "Delete project");
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Delete project ::");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Really delete project ::?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "All content of the project :: will be deleted permanently!");
+        add(Word.SAVE, "Save");
     }
 
 }

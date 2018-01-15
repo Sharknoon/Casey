@@ -33,6 +33,7 @@
                   <ToolBar>
                      <items>
                         <Button fx:id="buttonAddFunction" mnemonicParsing="false" text="add new function" />
+                        <Button fx:id="buttonSave" mnemonicParsing="false" text="save" />
                      </items>
                   </ToolBar>
                </children>

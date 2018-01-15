@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic;
 
+import org.json.simple.JSONObject;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
 
@@ -32,5 +33,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     protected Site<Variable> createSite() {
         return new VariableSite(this);
     }
+
+
 
 }

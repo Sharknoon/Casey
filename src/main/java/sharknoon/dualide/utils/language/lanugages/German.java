@@ -45,5 +45,16 @@ public class German extends Language {
         add(Word.NEW_PACKAGE_DIALOG_TITLE, "Neues Paket anlegen");
         add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Paketname eingeben");
         add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
+        add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Paket umbenennen");
+        add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Neuen Paketnamen eingeben");
+        add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket :: löschen");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket :: wirklich löschen?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket :: werden unwiederruflich gelöscht!");
+        add(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, "Projekt löschen");
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt :: löschen");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt :: wirklich löschen?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt :: werden unwiederruflich gelöscht!");
+        add(Word.SAVE, "Speichern");
     }
 }

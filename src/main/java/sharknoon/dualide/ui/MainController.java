@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.ui;
 
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -25,10 +27,13 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
+import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.WorkspaceBackground;
 import sharknoon.dualide.ui.menubar.MenuBar;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -40,7 +45,7 @@ public class MainController implements Initializable {
     private TabPane tabPane;
 
     @FXML
-    private TreeView<Site> treeView;
+    private TreeView<Item> treeView;
 
     @FXML
     private Menu menuOptions;
@@ -52,7 +57,10 @@ public class MainController implements Initializable {
     private ImageView imageView2;
 
     @FXML
-    Button buttonAddFunction;
+    private Button buttonAddFunction;
+    
+    @FXML
+    private Button buttonSave;
 
     private static MainController controller;
 
@@ -91,7 +99,9 @@ public class MainController implements Initializable {
         tabPane.setOnKeyReleased((event) -> {
             getCurrentFunction().ifPresent(f -> f.onKeyReleased(event));
         });
-        buttonAddFunction.setOnAction((event) -> {
+        GlyphsDude.setIcon(buttonSave, FontAwesomeIcon.SAVE);
+        Language.set(Word.SAVE, buttonSave);
+        buttonSave.setOnAction((event) -> {
             
         });
         WorkspaceBackground.setBackground(imageView1, imageView2);
@@ -105,7 +115,7 @@ public class MainController implements Initializable {
     }
 
 
-    public static TreeView<Site> getTreeView() {
+    public static TreeView<Item> getTreeView() {
         return controller.treeView;
     }
     

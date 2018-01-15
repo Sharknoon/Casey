@@ -17,6 +17,7 @@ package sharknoon.dualide.ui.sites.variable;
 
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
@@ -36,11 +37,6 @@ public class VariableSite extends Site<Variable> {
     @Override
     public Pane getTabContentPane() {
         return new Pane();
-    }
-
-    @Override
-    public String getTabName() {
-        return getItem().getName();
     }
 
     @Override

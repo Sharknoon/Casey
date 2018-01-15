@@ -20,7 +20,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import java.util.Optional;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -29,10 +28,10 @@ import javafx.scene.text.Text;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.welcome.NewProjectDialog;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.Package;
+import sharknoon.dualide.ui.sites.Dialogs;
 
 /**
  *
@@ -47,20 +46,34 @@ public class ProjectSite extends Site<Project> {
 
         refresh(vBoxPackages);
         
+        HBox hBoxProjectButtons = new HBox(10);
+
         Button buttonAddPackage = new Button();
         GlyphsDude.setIcon(buttonAddPackage, FontAwesomeIcon.PLUS);
         Language.set(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, buttonAddPackage);
         buttonAddPackage.setOnAction((event) -> {
-            Optional<Package> package_ = new NewPackageDialog().show(getItem());
-            if (package_.isPresent()) {
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG);
+            if (name.isPresent()) {
+                Package package_ = new Package(getItem(), name.get());
                 refresh(vBoxPackages);
-                ItemTreeView.update();
-                ItemTreeView.selectItem(package_.get().getSite());
+                ItemTreeView.selectItem(package_);
             }
         });
+        hBoxProjectButtons.getChildren().add(buttonAddPackage);
+        
+        Button buttonDeleteProject = new Button();
+        GlyphsDude.setIcon(buttonDeleteProject, FontAwesomeIcon.TRASH);
+        Language.set(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, buttonDeleteProject);
+        buttonDeleteProject.setOnAction((event) -> {
+            Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PROJECT_DIALOG, getItem().getName());
+            if (confirmed.isPresent() && confirmed.get()) {
+                getItem().destroy();
+            }
+        });
+        hBoxProjectButtons.getChildren().add(buttonDeleteProject);
 
         borderPaneRoot.setCenter(vBoxPackages);
-        borderPaneRoot.setBottom(buttonAddPackage);
+        borderPaneRoot.setBottom(hBoxProjectButtons);
     }
 
     private void refresh(VBox vBoxPackages) {
@@ -71,18 +84,33 @@ public class ProjectSite extends Site<Project> {
             borderPanePackageEntry.setLeft(icon);
 
             VBox vBoxNameAndComments = new VBox(10);
-            Text textPackageName = new Text(p.getName());
-            Text textPackageComments = new Text(p.getComments());
+            Text textPackageName = new Text();
+            textPackageName.textProperty().bindBidirectional(p.nameProperty());
+            Text textPackageComments = new Text();
+            textPackageComments.textProperty().bindBidirectional(p.commentsProperty());
             vBoxNameAndComments.getChildren().addAll(textPackageName, textPackageComments);
             borderPanePackageEntry.setCenter(vBoxNameAndComments);
 
             Button buttonRenamePackage = new Button();
             GlyphsDude.setIcon(buttonRenamePackage, FontAwesomeIcon.ANCHOR);
             Language.set(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, buttonRenamePackage);
-
+            buttonRenamePackage.setOnAction((event) -> {
+                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG);
+                if (name.isPresent()) {
+                    p.setName(name.get());
+                }
+            });
+            
             Button buttonDeletePackage = new Button();
             GlyphsDude.setIcon(buttonDeletePackage, FontAwesomeIcon.TRASH);
             Language.set(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, buttonDeletePackage);
+            buttonDeletePackage.setOnAction((event) -> {
+                Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, p.getName());
+                if (confirmed.isPresent() && confirmed.get()) {
+                    p.destroy();
+                    refresh(vBoxPackages);
+                }
+            });
 
             HBox hBoxButtons = new HBox(10);
             hBoxButtons.getChildren().addAll(buttonRenamePackage, buttonDeletePackage);
@@ -101,11 +129,8 @@ public class ProjectSite extends Site<Project> {
         return borderPaneRoot;
     }
 
-    @Override
-    public String getTabName() {
-        return getItem().getName();
-    }
-
+    
+    
     @Override
     public Node getTabIcon() {
         return GlyphsDude.createIcon(FontAwesomeIcon.ADJUST);

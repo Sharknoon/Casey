@@ -15,10 +15,22 @@
  */
 package sharknoon.dualide.logic;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
+import org.hildan.fxgson.FxGson;
+import org.json.simple.JSONObject;
+import sharknoon.dualide.ui.ItemTabPane;
+import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.collection.Collections;
+import java.lang.Class;
+import sharknoon.dualide.serial.ClassTypeAdapter;
 
 /**
  *
@@ -29,40 +41,51 @@ import sharknoon.dualide.utils.collection.Collections;
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
-    private P parent;
-    private final Set<C> children = new LinkedHashSet<>();
+    private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
+    private final ObservableSet<C> children = FXCollections.observableSet(new LinkedHashSet<>());
 
-    private String name;
-    private String comments = "";
-    private Site<I> site;
+    private final StringProperty name = new SimpleStringProperty("");
+    private final StringProperty comments = new SimpleStringProperty("");
+    private final ObjectProperty<Class<I>> type = new SimpleObjectProperty<>();
+    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
 
     public Item(P parent, String name) {
-        setParent(parent);
+        setType((Class<I>) this.getClass());
         setName(name);
+        onChange();
+        setParent(parent);
     }
 
     public String getName() {
-        return name;
+        return nameProperty().get();
     }
 
     public void setName(String name) {
-        this.name = name == null ? "" : name;
+        nameProperty().set(name == null ? "" : name);
+    }
+
+    public StringProperty nameProperty() {
+        return name;
     }
 
     public String getComments() {
-        return comments;
+        return commentsProperty().get();
     }
 
     public void setComments(String comments) {
-        this.comments = comments == null ? "" : comments;
+        commentsProperty().set(comments == null ? "" : comments);
+    }
+
+    public StringProperty commentsProperty() {
+        return comments;
     }
 
     public P getParent() {
-        return parent;
+        return parentProperty().get();
     }
 
     public void setParent(P parent) {
-        this.parent = parent;
+        parentProperty().set(parent);
         if (parent != null) {
             //Backed by a set, so if its already in it, it changes nothing
             parent.addChildren(this);
@@ -70,21 +93,85 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     }
 
+    public ObjectProperty<P> parentProperty() {
+        return parent;
+    }
+
+    public Class<I> getType(){
+        return typeProperty().get();
+    }
+    
+    public void setType(Class<I> type){
+        typeProperty().set(type);
+    }
+    
+    public ObjectProperty<Class<I>> typeProperty(){
+        return type;
+    }
+    
     public Site<I> getSite() {
-        if (site == null) {
-            site = createSite();
+        if (siteProperty().get() == null) {
+            siteProperty().set(createSite());
         }
+        return siteProperty().get();
+    }
+
+    public ObjectProperty<Site<I>> siteProperty() {
         return site;
     }
 
     protected abstract Site<I> createSite();
 
-    public Set<C> getChildren() {
-        return Collections.silentUnmodifiableSet(children);
+    public ObservableSet<C> getChildren() {
+        return children;
     }
 
     public void addChildren(C children) {
-        this.children.add(children);
+        getChildren().add(children);
+    }
+
+    @Override
+    public String toString() {
+        return nameProperty().get();
+    }
+
+    public void destroy() {
+        destroyImpl();
+        if (parentProperty().get() != null) {
+            parentProperty().get().getChildren().remove(this);
+        }
+    }
+
+    protected void destroyImpl() {
+        Iterator<C> iterator = getChildren().iterator();
+        while (iterator.hasNext()) {
+            C next = iterator.next();
+            next.destroyImpl();
+            iterator.remove();
+        }
+    }
+    
+    public void test(){
+        System.out.println(FxGson
+                .fullBuilder()
+                .setPrettyPrinting()
+                .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
+                .create()
+                .toJson(this));
+    }
+
+    private void onChange() {
+        getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
+            if (change.wasAdded()) {
+                C elementAdded = change.getElementAdded();
+                ItemTreeView.onItemAdded(elementAdded, this);
+                ItemTabPane.onItemAdded(elementAdded);
+            } else if (change.wasRemoved()) {
+                C elementRemoved = change.getElementRemoved();
+                ItemTreeView.onItemRemoved(elementRemoved, this);
+                ItemTabPane.onItemRemoved(elementRemoved);
+            }
+        });
     }
 
 }

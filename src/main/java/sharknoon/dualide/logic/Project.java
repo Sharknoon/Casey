@@ -15,6 +15,9 @@
  */
 package sharknoon.dualide.logic;
 
+import java.nio.file.Path;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.project.ProjectSite;
 
@@ -24,6 +27,8 @@ import sharknoon.dualide.ui.sites.project.ProjectSite;
  */
 public class Project extends Item<Project, Welcome, Package> {
 
+    private final transient ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
+
     public Project(Welcome parent, String name) {
         super(parent, name);
     }
@@ -31,6 +36,18 @@ public class Project extends Item<Project, Welcome, Package> {
     @Override
     protected Site<Project> createSite() {
         return new ProjectSite(this);
+    }
+
+    public ObjectProperty<Path> saveFileProperty() {
+        return saveFile;
+    }
+
+    public Path getSaveFile() {
+        return saveFileProperty().get();
+    }
+
+    public void setSaveFile(Path path) {
+        saveFileProperty().set(path);
     }
 
 }

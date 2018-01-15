@@ -18,9 +18,8 @@ package sharknoon.dualide.ui;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Welcome;
-import sharknoon.dualide.ui.sites.Site;
 
 /**
  *
@@ -28,7 +27,7 @@ import sharknoon.dualide.ui.sites.Site;
  */
 public class ItemTreeView {
 
-    private static final Map<Site, TreeItem<Site>> ITEMS = new HashMap<>();
+    private static final Map<Item, TreeItem<Item>> ITEMS = new HashMap<>();
 
     public static void init() {
         MainController
@@ -40,31 +39,58 @@ public class ItemTreeView {
                         ItemTabPane.setTab(newValue.getValue());
                     }
                 });
-        update();
-        selectItem(Welcome.getWelcome().getSite());
+        createRootItem();
+        selectItem(Welcome.getWelcome());
     }
 
-    public static void update() {
-        TreeView<Site> view = MainController.getTreeView();
-        Welcome welcome = Welcome.getWelcome();
-        ITEMS.clear();
-        TreeItem<Site> root = welcome.getSite().recreateTreeItem();
-        ITEMS.put(welcome.getSite(), root);
-        view.setRoot(root);
+    private static void createRootItem() {
+        TreeItem<Item> rootItem = createTreeItem(Welcome.getWelcome());
+        MainController.getTreeView().setRoot(rootItem);
     }
 
-    public static void addItem(Site site, TreeItem<Site> parent, TreeItem<Site> item) {
-        parent.getChildren().add(item);
-        ITEMS.put(site, item);
+    public static void onItemAdded(Item item, Item parent) {
+        if (ITEMS.containsKey(parent)) {
+            TreeItem<Item> treeItem = createTreeItem(item);
+            TreeItem<Item> parentItem = ITEMS.get(parent);
+            parentItem.getChildren().add(treeItem);
+        }
     }
 
-    public static void selectItem(Site site) {
-        if (ITEMS.containsKey(site)) {
+    private static TreeItem<Item> createTreeItem(Item item) {
+        TreeItem<Item> treeItem = new TreeItem<>(item);
+        treeItem.setGraphic(item.getSite().getTabIcon());
+        item.nameProperty().addListener((observable, oldValue, newValue) -> {
+            treeItem.setValue(null);//Have to set it to null before resetting it to the same object again to update the text in the treevie
+            treeItem.setValue(item);
+        });
+        ITEMS.put(item, treeItem);
+        return treeItem;
+    }
+
+    public static void onItemRemoved(Item item, Item parent) {
+        if (ITEMS.containsKey(parent) && ITEMS.containsKey(item)) {
+            TreeItem<Item> parentItem = ITEMS.get(parent);
+            TreeItem<Item> itemToRemove = ITEMS.get(item);
+            parentItem.getChildren().remove(itemToRemove);
+            ITEMS.remove(item);
+        }
+    }
+
+    public static void selectItem(Item item) {
+        if (ITEMS.containsKey(item)) {
             MainController
                     .getTreeView()
                     .getSelectionModel()
-                    .select(ITEMS.get(site));
+                    .select(ITEMS.get(item));
         }
+    }
+
+    public static void hideRootItem() {
+        MainController.getTreeView().setShowRoot(false);
+    }
+
+    public static void showRootItem() {
+        MainController.getTreeView().setShowRoot(true);
     }
 
 }

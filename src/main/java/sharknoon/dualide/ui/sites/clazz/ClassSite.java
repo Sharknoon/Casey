@@ -17,15 +17,10 @@ package sharknoon.dualide.ui.sites.clazz;
 
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
-import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.Class;
-import sharknoon.dualide.utils.javafx.RecursiveTreeItem;
 
 /**
  *
@@ -40,11 +35,6 @@ public class ClassSite extends Site<Class> {
     @Override
     public Pane getTabContentPane() {
         return new Pane();
-    }
-
-    @Override
-    public String getTabName() {
-        return getItem().getName();
     }
 
     @Override

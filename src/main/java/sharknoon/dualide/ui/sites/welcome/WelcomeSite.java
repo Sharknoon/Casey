@@ -15,27 +15,25 @@
  */
 package sharknoon.dualide.ui.sites.welcome;
 
-import com.sun.org.apache.xml.internal.security.Init;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import java.util.Optional;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.TreeItem;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import org.controlsfx.glyphfont.FontAwesome;
-import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.sites.Dialogs;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.javafx.RecursiveTreeItem;
 
 /**
  *
@@ -48,21 +46,31 @@ public class WelcomeSite extends Site<Welcome> {
     {
         GridPane gridPaneContent = new GridPane();
         gridPaneContent.addColumn(0);
-
+        gridPaneContent.setAlignment(Pos.CENTER);
+        gridPaneContent.setMaxSize(900, 600);
+        gridPaneContent.setPadding(new Insets(20));
+        gridPaneContent.setHgap(20);
+        gridPaneContent.setVgap(20);
+        
         Button buttonCreateNewProject = new Button();
-        GlyphsDude.setIcon(buttonCreateNewProject, FontAwesomeIcon.PLUS);
+        GlyphsDude.setIcon(buttonCreateNewProject, FontAwesomeIcon.PLUS, "3em");
         Language.set(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, buttonCreateNewProject);
         buttonCreateNewProject.setOnAction((event) -> {
-            Optional<Project> project = new NewProjectDialog().show();
-            if (project.isPresent()) {
-                ItemTreeView.update();
-                ItemTreeView.selectItem(project.get().getSite());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
+            if (name.isPresent()) {
+                Project project = new Project(Welcome.getWelcome(), name.get());
+                ItemTreeView.selectItem(project);
+                ItemTreeView.hideRootItem();
+                ItemTabPane.hideRootTab();
             }
         });
 
         Button buttonLoadProject = new Button();
-        GlyphsDude.setIcon(buttonLoadProject, FontAwesomeIcon.FOLDER_OPEN/*, "6em"*/);
+        GlyphsDude.setIcon(buttonLoadProject, FontAwesomeIcon.FOLDER_OPEN, "3em");
         Language.set(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, buttonLoadProject);
+        buttonLoadProject.setOnAction((event) -> {
+            Welcome.getWelcome().test();
+        });
 
         gridPaneContent.addColumn(1, buttonCreateNewProject, buttonLoadProject);
 
@@ -83,11 +91,6 @@ public class WelcomeSite extends Site<Welcome> {
     @Override
     public Pane getTabContentPane() {
         return borderPaneRoot;
-    }
-
-    @Override
-    public String getTabName() {
-        return Language.get(Word.WELCOME_SITE_TAB_TITLE);
     }
 
     @Override

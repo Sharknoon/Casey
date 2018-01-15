@@ -18,7 +18,6 @@ package sharknoon.dualide.ui.sites.package_;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.Package;
@@ -36,11 +35,6 @@ public class PackageSite extends Site<Package> {
     @Override
     public Pane getTabContentPane() {
         return new Pane();
-    }
-
-    @Override
-    public String getTabName() {
-        return getItem().getName();
     }
 
     @Override

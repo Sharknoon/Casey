@@ -15,16 +15,11 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.ui.ItemTreeView;
-import sharknoon.dualide.utils.javafx.RecursiveTreeItem;
+
 
 /**
  *
@@ -56,7 +51,13 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public abstract String getTabName();
+    public String getTabName(){
+        return item.getName();
+    }
+    
+    public StringProperty getTabNameProperty(){
+        return item.nameProperty();
+    }
 
     /**
      * The Icon of the Tab in the Tabpane
@@ -64,24 +65,6 @@ public abstract class Site<I extends Item> {
      * @return
      */
     public abstract Node getTabIcon();
-
-    public TreeItem<Site> recreateTreeItem() {
-        TreeItem<Site> treeItem = new TreeItem(this, getTabIcon());
-        getChildrenSites().forEach(s -> {
-            ItemTreeView.addItem(s, treeItem, s.recreateTreeItem());
-        });
-        return treeItem;
-    }
-
-    public ObservableList<Site> getChildrenSites() {
-        ObservableList<Site> observableArrayList = FXCollections.observableArrayList();
-        getItem()
-                .getChildren()
-                .stream()
-                .map(i -> ((Item) i).getSite())
-                .collect(Collectors.toCollection(() -> observableArrayList));
-        return observableArrayList;
-    }
 
     @Override
     public String toString() {

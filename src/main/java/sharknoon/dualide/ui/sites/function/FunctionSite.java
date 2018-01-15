@@ -15,8 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -25,8 +23,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TreeItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -41,16 +37,10 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
 import sharknoon.dualide.logic.Function;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Variable;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
-import sharknoon.dualide.utils.javafx.RecursiveTreeItem;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -287,11 +277,6 @@ public class FunctionSite extends Site<Function> {
 
     @Override
     public Pane getTabContentPane() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String getTabName() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

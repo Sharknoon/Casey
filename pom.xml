@@ -140,11 +140,6 @@
             <version>0.8.5</version>
         </dependency>
         <dependency>
-            <groupId>com.jfoenix</groupId>
-            <artifactId>jfoenix</artifactId>
-            <version>8.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.dizitart</groupId>
             <artifactId>nitrite</artifactId>
             <version>2.1.0</version>
@@ -153,6 +148,21 @@
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx</artifactId>
             <version>8.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threeten-extra</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hildan.fxgson</groupId>
+            <artifactId>fx-gson</artifactId>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

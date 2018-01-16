@@ -40,7 +40,8 @@ public enum Icon {
     ENGLISH,
     GERMAN,
     BACKGROUND,
-    DURATION;
+    DURATION,
+    COMMENTS;
 
     private final String path;
 

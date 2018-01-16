@@ -46,6 +46,10 @@ public class Dialogs {
         DELETE_PROJECT_DIALOG
     }
 
+    public enum TextEditors {
+        COMMENT_PACKAGE_DIALOG
+    }
+
     public static Optional<String> showTextInputDialog(TextInputs type, String... variables) {
         switch (type) {
             case NEW_PROJECT_DIALOG:
@@ -93,6 +97,14 @@ public class Dialogs {
         return Optional.empty();
     }
 
+    public static Optional<String> showTextEditor(TextEditors type, String... variables){
+        switch (type){
+            case COMMENT_PACKAGE_DIALOG:
+                return null;
+        }
+        return Optional.empty();
+    }
+    
     private static Optional<String> showTextInputDialog(Word title, Word headerText, Word conentText, Icon icon, String... variables) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(fill(Language.get(title), variables));
@@ -120,6 +132,8 @@ public class Dialogs {
             return Optional.of(false);
         }
     }
+    
+    
 
     private static final String EMPTY = "";
 
@@ -137,10 +151,10 @@ public class Dialogs {
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         stage.getIcons().add(Icons.get(icon).getImage());
     }
-    
+
     private static final String CSSPATH = "sharknoon/dualide/ui/MainCSS.css";
-    
-    private static void setStyle(Dialog dialog){
+
+    private static void setStyle(Dialog dialog) {
         Scene scene = dialog.getDialogPane().getScene();
         scene.getStylesheets().add(CSSPATH);
     }

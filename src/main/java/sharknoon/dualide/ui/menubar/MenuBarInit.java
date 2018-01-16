@@ -108,7 +108,6 @@ public class MenuBarInit {
         Label labelChangingValue = new Label();
         Slider sliderDuration = new Slider(0, 60, 1);
         sliderDuration.setMinWidth(300);
-        sliderDuration.setSnapToTicks(true);
         sliderDuration.setShowTickMarks(true);
         sliderDuration.setShowTickLabels(true);
         sliderDuration.setBlockIncrement(1);

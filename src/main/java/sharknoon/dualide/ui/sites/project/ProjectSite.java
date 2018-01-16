@@ -21,12 +21,20 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -34,6 +42,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.Package;
+import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Dialogs;
@@ -49,6 +58,8 @@ public class ProjectSite extends Site<Project> {
     {
         VBox vBoxPackages = new VBox(20);
         vBoxPackages.setPadding(new Insets(50));
+        vBoxPackages.setFillWidth(true);
+        vBoxPackages.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         refresh(vBoxPackages);
 
@@ -75,11 +86,15 @@ public class ProjectSite extends Site<Project> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PROJECT_DIALOG, "#PROJECT", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
+                ItemTabPane.closeAllTabs();
+                ItemTreeView.closeAllItems();
             }
         });
         hBoxProjectButtons.getChildren().add(buttonDeleteProject);
 
         ScrollPane scrollPanePackages = new ScrollPane(vBoxPackages);
+        scrollPanePackages.setFitToHeight(true);
+        scrollPanePackages.setFitToWidth(true);
         borderPaneRoot.setCenter(scrollPanePackages);
         borderPaneRoot.setBottom(hBoxProjectButtons);
     }
@@ -87,18 +102,35 @@ public class ProjectSite extends Site<Project> {
     private void refresh(VBox vBoxPackages) {
         vBoxPackages.getChildren().clear();
         getItem().getChildren().forEach(p -> {
-            BorderPane borderPanePackageEntry = new BorderPane();
-            ImageView icon = Icons.get(Icon.PACKAGE);
-            borderPanePackageEntry.setLeft(icon);
+            GridPane gridPanePackageEntry = new GridPane();
+            gridPanePackageEntry.setVgap(20);
+            gridPanePackageEntry.setHgap(20);
+            //gridPanePackageEntry.setMinWidth(vBoxPackages.getWidth());
+            gridPanePackageEntry.setGridLinesVisible(true);
+
+            ImageView icon = Icons.get(Icon.PACKAGE, 50);
+            gridPanePackageEntry.add(icon, 0, 0);
 
             VBox vBoxNameAndComments = new VBox(10);
             Text textPackageName = new Text();
+            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+            shadowEffect.setSpread(0.5);
+            textPackageName.setEffect(shadowEffect);
             textPackageName.textProperty().bindBidirectional(p.nameProperty());
             Text textPackageComments = new Text();
+            textPackageComments.setEffect(shadowEffect);
             textPackageComments.textProperty().bindBidirectional(p.commentsProperty());
             vBoxNameAndComments.getChildren().addAll(textPackageName, textPackageComments);
-            borderPanePackageEntry.setCenter(vBoxNameAndComments);
+            gridPanePackageEntry.add(vBoxNameAndComments, 1, 0);
 
+            Button buttonCommentPackage = new Button();
+            Icons.set(buttonCommentPackage, Icon.COMMENTS);
+            Language.set(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, buttonCommentPackage);
+            buttonCommentPackage.setOnAction((event) -> {
+                
+            });
+            gridPanePackageEntry.add(buttonCommentPackage, 2, 0);
+            
             Button buttonRenamePackage = new Button();
             Icons.set(buttonRenamePackage, Icon.RENAME);
             Language.set(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, buttonRenamePackage);
@@ -108,6 +140,7 @@ public class ProjectSite extends Site<Project> {
                     p.setName(name.get());
                 }
             });
+            gridPanePackageEntry.add(buttonRenamePackage, 3, 0);
 
             Button buttonDeletePackage = new Button();
             Icons.set(buttonDeletePackage, Icon.TRASH);
@@ -119,12 +152,15 @@ public class ProjectSite extends Site<Project> {
                     refresh(vBoxPackages);
                 }
             });
+            gridPanePackageEntry.add(buttonDeletePackage, 4, 0);
 
-            HBox hBoxButtons = new HBox(10);
-            hBoxButtons.getChildren().addAll(buttonRenamePackage, buttonDeletePackage);
-            borderPanePackageEntry.setRight(hBoxButtons);
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPercentWidth(65);
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPercentWidth(35);
+            //gridPaneContent.getColumnConstraints().addAll(col1, col2);
 
-            vBoxPackages.getChildren().add(borderPanePackageEntry);
+            vBoxPackages.getChildren().add(gridPanePackageEntry);
         });
     }
 

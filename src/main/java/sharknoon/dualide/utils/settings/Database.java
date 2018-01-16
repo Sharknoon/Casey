@@ -20,7 +20,7 @@ public class Database {
 
     private static final Nitrite DB = Nitrite
             .builder()
-            .filePath(Ressources.createAndGetFile("alioth.db", true).toFile())
+            .filePath(Ressources.createAndGetFile("sharknoon/dualide/utils/settings/alioth.db", true).toFile())
             .openOrCreate();
 
     public static <T> void store(T... objects) {

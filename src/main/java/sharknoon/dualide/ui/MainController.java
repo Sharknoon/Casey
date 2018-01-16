@@ -15,25 +15,21 @@
  */
 package sharknoon.dualide.ui;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.ui.buttonbar.ToolBarInit;
+import sharknoon.dualide.ui.menubar.MenuBarInit;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.ui.sites.function.WorkspaceBackground;
-import sharknoon.dualide.ui.menubar.MenuBar;
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -48,19 +44,16 @@ public class MainController implements Initializable {
     private TreeView<Item> treeView;
 
     @FXML
-    private Menu menuOptions;
+    private MenuBar menubar;
+    
+    @FXML
+    private ToolBar toolbar;
 
     @FXML
     private ImageView imageView1;
 
     @FXML
     private ImageView imageView2;
-
-    @FXML
-    private Button buttonAddFunction;
-    
-    @FXML
-    private Button buttonSave;
 
     private static MainController controller;
 
@@ -99,13 +92,9 @@ public class MainController implements Initializable {
         tabPane.setOnKeyReleased((event) -> {
             getCurrentFunction().ifPresent(f -> f.onKeyReleased(event));
         });
-        GlyphsDude.setIcon(buttonSave, FontAwesomeIcon.SAVE);
-        Language.set(Word.SAVE, buttonSave);
-        buttonSave.setOnAction((event) -> {
-            
-        });
-        WorkspaceBackground.setBackground(imageView1, imageView2);
-        MenuBar.initOptionsMenu(menuOptions);
+        Background.setBackground(imageView1, imageView2);
+        MenuBarInit.init(menubar);
+        ToolBarInit.init(toolbar);
         ItemTreeView.init();
         ItemTabPane.init();
     }

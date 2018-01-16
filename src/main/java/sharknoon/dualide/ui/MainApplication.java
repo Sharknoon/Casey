@@ -47,11 +47,11 @@ public class MainApplication extends Application {
         Ressources.resetRessources(true);
         stage = primaryStage;
         FXMLLoader loader = new FXMLLoader();
-        Path fxmlPath = Ressources.createAndGetFile("MainFXML.fxml", true);
+        Path fxmlPath = Ressources.createAndGetFile("sharknoon/dualide/ui/MainFXML.fxml", true);
         Parent root = loader.load(Files.newInputStream(fxmlPath));
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add("sharknoon/dualide/MainCSS.css");
+        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
         stage.setTitle("IDE");
         stage.setScene(scene);

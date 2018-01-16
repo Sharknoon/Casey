@@ -15,13 +15,11 @@
  */
 package sharknoon.dualide.ui.sites.variable;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Variable;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 
 /**
@@ -40,8 +38,8 @@ public class VariableSite extends Site<Variable> {
     }
 
     @Override
-    public Node getTabIcon() {
-        return GlyphsDude.createIcon(FontAwesomeIcon.ADJUST);
+    public Icon getTabIcon() {
+        return Icon.VARIABLE;
     }
 
 }

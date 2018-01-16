@@ -48,13 +48,23 @@ public class German extends Language {
         add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Paket umbenennen");
         add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Neuen Paketnamen eingeben");
         add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
-        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket :: löschen");
-        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket :: wirklich löschen?");
-        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket :: werden unwiederruflich gelöscht!");
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket #PACKAGE löschen");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket #PACKAGE wirklich löschen?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket #PACKAGE werden unwiederruflich gelöscht!");
         add(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, "Projekt löschen");
-        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt :: löschen");
-        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt :: wirklich löschen?");
-        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt :: werden unwiederruflich gelöscht!");
-        add(Word.SAVE, "Speichern");
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt #PROJECT löschen");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt #PROJECT wirklich löschen?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt #PROJECT werden unwiederruflich gelöscht!");
+        add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
+        add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
+        add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
+        add(Word.SAVE_DIALOG_TITLE, "Projekt speichern");
+        add(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT, "DualIDE Projekt");
+        add(Word.OPEN_DIALOG_TITLE, "Projekt laden");
+        add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Hintergrund");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "Minuten");
     }
 }

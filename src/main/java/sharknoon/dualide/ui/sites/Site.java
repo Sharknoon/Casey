@@ -19,6 +19,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.ui.misc.Icon;
 
 
 /**
@@ -64,7 +65,7 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public abstract Node getTabIcon();
+    public abstract Icon getTabIcon();
 
     @Override
     public String toString() {

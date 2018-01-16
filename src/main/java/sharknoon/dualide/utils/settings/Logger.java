@@ -230,7 +230,7 @@ public class Logger {
                 exception.printStackTrace(new PrintWriter(writer));
                 message += writer.toString();
             } else {
-                message += exception.getLocalizedMessage();
+                message += exception.toString();
             }
         }
         String[] linesToPrint = message.split("\\R+");

@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.logic;
 
-import org.json.simple.JSONObject;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 

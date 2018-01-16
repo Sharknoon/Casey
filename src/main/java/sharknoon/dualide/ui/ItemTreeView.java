@@ -20,6 +20,7 @@ import java.util.Map;
 import javafx.scene.control.TreeItem;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.ui.misc.Icons;
 
 /**
  *
@@ -39,6 +40,9 @@ public class ItemTreeView {
                         ItemTabPane.setTab(newValue.getValue());
                     }
                 });
+        MainController
+                .getTreeView()
+                .setFocusTraversable(false);
         createRootItem();
         selectItem(Welcome.getWelcome());
     }
@@ -58,7 +62,7 @@ public class ItemTreeView {
 
     private static TreeItem<Item> createTreeItem(Item item) {
         TreeItem<Item> treeItem = new TreeItem<>(item);
-        treeItem.setGraphic(item.getSite().getTabIcon());
+        Icons.setCustom(g -> treeItem.setGraphic(g), item.getSite().getTabIcon());
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
             treeItem.setValue(null);//Have to set it to null before resetting it to the same object again to update the text in the treevie
             treeItem.setValue(item);
@@ -89,7 +93,15 @@ public class ItemTreeView {
         MainController.getTreeView().setShowRoot(false);
     }
 
-    public static void showRootItem() {
+    public static void closeAllItems() {
+        MainController
+                .getTreeView()
+                .getRoot()
+                .getChildren()
+                .clear();
+        TreeItem<Item> welcome = ITEMS.get(Welcome.getWelcome());
+        ITEMS.clear();
+        ITEMS.put(Welcome.getWelcome(), welcome);
         MainController.getTreeView().setShowRoot(true);
     }
 

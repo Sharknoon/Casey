@@ -16,7 +16,6 @@
 package sharknoon.dualide.logic;
 
 import java.util.Optional;
-import org.json.simple.JSONObject;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 import sharknoon.dualide.utils.language.Language;
@@ -46,16 +45,5 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
     protected Site<Welcome> createSite() {
         return new WelcomeSite(this);
     }
-
-    private static Project focusedProject;
-    
-    public static void setFocusedProject(Project project){
-        focusedProject = project;
-    }
-    
-    public static Optional<Project> getFocusedProject(){
-        return Optional.ofNullable(focusedProject);
-    }
-
 
 }

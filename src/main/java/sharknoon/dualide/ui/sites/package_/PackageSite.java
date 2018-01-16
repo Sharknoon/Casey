@@ -15,12 +15,12 @@
  */
 package sharknoon.dualide.ui.sites.package_;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.Package;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 
 /**
  *
@@ -38,8 +38,8 @@ public class PackageSite extends Site<Package> {
     }
 
     @Override
-    public Node getTabIcon() {
-        return GlyphsDude.createIcon(FontAwesomeIcon.ADJUST);
+    public Icon getTabIcon() {
+        return Icon.PACKAGE;
     }
 
 }

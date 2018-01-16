@@ -48,14 +48,24 @@ public class English extends Language {
         add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Rename package");
         add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Enter new packagename");
         add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Packagename");
-        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Delete package ::");
-        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Really delete package ::?");
-        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "All content of the package :: will be deleted permanently!");
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Delete package #PACKAGE");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Really delete package #PACKAGE?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "All content of the package #PACKAGE will be deleted permanently!");
         add(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, "Delete project");
-        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Delete project ::");
-        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Really delete project ::?");
-        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "All content of the project :: will be deleted permanently!");
-        add(Word.SAVE, "Save");
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Delete project #PROJECT");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Really delete project #PROJECT?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "All content of the project #PROJECT will be deleted permanently!");
+        add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Save");
+        add(Word.MENUBAR_PROJECT_TEXT, "Project");
+        add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
+        add(Word.SAVE_DIALOG_TITLE, "Save project");
+        add(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT, "DualIDE project");
+        add(Word.OPEN_DIALOG_TITLE, "Load project");
+        add(Word.WELCOMESITE_RECENT_PROJECTS, "Recent projects");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Background");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Open backgroundfolder");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "background duration");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "minutes");
     }
 
 }

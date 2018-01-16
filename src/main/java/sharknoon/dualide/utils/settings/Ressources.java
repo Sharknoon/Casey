@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,8 +51,10 @@ public class Ressources {
     private static final String PUBLIC_DIR = "user.home";
     private static final String PRIVATE_DIR_NAME = ".dualide";
     private static final String PUBLIC_DIR_NAME = "DualIDE";
-
+    private static final Map<String, Path> CACHE;
+    
     static {
+        CACHE = new HashMap<>();
         Path privPath = null;
         Path pubPath = null;
         String privateDir = System.getProperty(PRIVATE_DIR);
@@ -75,7 +78,8 @@ public class Ressources {
         PRIVATE_PATH = privPath;
         PUBLIC_PATH = pubPath;
         if (isFirstStart()) {
-            copyRessourcesToRessourceDir();
+            initPrivateDir();
+            initPublicDir();
         }
     }
 
@@ -90,7 +94,7 @@ public class Ressources {
      * @return Path to te requested file
      */
     public static Optional<Path> getFile(String fileName, boolean privateFile) {
-        Optional<Path> file = lookupFile(fileName, privateFile);
+        Optional<Path> file = lookup(fileName, privateFile);
         if (file.isPresent()) {
             try {
                 if (!Files.exists(file.get())) {
@@ -105,7 +109,7 @@ public class Ressources {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<InputStream> getFileAsStream(String fileName, boolean privateFile) {
         return getFile(fileName, privateFile)
                 .map(file -> {
@@ -117,9 +121,9 @@ public class Ressources {
                     }
                 });
     }
-
+    
     public static Optional<Path> getDirectory(String directoryName, boolean privateDirectory) {
-        Optional<Path> dir = lookupDirectory(directoryName, privateDirectory);
+        Optional<Path> dir = lookup(directoryName, privateDirectory);
         if (dir.isPresent()) {
             try {
                 if (!Files.isDirectory(dir.get())) {
@@ -144,9 +148,9 @@ public class Ressources {
      * @return
      */
     public static boolean createFile(String path, boolean privateFile) {
-        Optional<Path> fileSearch = lookupFile(path, privateFile);
+        Optional<Path> fileSearch = lookup(path, privateFile);
         if (!fileSearch.isPresent()) {
-            Path file = createFilePath(path, privateFile);
+            Path file = createPath(path, privateFile);
             try {
                 Files.createDirectories(file.getParent());
                 if (!Files.exists(file)) {
@@ -155,6 +159,20 @@ public class Ressources {
                 return true;
             } catch (UnsupportedOperationException | IOException | SecurityException ex) {
                 Logger.error("Error creating File " + path, ex);
+            }
+        }
+        return false;
+    }
+    
+    public static boolean createDirectory(String path, boolean privateDirectory) {
+        Optional<Path> dirSearch = lookup(path, privateDirectory);
+        if (!dirSearch.isPresent()) {
+            Path file = createPath(path, privateDirectory);
+            try {
+                Files.createDirectories(file);
+                return true;
+            } catch (UnsupportedOperationException | IOException | SecurityException ex) {
+                Logger.error("Error creating Directory " + path, ex);
             }
         }
         return false;
@@ -176,7 +194,7 @@ public class Ressources {
         }
         return null;
     }
-
+    
     public static InputStream createAndGetFileAsStream(String path, boolean privateField) {
         Path path2 = createAndGetFile(path, privateField);
         if (path2 == null) {
@@ -198,7 +216,7 @@ public class Ressources {
      * @return true if successful, false otherwise
      */
     public static boolean deleteFile(String path, boolean privateFile) {
-        Optional<Path> file = lookupFile(path, privateFile);
+        Optional<Path> file = lookup(path, privateFile);
         if (file.isPresent()) {
             try {
                 Files.deleteIfExists(file.get());
@@ -218,7 +236,7 @@ public class Ressources {
      * @return List of all files in the directory
      */
     public static List<Path> listFiles(String path, boolean privateDir) {
-        Optional<Path> dir = lookupDirectory(path, privateDir);
+        Optional<Path> dir = lookup(path, privateDir);
         if (dir.isPresent()) {
             try {
                 if (Files.isDirectory(dir.get())) {
@@ -232,97 +250,55 @@ public class Ressources {
         }
         return new ArrayList<>();
     }
-    private static final Map<String, Path> FILE_CACHE = new HashMap<>();
-    private static final Map<String, Path> DIR_CACHE = new HashMap<>();
 
     /**
      *
-     * @param file can be a filename or a full path to the file e.g.
-     * db/alioth.db
+     * @param pathString the full path to the file/folder e.g. db/alioth.db
      * @return
      */
-    private static Optional<Path> lookupFile(String file, boolean privateFile) {
-        Path res = privateFile ? PRIVATE_PATH : PUBLIC_PATH;
-        file = clean(file);
-        if (FILE_CACHE.containsKey(file)) {
-            return Optional.of(FILE_CACHE.get(file));
+    private static Optional<Path> lookup(String pathString, boolean privatePath) {
+        Path res = privatePath ? PRIVATE_PATH : PUBLIC_PATH;
+        pathString = clean(pathString);
+        if (CACHE.containsKey(pathString)) {
+            return Optional.ofNullable(CACHE.get(pathString));
         }
         try {
-            Path path = Paths.get(file);
+            Path path = Paths.get(pathString);
             Path result = res.resolve(path);
             if (Files.exists(result)) {//Full Path is given
-                FILE_CACHE.put(file, result);
+                CACHE.put(pathString, result);
                 return Optional.of(result);
-            } else {//Check in the caller name space directory
-                result = res.resolve(getPackageNameOfCaller().replace(".", "/") + "/" + file);
-                if (Files.exists(result)) {//Check the caller package
-                    FILE_CACHE.put(file, result);
-                    return Optional.of(result);
-                } else {
-                    //search for the file
-                    Optional<Path> pathOptional = Files.find(res, 99, (path1, attrs) -> {
-                        if (attrs.isRegularFile()) {
-                            return path.getFileName().equals(path1.getFileName());
-                        }
-                        return false;
-                    }).findFirst();
-                    if (pathOptional.isPresent()) {
-                        FILE_CACHE.put(file, pathOptional.get());
-                        return pathOptional;
-                    }
-                }
             }
-        } catch (InvalidPathException | IOException ex) {
+//            else {//Check in the caller name space directory
+//                result = res.resolve(getPackageNameOfCaller().replace(".", "/") + "/" + path);
+//                if (Files.exists(result)) {//Check the caller package
+//                    FILE_CACHE.put(path, result);
+//                    return Optional.of(result);
+//                } else {
+//                    //search for the file
+//                    Optional<Path> pathOptional = Files.find(res, 99, (path1, attrs) -> {
+//                        if (attrs.isRegularFile()) {
+//                            return path.getFileName().equals(path1.getFileName());
+//                        }
+//                        return false;
+//                    }).findFirst();
+//                    if (pathOptional.isPresent()) {
+//                        FILE_CACHE.put(path, pathOptional.get());
+//                        return pathOptional;
+//                    }
+//                }
+//            }
+        } catch (InvalidPathException ex) {
         }
         return Optional.empty();
     }
-
-    private static Path createFilePath(String fileName, boolean privateFile) {
+    
+    private static Path createPath(String fileName, boolean privateFile) {
         Path res = privateFile ? PRIVATE_PATH : PUBLIC_PATH;
         fileName = clean(fileName);
-        if (fileName.contains("/")) {
-            return res.resolve(Paths.get(fileName));
-        } else {
-            return res.resolve(getPackageNameOfCaller().replace(".", "/") + "/" + fileName);
-        }
+        return res.resolve(Paths.get(fileName));
     }
-
-    private static Optional<Path> lookupDirectory(String dir, boolean privateDir) {
-        Path res = privateDir ? PRIVATE_PATH : PUBLIC_PATH;
-        dir = clean(dir);
-        if (DIR_CACHE.containsKey(dir)) {
-            return Optional.of(DIR_CACHE.get(dir));
-        }
-        try {
-            Path path = Paths.get(dir);
-            Path result = res.resolve(path);
-            if (Files.isDirectory(result)) {//Full Path is given
-                DIR_CACHE.put(dir, result);
-                return Optional.of(result);
-            } else {//Check in the caller name space directory
-                result = res.resolve(getPackageNameOfCaller().replace(".", "/") + "/" + dir);
-                if (Files.isDirectory(result)) {//Check the caller package
-                    DIR_CACHE.put(dir, result);
-                    return Optional.of(result);
-                } else {
-                    //search for the file
-                    Optional<Path> pathOptional = Files.find(res, 99, (path1, attrs) -> {
-                        if (attrs.isDirectory()) {
-                            return path.getFileName().equals(path1.getFileName());
-                        }
-                        return false;
-                    }).findFirst();
-                    if (pathOptional.isPresent()) {
-                        DIR_CACHE.put(dir, pathOptional.get());
-                        return pathOptional;
-                    }
-                }
-            }
-        } catch (InvalidPathException | IOException ex) {
-        }
-        return Optional.empty();
-    }
-
+    
     private static String clean(String fileOrDirectory) {
         fileOrDirectory = fileOrDirectory.replace("\\", "/");
         while (fileOrDirectory.startsWith("/")) {
@@ -330,7 +306,7 @@ public class Ressources {
         }
         return fileOrDirectory;
     }
-
+    
     private static boolean isFirstStart() {
         try {
             if (Files.list(PRIVATE_PATH).findAny().isPresent()) {
@@ -354,10 +330,10 @@ public class Ressources {
     public static void resetRessources(boolean privateRes) {
         deleteRessourcesDir(privateRes);
         if (privateRes) {
-            copyRessourcesToRessourceDir();
+            initPrivateDir();
         }
     }
-
+    
     private static void deleteRessourcesDir(boolean privateRes) {
         Path toDelete = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
         try {
@@ -379,7 +355,7 @@ public class Ressources {
     /**
      * copying is only allowed to the private dir
      */
-    private static void copyRessourcesToRessourceDir() {
+    private static void initPrivateDir() {
         try {
             URL classesPath = Ressources.class.getProtectionDomain().getCodeSource().getLocation();
             final String rootPackage = Ressources.class.getPackage().getName().substring(0, Ressources.class.getName().indexOf("."));
@@ -434,6 +410,38 @@ public class Ressources {
         }
     }
 
+    /**
+     * copies ressources from the private dir to the public dir
+     *
+     * @param from
+     * @param to
+     */
+    private static void copyDirectory(String fromDir, String toDir) {
+        Optional<Path> pathFrom = getDirectory(fromDir, true);
+        Optional<Path> pathTo = getDirectory(toDir, false);
+        if (pathFrom.isPresent() && pathTo.isPresent()) {
+            try {
+                Files.walk(pathFrom.get())
+                        .filter(p -> !Files.isDirectory(p))
+                        .forEach(f -> {
+                            try {
+                                Files.copy(f, pathTo.get().resolve(f.getFileName()));
+                            } catch (IOException ex) {
+                                Logger.error("Could not copy files", ex);
+                            }
+                        });
+            } catch (IOException ex) {
+                Logger.error("Could not copy files from " + fromDir + " to " + toDir, ex);
+            }
+        }
+    }
+    
+    public static void initPublicDir() {
+        createDirectory("/Projects", false);
+        createDirectory("/Backgroundimages", false);
+        copyDirectory("sharknoon/dualide/ui/backgroundimages", "Backgroundimages");
+    }
+    
     public static String getPackageNameOfCaller() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement elem : stack) {
@@ -446,5 +454,45 @@ public class Ressources {
         }
         return stack.length > 0 ? stack[0].getClass().getPackage().getName() : "";
     }
-
+    
+    public static String search(String fileName, boolean privateRes) {
+        return search(fileName, privateRes, false, false);
+    }
+    
+    public static String search(String fileName, boolean privateRes, boolean ignoreCase) {
+        return search(fileName, privateRes, ignoreCase, false);
+    }
+    
+    private static transient String name;
+    
+    public static String search(String fileName, boolean privateRes, boolean ignoreCase, boolean ignoreFileextension) {
+        name = fileName;
+        if (ignoreFileextension && name.contains(".")) {
+            name = name.substring(0, name.lastIndexOf("."));
+        }
+        try {
+            Path res = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
+            Optional<Path> pathOptional = Files.find(res, 99, (path, attrs) -> {
+                if (attrs.isRegularFile()) {
+                    String currentFileName = path.getFileName().toString();
+                    if (ignoreFileextension && currentFileName.contains(".")) {
+                        currentFileName = currentFileName.substring(0, currentFileName.lastIndexOf("."));
+                    }
+                    if (ignoreCase) {
+                        return currentFileName.equalsIgnoreCase(name);
+                    } else {
+                        return currentFileName.equals(name);
+                    }
+                }
+                return false;
+            }).findFirst();
+            if (pathOptional.isPresent()) {
+                return pathOptional.get().toString();
+            }
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(Ressources.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
+    }
+    
 }

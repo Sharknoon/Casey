@@ -17,12 +17,11 @@ package sharknoon.dualide.ui;
 
 import java.util.HashMap;
 import java.util.Map;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ListChangeListener.Change;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.ui.misc.Icons;
 
 /**
  *
@@ -46,15 +45,6 @@ public class ItemTabPane {
         MainController
                 .getTabPane()
                 .setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
-        MainController
-                .getTabPane()
-                .getTabs()
-                .addListener((Change<? extends Tab> c) -> {
-                    if (c.getList().size() < 1) {
-                        showRootTab();
-                        ItemTreeView.showRootItem();
-                    }
-                });
     }
 
     public static void setTab(Item item) {
@@ -71,7 +61,7 @@ public class ItemTabPane {
         Tab newTab = new Tab();
         newTab.setContent(item.getSite().getTabContentPane());
         newTab.textProperty().bindBidirectional(item.getSite().getTabNameProperty());
-        newTab.setGraphic(item.getSite().getTabIcon());
+        Icons.setCustom(g -> newTab.setGraphic(g), item.getSite().getTabIcon());
         newTab.setOnClosed((event) -> {
             TABS.remove(ITEMS.remove(newTab));
         });
@@ -100,9 +90,15 @@ public class ItemTabPane {
             MainController.getTabPane().getTabs().remove(tab);
         }
     }
-
-    public static void showRootTab() {
-        MainController.getTabPane().getTabs().add(TABS.get(Welcome.getWelcome()));
+    
+    public static void closeAllTabs(){
+        MainController
+                .getTabPane()
+                .getTabs()
+                .clear();
+        TABS.clear();
+        ITEMS.clear();
+        onItemAdded(Welcome.getWelcome());
     }
 
 }

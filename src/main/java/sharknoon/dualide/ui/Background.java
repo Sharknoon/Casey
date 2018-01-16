@@ -13,24 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function;
+package sharknoon.dualide.ui;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.ui.menubar.MenuBarInit;
+import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Ressources;
 
@@ -38,39 +49,25 @@ import sharknoon.dualide.utils.settings.Ressources;
  *
  * @author Josua Frank
  */
-public class WorkspaceBackground implements Exitable {
+public class Background implements Exitable {
 
-    private final ImageView view1;
-    private final ImageView view2;
-    private final List<Path> images = new ArrayList<>();
-    private int counter = 0;
-    private final ScheduledExecutorService imageChangingScheduler = Executors.newScheduledThreadPool(1);
-    private ImageView toBeResizedAsSoonAsAImageIsInIt = null;
+    private static ImageView view1;
+    private static ImageView view2;
+    private static final List<Path> images = new ArrayList<>();
+    private static int counter = 0;
+    private static final ScheduledExecutorService imageChangingSchedulerService = Executors.newScheduledThreadPool(1);
+    private static ScheduledFuture imageChangingScheduler;
+    private static ImageView toBeResizedAsSoonAsAImageIsInIt = null;
 
     public static void setBackground(ImageView imageView1, ImageView imageView2) {
-        WorkspaceBackground wb = new WorkspaceBackground(imageView1, imageView2);
+        Background wb = new Background(imageView1, imageView2);
     }
 
-    private WorkspaceBackground(ImageView imageView1, ImageView imageView2) {
+    private Background(ImageView imageView1, ImageView imageView2) {
         view1 = imageView1;
         view2 = imageView2;
         reloadImages();
-        imageChangingScheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (images.size() - 1 > counter) {
-                    counter++;
-                } else {
-                    counter = 0;
-                }
-                setImage(images.get(counter));
-                if (toBeResizedAsSoonAsAImageIsInIt != null) {
-                    resizeImage(toBeResizedAsSoonAsAImageIsInIt);
-                    toBeResizedAsSoonAsAImageIsInIt = null;
-                }
-            } catch (Exception e) {
-                Logger.error("Could not change the background image", e);
-            }
-        }, 0, (long) UISettings.workspaceBackgroundImageDuration.toMillis(), TimeUnit.MILLISECONDS);
+        setDuration(1);
         MainApplication.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             stageWidth = newValue.doubleValue();
             resizeImage(view1);
@@ -97,7 +94,7 @@ public class WorkspaceBackground implements Exitable {
     }
 
     public void reloadImages() {
-        Ressources.getDirectory("backgroundimages", true).ifPresent((path) -> {
+        Ressources.getDirectory("Backgroundimages", false).ifPresent((path) -> {
             try {
                 images.clear();
                 images.addAll(Files.list(path)
@@ -116,13 +113,13 @@ public class WorkspaceBackground implements Exitable {
             }
         });
     }
-    private double stageHeight = 0;
-    private double stageWidth = 0;
-    private boolean viewToggle = false;
-    private final Timeline fadeToView1;
-    private final Timeline fadeToView2;
+    private static double stageHeight = 0;
+    private static double stageWidth = 0;
+    private static boolean viewToggle = false;
+    private static Timeline fadeToView1;
+    private static Timeline fadeToView2;
 
-    private void setImage(Path path) {
+    private static void setImage(Path path) {
         Image image = new Image("file:///" + path.toString());
         if (viewToggle) {
             view1.setImage(image);
@@ -136,7 +133,7 @@ public class WorkspaceBackground implements Exitable {
         viewToggle = !viewToggle;
     }
 
-    private void resizeImage(ImageView view) {
+    private static void resizeImage(ImageView view) {
         Image image = view.getImage();
         if (image == null) {
             toBeResizedAsSoonAsAImageIsInIt = view;
@@ -159,10 +156,47 @@ public class WorkspaceBackground implements Exitable {
         }
     }
 
+    public static void openImagesFolder() {
+        Optional<Path> imagesPath = Ressources.getDirectory("Backgroundimages", false);
+        if (imagesPath.isPresent()) {
+            try {
+                Desktop.getDesktop().open(imagesPath.get().toFile());
+            } catch (IOException ex) {
+                Logger.error("Could not open the Backgroundimages folder", ex);
+            }
+        }
+    }
+
+    public static void setDuration(int durationInMinutes) {
+        if (imageChangingScheduler != null) {
+            imageChangingScheduler.cancel(false);
+        }
+        if (durationInMinutes > 0) {
+            imageChangingScheduler = imageChangingSchedulerService.scheduleAtFixedRate(() -> {
+                try {
+                    if (images.size() - 1 > counter) {
+                        counter++;
+                    } else {
+                        counter = 0;
+                    }
+                    if (images.size() > counter) {
+                        setImage(images.get(counter));
+                    }
+                    if (toBeResizedAsSoonAsAImageIsInIt != null) {
+                        resizeImage(toBeResizedAsSoonAsAImageIsInIt);
+                        toBeResizedAsSoonAsAImageIsInIt = null;
+                    }
+                } catch (Exception e) {
+                    Logger.error("Could not change the background image", e);
+                }
+            }, 0, (long) durationInMinutes, TimeUnit.MINUTES);
+        }
+    }
+
     @Override
     public void onExit() {
-        if (!imageChangingScheduler.isShutdown()) {
-            imageChangingScheduler.shutdown();
+        if (!imageChangingSchedulerService.isShutdown()) {
+            imageChangingSchedulerService.shutdown();
         }
     }
 

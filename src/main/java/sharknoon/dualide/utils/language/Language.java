@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import javafx.scene.control.Labeled;
 import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.language.lanugages.English;
@@ -175,27 +176,21 @@ public abstract class Language {
      * Sets a custom text to a custom object<br><br>
      *
      * If the User changes the Language:<br><br>
-     * 1. A empty Word enteres the Stringmodifier<br>
-     * 2. The potentially modified word enters the ValueSetter which sets the
+     * 1. A word is being supplied<br>
+     * 2. The supplied word enters the ValueSetter which sets the
      * value<br><br>
      *
-     * Example:<br>
-     * <pre>
-     * {@code
-     * Textfield field = ... ;
-     * Language.setCustom(s -> Language.getLanguage().toString(), v -> field.setPlaceholder(v));
-     * }
-     * </pre> In this Example you have a Textfield.<br>
+     * In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
      * the Standard field.setValue(...) you can use the
      * {@link #set(Word, Component)} for that).<br>
      * You set the modified string as placeholder for your textfield as example.
      *
-     * @param modifier
+     * @param supplier
      * @param setter
      */
-    public static void setCustom(StringModifier modifier, ValueSetter setter) {
-        setCustom(null, modifier, setter);
+    public static void setCustom(Supplier<String> supplier, ValueSetter setter) {
+        setCustom(null, v -> supplier.get(), setter);
     }
 
     /**

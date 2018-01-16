@@ -25,19 +25,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import org.hildan.fxgson.FxGson;
-import org.json.simple.JSONObject;
+import sharknoon.dualide.serial.ClassTypeAdapter;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
-import java.lang.Class;
-import sharknoon.dualide.serial.ClassTypeAdapter;
 
 /**
  *
  * @author Josua Frank
- * @param <I>
- * @param <P>
- * @param <C>
+ * @param <I> The type of the item itself
+ * @param <P> The type of the parent item
+ * @param <C> The type of the children, only useful for the type project and
+ * welcome
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
@@ -46,11 +45,11 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
-    private final ObjectProperty<Class<I>> type = new SimpleObjectProperty<>();
-    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
+    private final transient ObjectProperty<java.lang.Class> type = new SimpleObjectProperty<>();
+    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>(createSite());
 
     public Item(P parent, String name) {
-        setType((Class<I>) this.getClass());
+        setType((java.lang.Class<I>) this.getClass());
         setName(name);
         onChange();
         setParent(parent);
@@ -97,22 +96,19 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return parent;
     }
 
-    public Class<I> getType(){
+    public java.lang.Class getType() {
         return typeProperty().get();
     }
-    
-    public void setType(Class<I> type){
+
+    public void setType(java.lang.Class type) {
         typeProperty().set(type);
     }
-    
-    public ObjectProperty<Class<I>> typeProperty(){
+
+    public ObjectProperty<java.lang.Class> typeProperty() {
         return type;
     }
-    
+
     public Site<I> getSite() {
-        if (siteProperty().get() == null) {
-            siteProperty().set(createSite());
-        }
         return siteProperty().get();
     }
 
@@ -150,15 +146,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
             iterator.remove();
         }
     }
-    
-    public void test(){
-        System.out.println(FxGson
-                .fullBuilder()
-                .setPrettyPrinting()
-                .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
-                .create()
-                .toJson(this));
-    }
 
     private void onChange() {
         getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
@@ -166,12 +153,23 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 C elementAdded = change.getElementAdded();
                 ItemTreeView.onItemAdded(elementAdded, this);
                 ItemTabPane.onItemAdded(elementAdded);
+                elementAdded.setParent(this);//For filling up this item by gson
             } else if (change.wasRemoved()) {
                 C elementRemoved = change.getElementRemoved();
                 ItemTreeView.onItemRemoved(elementRemoved, this);
                 ItemTabPane.onItemRemoved(elementRemoved);
             }
         });
+    }
+
+    public void test() {
+        String json = FxGson
+                .fullBuilder()
+                .setPrettyPrinting()
+                .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
+                .create()
+                .toJson(this);
+        System.out.println(json);
     }
 
 }

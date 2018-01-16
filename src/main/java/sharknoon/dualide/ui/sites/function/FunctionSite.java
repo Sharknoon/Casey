@@ -37,6 +37,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
 import sharknoon.dualide.logic.Function;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
@@ -281,8 +283,8 @@ public class FunctionSite extends Site<Function> {
     }
 
     @Override
-    public Node getTabIcon() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Icon getTabIcon() {
+        return Icon.FUNCTION;
     }
 
 }

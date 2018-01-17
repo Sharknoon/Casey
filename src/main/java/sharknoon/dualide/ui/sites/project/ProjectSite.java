@@ -16,6 +16,9 @@
 package sharknoon.dualide.ui.sites.project;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -33,9 +36,11 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
@@ -56,12 +61,27 @@ public class ProjectSite extends Site<Project> {
     private final BorderPane borderPaneRoot = new BorderPane();
 
     {
-        VBox vBoxPackages = new VBox(20);
-        vBoxPackages.setPadding(new Insets(50));
-        vBoxPackages.setFillWidth(true);
-        vBoxPackages.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        GridPane gridPanePackages = new GridPane();
+        gridPanePackages.setVgap(20);
+        gridPanePackages.setHgap(20);
+        gridPanePackages.setAlignment(Pos.TOP_CENTER);
+        gridPanePackages.setPadding(new Insets(50));
 
-        refresh(vBoxPackages);
+        refresh(gridPanePackages);
+
+        ColumnConstraints colIcon = new ColumnConstraints();
+        colIcon.setHalignment(HPos.LEFT);
+        ColumnConstraints colTextAndComments = new ColumnConstraints();
+        colTextAndComments.setHalignment(HPos.LEFT);
+        colTextAndComments.setFillWidth(true);
+        colTextAndComments.setHgrow(Priority.ALWAYS);
+        ColumnConstraints colButtonComments = new ColumnConstraints();
+        colButtonComments.setHalignment(HPos.RIGHT);
+        ColumnConstraints colButtonRename = new ColumnConstraints();
+        colButtonRename.setHalignment(HPos.RIGHT);
+        ColumnConstraints colButtonDelete = new ColumnConstraints();
+        colButtonDelete.setHalignment(HPos.RIGHT);
+        gridPanePackages.getColumnConstraints().addAll(colIcon, colTextAndComments, colButtonComments, colButtonRename, colButtonDelete);
 
         HBox hBoxProjectButtons = new HBox(20);
         hBoxProjectButtons.setPadding(new Insets(50));
@@ -70,10 +90,15 @@ public class ProjectSite extends Site<Project> {
         Icons.set(buttonAddPackage, Icon.PLUS);
         Language.set(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, buttonAddPackage);
         buttonAddPackage.setOnAction((event) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG);
+            Set<String> forbiddenValues = getItem()
+                    .getChildren()
+                    .stream()
+                    .map(Item::getName)
+                    .collect(Collectors.toSet());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, forbiddenValues);
             if (name.isPresent()) {
                 Package package_ = new Package(getItem(), name.get());
-                refresh(vBoxPackages);
+                refresh(gridPanePackages);
                 ItemTreeView.selectItem(package_);
             }
         });
@@ -92,55 +117,68 @@ public class ProjectSite extends Site<Project> {
         });
         hBoxProjectButtons.getChildren().add(buttonDeleteProject);
 
-        ScrollPane scrollPanePackages = new ScrollPane(vBoxPackages);
+        Button buttonCommentProject = new Button();
+        Icons.set(buttonCommentProject, Icon.COMMENTS);
+        Language.set(Word.PROJECT_SIDE_COMMENT_PROJECT_BUTTON_TEXT, buttonCommentProject);
+        buttonCommentProject.setOnAction((event) -> {
+            Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PROJECT_DIALOG, getItem().getComments());
+            if (comments.isPresent()) {
+                getItem().setComments(comments.get());
+            }
+        });
+        hBoxProjectButtons.getChildren().add(buttonCommentProject);
+
+        ScrollPane scrollPanePackages = new ScrollPane(gridPanePackages);
         scrollPanePackages.setFitToHeight(true);
         scrollPanePackages.setFitToWidth(true);
         borderPaneRoot.setCenter(scrollPanePackages);
         borderPaneRoot.setBottom(hBoxProjectButtons);
     }
 
-    private void refresh(VBox vBoxPackages) {
-        vBoxPackages.getChildren().clear();
+    int rowCounter = 0;
+
+    private void refresh(GridPane gridPanePackages) {
+        gridPanePackages.getChildren().clear();
+        rowCounter = 0;
         getItem().getChildren().forEach(p -> {
-            GridPane gridPanePackageEntry = new GridPane();
-            gridPanePackageEntry.setVgap(20);
-            gridPanePackageEntry.setHgap(20);
-            //gridPanePackageEntry.setMinWidth(vBoxPackages.getWidth());
-            gridPanePackageEntry.setGridLinesVisible(true);
-
             ImageView icon = Icons.get(Icon.PACKAGE, 50);
-            gridPanePackageEntry.add(icon, 0, 0);
+            gridPanePackages.add(icon, 0, rowCounter);
 
-            VBox vBoxNameAndComments = new VBox(10);
             Text textPackageName = new Text();
             DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
             shadowEffect.setSpread(0.5);
             textPackageName.setEffect(shadowEffect);
             textPackageName.textProperty().bindBidirectional(p.nameProperty());
-            Text textPackageComments = new Text();
-            textPackageComments.setEffect(shadowEffect);
-            textPackageComments.textProperty().bindBidirectional(p.commentsProperty());
-            vBoxNameAndComments.getChildren().addAll(textPackageName, textPackageComments);
-            gridPanePackageEntry.add(vBoxNameAndComments, 1, 0);
+            gridPanePackages.add(textPackageName, 1, rowCounter);
 
             Button buttonCommentPackage = new Button();
             Icons.set(buttonCommentPackage, Icon.COMMENTS);
             Language.set(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, buttonCommentPackage);
             buttonCommentPackage.setOnAction((event) -> {
-                
+                Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
+                if (comments.isPresent()) {
+                    p.setComments(comments.get());
+                }
             });
-            gridPanePackageEntry.add(buttonCommentPackage, 2, 0);
-            
+            gridPanePackages.add(buttonCommentPackage, 2, rowCounter);
+
             Button buttonRenamePackage = new Button();
             Icons.set(buttonRenamePackage, Icon.RENAME);
             Language.set(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, buttonRenamePackage);
             buttonRenamePackage.setOnAction((event) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG);
+                Set<String> forbiddenValues = p
+                        .getParent()
+                        .getChildren()
+                        .stream()
+                        .map(Item::getName)
+                        .filter(s -> !s.equals(p.getName()))
+                        .collect(Collectors.toSet());
+                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, forbiddenValues);
                 if (name.isPresent()) {
                     p.setName(name.get());
                 }
             });
-            gridPanePackageEntry.add(buttonRenamePackage, 3, 0);
+            gridPanePackages.add(buttonRenamePackage, 3, rowCounter);
 
             Button buttonDeletePackage = new Button();
             Icons.set(buttonDeletePackage, Icon.TRASH);
@@ -149,18 +187,12 @@ public class ProjectSite extends Site<Project> {
                 Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", p.getName());
                 if (confirmed.isPresent() && confirmed.get()) {
                     p.destroy();
-                    refresh(vBoxPackages);
+                    refresh(gridPanePackages);
                 }
             });
-            gridPanePackageEntry.add(buttonDeletePackage, 4, 0);
+            gridPanePackages.add(buttonDeletePackage, 4, rowCounter);
 
-            ColumnConstraints col1 = new ColumnConstraints();
-            col1.setPercentWidth(65);
-            ColumnConstraints col2 = new ColumnConstraints();
-            col2.setPercentWidth(35);
-            //gridPaneContent.getColumnConstraints().addAll(col1, col2);
-
-            vBoxPackages.getChildren().add(gridPanePackageEntry);
+            rowCounter++;
         });
     }
 

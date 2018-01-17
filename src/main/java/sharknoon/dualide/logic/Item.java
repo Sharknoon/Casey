@@ -153,7 +153,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 C elementAdded = change.getElementAdded();
                 ItemTreeView.onItemAdded(elementAdded, this);
                 ItemTabPane.onItemAdded(elementAdded);
-                elementAdded.setParent(this);//For filling up this item by gson
             } else if (change.wasRemoved()) {
                 C elementRemoved = change.getElementRemoved();
                 ItemTreeView.onItemRemoved(elementRemoved, this);

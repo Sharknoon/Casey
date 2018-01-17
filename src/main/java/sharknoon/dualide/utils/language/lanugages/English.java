@@ -64,8 +64,10 @@ public class English extends Language {
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Recent projects");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Background");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Open backgroundfolder");
-        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "background duration");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Background duration");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "minutes");
+        add(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, "Comment package");
+        add(Word.PROJECT_SIDE_COMMENT_PROJECT_BUTTON_TEXT, "Comment project");
     }
 
 }

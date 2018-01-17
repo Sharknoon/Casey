@@ -15,7 +15,9 @@
  */
 package sharknoon.dualide.ui.sites;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -47,10 +49,19 @@ public class Dialogs {
     }
 
     public enum TextEditors {
-        COMMENT_PACKAGE_DIALOG
+        COMMENT_PACKAGE_DIALOG,
+        COMMENT_PROJECT_DIALOG
     }
 
     public static Optional<String> showTextInputDialog(TextInputs type, String... variables) {
+        return showTextInputDialog(type, null, variables);
+    }
+
+    public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenEntries, String... variables) {
+        return showTextInputDialog(type, "", forbiddenEntries, variables);
+    }
+
+    public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenEntries, String... variables) {
         switch (type) {
             case NEW_PROJECT_DIALOG:
                 return showTextInputDialog(
@@ -58,6 +69,8 @@ public class Dialogs {
                         NEW_PROJECT_DIALOG_HEADER_TEXT,
                         NEW_PROJECT_DIALOG_CONTENT_TEXT,
                         Icon.PROJECT,
+                        defaultValue,
+                        forbiddenEntries,
                         variables);
             case NEW_PACKAGE_DIALOG:
                 return showTextInputDialog(
@@ -65,6 +78,8 @@ public class Dialogs {
                         NEW_PACKAGE_DIALOG_HEADER_TEXT,
                         NEW_PACKAGE_DIALOG_CONTENT_TEXT,
                         Icon.PACKAGE,
+                        defaultValue,
+                        forbiddenEntries,
                         variables);
             case RENAME_PACKAGE_DIALOG:
                 return showTextInputDialog(
@@ -72,6 +87,8 @@ public class Dialogs {
                         RENAME_PACKAGE_DIALOG_HEADER_TEXT,
                         RENAME_PACKAGE_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
+                        defaultValue,
+                        forbiddenEntries,
                         variables);
         }
         return Optional.empty();
@@ -97,16 +114,30 @@ public class Dialogs {
         return Optional.empty();
     }
 
-    public static Optional<String> showTextEditor(TextEditors type, String... variables){
-        switch (type){
+    public static Optional<String> showTextEditorDialog(TextEditors type, String defaultValue, String... variables) {
+        switch (type) {
             case COMMENT_PACKAGE_DIALOG:
-                return null;
+                return showTextEditorDialog(
+                        COMMENT_PACKAGE_DIALOG_TITLE,
+                        COMMENT_PACKAGE_DIALOG_HEADER_TEXT,
+                        COMMENT_PACKAGE_DIALOG_CONTENT_TEXT,
+                        Icon.COMMENTS,
+                        defaultValue,
+                        variables);
+            case COMMENT_PROJECT_DIALOG:
+                return showTextEditorDialog(
+                        COMMENT_PROJECT_DIALOG_TITLE,
+                        COMMENT_PROJECT_DIALOG_HEADER_TEXT,
+                        COMMENT_PROJECT_DIALOG_CONTENT_TEXT,
+                        Icon.COMMENTS,
+                        defaultValue,
+                        variables);
         }
         return Optional.empty();
     }
-    
-    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word conentText, Icon icon, String... variables) {
-        TextInputDialog dialog = new TextInputDialog();
+
+    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word conentText, Icon icon, String defaultValue, Set<String> forbiddenValues, String... variables) {
+        AdvancedTextInputDialog dialog = new AdvancedTextInputDialog(defaultValue, forbiddenValues);
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));
         dialog.setContentText(fill(Language.get(conentText), variables));
@@ -132,8 +163,16 @@ public class Dialogs {
             return Optional.of(false);
         }
     }
-    
-    
+
+    private static Optional<String> showTextEditorDialog(Word title, Word headerText, Word conentText, Icon icon, String defaultValue, String... variables) {
+        TextEditorDialog dialog = new TextEditorDialog(defaultValue);
+        dialog.setTitle(fill(Language.get(title), variables));
+        dialog.setHeaderText(fill(Language.get(headerText), variables));
+        dialog.setContentText(fill(Language.get(conentText), variables));
+        setIcon(icon, dialog);
+        setStyle(dialog);
+        return dialog.showAndWait();
+    }
 
     private static final String EMPTY = "";
 

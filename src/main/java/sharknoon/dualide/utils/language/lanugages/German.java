@@ -66,5 +66,7 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "Minuten");
+        add(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, "Paket kommentieren");
+        add(Word.PROJECT_SIDE_COMMENT_PROJECT_BUTTON_TEXT, "Projekt kommentieren");
     }
 }

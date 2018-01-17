@@ -13,11 +13,11 @@
     -fx-focus-color: #d30000;
     -fx-faint-focus-color: #d3000022;
 }
-
 .tab-pane {
     -fx-tab-min-height: 3em;
     -fx-tab-max-height: 3em;
 }
+
 /*Keeps the slection color when the treeview looses focus*/
 .tree-cell:filled:selected {
     -fx-background: -fx-selection-bar;

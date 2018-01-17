@@ -24,7 +24,7 @@ import sharknoon.dualide.ui.sites.clazz.ClassSite;
  */
 public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
 
-    public Class(Package parent, String name) {
+    protected Class(Package parent, String name) {
         super(parent, name);
     }
 

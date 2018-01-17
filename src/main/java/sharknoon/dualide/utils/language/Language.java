@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.Tooltip;
 import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.language.lanugages.English;
 import sharknoon.dualide.utils.language.lanugages.German;
@@ -263,6 +264,7 @@ public abstract class Language {
         String value = word == null ? "" : currentLanguage.words.getOrDefault(word, word.name());
         if (labeledControl != null) {
             labeledControl.setText(value);//Evtl Platform.runLater(...)
+            labeledControl.setTooltip(new Tooltip(value));
         }
     }
 

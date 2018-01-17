@@ -41,7 +41,12 @@ public enum Icon {
     GERMAN,
     BACKGROUND,
     DURATION,
-    COMMENTS;
+    COMMENTS,
+    PLUSPROJECT,
+    PLUSPACKAGE,
+    PLUSCLASS,
+    PLUSFUNCTION,
+    PLUSVARIABLE;
 
     private final String path;
 

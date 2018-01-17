@@ -39,6 +39,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.hildan.fxgson.FxGson;
+import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.serial.ClassTypeAdapter;
@@ -89,7 +90,7 @@ public class WelcomeSite extends Site<Welcome> {
         buttonCreateNewProject.setOnAction((event) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
             if (name.isPresent()) {
-                Project project = new Project(Welcome.getWelcome(), name.get());
+                Project project = Item.createItem(Project.class, Welcome.getWelcome(), name.get());
                 ItemTreeView.selectItem(project);
                 ItemTreeView.hideRootItem();
                 ItemTabPane.hideRootTab();

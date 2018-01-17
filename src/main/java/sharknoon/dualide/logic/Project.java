@@ -44,7 +44,7 @@ public class Project extends Item<Project, Welcome, Package> {
     private final transient ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
     private static final transient ObjectProperty<Project> CURRENT_PROJECT = new SimpleObjectProperty<>();
 
-    public Project(Welcome parent, String name) {
+    protected Project(Welcome parent, String name) {
         super(parent, name);
         currentProjectProperty().set(this);
     }

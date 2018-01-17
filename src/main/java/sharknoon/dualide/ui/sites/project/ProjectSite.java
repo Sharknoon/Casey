@@ -71,23 +71,23 @@ public class ProjectSite extends Site<Project> {
 
         ColumnConstraints colIcon = new ColumnConstraints();
         colIcon.setHalignment(HPos.LEFT);
-        ColumnConstraints colTextAndComments = new ColumnConstraints();
-        colTextAndComments.setHalignment(HPos.LEFT);
-        colTextAndComments.setFillWidth(true);
-        colTextAndComments.setHgrow(Priority.ALWAYS);
+        ColumnConstraints colText = new ColumnConstraints();
+        colText.setHalignment(HPos.LEFT);
+        colText.setFillWidth(true);
+        colText.setHgrow(Priority.ALWAYS);
         ColumnConstraints colButtonComments = new ColumnConstraints();
         colButtonComments.setHalignment(HPos.RIGHT);
         ColumnConstraints colButtonRename = new ColumnConstraints();
         colButtonRename.setHalignment(HPos.RIGHT);
         ColumnConstraints colButtonDelete = new ColumnConstraints();
         colButtonDelete.setHalignment(HPos.RIGHT);
-        gridPanePackages.getColumnConstraints().addAll(colIcon, colTextAndComments, colButtonComments, colButtonRename, colButtonDelete);
+        gridPanePackages.getColumnConstraints().addAll(colIcon, colText, colButtonComments, colButtonRename, colButtonDelete);
 
         HBox hBoxProjectButtons = new HBox(20);
         hBoxProjectButtons.setPadding(new Insets(50));
 
         Button buttonAddPackage = new Button();
-        Icons.set(buttonAddPackage, Icon.PLUS);
+        Icons.set(buttonAddPackage, Icon.PLUSPACKAGE);
         Language.set(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, buttonAddPackage);
         buttonAddPackage.setOnAction((event) -> {
             Set<String> forbiddenValues = getItem()
@@ -97,7 +97,7 @@ public class ProjectSite extends Site<Project> {
                     .collect(Collectors.toSet());
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, forbiddenValues);
             if (name.isPresent()) {
-                Package package_ = new Package(getItem(), name.get());
+                Package package_ = Item.createItem(Package.class, getItem(), name.get());
                 refresh(gridPanePackages);
                 ItemTreeView.selectItem(package_);
             }
@@ -106,7 +106,7 @@ public class ProjectSite extends Site<Project> {
 
         Button buttonDeleteProject = new Button();
         Icons.set(buttonDeleteProject, Icon.TRASH);
-        Language.set(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, buttonDeleteProject);
+        Language.set(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, buttonDeleteProject);
         buttonDeleteProject.setOnAction((event) -> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PROJECT_DIALOG, "#PROJECT", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
@@ -119,7 +119,7 @@ public class ProjectSite extends Site<Project> {
 
         Button buttonCommentProject = new Button();
         Icons.set(buttonCommentProject, Icon.COMMENTS);
-        Language.set(Word.PROJECT_SIDE_COMMENT_PROJECT_BUTTON_TEXT, buttonCommentProject);
+        Language.set(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, buttonCommentProject);
         buttonCommentProject.setOnAction((event) -> {
             Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PROJECT_DIALOG, getItem().getComments());
             if (comments.isPresent()) {

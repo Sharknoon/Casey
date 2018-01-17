@@ -29,6 +29,7 @@ import sharknoon.dualide.serial.ClassTypeAdapter;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 
 /**
  *
@@ -45,10 +46,36 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
-    private final transient ObjectProperty<java.lang.Class> type = new SimpleObjectProperty<>();
+    private final transient ObjectProperty<java.lang.Class<? extends Item>> type = new SimpleObjectProperty<>();
     private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>(createSite());
 
-    public Item(P parent, String name) {
+    /**
+     * can return null!!!
+     *
+     * @param <ITEM>
+     * @param itemType
+     * @param parent
+     * @param name
+     * @return
+     */
+    public static <ITEM extends Item> ITEM createItem(java.lang.Class<ITEM> itemType, Item parent, String name) {
+        if (itemType == Welcome.class) {
+            return (ITEM) new Welcome(null, name);
+        } else if (itemType == Project.class && parent instanceof Welcome) {
+            return (ITEM) new Project((Welcome) parent, name);
+        } else if (itemType == Package.class) {
+            return (ITEM) new Package(parent, name);
+        } else if (itemType == Class.class && parent instanceof Package) {
+            return (ITEM) new Class((Package) parent, name);
+        } else if (itemType == Function.class) {
+            return (ITEM) new Function(parent, name);
+        } else if (itemType == Variable.class) {
+            return (ITEM) new Variable(parent, name);
+        }
+        return null;
+    }
+
+    protected Item(P parent, String name) {
         setType((java.lang.Class<I>) this.getClass());
         setName(name);
         onChange();
@@ -96,15 +123,15 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return parent;
     }
 
-    public java.lang.Class getType() {
+    public java.lang.Class<? extends Item> getType() {
         return typeProperty().get();
     }
 
-    public void setType(java.lang.Class type) {
+    public void setType(java.lang.Class<? extends Item> type) {
         typeProperty().set(type);
     }
 
-    public ObjectProperty<java.lang.Class> typeProperty() {
+    public ObjectProperty<java.lang.Class<? extends Item>> typeProperty() {
         return type;
     }
 

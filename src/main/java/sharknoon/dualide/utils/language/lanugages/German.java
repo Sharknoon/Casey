@@ -31,42 +31,79 @@ public class German extends Language {
 
     {
         add(Word.RUN, "Los!");
-        add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
-        add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Projektname eingeben");
-        add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projektname");
-        add(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, "Neues Projekt anlegen");
-        add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Vorhandenes Projekt laden");
-        add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
+        //MenuBar
         add(Word.MENUBAR_OPTIONS_TEXT, "Optionen");
         add(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, "Sprache");
-        add(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
-        add(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
-        add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
-        add(Word.NEW_PACKAGE_DIALOG_TITLE, "Neues Paket anlegen");
-        add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Paketname eingeben");
-        add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
-        add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Paket umbenennen");
-        add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Neuen Paketnamen eingeben");
-        add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
-        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket #PACKAGE löschen");
-        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket #PACKAGE wirklich löschen?");
-        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket #PACKAGE werden unwiederruflich gelöscht!");
-        add(Word.PROJECT_SIDE_DELETE_PROJECT_BUTTON_TEXT, "Projekt löschen");
-        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt #PROJECT löschen");
-        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt #PROJECT wirklich löschen?");
-        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt #PROJECT werden unwiederruflich gelöscht!");
-        add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
-        add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
-        add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
-        add(Word.SAVE_DIALOG_TITLE, "Projekt speichern");
-        add(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT, "DualIDE Projekt");
-        add(Word.OPEN_DIALOG_TITLE, "Projekt laden");
-        add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Hintergrund");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "Minuten");
+        add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
+        add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
+        //ToolBar
+        add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
+        //Welcomesite
+        add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
+        add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
+        add(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, "Neues Projekt anlegen");
+        add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Vorhandenes Projekt laden");
+        //Projectsite
+        add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
+        add(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, "Projekt kommentieren");
+        add(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, "Projekt löschen");
         add(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, "Paket kommentieren");
-        add(Word.PROJECT_SIDE_COMMENT_PROJECT_BUTTON_TEXT, "Projekt kommentieren");
+        add(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
+        add(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
+        //Packagesite
+        add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzugügen");
+        add(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, "Klasse hinzufügen");
+        add(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzufügen");
+        add(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
+        add(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, "Paket kommentieren");
+        add(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, "Paket löschen");
+        add(Word.PACKAGE_SIDE_COMMENT_PACKAGE_BUTTON_TEXT, "Paket kommentieren");
+        add(Word.PACKAGE_SIDE_COMMENT_CLASS_BUTTON_TEXT, "Klasse kommentieren");
+        add(Word.PACKAGE_SIDE_COMMENT_FUNCTION_BUTTON_TEXT, "Funktion kommentieren");
+        add(Word.PACKAGE_SIDE_COMMENT_VARIABLE_BUTTON_TEXT, "Variable kommentieren");
+        add(Word.PACKAGE_SIDE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
+        add(Word.PACKAGE_SIDE_RENAME_CLASS_BUTTON_TEXT, "Klasse umbenennen");
+        add(Word.PACKAGE_SIDE_RENAME_FUNCTION_BUTTON_TEXT, "Funktion umbenennen");
+        add(Word.PACKAGE_SIDE_RENAME_VARIABLE_BUTTON_TEXT, "Variable umbenennen");
+        add(Word.PACKAGE_SIDE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
+        add(Word.PACKAGE_SIDE_DELETE_CLASS_BUTTON_TEXT, "Klasse löschen");
+        add(Word.PACKAGE_SIDE_DELETE_FUNCTION_BUTTON_TEXT, "Funktion löschen");
+        add(Word.PACKAGE_SIDE_DELETE_VARIABLE_BUTTON_TEXT, "Variable löschen");
+        //Dialogs
+        ///New Project
+        add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
+        add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Projektname eingeben");
+        add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projektname");
+        ///Comment Project
+        add(Word.COMMENT_PROJECT_DIALOG_TITLE, "Projekt kommentieren");
+        add(Word.COMMENT_PROJECT_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        ///Delete Project
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt #PROJECT löschen");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt #PROJECT wirklich löschen?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt #PROJECT werden unwiederruflich gelöscht!");
+        ///Save Project
+        add(Word.SAVE_DIALOG_TITLE, "Projekt speichern");
+        add(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT, "DualIDE Projekt");
+        ///Open Project
+        add(Word.OPEN_DIALOG_TITLE, "Projekt laden");
+        ///New Package
+        add(Word.NEW_PACKAGE_DIALOG_TITLE, "Neues Paket anlegen");
+        add(Word.NEW_PACKAGE_DIALOG_HEADER_TEXT, "Paketname eingeben");
+        add(Word.NEW_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
+        ///Rename Package
+        add(Word.RENAME_PACKAGE_DIALOG_TITLE, "Paket umbenennen");
+        add(Word.RENAME_PACKAGE_DIALOG_HEADER_TEXT, "Neuen Paketnamen eingeben");
+        add(Word.RENAME_PACKAGE_DIALOG_CONTENT_TEXT, "Paketname");
+        ///Comment Package
+        add(Word.COMMENT_PACKAGE_DIALOG_TITLE, "Paket kommentieren");
+        add(Word.COMMENT_PACKAGE_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        ///Delete Package
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket #PACKAGE löschen");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket #PACKAGE wirklich löschen?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket #PACKAGE werden unwiederruflich gelöscht!");
     }
 }

@@ -37,20 +37,37 @@ import static sharknoon.dualide.utils.language.Word.*;
  */
 public class Dialogs {
 
-    public enum TextInputs {
+    public interface DialogTypes {
+    };
+
+    public enum TextInputs implements DialogTypes {
         NEW_PROJECT_DIALOG,
         NEW_PACKAGE_DIALOG,
+        NEW_CLASS_DIALOG,
+        NEW_FUNCTION_DIALOG,
+        NEW_VARIABLE_DIALOG,
         RENAME_PACKAGE_DIALOG
     }
 
-    public enum Confirmations {
+    public enum Confirmations implements DialogTypes {
         DELETE_PACKAGE_DIALOG,
         DELETE_PROJECT_DIALOG
     }
 
-    public enum TextEditors {
+    public enum TextEditors implements DialogTypes {
         COMMENT_PACKAGE_DIALOG,
         COMMENT_PROJECT_DIALOG
+    }
+
+    public static Optional showDialog(DialogTypes type, Set<String> forbiddenValues, String... variables) {
+        if (type instanceof TextInputs) {
+            return showTextInputDialog((TextInputs) type, forbiddenValues, variables);
+        } else if (type instanceof Confirmations) {
+            return showConfirmationDialog((Confirmations) type, variables);
+        } else if (type instanceof TextEditors) {
+            return showTextEditorDialog((TextEditors) type, EMPTY, variables);
+        }
+        return Optional.empty();
     }
 
     public static Optional<String> showTextInputDialog(TextInputs type, String... variables) {
@@ -68,7 +85,7 @@ public class Dialogs {
                         NEW_PROJECT_DIALOG_TITLE,
                         NEW_PROJECT_DIALOG_HEADER_TEXT,
                         NEW_PROJECT_DIALOG_CONTENT_TEXT,
-                        Icon.PROJECT,
+                        Icon.PLUSPROJECT,
                         defaultValue,
                         forbiddenEntries,
                         variables);
@@ -77,7 +94,34 @@ public class Dialogs {
                         NEW_PACKAGE_DIALOG_TITLE,
                         NEW_PACKAGE_DIALOG_HEADER_TEXT,
                         NEW_PACKAGE_DIALOG_CONTENT_TEXT,
-                        Icon.PACKAGE,
+                        Icon.PLUSPACKAGE,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
+            case NEW_CLASS_DIALOG:
+                return showTextInputDialog(
+                        NEW_CLASS_DIALOG_TITLE,
+                        NEW_CLASS_DIALOG_HEADER_TEXT,
+                        NEW_CLASS_DIALOG_CONTENT_TEXT,
+                        Icon.PLUSCLASS,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
+            case NEW_FUNCTION_DIALOG:
+                return showTextInputDialog(
+                        NEW_FUNCTION_DIALOG_TITLE,
+                        NEW_FUNCTION_DIALOG_HEADER_TEXT,
+                        NEW_FUNCTION_DIALOG_CONTENT_TEXT,
+                        Icon.PLUSFUNCTION,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
+            case NEW_VARIABLE_DIALOG:
+                return showTextInputDialog(
+                        NEW_VARIABLE_DIALOG_TITLE,
+                        NEW_VARIABLE_DIALOG_HEADER_TEXT,
+                        NEW_VARIABLE_DIALOG_CONTENT_TEXT,
+                        Icon.PLUSVARIABLE,
                         defaultValue,
                         forbiddenEntries,
                         variables);
@@ -120,7 +164,6 @@ public class Dialogs {
                 return showTextEditorDialog(
                         COMMENT_PACKAGE_DIALOG_TITLE,
                         COMMENT_PACKAGE_DIALOG_HEADER_TEXT,
-                        COMMENT_PACKAGE_DIALOG_CONTENT_TEXT,
                         Icon.COMMENTS,
                         defaultValue,
                         variables);
@@ -128,7 +171,6 @@ public class Dialogs {
                 return showTextEditorDialog(
                         COMMENT_PROJECT_DIALOG_TITLE,
                         COMMENT_PROJECT_DIALOG_HEADER_TEXT,
-                        COMMENT_PROJECT_DIALOG_CONTENT_TEXT,
                         Icon.COMMENTS,
                         defaultValue,
                         variables);
@@ -164,11 +206,10 @@ public class Dialogs {
         }
     }
 
-    private static Optional<String> showTextEditorDialog(Word title, Word headerText, Word conentText, Icon icon, String defaultValue, String... variables) {
+    private static Optional<String> showTextEditorDialog(Word title, Word headerText, Icon icon, String defaultValue, String... variables) {
         TextEditorDialog dialog = new TextEditorDialog(defaultValue);
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));
-        dialog.setContentText(fill(Language.get(conentText), variables));
         setIcon(icon, dialog);
         setStyle(dialog);
         return dialog.showAndWait();

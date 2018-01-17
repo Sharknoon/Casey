@@ -24,7 +24,7 @@ import sharknoon.dualide.ui.sites.variable.VariableSite;
  */
 public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
-    public Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
+    protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         super(parent, name);
     }
 

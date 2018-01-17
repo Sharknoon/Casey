@@ -27,7 +27,7 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
 
-    private Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
+    protected Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
         super(parent, name);
     }
 
@@ -35,7 +35,7 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
 
     public static Welcome getWelcome() {
         if (welcome == null) {
-            welcome = new Welcome(null, "");
+            welcome = Item.createItem(Welcome.class, null, "");
             Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
         }
         return welcome;

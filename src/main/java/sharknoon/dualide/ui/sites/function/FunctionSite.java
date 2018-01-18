@@ -278,8 +278,12 @@ public class FunctionSite extends Site<Function> {
     }
 
     @Override
+    public void refresh() {
+    }
+
+    @Override
     public Pane getTabContentPane() {
-        return new Pane();
+        return root;
     }
 
     @Override

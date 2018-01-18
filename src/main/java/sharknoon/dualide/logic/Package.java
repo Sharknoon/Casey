@@ -24,6 +24,10 @@ import sharknoon.dualide.ui.sites.package_.PackageSite;
  */
 public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
 
+    private Package() {
+        super();
+    }
+
     protected Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
         super(parent, name);
     }

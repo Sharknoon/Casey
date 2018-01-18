@@ -13,28 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
-
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.variable.VariableSite;
+package sharknoon.dualide.serial;
 
 /**
  *
  * @author Josua Frank
  */
-public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
-
-    private Variable() {
-        super();
-    }
-
-    protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
-        super(parent, name);
-    }
-
-    @Override
-    protected Site<Variable> createSite() {
-        return new VariableSite(this);
-    }
-
+public interface PostProcessable {
+    void postProcess();
 }

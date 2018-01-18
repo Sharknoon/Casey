@@ -130,11 +130,6 @@
             <version>3.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>8.40.13</version>
-        </dependency>
-        <dependency>
             <groupId>net.sourceforge.jaadec</groupId>
             <artifactId>jaad</artifactId>
             <version>0.8.5</version>
@@ -143,11 +138,6 @@
             <groupId>org.dizitart</groupId>
             <artifactId>nitrite</artifactId>
             <version>2.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threeten-extra</artifactId>
-            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>org.hildan.fxgson</groupId>

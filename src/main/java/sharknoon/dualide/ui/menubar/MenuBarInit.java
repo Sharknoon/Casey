@@ -32,6 +32,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import sharknoon.dualide.logic.Project;
+import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.ui.Background;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -139,6 +140,7 @@ public class MenuBarInit {
                 p.save();
                 ItemTabPane.closeAllTabs();
                 ItemTreeView.closeAllItems();
+                Welcome.getWelcome().getChildren().clear();
             });
         });
         menuProject.getItems().add(menuCloseProject);

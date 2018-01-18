@@ -30,6 +30,7 @@ public class German extends Language {
     }
 
     {
+        add(Word.EMTPY, "");
         add(Word.RUN, "Los!");
         //MenuBar
         add(Word.MENUBAR_OPTIONS_TEXT, "Optionen");

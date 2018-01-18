@@ -31,6 +31,10 @@
     -fx-background-color: transparent;
 }
 
+.split-pane {
+    -fx-background-color: transparent;
+}
+
 .dialog-pane:header .header-panel .label {
     -fx-font-size: 1.4em;
 }

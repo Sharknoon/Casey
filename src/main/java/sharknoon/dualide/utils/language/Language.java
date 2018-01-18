@@ -263,8 +263,7 @@ public abstract class Language {
     private static void refreshControl(Labeled labeledControl, Word word) {
         String value = word == null ? "" : currentLanguage.words.getOrDefault(word, word.name());
         if (labeledControl != null) {
-            labeledControl.setText(value);//Evtl Platform.runLater(...)
-            labeledControl.setTooltip(new Tooltip(value));
+            labeledControl.setText(value);
         }
     }
 

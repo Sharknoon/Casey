@@ -33,6 +33,10 @@ public class ClassSite extends Site<Class> {
     }
 
     @Override
+    public void refresh() {
+    }
+
+    @Override
     public Pane getTabContentPane() {
         return new Pane();
     }

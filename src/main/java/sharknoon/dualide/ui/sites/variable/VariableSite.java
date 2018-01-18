@@ -33,6 +33,10 @@ public class VariableSite extends Site<Variable> {
     }
 
     @Override
+    public void refresh() {
+    }
+
+    @Override
     public Pane getTabContentPane() {
         return new Pane();
     }

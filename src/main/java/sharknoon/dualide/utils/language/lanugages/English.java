@@ -30,6 +30,7 @@ public class English extends Language {
     }
 
     {
+        add(Word.EMTPY, "");
         add(Word.RUN, "Run!");
         //MenuBar
         add(Word.MENUBAR_OPTIONS_TEXT, "Options");

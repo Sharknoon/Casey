@@ -24,12 +24,10 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
-import org.hildan.fxgson.FxGson;
-import sharknoon.dualide.serial.ClassTypeAdapter;
+import sharknoon.dualide.serial.PostProcessable;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 
 /**
  *
@@ -39,15 +37,14 @@ import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
  * @param <C> The type of the children, only useful for the type project and
  * welcome
  */
-public abstract class Item<I extends Item, P extends Item, C extends Item> {
+public abstract class Item<I extends Item, P extends Item, C extends Item> implements PostProcessable {
 
     private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
     private final ObservableSet<C> children = FXCollections.observableSet(new LinkedHashSet<>());
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
-    private final transient ObjectProperty<java.lang.Class<? extends Item>> type = new SimpleObjectProperty<>();
-    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>(createSite());
+    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
 
     /**
      * can return null!!!
@@ -75,11 +72,22 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return null;
     }
 
+    //Just for initializing fields
+    protected Item() {
+    }
+
     protected Item(P parent, String name) {
-        setType((java.lang.Class<I>) this.getClass());
         setName(name);
+        setSite(createSite());
         onChange();
         setParent(parent);
+    }
+
+    @Override
+    public void postProcess() {
+        onChange();
+        getChildren().forEach(c -> c.setParent(this));
+        setSite(createSite());
     }
 
     public String getName() {
@@ -110,7 +118,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return parentProperty().get();
     }
 
-    public void setParent(P parent) {
+    protected void setParent(P parent) {
         parentProperty().set(parent);
         if (parent != null) {
             //Backed by a set, so if its already in it, it changes nothing
@@ -124,17 +132,13 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     }
 
     public java.lang.Class<? extends Item> getType() {
-        return typeProperty().get();
+        return this.getClass();
     }
 
-    public void setType(java.lang.Class<? extends Item> type) {
-        typeProperty().set(type);
+    private void setSite(Site<I> site){
+        siteProperty().set(site);
     }
-
-    public ObjectProperty<java.lang.Class<? extends Item>> typeProperty() {
-        return type;
-    }
-
+    
     public Site<I> getSite() {
         return siteProperty().get();
     }
@@ -180,22 +184,14 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 C elementAdded = change.getElementAdded();
                 ItemTreeView.onItemAdded(elementAdded, this);
                 ItemTabPane.onItemAdded(elementAdded);
+                getSite().refresh();
             } else if (change.wasRemoved()) {
                 C elementRemoved = change.getElementRemoved();
                 ItemTreeView.onItemRemoved(elementRemoved, this);
                 ItemTabPane.onItemRemoved(elementRemoved);
+                getSite().refresh();
             }
         });
-    }
-
-    public void test() {
-        String json = FxGson
-                .fullBuilder()
-                .setPrettyPrinting()
-                .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
-                .create()
-                .toJson(this);
-        System.out.println(json);
     }
 
 }

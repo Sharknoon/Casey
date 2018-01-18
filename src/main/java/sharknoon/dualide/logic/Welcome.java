@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.logic;
 
-import java.util.Optional;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 import sharknoon.dualide.utils.language.Language;
@@ -26,6 +25,10 @@ import sharknoon.dualide.utils.language.Word;
  * @author Josua Frank
  */
 public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
+
+    private Welcome() {
+        super();
+    }
 
     protected Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
         super(parent, name);
@@ -40,7 +43,7 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
         }
         return welcome;
     }
-
+    
     @Override
     protected Site<Welcome> createSite() {
         return new WelcomeSite(this);

@@ -16,24 +16,18 @@
 package sharknoon.dualide.logic;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-import org.hildan.fxgson.FxGson;
-import sharknoon.dualide.serial.ClassTypeAdapter;
+import sharknoon.dualide.serial.Serialisation;
+import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.project.ProjectSite;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
-import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -42,11 +36,30 @@ import sharknoon.dualide.utils.settings.Logger;
 public class Project extends Item<Project, Welcome, Package> {
 
     private final transient ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
-    private static final transient ObjectProperty<Project> CURRENT_PROJECT = new SimpleObjectProperty<>();
+
+    private Project() {
+        super();
+    }
 
     protected Project(Welcome parent, String name) {
         super(parent, name);
-        currentProjectProperty().set(this);
+    }
+
+    @Override
+    public void postProcess() {
+        super.postProcess();
+        setParent(Welcome.getWelcome());
+        ItemTreeView.refresh();
+    }
+
+    public Optional<Path> getSaveFile() {
+        return Optional.ofNullable(saveFile.get());
+    }
+
+    public void setSaveFile(Path path) {
+        if (path != null) {
+            saveFile.set(path);
+        }
     }
 
     @Override
@@ -54,25 +67,17 @@ public class Project extends Item<Project, Welcome, Package> {
         return new ProjectSite(this);
     }
 
-    public static ObjectProperty<Project> currentProjectProperty() {
-        return CURRENT_PROJECT;
-    }
-
     public static Optional<Project> getCurrentProject() {
-        return Optional.ofNullable(CURRENT_PROJECT.get());
+        Welcome welcome = Welcome.getWelcome();
+        Iterator<Project> project = welcome.getChildren().iterator();
+        if (project.hasNext()) {
+            return Optional.ofNullable(project.next());
+        }
+        return Optional.empty();
     }
 
     public void save() {
-        String json = FxGson
-                .fullBuilder()
-                .setPrettyPrinting()
-                .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
-                .create()
-                .toJson(this);
-        Path pathToSaveTo = null;
-        if (saveFile.get() != null) {
-            pathToSaveTo = saveFile.get();
-        } else {
+        if (saveFile.get() == null) {
             FileChooser chooser = new FileChooser();
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
             chooser.setInitialFileName(nameProperty().get());
@@ -80,20 +85,12 @@ public class Project extends Item<Project, Welcome, Package> {
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
-            File file = chooser.showSaveDialog(Window.impl_getWindows().next());
+            File file = chooser.showSaveDialog(getSite().getTabContentPane().getScene().getWindow());
             if (file != null) {
-                pathToSaveTo = file.toPath();
-                saveFile.set(pathToSaveTo);
+                saveFile.set(file.toPath());
             }
         }
-        if (pathToSaveTo != null) {
-            try {
-                List<String> lines = Arrays.asList(json.split("\\r?\\n"));
-                Files.write(pathToSaveTo, lines);
-            } catch (IOException ex) {
-                Logger.error("Could not save File", ex);
-            }
-        }
+        Serialisation.saveProject(this);
     }
 
 }

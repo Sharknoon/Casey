@@ -24,6 +24,10 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
  */
 public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Variable> {
 
+    private Function(){
+        super();
+    }
+    
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
         super(parent, name);
     }

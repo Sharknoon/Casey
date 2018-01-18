@@ -17,8 +17,10 @@ package sharknoon.dualide.ui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javafx.scene.control.TreeItem;
 import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -103,6 +105,23 @@ public class ItemTreeView {
         ITEMS.clear();
         ITEMS.put(Welcome.getWelcome(), welcome);
         MainController.getTreeView().setShowRoot(true);
+    }
+
+    public static void refresh() {
+        MainController
+                .getTreeView()
+                .getRoot()
+                .getChildren()
+                .clear();
+        TreeItem<Item> welcome = ITEMS.get(Welcome.getWelcome());
+        ITEMS.clear();
+        ITEMS.put(Welcome.getWelcome(), welcome);
+        Welcome.getWelcome().getChildren().forEach(ItemTreeView::refreshRecursive);
+    }
+
+    private static void refreshRecursive(Item item) {
+        onItemAdded(item, item.getParent());
+        item.getChildren().forEach((item1) -> ItemTreeView.refreshRecursive((Item) item1));
     }
 
 }

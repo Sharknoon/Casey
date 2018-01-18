@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui;
 
-
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -26,6 +25,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
+import sharknoon.dualide.logic.Function;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.ui.buttonbar.ToolBarInit;
 import sharknoon.dualide.ui.menubar.MenuBarInit;
@@ -45,7 +45,7 @@ public class MainController implements Initializable {
 
     @FXML
     private MenuBar menubar;
-    
+
     @FXML
     private ToolBar toolbar;
 
@@ -56,6 +56,7 @@ public class MainController implements Initializable {
     private ImageView imageView2;
 
     private static MainController controller;
+    private static Optional<FunctionSite> currentFunction = Optional.empty();
 
     public MainController() {
         controller = this;
@@ -64,33 +65,40 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //init of handlers
+        ItemTabPane.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue instanceof Function) {
+                currentFunction = Optional.ofNullable((FunctionSite) newValue.getSite());
+            } else {
+                currentFunction = Optional.empty();
+            }
+        });
         tabPane.setOnScroll((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onScroll(event));
+            currentFunction.ifPresent(f -> f.onScroll(event));
         });
         tabPane.setOnZoom((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onZoom(event));
+            currentFunction.ifPresent(f -> f.onZoom(event));
         });
         tabPane.setOnMousePressed((event) -> {
             //System.out.println("mouse pressed");
-            getCurrentFunction().ifPresent(f -> f.onMousePressed(event));
+            currentFunction.ifPresent(f -> f.onMousePressed(event));
         });
         tabPane.setOnMouseDragged((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onMouseDragged(event));
+            currentFunction.ifPresent(f -> f.onMouseDragged(event));
         });
         tabPane.setOnMouseReleased((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onMouseReleased(event));
+            currentFunction.ifPresent(f -> f.onMouseReleased(event));
         });
         tabPane.setOnMouseMoved((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onMouseMoved(event));
+            currentFunction.ifPresent(f -> f.onMouseMoved(event));
         });
         tabPane.setOnMouseClicked((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onMouseClicked(event));
+            currentFunction.ifPresent(f -> f.onMouseClicked(event));
         });
         tabPane.setOnContextMenuRequested((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onContextMenuRequested(event));
+            currentFunction.ifPresent(f -> f.onContextMenuRequested(event));
         });
         tabPane.setOnKeyReleased((event) -> {
-            getCurrentFunction().ifPresent(f -> f.onKeyReleased(event));
+            currentFunction.ifPresent(f -> f.onKeyReleased(event));
         });
         Background.setBackground(imageView1, imageView2);
         MenuBarInit.init(menubar);
@@ -99,16 +107,11 @@ public class MainController implements Initializable {
         ItemTabPane.init();
     }
 
-    public static Optional<FunctionSite> getCurrentFunction() {
-        return Optional.empty();
-    }
-
-
     public static TreeView<Item> getTreeView() {
         return controller.treeView;
     }
-    
-    public static TabPane getTabPane(){
+
+    public static TabPane getTabPane() {
         return controller.tabPane;
     }
 

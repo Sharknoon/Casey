@@ -16,17 +16,11 @@
 package sharknoon.dualide.ui.sites.welcome;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.effect.Bloom;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -37,20 +31,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
-import org.hildan.fxgson.FxGson;
 import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.logic.Welcome;
-import sharknoon.dualide.serial.ClassTypeAdapter;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Dialogs;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.ui.sites.Site;
+
+import sharknoon.dualide.logic.Project;
+import sharknoon.dualide.serial.Serialisation;
 
 /**
  *
@@ -76,18 +68,18 @@ public class WelcomeSite extends Site<Welcome> {
         DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
         shadowEffect.setSpread(0.5);
         textRecentProjects.setEffect(shadowEffect);
-        vBoxRecentProjects.getChildren().add(textRecentProjects);
 
         //TODO Projectname \n last used date
+        ScrollPane scrollPaneRecentProjects = new ScrollPane();
+        scrollPaneRecentProjects.setFitToHeight(true);
+        scrollPaneRecentProjects.setFitToWidth(true);
+        vBoxRecentProjects.getChildren().addAll(textRecentProjects, scrollPaneRecentProjects);
         gridPaneContent.addColumn(0, vBoxRecentProjects);
 
         VBox vBoxProjectButtons = new VBox(20);
         vBoxProjectButtons.setMinHeight(600);
 
-        Button buttonCreateNewProject = new Button();
-        Icons.set(buttonCreateNewProject, Icon.PLUS);
-        Language.set(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, buttonCreateNewProject);
-        buttonCreateNewProject.setOnAction((event) -> {
+        Button buttonCreateNewProject = createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
             if (name.isPresent()) {
                 Project project = Item.createItem(Project.class, Welcome.getWelcome(), name.get());
@@ -96,35 +88,26 @@ public class WelcomeSite extends Site<Welcome> {
                 ItemTabPane.hideRootTab();
             }
         });
-        vBoxProjectButtons.getChildren().add(buttonCreateNewProject);
 
-        Button buttonLoadProject = new Button();
-        Icons.set(buttonLoadProject, Icon.LOAD);
-        Language.set(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, buttonLoadProject);
-        buttonLoadProject.setOnAction((event) -> {
+        Button buttonLoadProject = createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
             FileChooser chooser = new FileChooser();
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));//TODO last directory
             chooser.setTitle(Language.get(Word.OPEN_DIALOG_TITLE));
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
-            File file = chooser.showOpenDialog(Window.impl_getWindows().next());
+            File file = chooser.showOpenDialog(borderPaneRoot.getScene().getWindow());
             if (file != null) {
-                try {
-                    Project project = FxGson
-                            .fullBuilder()
-                            .setPrettyPrinting()
-                            .registerTypeHierarchyAdapter(sharknoon.dualide.logic.Class.class, new ClassTypeAdapter())
-                            .create()
-                            .fromJson(Files.lines(file.toPath()).collect(Collectors.joining("\n")), Project.class);
-                    System.out.println(project);
-                } catch (IOException ex) {
-                    Logger.getLogger(WelcomeSite.class.getName()).log(Level.SEVERE, null, ex);
+                Optional<Project> project = Serialisation.loadProject(file.toPath());
+                if (project.isPresent()) {
+                    ItemTreeView.selectItem(project.get());
+                    ItemTreeView.hideRootItem();
+                    ItemTabPane.hideRootTab();
                 }
             }
         });
-        vBoxProjectButtons.getChildren().add(buttonLoadProject);
 
+        vBoxProjectButtons.getChildren().addAll(buttonCreateNewProject, buttonLoadProject);
         gridPaneContent.addColumn(1, vBoxProjectButtons);
 
         ColumnConstraints col1 = new ColumnConstraints();
@@ -139,6 +122,10 @@ public class WelcomeSite extends Site<Welcome> {
 
     public WelcomeSite(Welcome item) {
         super(item);
+    }
+
+    @Override
+    public void refresh() {
     }
 
     @Override

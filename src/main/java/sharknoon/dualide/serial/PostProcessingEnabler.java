@@ -15,39 +15,39 @@
  */
 package sharknoon.dualide.serial;
 
-
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
  * @author Josua Frank
  */
-public class ClassTypeAdapter extends TypeAdapter<Class> {
-
-    public static final String CLASSPATH = "sharknoon.dualide.logic.";
+public class PostProcessingEnabler implements TypeAdapterFactory {
 
     @Override
-    public void write(JsonWriter out, Class value) throws IOException {
-        out.value(value.getSimpleName().toLowerCase());
-    }
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
-    @Override
-    public Class read(JsonReader in) throws IOException {
-        Class clazz = null;
-        try {
-            if (in.hasNext()) {
-                String className = in.nextString();
-                className = Character.toUpperCase(className.charAt(0)) + className.substring(1).toLowerCase();
-                clazz = Class.forName(CLASSPATH + className);
+        return new TypeAdapter<T>() {
+            @Override
+            public void write(JsonWriter out, T value) throws IOException {
+                delegate.write(out, value);
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.error("Item does not exist", ex);
-        }
-        return clazz;
+
+            @Override
+            public T read(JsonReader in) throws IOException {
+                T obj = delegate.read(in);
+                if (obj instanceof PostProcessable) {
+                    ((PostProcessable) obj).postProcess();
+                }
+                return obj;
+            }
+        };
     }
 
 }

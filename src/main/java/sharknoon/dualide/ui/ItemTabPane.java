@@ -17,6 +17,9 @@ package sharknoon.dualide.ui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import sharknoon.dualide.logic.Item;
@@ -31,6 +34,7 @@ public class ItemTabPane {
 
     private static final Map<Item, Tab> TABS = new HashMap<>();
     private static final Map<Tab, Item> ITEMS = new HashMap<>();
+    private static ObjectProperty<Item> selectedItem = new SimpleObjectProperty<>();
 
     public static void init() {
         MainController
@@ -39,7 +43,11 @@ public class ItemTabPane {
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
-                        ItemTreeView.selectItem(ITEMS.get(newValue));
+                        Item item = ITEMS.get(newValue);
+                        ItemTreeView.selectItem(item);
+                        selectedItem.set(item);
+                    } else {
+                        selectedItem.set(null);
                     }
                 });
         MainController
@@ -90,8 +98,8 @@ public class ItemTabPane {
             MainController.getTabPane().getTabs().remove(tab);
         }
     }
-    
-    public static void closeAllTabs(){
+
+    public static void closeAllTabs() {
         MainController
                 .getTabPane()
                 .getTabs()
@@ -101,4 +109,7 @@ public class ItemTabPane {
         onItemAdded(Welcome.getWelcome());
     }
 
+    public static ObjectProperty<Item> selectedItemProperty() {
+        return selectedItem;
+    }
 }

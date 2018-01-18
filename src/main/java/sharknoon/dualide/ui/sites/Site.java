@@ -15,12 +15,20 @@
  */
 package sharknoon.dualide.ui.sites;
 
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.ui.misc.Icon;
-
+import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -52,11 +60,11 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public String getTabName(){
+    public String getTabName() {
         return item.getName();
     }
-    
-    public StringProperty getTabNameProperty(){
+
+    public StringProperty getTabNameProperty() {
         return item.nameProperty();
     }
 
@@ -66,6 +74,51 @@ public abstract class Site<I extends Item> {
      * @return
      */
     public abstract Icon getTabIcon();
+    
+    public abstract void refresh();
+
+    protected Set<String> getForbittenValues() {
+        return getForbittenValues(null);
+    }
+
+    protected Set<String> getForbittenValues(String ignoreMe) {
+        return (Set<String>) getItem()
+                .getChildren()
+                .stream()
+                .map(i -> ((Item) i).getName())
+                .filter(n -> ignoreMe == null || !n.equals(ignoreMe))
+                .collect(Collectors.toSet());
+    }
+
+    protected Button createButton(Word buttonText, Consumer<ActionEvent> onAction) {
+        return createButton(buttonText, null, onAction);
+    }
+
+    protected Button createButton(Icon icon, Consumer<ActionEvent> onAction) {
+        return createButton(null, icon, onAction);
+    }
+
+    protected Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction) {
+        return createButton(buttonText, icon, onAction, true, true);
+    }
+
+    protected Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction, boolean withText, boolean withTooltip) {
+        Button buttonAdd = new Button();
+        if (buttonText != null) {
+            if (withText) {
+                Language.set(buttonText, buttonAdd);
+            } else if (withTooltip) {
+                Language.setCustom(buttonText, s -> buttonAdd.setTooltip(new Tooltip(s)));
+            }
+        }
+        if (icon != null) {
+            Icons.set(buttonAdd, icon);
+        }
+        if (onAction != null) {
+            buttonAdd.setOnAction(e -> onAction.accept(e));
+        }
+        return buttonAdd;
+    }
 
     @Override
     public String toString() {

@@ -21,6 +21,7 @@ package sharknoon.dualide.utils.language;
  * @author frank
  */
 public enum Word {
+    EMTPY,
     RUN,
     //MenuBar
     MENUBAR_OPTIONS_TEXT,

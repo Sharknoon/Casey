@@ -22,6 +22,7 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -56,12 +57,13 @@ import sharknoon.dualide.utils.settings.Props;
  */
 public class WelcomeSite extends Site<Welcome> {
 
-    private final BorderPane borderPaneRoot = new BorderPane();
+    private BorderPane borderPaneRoot;
     private final ScrollPane scrollPaneRecentProjects = new ScrollPane();
     private final String lastDirectoryKey = "lastProjectDirectory";
     private Optional<String> lastDirectory = Optional.empty();
 
-    {
+    private void init() {
+        borderPaneRoot = new BorderPane();
         GridPane gridPaneContent = new GridPane();
         gridPaneContent.setAlignment(Pos.CENTER);
         gridPaneContent.setMaxSize(1000, 600);
@@ -189,8 +191,13 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     @Override
-    public Pane getTabContentPane() {
-        return borderPaneRoot;
+    public CompletableFuture<Pane> getTabContentPane() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (borderPaneRoot == null) {
+                init();
+            }
+            return borderPaneRoot;
+        });
     }
 
     @Override

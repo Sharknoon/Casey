@@ -17,6 +17,7 @@ package sharknoon.dualide.logic;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.concurrent.CompletableFuture;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -135,10 +136,10 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         return this.getClass();
     }
 
-    private void setSite(Site<I> site){
+    private void setSite(Site<I> site) {
         siteProperty().set(site);
     }
-    
+
     public Site<I> getSite() {
         return siteProperty().get();
     }

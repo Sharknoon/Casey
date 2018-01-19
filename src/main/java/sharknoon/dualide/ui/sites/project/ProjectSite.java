@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites.project;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -48,10 +49,11 @@ import sharknoon.dualide.ui.sites.Dialogs;
  */
 public class ProjectSite extends Site<Project> {
 
-    private final BorderPane borderPaneRoot = new BorderPane();
+    private BorderPane borderPaneRoot;
     private final GridPane gridPanePackages = new GridPane();
 
-    {
+    private void init() {
+        borderPaneRoot = new BorderPane();
         gridPanePackages.setVgap(20);
         gridPanePackages.setHgap(20);
         gridPanePackages.setAlignment(Pos.TOP_CENTER);
@@ -179,8 +181,13 @@ public class ProjectSite extends Site<Project> {
     }
 
     @Override
-    public Pane getTabContentPane() {
-        return borderPaneRoot;
+    public CompletableFuture<Pane> getTabContentPane() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (borderPaneRoot == null) {
+                init();
+            }
+            return borderPaneRoot;
+        });
     }
 
     @Override

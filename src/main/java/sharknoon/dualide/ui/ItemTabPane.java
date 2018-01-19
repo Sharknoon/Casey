@@ -18,10 +18,12 @@ package sharknoon.dualide.ui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
@@ -67,7 +69,11 @@ public class ItemTabPane {
     public static void onItemAdded(Item item) {
         TabPane tabPane = MainController.getTabPane();
         Tab newTab = new Tab();
-        newTab.setContent(item.getSite().getTabContentPane());
+        item.getSite().getTabContentPane().thenAccept((t) -> {
+            Platform.runLater(() -> {
+                newTab.setContent((Pane) t);
+            });
+        });
         newTab.textProperty().bindBidirectional(item.getSite().getTabNameProperty());
         Icons.setCustom(g -> newTab.setGraphic(g), item.getSite().getTabIcon());
         newTab.setOnClosed((event) -> {

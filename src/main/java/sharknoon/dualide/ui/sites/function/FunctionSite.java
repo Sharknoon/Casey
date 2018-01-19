@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
+import java.util.concurrent.CompletableFuture;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -61,7 +62,6 @@ public class FunctionSite extends Site<Function> {
 
     public FunctionSite(Function item) {
         super(item);
-        init();
     }
 
     public void add(Node node) {
@@ -174,10 +174,10 @@ public class FunctionSite extends Site<Function> {
 
     private void init() {
         bs.init();
-        bm.init();
-        wm.init();
-        wc.init();
-        kb.init();
+//        bm.init();
+//        wm.init();
+//        wc.init();
+//        kb.init();
         drawLineAroundWorkspace();
         centerWorkspaceView();
         addStartBlock();
@@ -282,8 +282,13 @@ public class FunctionSite extends Site<Function> {
     }
 
     @Override
-    public Pane getTabContentPane() {
-        return root;
+    public CompletableFuture<Pane> getTabContentPane() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (root.getChildren().size() < 1) {
+                init();
+            }
+            return root;
+        });
     }
 
     @Override

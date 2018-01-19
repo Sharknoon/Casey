@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.variable;
 
+import java.util.concurrent.CompletableFuture;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Variable;
@@ -37,8 +38,10 @@ public class VariableSite extends Site<Variable> {
     }
 
     @Override
-    public Pane getTabContentPane() {
-        return new Pane();
+    public CompletableFuture<Pane> getTabContentPane() {
+        return CompletableFuture.supplyAsync(() -> {
+            return new Pane();
+        });
     }
 
     @Override

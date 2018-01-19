@@ -85,7 +85,7 @@ public class Project extends Item<Project, Welcome, Package> {
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
-            File file = chooser.showSaveDialog(getSite().getTabContentPane().getScene().getWindow());
+            File file = chooser.showSaveDialog(Welcome.getWelcome().getSite().getTabContentPane().join().getScene().getWindow());
             if (file != null) {
                 saveFile.set(file.toPath());
             }

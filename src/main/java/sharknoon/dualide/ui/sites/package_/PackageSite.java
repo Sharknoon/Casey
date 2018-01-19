@@ -16,10 +16,7 @@
 package sharknoon.dualide.ui.sites.package_;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javafx.event.ActionEvent;
+import java.util.concurrent.CompletableFuture;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,7 +27,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -45,7 +41,6 @@ import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Dialogs;
 import sharknoon.dualide.ui.sites.Dialogs.Confirmations;
 import sharknoon.dualide.ui.sites.Dialogs.TextInputs;
-import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.Class;
 import sharknoon.dualide.logic.Function;
@@ -57,10 +52,11 @@ import sharknoon.dualide.logic.Variable;
  */
 public class PackageSite extends Site<Package> {
 
-    private final BorderPane borderPaneRoot = new BorderPane();
+    private BorderPane borderPaneRoot;
     private final GridPane gridPaneChildren = new GridPane();
 
-    {
+    private void init() {
+        borderPaneRoot = new BorderPane();
         gridPaneChildren.setVgap(20);
         gridPaneChildren.setHgap(20);
         gridPaneChildren.setAlignment(Pos.TOP_CENTER);
@@ -213,8 +209,13 @@ public class PackageSite extends Site<Package> {
     }
 
     @Override
-    public Pane getTabContentPane() {
-        return borderPaneRoot;
+    public CompletableFuture<Pane> getTabContentPane() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (borderPaneRoot == null) {
+                init();
+            }
+            return borderPaneRoot;
+        });
     }
 
     @Override

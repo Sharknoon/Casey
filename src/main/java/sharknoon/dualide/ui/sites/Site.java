@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.beans.property.StringProperty;
@@ -53,7 +54,7 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public abstract Pane getTabContentPane();
+    public abstract CompletableFuture<Pane> getTabContentPane();
 
     /**
      * The Name of the Tab in the Tabpane

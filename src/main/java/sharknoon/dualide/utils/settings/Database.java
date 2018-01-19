@@ -5,43 +5,68 @@
  */
 package sharknoon.dualide.utils.settings;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
 import org.dizitart.no2.objects.ObjectFilter;
 import org.dizitart.no2.objects.ObjectRepository;
+import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.ui.MainApplication;
 
 /**
  *
  * @author frank
  */
-public class Database {
+public class Database implements Exitable {
 
     private static final Nitrite DB = Nitrite
             .builder()
-            .filePath(Ressources.createAndGetFile("sharknoon/dualide/utils/settings/alioth.db", true).toFile())
+            .filePath(Ressources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
             .openOrCreate();
 
-    public static <T> void store(T... objects) {
-        if (objects.length > 0) {
-            ObjectRepository<T> repository = DB.getRepository((Class) objects.getClass().getComponentType());
-            repository.insert(objects);
-        }
+    {
+        MainApplication.registerExitable(this);
     }
 
-    public static <T> List<T> get(Class<T> type, ObjectFilter filter) {
-        ObjectRepository<T> repository = DB.getRepository(type);
-        List<T> result = new ArrayList<>();
-        if (repository.size() < 1) {
+    public static <T> void store(T... objects) {
+        CompletableFuture.runAsync(() -> {
+            if (objects.length > 0) {
+                ObjectRepository<T> repository = DB.getRepository((Class<T>) objects.getClass().getComponentType());
+                repository.insert(objects);
+            }
+        });
+    }
+
+    public static <T> CompletableFuture<List<T>> get(Class<T> type) {
+        return get(type, null);
+    }
+
+    public static <T> CompletableFuture<List<T>> get(Class<T> type, ObjectFilter filter) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (type == null) {
+                return Collections.emptyList();
+            }
+            ObjectRepository<T> repository = DB.getRepository(type);
+            List<T> result;
+            if (repository.size() < 1) {
+                return Collections.emptyList();
+            }
+            if (filter == null) {
+                result = repository.find().toList();
+            } else {
+                result = repository.find(filter).toList();
+            }
             return result;
-        }
-        if (filter == null) {
-            repository.find().forEach(result::add);
-        } else {
-            repository.find(filter).forEach(result::add);
-        }
-        return result;
+        });
+    }
+
+    public static <T> CompletableFuture<Integer> delete(Class<T> type) {
+        return delete(type, null);
     }
 
     /**
@@ -53,14 +78,19 @@ public class Database {
      * of a class!!!
      * @return The amount of deleted classes
      */
-    public static <T> int delete(Class<T> type, ObjectFilter filter) {
-        ObjectRepository<T> repository = DB.getRepository(type);
-        if (filter == null) {
-            long deleted = repository.size();
-            repository.drop();
-            return (int) deleted;
-        }
-        return repository.remove(filter).getAffectedCount();
+    public static <T> CompletableFuture<Integer> delete(Class<T> type, ObjectFilter filter) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (type == null) {
+                return 0;
+            }
+            ObjectRepository<T> repository = DB.getRepository(type);
+            if (filter == null) {
+                long deleted = repository.size();
+                repository.drop();
+                return (int) deleted;
+            }
+            return repository.remove(filter).getAffectedCount();
+        });
     }
 
     /**
@@ -79,26 +109,36 @@ public class Database {
         }
     }
 
-    public static NitriteCollection getCollection(String name){
-        return DB.getCollection(name);
+    public static CompletableFuture<NitriteCollection> getCollection(String name) {
+        return CompletableFuture.supplyAsync(() -> {
+            return DB.getCollection(name);
+        });
     }
-    
-    
+
     /**
      * USE WITH CAUTION, RESETS THE COMPLETE DATABASE!!!!
      */
     public static void reset() {
-        DB.listCollectionNames()
-                .stream()
-                .map(DB::getCollection)
-                .forEach(NitriteCollection::drop);
-        DB.listRepositories()
-                .stream()
-                .forEach(name -> {
-                    try {
-                        DB.getRepository(Class.forName(name)).drop();
-                    } catch (ClassNotFoundException ex) {
-                    }
-                });
+        CompletableFuture.runAsync(() -> {
+            DB.listCollectionNames()
+                    .stream()
+                    .map(DB::getCollection)
+                    .forEach(NitriteCollection::drop);
+            DB.listRepositories()
+                    .stream()
+                    .forEach(name -> {
+                        try {
+                            DB.getRepository(Class.forName(name)).drop();
+                        } catch (ClassNotFoundException ex) {
+                        }
+                    });
+        });
+    }
+
+    @Override
+    public void exit() {
+        if (DB != null) {
+            DB.close();
+        }
     }
 }

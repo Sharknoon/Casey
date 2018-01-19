@@ -40,6 +40,7 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+import sharknoon.dualide.utils.settings.Props;
 
 /**
  *
@@ -98,14 +99,15 @@ public class MenuBarInit {
         gridPaneMenuItemBackgroundDurationContent.setVgap(10);
         gridPaneMenuItemBackgroundDurationContent.setHgap(10);
         gridPaneMenuItemBackgroundDurationContent.setAlignment(Pos.CENTER);
-        
+
         ImageView imageViewIcon = Icons.get(Icon.DURATION);
         gridPaneMenuItemBackgroundDurationContent.add(imageViewIcon, 0, 0, 1, 2);
-        
+
         Label labelSetDurationText = new Label();
         Language.set(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, labelSetDurationText);
         gridPaneMenuItemBackgroundDurationContent.add(labelSetDurationText, 1, 0, 2, 1);
-        
+
+        final String durationKey = "backgroundChangeingDuration";
         Label labelChangingValue = new Label();
         Slider sliderDuration = new Slider(0, 60, 1);
         sliderDuration.setMinWidth(300);
@@ -115,9 +117,17 @@ public class MenuBarInit {
         sliderDuration.setMinorTickCount(1);
         sliderDuration.setMajorTickUnit(10);
         sliderDuration.valueProperty().addListener((observable, oldValue, newValue) -> {
-            labelChangingValue.setText(newValue.intValue() + " "+Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT));
-            if (!sliderDuration.isValueChanging()) {
-                Background.setDuration(newValue.intValue());
+            labelChangingValue.setText(newValue.intValue() + " " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT));
+        });
+        sliderDuration.valueChangingProperty().addListener((observable, oldValue, isChangeing) -> {
+            if (!isChangeing) {
+                Background.setDuration((int) sliderDuration.getValue());
+                Props.set(durationKey, (int) sliderDuration.getValue() + "");
+            }
+        });
+        Props.get(durationKey).thenAccept(s -> {
+            if (s.isPresent()) {
+                sliderDuration.setValue(Double.valueOf(s.get()));
             }
         });
         gridPaneMenuItemBackgroundDurationContent.add(sliderDuration, 1, 1, 1, 1);

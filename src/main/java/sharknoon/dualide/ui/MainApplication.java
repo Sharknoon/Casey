@@ -44,7 +44,6 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Ressources.resetRessources(true);
         stage = primaryStage;
         FXMLLoader loader = new FXMLLoader();
         Path fxmlPath = Ressources.createAndGetFile("sharknoon/dualide/ui/MainFXML.fxml", true);
@@ -73,7 +72,7 @@ public class MainApplication extends Application {
 
     @Override
     public void stop() throws Exception {
-        EXITABLES.forEach(Exitable::onExit);
+        EXITABLES.forEach(Exitable::exit);
     }
 
     /**

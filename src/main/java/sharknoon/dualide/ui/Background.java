@@ -16,7 +16,6 @@
 package sharknoon.dualide.ui;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,20 +26,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.misc.Exitable;
-import sharknoon.dualide.ui.menubar.MenuBarInit;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Ressources;
@@ -194,7 +186,7 @@ public class Background implements Exitable {
     }
 
     @Override
-    public void onExit() {
+    public void exit() {
         if (!imageChangingSchedulerService.isShutdown()) {
             imageChangingSchedulerService.shutdown();
         }

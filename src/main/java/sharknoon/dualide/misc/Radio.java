@@ -176,7 +176,7 @@ public class Radio implements Exitable {
      * always playing at the background)
      */
     @Override
-    public void onExit() {
+    public void exit() {
         if (!SERVICE.isShutdown()) {
             SERVICE.shutdown();
         }

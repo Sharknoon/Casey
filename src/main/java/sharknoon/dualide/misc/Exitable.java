@@ -15,18 +15,10 @@
  */
 package sharknoon.dualide.misc;
 
-import sharknoon.dualide.ui.MainApplication;
-
 /**
- * This Interface can be implemented fur the use in {@link MainApplication#registerExitable(Exitable)
- * }. The method onExit() is called when the whole program exits.
  *
  * @author Josua Frank
  */
 public interface Exitable {
-
-    /**
-     * This method is being called as soon as the program exits
-     */
-    public void onExit();
+    public void exit();
 }

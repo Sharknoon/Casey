@@ -16,7 +16,12 @@
 package sharknoon.dualide.ui.sites.welcome;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -43,6 +48,7 @@ import sharknoon.dualide.ui.sites.Site;
 
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.serial.Serialisation;
+import sharknoon.dualide.utils.settings.Props;
 
 /**
  *
@@ -51,6 +57,9 @@ import sharknoon.dualide.serial.Serialisation;
 public class WelcomeSite extends Site<Welcome> {
 
     private final BorderPane borderPaneRoot = new BorderPane();
+    private final ScrollPane scrollPaneRecentProjects = new ScrollPane();
+    private final String lastDirectoryKey = "lastProjectDirectory";
+    private Optional<String> lastDirectory = Optional.empty();
 
     {
         GridPane gridPaneContent = new GridPane();
@@ -69,8 +78,11 @@ public class WelcomeSite extends Site<Welcome> {
         shadowEffect.setSpread(0.5);
         textRecentProjects.setEffect(shadowEffect);
 
-        //TODO Projectname \n last used date
-        ScrollPane scrollPaneRecentProjects = new ScrollPane();
+        RecentProject.addListener((change) -> {
+            refreshRecentProjects();
+        });
+        refreshRecentProjects();
+
         scrollPaneRecentProjects.setFitToHeight(true);
         scrollPaneRecentProjects.setFitToWidth(true);
         vBoxRecentProjects.getChildren().addAll(textRecentProjects, scrollPaneRecentProjects);
@@ -82,28 +94,28 @@ public class WelcomeSite extends Site<Welcome> {
         Button buttonCreateNewProject = createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
             if (name.isPresent()) {
-                Project project = Item.createItem(Project.class, Welcome.getWelcome(), name.get());
-                ItemTreeView.selectItem(project);
-                ItemTreeView.hideRootItem();
-                ItemTabPane.hideRootTab();
+                createProject(name.get());
             }
         });
 
+        Props.get(lastDirectoryKey).thenAccept(o -> lastDirectory = o);
+
         Button buttonLoadProject = createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
             FileChooser chooser = new FileChooser();
-            chooser.setInitialDirectory(new File(System.getProperty("user.home")));//TODO last directory
+            if (lastDirectory.isPresent()) {
+                chooser.setInitialDirectory(new File(lastDirectory.get()));
+            } else {
+                chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            }
             chooser.setTitle(Language.get(Word.OPEN_DIALOG_TITLE));
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
             File file = chooser.showOpenDialog(borderPaneRoot.getScene().getWindow());
             if (file != null) {
-                Optional<Project> project = Serialisation.loadProject(file.toPath());
-                if (project.isPresent()) {
-                    ItemTreeView.selectItem(project.get());
-                    ItemTreeView.hideRootItem();
-                    ItemTabPane.hideRootTab();
-                }
+                lastDirectory = Optional.of(file.getParentFile().getAbsolutePath());
+                Props.set(lastDirectoryKey, lastDirectory.get());
+                loadProject(file.toPath());
             }
         });
 
@@ -118,6 +130,54 @@ public class WelcomeSite extends Site<Welcome> {
 
         borderPaneRoot.setCenter(gridPaneContent);
 
+    }
+
+    private void refreshRecentProjects() {
+        Set<RecentProject> lastProjects = RecentProject.getRecentProjects();
+        VBox vBoxLastProjects = new VBox(10);
+        lastProjects.forEach((lastProject) -> {
+            VBox vBoxLastProject = new VBox(10);
+
+            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+            shadowEffect.setSpread(0.5);
+
+            Text textRecentProjectName = new Text();
+            textRecentProjectName.setText(lastProject.getName());
+            textRecentProjectName.setFont(Font.font(30));
+            textRecentProjectName.setEffect(shadowEffect);
+
+            Text textRecentProjectDate = new Text();
+            textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+            textRecentProjectDate.setFont(Font.font(20));
+            textRecentProjectDate.setEffect(shadowEffect);
+
+            vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
+
+            vBoxLastProject.setOnMouseClicked((event) -> {
+                loadProject(lastProject.getPath());
+            });
+
+            vBoxLastProjects.getChildren().add(vBoxLastProject);
+        });
+        scrollPaneRecentProjects.setContent(vBoxLastProjects);
+    }
+
+    private static void loadProject(Path path) {
+        Optional<Project> project = Serialisation.loadProject(path);
+        if (project.isPresent()) {
+            RecentProject.addProject(project.get());
+            ItemTreeView.selectItem(project.get());
+            ItemTreeView.hideRootItem();
+            ItemTabPane.hideRootTab();
+        }
+    }
+
+    private void createProject(String name) {
+        Project project = Item.createItem(Project.class, Welcome.getWelcome(), name);
+        RecentProject.addProject(project);
+        ItemTreeView.selectItem(project);
+        ItemTreeView.hideRootItem();
+        ItemTabPane.hideRootTab();
     }
 
     public WelcomeSite(Welcome item) {

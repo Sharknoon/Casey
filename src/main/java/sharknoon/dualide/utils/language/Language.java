@@ -28,7 +28,7 @@ import javafx.scene.control.Tooltip;
 import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.language.lanugages.English;
 import sharknoon.dualide.utils.language.lanugages.German;
-import sharknoon.dualide.utils.settings.IDEProps;
+import sharknoon.dualide.utils.settings.Props;
 
 /**
  *
@@ -106,13 +106,13 @@ public abstract class Language {
     private static Language currentLanguage;
 
     static {
-        Optional<String> languageFromPropertiesFile = IDEProps.get(LANGUAGE_PROPERTY_KEY);
-        String languageTagFromSystem = System.getProperty("user.language");
-        if (!languageFromPropertiesFile.isPresent()) {//If no language has been set
+        Optional<String> languageTagFromDB = Props.get(LANGUAGE_PROPERTY_KEY).join();
+        if (!languageTagFromDB.isPresent()) {//If no language has been set
+            String languageTagFromSystem = System.getProperty("user.language");
             currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageTagFromSystem), ENGLISH);
-            IDEProps.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
+            Props.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
         } else {//If a language has already been set, either manually or through a previous run
-            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageFromPropertiesFile.get()), ENGLISH);
+            currentLanguage = LANGUAGES.getOrDefault(Locale.forLanguageTag(languageTagFromDB.get()), ENGLISH);
         }
     }
 
@@ -178,8 +178,7 @@ public abstract class Language {
      *
      * If the User changes the Language:<br><br>
      * 1. A word is being supplied<br>
-     * 2. The supplied word enters the ValueSetter which sets the
-     * value<br><br>
+     * 2. The supplied word enters the ValueSetter which sets the value<br><br>
      *
      * In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
@@ -232,7 +231,7 @@ public abstract class Language {
 
     public static void changeLanguage(Language language) {
         currentLanguage = language == null ? currentLanguage : language;
-        IDEProps.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
+        Props.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
         refreshAllControls();
         refreshAllCustoms();
     }

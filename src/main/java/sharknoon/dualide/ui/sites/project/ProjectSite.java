@@ -135,6 +135,7 @@ public class ProjectSite extends Site<Project> {
         rowCounter = 0;
         getItem().getChildren().forEach(p -> {
             ImageView icon = Icons.get(Icon.PACKAGE, 50);
+            icon.setOnMouseClicked(e -> onClicked(p));
 
             Text textPackageName = new Text();
             DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
@@ -142,6 +143,7 @@ public class ProjectSite extends Site<Project> {
             textPackageName.setEffect(shadowEffect);
             textPackageName.setFont(Font.font(30));
             textPackageName.textProperty().bindBidirectional(p.nameProperty());
+            textPackageName.setOnMouseClicked(e -> onClicked(p));
 
             Button buttonCommentPackage = createButton(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
                 Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
@@ -174,6 +176,10 @@ public class ProjectSite extends Site<Project> {
 
             rowCounter++;
         });
+    }
+
+    private void onClicked(Item item) {
+        ItemTreeView.selectItem(item);
     }
 
     public ProjectSite(Project item) {

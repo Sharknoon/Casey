@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.logic;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
 
@@ -24,6 +26,8 @@ import sharknoon.dualide.ui.sites.variable.VariableSite;
  */
 public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
+    private ObjectProperty<Class> clazz = new SimpleObjectProperty<>();
+    
     private Variable() {
         super();
     }
@@ -32,9 +36,8 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
         super(parent, name);
     }
 
-    @Override
-    protected Site<Variable> createSite() {
-        return new VariableSite(this);
+    public ObjectProperty<Class> classProperty(){
+        return clazz;
     }
-
+    
 }

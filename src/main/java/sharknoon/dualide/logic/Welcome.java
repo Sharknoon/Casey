@@ -38,15 +38,11 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
 
     public static Welcome getWelcome() {
         if (welcome == null) {
-            welcome = Item.createItem(Welcome.class, null, "");
+            welcome = Item.createItem(Type.WELCOME, null, "");
             Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
         }
         return welcome;
     }
-    
-    @Override
-    protected Site<Welcome> createSite() {
-        return new WelcomeSite(this);
-    }
+ 
 
 }

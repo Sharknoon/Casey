@@ -47,19 +47,23 @@ public class Dialogs {
         NEW_FUNCTION_DIALOG,
         NEW_VARIABLE_DIALOG,
         RENAME_PACKAGE_DIALOG,
-        RENAME_CLASS_DIALOG
+        RENAME_CLASS_DIALOG,
+        RENAME_PROJECT_DIALOG,
+        RENAME_VARIABLE_DIALOG
     }
 
     public enum Confirmations implements DialogTypes {
         DELETE_PACKAGE_DIALOG,
         DELETE_PROJECT_DIALOG,
-        DELETE_CLASS_DIALOG
+        DELETE_CLASS_DIALOG,
+        DELETE_VARIABLE_DIALOG
     }
 
     public enum TextEditors implements DialogTypes {
         COMMENT_PACKAGE_DIALOG,
         COMMENT_PROJECT_DIALOG,
-        COMMENT_CLASS_DIALOG
+        COMMENT_CLASS_DIALOG,
+        COMMENT_VARIABLE_DIALOG
     }
 
     public static Optional showDialog(DialogTypes type, Set<String> forbiddenValues, String... variables) {
@@ -195,9 +199,9 @@ public class Dialogs {
                         variables);
             case COMMENT_CLASS_DIALOG:
                 return showTextEditorDialog(
-                        COMMENT_CLASS_DIALOG_TITLE, 
-                        COMMENT_CLASS_DIALOG_HEADER_TEXT, 
-                        Icon.COMMENTS, 
+                        COMMENT_CLASS_DIALOG_TITLE,
+                        COMMENT_CLASS_DIALOG_HEADER_TEXT,
+                        Icon.COMMENTS,
                         defaultValue,
                         variables);
         }

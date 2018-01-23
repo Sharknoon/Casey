@@ -50,8 +50,8 @@ public class English extends Language {
         add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Load existing project");
         //Projectsite
         add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Add package");
-        add(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, "Comment project");
-        add(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, "Delete project");
+        add(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, "Comment project");
+        add(Word.PROJECT_SITE_DELETE_BUTTON_TEXT, "Delete project");
         add(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment package");
         add(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename package");
         add(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete package");

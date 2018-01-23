@@ -51,6 +51,7 @@ import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.ui.sites.Site;
 
 import sharknoon.dualide.logic.Project;
+import sharknoon.dualide.logic.Type;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.utils.settings.Props;
 
@@ -185,7 +186,7 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     private void createProject(String name) {
-        Project project = Item.createItem(Project.class, Welcome.getWelcome(), name);
+        Project project = Item.createItem(Type.PROJECT, Welcome.getWelcome(), name);
         RecentProject.updateProject(project);
         ItemTreeView.selectItem(project);
         ItemTreeView.hideRootItem();
@@ -194,10 +195,6 @@ public class WelcomeSite extends Site<Welcome> {
 
     public WelcomeSite(Welcome item) {
         super(item);
-    }
-
-    @Override
-    public void refresh() {
     }
 
     @Override
@@ -215,4 +212,11 @@ public class WelcomeSite extends Site<Welcome> {
         return Icon.WELCOME;
     }
 
+    @Override
+    public Icon getAddIcon() {
+        return getTabIcon();
+    }
+
+    
+    
 }

@@ -17,6 +17,7 @@ package sharknoon.dualide.ui.sites.project;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -38,6 +39,8 @@ import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.Package;
+import sharknoon.dualide.logic.Type;
+import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -59,7 +62,10 @@ public class ProjectSite extends Site<Project> {
         gridPanePackages.setAlignment(Pos.TOP_CENTER);
         gridPanePackages.setPadding(new Insets(50));
 
-        refresh();
+        getItem().childrenProperty().addListener((SetChangeListener.Change<? extends Package> change) -> {
+            setContent();
+        });
+        setContent();
 
         ColumnConstraints colIcon = new ColumnConstraints();
         colIcon.setHalignment(HPos.LEFT);
@@ -80,33 +86,39 @@ public class ProjectSite extends Site<Project> {
         gridPaneProjectButtons.setPadding(new Insets(50));
 
         Button buttonAddPackage = createButton(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, getForbittenValues());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Package package_ = Item.createItem(Package.class, getItem(), name.get());
+                Package package_ = Item.createItem(Type.PACKAGE, getItem(), name.get());
                 ItemTreeView.selectItem(package_);
             }
 
         });
 
-        Button buttonComment = createButton(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+        Button buttonComment = createButton(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
             Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PROJECT_DIALOG, getItem().getComments());
             if (comments.isPresent()) {
                 getItem().setComments(comments.get());
             }
-        });
-
-        Button buttonDelete = createButton(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
+        }, false, true);
+        Button buttonRename = createButton(Word.PROJECT_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PROJECT_DIALOG);
+            if (name.isPresent()) {
+                getItem().setName(name.get());
+            }
+        }, false, true);
+        Button buttonDelete = createButton(Word.PROJECT_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PROJECT_DIALOG, "#PROJECT", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
                 ItemTabPane.closeAllTabs();
                 ItemTreeView.closeAllItems();
             }
-        });
+        }, false, true);
 
         gridPaneProjectButtons.addRow(0,
                 buttonAddPackage,
                 buttonComment,
+                buttonRename,
                 buttonDelete
         );
 
@@ -116,9 +128,11 @@ public class ProjectSite extends Site<Project> {
         colAddPackage.setHgrow(Priority.ALWAYS);
         ColumnConstraints colComment = new ColumnConstraints();
         colComment.setHalignment(HPos.RIGHT);
+        ColumnConstraints colRename = new ColumnConstraints();
+        colRename.setHalignment(HPos.RIGHT);
         ColumnConstraints colDelete = new ColumnConstraints();
         colDelete.setHalignment(HPos.RIGHT);
-        gridPaneProjectButtons.getColumnConstraints().addAll(colAddPackage, colComment, colDelete);
+        gridPaneProjectButtons.getColumnConstraints().addAll(colAddPackage, colComment, colRename, colDelete);
 
         ScrollPane scrollPanePackages = new ScrollPane(gridPanePackages);
         scrollPanePackages.setFitToHeight(true);
@@ -129,8 +143,7 @@ public class ProjectSite extends Site<Project> {
 
     int rowCounter = 0;
 
-    @Override
-    public void refresh() {
+    public void setContent() {
         gridPanePackages.getChildren().clear();
         rowCounter = 0;
         getItem()
@@ -157,7 +170,7 @@ public class ProjectSite extends Site<Project> {
                     }, false, true);
 
                     Button buttonRenamePackage = createButton(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                        Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenValues(p.getName()));
+                        Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenChildNames(p.getName()));
                         if (name.isPresent()) {
                             p.setName(name.get());
                         }
@@ -203,6 +216,11 @@ public class ProjectSite extends Site<Project> {
     @Override
     public Icon getTabIcon() {
         return Icon.PROJECT;
+    }
+
+    @Override
+    public Icon getAddIcon() {
+        return Icon.PLUSPROJECT;
     }
 
 }

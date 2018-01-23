@@ -17,6 +17,7 @@ package sharknoon.dualide.logic;
 
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.package_.PackageSite;
+import sharknoon.dualide.utils.language.Language;
 
 /**
  *
@@ -31,10 +32,6 @@ public class Package extends Item<Package, Item<? extends Item, ? extends Item, 
     protected Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
         super(parent, name);
     }
-
-    @Override
-    protected Site<Package> createSite() {
-        return new PackageSite(this);
-    }
-
+    
+    
 }

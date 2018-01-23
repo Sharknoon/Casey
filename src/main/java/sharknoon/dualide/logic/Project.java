@@ -64,11 +64,6 @@ public class Project extends Item<Project, Welcome, Package> {
         }
     }
 
-    @Override
-    protected Site<Project> createSite() {
-        return new ProjectSite(this);
-    }
-
     public static Optional<Project> getCurrentProject() {
         Welcome welcome = Welcome.getWelcome();
         Iterator<Project> project = welcome.getChildren().iterator();

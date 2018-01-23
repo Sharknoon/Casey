@@ -50,8 +50,8 @@ public class German extends Language {
         add(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, "Vorhandenes Projekt laden");
         //Projectsite
         add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
-        add(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, "Projekt kommentieren");
-        add(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, "Projekt löschen");
+        add(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, "Projekt kommentieren");
+        add(Word.PROJECT_SITE_DELETE_BUTTON_TEXT, "Projekt löschen");
         add(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");

@@ -53,7 +53,7 @@ public class RecentProject {
     }
 
     public RecentProject(Project project) {
-        this.projectID = project.getId();
+        this.projectID = project.getFullName();
         this.time = LocalDateTime.now().toString();
         this.path = project.getSaveFile().map(Path::toString).orElse(null);
         Database.store(this);
@@ -65,14 +65,14 @@ public class RecentProject {
 
     public static void updateProject(Project project) {
         CompletableFuture.runAsync(() -> {
-            if (PROJECTS_MAP.containsKey(project.getId())) {
-                RecentProject rp = PROJECTS_MAP.get(project.getId());
+            if (PROJECTS_MAP.containsKey(project.getFullName())) {
+                RecentProject rp = PROJECTS_MAP.get(project.getFullName());
                 rp.time = LocalDateTime.now().toString();
                 Database.store(rp);
                 LISTENERS.forEach(l -> l.run());
             } else {
                 RecentProject rp = new RecentProject(project);
-                PROJECTS_MAP.put(project.getId(), rp);
+                PROJECTS_MAP.put(project.getFullName(), rp);
                 Database.store(rp);
             }
         });

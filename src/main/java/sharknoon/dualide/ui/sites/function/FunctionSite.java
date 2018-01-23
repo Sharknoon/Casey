@@ -278,10 +278,6 @@ public class FunctionSite extends Site<Function> {
     }
 
     @Override
-    public void refresh() {
-    }
-
-    @Override
     public CompletableFuture<Pane> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
             if (root.getChildren().size() < 1) {
@@ -296,4 +292,11 @@ public class FunctionSite extends Site<Function> {
         return Icon.FUNCTION;
     }
 
+    @Override
+    public Icon getAddIcon() {
+        return Icon.PLUSFUNCTION;
+    }
+
+    
+    
 }

@@ -18,7 +18,9 @@ package sharknoon.dualide.logic;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -28,6 +30,8 @@ import sharknoon.dualide.serial.PostProcessable;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -40,12 +44,13 @@ import sharknoon.dualide.ui.sites.Site;
 public abstract class Item<I extends Item, P extends Item, C extends Item> implements PostProcessable {
 
     private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
-    private final ObservableSet<C> children = FXCollections.observableSet(new LinkedHashSet<>());
+    private final SetProperty<C> children = new SimpleSetProperty<>(FXCollections.observableSet(new LinkedHashSet<>()));
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
     private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
-    private final transient StringProperty id = new SimpleStringProperty();
+    private final transient StringProperty fullName = new SimpleStringProperty();
+    private final transient ObjectProperty<Type> type = new SimpleObjectProperty<>();
 
     /**
      * can return null!!!
@@ -56,19 +61,20 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
      * @param name
      * @return
      */
-    public static <ITEM extends Item> ITEM createItem(java.lang.Class<ITEM> itemType, Item parent, String name) {
-        if (itemType == Welcome.class) {
-            return (ITEM) new Welcome(null, name);
-        } else if (itemType == Project.class && parent instanceof Welcome) {
-            return (ITEM) new Project((Welcome) parent, name);
-        } else if (itemType == Package.class) {
-            return (ITEM) new Package(parent, name);
-        } else if (itemType == Class.class && parent instanceof Package) {
-            return (ITEM) new Class((Package) parent, name);
-        } else if (itemType == Function.class) {
-            return (ITEM) new Function(parent, name);
-        } else if (itemType == Variable.class) {
-            return (ITEM) new Variable(parent, name);
+    public static <ITEM extends Item> ITEM createItem(Type itemType, Item parent, String name) {
+        switch (itemType) {
+            case CLASS:
+                return (ITEM) new Class((Package) parent, name);
+            case FUNCTION:
+                return (ITEM) new Function(parent, name);
+            case PACKAGE:
+                return (ITEM) new Package(parent, name);
+            case PROJECT:
+                return (ITEM) new Project((Welcome) parent, name);
+            case VARIABLE:
+                return (ITEM) new Variable(parent, name);
+            case WELCOME:
+                return (ITEM) new Welcome(parent, name);
         }
         return null;
     }
@@ -78,17 +84,23 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     }
 
     protected Item(P parent, String name) {
-        setName(name);
-        setSite(createSite());
         onChange();
+        setName(name);
+        setType();
         setParent(parent);
+        setSite(Site.createSite(this));
     }
 
     @Override
     public void postProcess() {
         onChange();
+        setType();
         getChildren().forEach(c -> c.setParent(this));
-        setSite(createSite());
+        setSite(Site.createSite(this));
+    }
+
+    private void setType() {
+        typeProperty().set(Type.valueOf(this.getClass()));
     }
 
     public String getName() {
@@ -132,8 +144,12 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         return parent;
     }
 
-    public java.lang.Class<? extends Item> getType() {
-        return this.getClass();
+    public ObjectProperty<Type> typeProperty() {
+        return type;
+    }
+
+    public Type getType() {
+        return typeProperty().get();
     }
 
     private void setSite(Site<I> site) {
@@ -148,14 +164,16 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         return site;
     }
 
-    protected abstract Site<I> createSite();
-
     public ObservableSet<C> getChildren() {
         return children;
     }
 
     public void addChildren(C children) {
         getChildren().add(children);
+    }
+
+    public SetProperty<C> childrenProperty() {
+        return children;
     }
 
     @Override
@@ -185,34 +203,37 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
                 C elementAdded = change.getElementAdded();
                 ItemTreeView.onItemAdded(elementAdded, this);
                 ItemTabPane.onItemAdded(elementAdded);
-                getSite().refresh();
             } else if (change.wasRemoved()) {
                 C elementRemoved = change.getElementRemoved();
                 ItemTreeView.onItemRemoved(elementRemoved, this);
                 ItemTabPane.onItemRemoved(elementRemoved);
-                getSite().refresh();
             }
         });
     }
 
-    public String getId() {
-        if (id.get() == null) {
+    /**
+     * Also the unique id
+     *
+     * @return
+     */
+    public String getFullName() {
+        if (fullName.get() == null) {
             if (getParent() != null && getParent().getClass() != Welcome.class) {
-                String idString = getParent().getId() + "." + getName();
-                id.set(idString);
+                String idString = getParent().getFullName() + "." + getName();
+                fullName.set(idString);
                 return idString;
             } else {
-                id.set(getName());
+                fullName.set(getName());
                 return getName();
             }
         } else {
-            return id.get();
+            return fullName.get();
         }
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return getFullName().hashCode();
     }
 
     @Override
@@ -227,7 +248,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
             return false;
         }
         final Item<?, ?, ?> other = (Item<?, ?, ?>) obj;
-        return this.getId().equals(other.getId());
+        return this.getFullName().equals(other.getFullName());
     }
 
 }

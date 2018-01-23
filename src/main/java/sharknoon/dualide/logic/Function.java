@@ -17,6 +17,8 @@ package sharknoon.dualide.logic;
 
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -30,11 +32,6 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
         super(parent, name);
-    }
-
-    @Override
-    protected Site<Function> createSite() {
-        return new FunctionSite(this);
     }
 
 

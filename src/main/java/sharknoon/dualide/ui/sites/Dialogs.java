@@ -46,17 +46,20 @@ public class Dialogs {
         NEW_CLASS_DIALOG,
         NEW_FUNCTION_DIALOG,
         NEW_VARIABLE_DIALOG,
-        RENAME_PACKAGE_DIALOG
+        RENAME_PACKAGE_DIALOG,
+        RENAME_CLASS_DIALOG
     }
 
     public enum Confirmations implements DialogTypes {
         DELETE_PACKAGE_DIALOG,
-        DELETE_PROJECT_DIALOG
+        DELETE_PROJECT_DIALOG,
+        DELETE_CLASS_DIALOG
     }
 
     public enum TextEditors implements DialogTypes {
         COMMENT_PACKAGE_DIALOG,
-        COMMENT_PROJECT_DIALOG
+        COMMENT_PROJECT_DIALOG,
+        COMMENT_CLASS_DIALOG
     }
 
     public static Optional showDialog(DialogTypes type, Set<String> forbiddenValues, String... variables) {
@@ -134,6 +137,15 @@ public class Dialogs {
                         defaultValue,
                         forbiddenEntries,
                         variables);
+            case RENAME_CLASS_DIALOG:
+                return showTextInputDialog(
+                        RENAME_CLASS_DIALOG_TITLE,
+                        RENAME_CLASS_DIALOG_HEADER_TEXT,
+                        RENAME_CLASS_DIALOG_CONTENT_TEXT,
+                        Icon.RENAME,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
         }
         return Optional.empty();
     }
@@ -154,6 +166,13 @@ public class Dialogs {
                         DELETE_PROJECT_DIALOG_CONTENT_TEXT,
                         Icon.TRASH,
                         variables);
+            case DELETE_CLASS_DIALOG:
+                return showConfirmationDialog(
+                        DELETE_CLASS_DIALOG_TITLE,
+                        DELETE_CLASS_DIALOG_HEADER_TEXT,
+                        DELETE_CLASS_DIALOG_CONTENT_TEXT,
+                        Icon.TRASH,
+                        variables);
         }
         return Optional.empty();
     }
@@ -172,6 +191,13 @@ public class Dialogs {
                         COMMENT_PROJECT_DIALOG_TITLE,
                         COMMENT_PROJECT_DIALOG_HEADER_TEXT,
                         Icon.COMMENTS,
+                        defaultValue,
+                        variables);
+            case COMMENT_CLASS_DIALOG:
+                return showTextEditorDialog(
+                        COMMENT_CLASS_DIALOG_TITLE, 
+                        COMMENT_CLASS_DIALOG_HEADER_TEXT, 
+                        Icon.COMMENTS, 
                         defaultValue,
                         variables);
         }

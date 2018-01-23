@@ -16,9 +16,12 @@
 package sharknoon.dualide.ui.sites.welcome;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,10 +83,10 @@ public class WelcomeSite extends Site<Welcome> {
         shadowEffect.setSpread(0.5);
         textRecentProjects.setEffect(shadowEffect);
 
-        RecentProject.addListener((change) -> {
+        RecentProject.addListener(() -> {
             refreshRecentProjects();
         });
-        refreshRecentProjects();
+        //refreshRecentProjects();
 
         scrollPaneRecentProjects.setFitToHeight(true);
         scrollPaneRecentProjects.setFitToWidth(true);
@@ -135,39 +138,46 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     private void refreshRecentProjects() {
-        Set<RecentProject> lastProjects = RecentProject.getRecentProjects();
         VBox vBoxLastProjects = new VBox(10);
-        lastProjects.forEach((lastProject) -> {
-            VBox vBoxLastProject = new VBox(10);
+        RecentProject.getAllProjects()
+                .stream()
+                .sorted((p1, p2) -> p2.getTime().compareTo(p1.getTime()))
+                .forEach((lastProject) -> {
+                    VBox vBoxLastProject = new VBox(10);
 
-            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-            shadowEffect.setSpread(0.5);
+                    DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+                    shadowEffect.setSpread(0.5);
 
-            Text textRecentProjectName = new Text();
-            textRecentProjectName.setText(lastProject.getName());
-            textRecentProjectName.setFont(Font.font(30));
-            textRecentProjectName.setEffect(shadowEffect);
+                    Text textRecentProjectName = new Text();
+                    textRecentProjectName.setText(lastProject.getName());
+                    textRecentProjectName.setFont(Font.font(30));
+                    textRecentProjectName.setEffect(shadowEffect);
 
-            Text textRecentProjectDate = new Text();
-            textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
-            textRecentProjectDate.setFont(Font.font(20));
-            textRecentProjectDate.setEffect(shadowEffect);
+                    Text textRecentProjectDate = new Text();
+                    textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+                    textRecentProjectDate.setFont(Font.font(20));
+                    textRecentProjectDate.setEffect(shadowEffect);
 
-            vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
+                    vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
 
-            vBoxLastProject.setOnMouseClicked((event) -> {
-                loadProject(lastProject.getPath());
-            });
+                    vBoxLastProject.setOnMouseClicked((event) -> {
+                        Path pathToFile = Paths.get(lastProject.getPath());
+                        if (Files.exists(pathToFile)) {
+                            loadProject(pathToFile);
+                        } else {
+                            RecentProject.removeProject(lastProject);
+                        }
+                    });
 
-            vBoxLastProjects.getChildren().add(vBoxLastProject);
-        });
+                    vBoxLastProjects.getChildren().add(vBoxLastProject);
+                });
         scrollPaneRecentProjects.setContent(vBoxLastProjects);
     }
 
     private static void loadProject(Path path) {
         Optional<Project> project = Serialisation.loadProject(path);
         if (project.isPresent()) {
-            RecentProject.addProject(project.get());
+            RecentProject.updateProject(project.get());
             ItemTreeView.selectItem(project.get());
             ItemTreeView.hideRootItem();
             ItemTabPane.hideRootTab();
@@ -176,7 +186,7 @@ public class WelcomeSite extends Site<Welcome> {
 
     private void createProject(String name) {
         Project project = Item.createItem(Project.class, Welcome.getWelcome(), name);
-        RecentProject.addProject(project);
+        RecentProject.updateProject(project);
         ItemTreeView.selectItem(project);
         ItemTreeView.hideRootItem();
         ItemTabPane.hideRootTab();

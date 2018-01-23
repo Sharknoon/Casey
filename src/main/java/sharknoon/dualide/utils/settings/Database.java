@@ -37,7 +37,9 @@ public class Database implements Exitable {
         CompletableFuture.runAsync(() -> {
             if (objects.length > 0) {
                 ObjectRepository<T> repository = DB.getRepository((Class<T>) objects.getClass().getComponentType());
-                repository.insert(objects);
+                for (T object : objects) {
+                    repository.update(object, true);
+                }
             }
         });
     }
@@ -94,16 +96,14 @@ public class Database implements Exitable {
     }
 
     /**
-     * TODO not yet working, Objects needs to have an @ID Annotation
-     *
+     * Need to have an ID!!!!
      * @param <T>
-     * @param objects
+     * @param objects 
      */
-    private static <T> void delete(T... objects) {
+    public static <T> void delete(T... objects) {
         if (objects.length > 0) {
             ObjectRepository<T> repository = DB.getRepository((Class<T>) objects.getClass().getComponentType());
             for (T object : objects) {
-                //TODO not yet working, Objects needs to have an @ID Annotation
                 repository.remove(object);
             }
         }

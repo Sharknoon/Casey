@@ -52,9 +52,9 @@ public class German extends Language {
         add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
         add(Word.PROJECT_SIDE_COMMENT_BUTTON_TEXT, "Projekt kommentieren");
         add(Word.PROJECT_SIDE_DELETE_BUTTON_TEXT, "Projekt löschen");
-        add(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, "Paket kommentieren");
-        add(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
-        add(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
+        add(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
+        add(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
+        add(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         //Packagesite
         add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzugügen");
         add(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, "Klasse hinzufügen");
@@ -62,18 +62,17 @@ public class German extends Language {
         add(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
         add(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, "Paket kommentieren");
         add(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, "Paket löschen");
-        add(Word.PACKAGE_SIDE_COMMENT_PACKAGE_BUTTON_TEXT, "Paket kommentieren");
-        add(Word.PACKAGE_SIDE_COMMENT_CLASS_BUTTON_TEXT, "Klasse kommentieren");
-        add(Word.PACKAGE_SIDE_COMMENT_FUNCTION_BUTTON_TEXT, "Funktion kommentieren");
-        add(Word.PACKAGE_SIDE_COMMENT_VARIABLE_BUTTON_TEXT, "Variable kommentieren");
-        add(Word.PACKAGE_SIDE_RENAME_PACKAGE_BUTTON_TEXT, "Paket umbenennen");
-        add(Word.PACKAGE_SIDE_RENAME_CLASS_BUTTON_TEXT, "Klasse umbenennen");
-        add(Word.PACKAGE_SIDE_RENAME_FUNCTION_BUTTON_TEXT, "Funktion umbenennen");
-        add(Word.PACKAGE_SIDE_RENAME_VARIABLE_BUTTON_TEXT, "Variable umbenennen");
-        add(Word.PACKAGE_SIDE_DELETE_PACKAGE_BUTTON_TEXT, "Paket löschen");
-        add(Word.PACKAGE_SIDE_DELETE_CLASS_BUTTON_TEXT, "Klasse löschen");
-        add(Word.PACKAGE_SIDE_DELETE_FUNCTION_BUTTON_TEXT, "Funktion löschen");
-        add(Word.PACKAGE_SIDE_DELETE_VARIABLE_BUTTON_TEXT, "Variable löschen");
+        add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
+        add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
+        add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
+        //ClassSite
+        add(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
+        add(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
+        add(Word.CLASS_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
+        add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzugügen");
+        add(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
+        add(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, "Klasse kommentieren");
+        add(Word.CLASS_SITE_DELETE_BUTTON_TEXT, "Klasse löschen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
@@ -106,5 +105,28 @@ public class German extends Language {
         add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket #PACKAGE löschen");
         add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket #PACKAGE wirklich löschen?");
         add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket #PACKAGE werden unwiederruflich gelöscht!");
+        ///New Class
+        add(Word.NEW_CLASS_DIALOG_TITLE, "Neue Klasse anlegen");
+        add(Word.NEW_CLASS_DIALOG_HEADER_TEXT, "Klassenname eingeben");
+        add(Word.NEW_CLASS_DIALOG_CONTENT_TEXT, "Klassenname");
+        ///Rename Class
+        add(Word.RENAME_CLASS_DIALOG_TITLE, "Klasse umbenennen");
+        add(Word.RENAME_CLASS_DIALOG_HEADER_TEXT, "Neuen Klassennamen eingeben");
+        add(Word.RENAME_CLASS_DIALOG_CONTENT_TEXT, "Klassenname");
+        ///Comment Class
+        add(Word.COMMENT_CLASS_DIALOG_TITLE, "Klasse kommentieren");
+        add(Word.COMMENT_CLASS_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        //Delete Class
+        add(Word.DELETE_CLASS_DIALOG_TITLE, "Klasse #CLASS löschen");
+        add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse #CLASS wircklich löschen?");
+        add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "Alle Inhalte der Klasse #CLASS werden unwiederruflich gelöscht!");
+        ///New Function
+        add(Word.NEW_FUNCTION_DIALOG_TITLE, "Neue Funktion anlegen");
+        add(Word.NEW_FUNCTION_DIALOG_HEADER_TEXT, "Funktionsnamen eingeben");
+        add(Word.NEW_FUNCTION_DIALOG_CONTENT_TEXT, "Funktionsname");
+        ///New Variable
+        add(Word.NEW_VARIABLE_DIALOG_TITLE, "Neue Variable anlegen");
+        add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Variablennamen eingeben");
+        add(Word.NEW_VARIABLE_DIALOG_CONTENT_TEXT, "Variablenname");
     }
 }

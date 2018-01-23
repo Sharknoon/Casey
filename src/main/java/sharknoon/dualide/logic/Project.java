@@ -22,10 +22,12 @@ import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.project.ProjectSite;
+import sharknoon.dualide.ui.sites.welcome.RecentProject;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -77,7 +79,7 @@ public class Project extends Item<Project, Welcome, Package> {
     }
 
     public void save() {
-        if (saveFile.get() == null) {
+        if (saveFile.get() == null) {//If the programm has no path (hasnt been saved yet)
             FileChooser chooser = new FileChooser();
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
             chooser.setInitialFileName(nameProperty().get());
@@ -85,12 +87,15 @@ public class Project extends Item<Project, Welcome, Package> {
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
-            File file = chooser.showSaveDialog(Welcome.getWelcome().getSite().getTabContentPane().join().getScene().getWindow());
+            File file = chooser.showSaveDialog(Stage.impl_getWindows().next());
             if (file != null) {
                 saveFile.set(file.toPath());
+                RecentProject.updateProject(this);
             }
         }
-        Serialisation.saveProject(this);
+        if (saveFile.get() != null) {//If the user closes the project without saving
+            Serialisation.saveProject(this);
+        }
     }
 
 }

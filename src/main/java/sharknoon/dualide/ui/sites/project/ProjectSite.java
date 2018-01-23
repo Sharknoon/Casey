@@ -133,49 +133,53 @@ public class ProjectSite extends Site<Project> {
     public void refresh() {
         gridPanePackages.getChildren().clear();
         rowCounter = 0;
-        getItem().getChildren().forEach(p -> {
-            ImageView icon = Icons.get(Icon.PACKAGE, 50);
-            icon.setOnMouseClicked(e -> onClicked(p));
+        getItem()
+                .getChildren()
+                .stream()
+                .sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
+                .forEach(p -> {
+                    ImageView icon = Icons.get(Icon.PACKAGE, 50);
+                    icon.setOnMouseClicked(e -> onClicked(p));
 
-            Text textPackageName = new Text();
-            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-            shadowEffect.setSpread(0.5);
-            textPackageName.setEffect(shadowEffect);
-            textPackageName.setFont(Font.font(30));
-            textPackageName.textProperty().bindBidirectional(p.nameProperty());
-            textPackageName.setOnMouseClicked(e -> onClicked(p));
+                    Text textPackageName = new Text();
+                    DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+                    shadowEffect.setSpread(0.5);
+                    textPackageName.setEffect(shadowEffect);
+                    textPackageName.setFont(Font.font(30));
+                    textPackageName.textProperty().bindBidirectional(p.nameProperty());
+                    textPackageName.setOnMouseClicked(e -> onClicked(p));
 
-            Button buttonCommentPackage = createButton(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
-                Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
-                if (comments.isPresent()) {
-                    p.setComments(comments.get());
-                }
-            }, false, true);
+                    Button buttonCommentPackage = createButton(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+                        Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
+                        if (comments.isPresent()) {
+                            p.setComments(comments.get());
+                        }
+                    }, false, true);
 
-            Button buttonRenamePackage = createButton(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenValues(p.getName()));
-                if (name.isPresent()) {
-                    p.setName(name.get());
-                }
-            }, false, true);
+                    Button buttonRenamePackage = createButton(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
+                        Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenValues(p.getName()));
+                        if (name.isPresent()) {
+                            p.setName(name.get());
+                        }
+                    }, false, true);
 
-            Button buttonDeletePackage = createButton(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, Icon.TRASH, (t) -> {
-                Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", p.getName());
-                if (confirmed.isPresent() && confirmed.get()) {
-                    p.destroy();
-                }
-            }, false, true);
+                    Button buttonDeletePackage = createButton(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
+                        Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", p.getName());
+                        if (confirmed.isPresent() && confirmed.get()) {
+                            p.destroy();
+                        }
+                    }, false, true);
 
-            gridPanePackages.addRow(rowCounter,
-                    icon,
-                    textPackageName,
-                    buttonCommentPackage,
-                    buttonRenamePackage,
-                    buttonDeletePackage
-            );
+                    gridPanePackages.addRow(rowCounter,
+                            icon,
+                            textPackageName,
+                            buttonCommentPackage,
+                            buttonRenamePackage,
+                            buttonDeletePackage
+                    );
 
-            rowCounter++;
-        });
+                    rowCounter++;
+                });
     }
 
     private void onClicked(Item item) {

@@ -17,7 +17,6 @@ package sharknoon.dualide.logic;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.concurrent.CompletableFuture;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,6 +45,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
     private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
+    private final transient StringProperty id = new SimpleStringProperty();
 
     /**
      * can return null!!!
@@ -193,6 +193,41 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
                 getSite().refresh();
             }
         });
+    }
+
+    public String getId() {
+        if (id.get() == null) {
+            if (getParent() != null && getParent().getClass() != Welcome.class) {
+                String idString = getParent().getId() + "." + getName();
+                id.set(idString);
+                return idString;
+            } else {
+                id.set(getName());
+                return getName();
+            }
+        } else {
+            return id.get();
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Item<?, ?, ?> other = (Item<?, ?, ?>) obj;
+        return this.getId().equals(other.getId());
     }
 
 }

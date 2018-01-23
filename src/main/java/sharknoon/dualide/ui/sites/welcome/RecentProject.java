@@ -17,13 +17,17 @@ package sharknoon.dualide.ui.sites.welcome;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
-import static org.dizitart.no2.objects.filters.ObjectFilters.*;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
+import org.dizitart.no2.objects.Id;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.utils.settings.Database;
 
@@ -33,93 +37,81 @@ import sharknoon.dualide.utils.settings.Database;
  */
 public class RecentProject {
 
-    private String name;
-    private Path path;
+    @Id
+    private String projectID;
     private String time;
-
-    private static final transient ObservableSet<RecentProject> RECENT_PROJECTS = FXCollections.observableSet(new HashSet<>());
+    private String path;
+    private static transient ObservableMap<String, RecentProject> PROJECTS_MAP = FXCollections.observableMap(new HashMap<>());
 
     static {
-        RECENT_PROJECTS.addListener((SetChangeListener.Change<? extends RecentProject> change) -> {
-            if (change.wasAdded()) {
-                Database.store(change.getElementAdded());
-            } else if (change.wasRemoved()) {
-                RecentProject elem = change.getElementRemoved();
-                Database.delete(RecentProject.class,
-                        and(
-                                eq("name", elem.name),
-                                eq("path", elem.path)
-                        )
-                );
-            }
-        });
-        Database.get(RecentProject.class).thenAccept((t) -> {
-            RECENT_PROJECTS.addAll(t);
+        Database.get(RecentProject.class).thenAccept((rp) -> {
+            rp.forEach(p -> PROJECTS_MAP.put(p.projectID, p));
         });
     }
 
     private RecentProject() {
     }
 
-    private RecentProject(String name, Path path, String time) {
-        this.name = name;
-        this.path = path;
-        this.time = time;
-        RECENT_PROJECTS.add(this);
+    public RecentProject(Project project) {
+        this.projectID = project.getId();
+        this.time = LocalDateTime.now().toString();
+        this.path = project.getSaveFile().map(Path::toString).orElse(null);
+        Database.store(this);
     }
 
+    public static Collection<RecentProject> getAllProjects() {
+        return PROJECTS_MAP.values();
+    }
+
+    public static void updateProject(Project project) {
+        CompletableFuture.runAsync(() -> {
+            if (PROJECTS_MAP.containsKey(project.getId())) {
+                RecentProject rp = PROJECTS_MAP.get(project.getId());
+                rp.time = LocalDateTime.now().toString();
+                Database.store(rp);
+                LISTENERS.forEach(l -> l.run());
+            } else {
+                RecentProject rp = new RecentProject(project);
+                PROJECTS_MAP.put(project.getId(), rp);
+                Database.store(rp);
+            }
+        });
+    }
+
+    public static void removeProject(RecentProject project){
+        if (PROJECTS_MAP.containsKey(project.projectID)) {
+            PROJECTS_MAP.remove(project.projectID);
+            Database.delete(project);
+        }
+    }
+    
     public String getName() {
-        return name == null ? "" : name;
-    }
-
-    public Path getPath() {
-        return path;
+        int lastPointIndex = projectID.lastIndexOf(".");
+        if (lastPointIndex >= 0) {
+            return projectID.substring(projectID.lastIndexOf("."), projectID.length() - 1);
+        } else {
+            return projectID;
+        }
     }
 
     public LocalDateTime getTime() {
         return LocalDateTime.parse(time);
     }
+    private static final List<Runnable> LISTENERS = new ArrayList<>();
 
-    public static void addProject(Project project) {
-        RecentProject recentProject = new RecentProject(
-                project.getName(),
-                project.getSaveFile().orElse(null),
-                LocalDateTime.now().toString()
-        );
+    public static void addListener(Runnable listener) {
+        LISTENERS.add(listener);
+        PROJECTS_MAP.addListener((MapChangeListener.Change<? extends String, ? extends RecentProject> change) -> {
+            listener.run();
+        });
     }
 
-    public static void addListener(SetChangeListener<? super RecentProject> listener) {
-        RECENT_PROJECTS.addListener(listener);
+    /**
+     * can be null!
+     *
+     * @return
+     */
+    public String getPath() {
+        return path;
     }
-
-    public static Set<RecentProject> getRecentProjects() {
-        return RECENT_PROJECTS;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 43 * hash + Objects.hashCode(this.name);
-        hash = 43 * hash + Objects.hashCode(this.path);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final RecentProject other = (RecentProject) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return Objects.equals(this.path, other.path);
-    }
-
 }

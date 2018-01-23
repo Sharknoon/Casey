@@ -48,14 +48,19 @@ public enum Icon {
     PLUSFUNCTION,
     PLUSVARIABLE;
 
-    private final String path;
+    private String path;
+    private boolean isSearched = false;
 
     private Icon() {
         this.path = name().toLowerCase() + ".png";
     }
 
     public String getPath() {
-        return Ressources.search(path, true);
+        if (!isSearched) {
+            path = Ressources.search(path, true);
+            isSearched = true;
+        }
+        return path;
     }
 
     public static Icon forName(String name) {

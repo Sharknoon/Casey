@@ -15,8 +15,12 @@
  */
 package sharknoon.dualide.utils.settings;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -47,11 +51,7 @@ public class Props {
         }
         OBSERVABLE_DOCUMENT = FXCollections.observableMap(tmpDoc);
         OBSERVABLE_DOCUMENT.addListener((MapChangeListener.Change<? extends String, ? extends Object> change) -> {
-            if (change.wasAdded()) {
-                COLLECTION.update(tmpDoc);
-            } else if (change.wasRemoved()) {
-                COLLECTION.update(tmpDoc);
-            }
+            COLLECTION.update(tmpDoc);
         });
     }
 
@@ -71,6 +71,17 @@ public class Props {
     public static CompletableFuture<String> remove(String key) {
         return CompletableFuture.supplyAsync(() -> {
             return OBSERVABLE_DOCUMENT.remove(key).toString();
+        });
+    }
+
+    public static CompletableFuture<Set<String>> getAll(Predicate<String> keyfilter) {
+        return CompletableFuture.supplyAsync(() -> {
+            return OBSERVABLE_DOCUMENT
+                    .entrySet()
+                    .stream()
+                    .filter(e -> keyfilter.test(e.getKey()))
+                    .map(e -> e.getValue().toString())
+                    .collect(Collectors.toSet());
         });
     }
 

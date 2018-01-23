@@ -56,11 +56,11 @@ public class Icons {
         labeled.setGraphic(create(icon, height));
     }
 
-    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon){
+    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon) {
         valueSetter.setValue(create(icon, DEFAULT_HEIGHT));
     }
 
-    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon, double height){
+    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon, double height) {
         valueSetter.setValue(create(icon, height));
     }
 
@@ -77,17 +77,19 @@ public class Icons {
         return view;
     }
 
-    private static Optional<Image> getImage(Icon icon) {
+    private static synchronized Optional<Image> getImage(Icon icon) {
         if (!IMAGE_CACHE.containsKey(icon)) {
-            Optional<InputStream> stream = Ressources.getFileAsStream(icon.getPath(), true);
-            if (stream.isPresent()) {
-                Image image = new Image(stream.get());
-                IMAGE_CACHE.put(icon, image);
-                return Optional.of(image);
-            } else {
-                IMAGE_CACHE.put(icon, null);
-                Logger.warning("Icon " + icon.toString() + " not found!");
-                return Optional.empty();
+            synchronized (Icons.class) {
+                Optional<InputStream> stream = Ressources.getFileAsStream(icon.getPath(), true);
+                if (stream.isPresent()) {
+                    Image image = new Image(stream.get());
+                    IMAGE_CACHE.put(icon, image);
+                    return Optional.of(image);
+                } else {
+                    IMAGE_CACHE.put(icon, null);
+                    Logger.warning("Icon " + icon.toString() + " not found!");
+                    return Optional.empty();
+                }
             }
         } else {
             return Optional.ofNullable(IMAGE_CACHE.get(icon));

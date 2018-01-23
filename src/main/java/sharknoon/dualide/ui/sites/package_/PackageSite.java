@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -32,6 +33,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.Package;
@@ -173,21 +175,21 @@ public class PackageSite extends Site<Package> {
             textName.textProperty().bindBidirectional(c.nameProperty());
             textName.setOnMouseClicked(e -> onClicked(c));
 
-            Button buttonComment = createButton(Word.PROJECT_SITE_COMMENT_PACKAGE_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+            Button buttonComment = createButton(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
                 Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, c.getComments());
                 if (comments.isPresent()) {
                     c.setComments(comments.get());
                 }
             }, false, true);
 
-            Button buttonRename = createButton(Word.PROJECT_SITE_RENAME_PACKAGE_BUTTON_TEXT, Icon.RENAME, (t) -> {
+            Button buttonRename = createButton(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
                 Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenValues(c.getName()));
                 if (name.isPresent()) {
                     c.setName(name.get());
                 }
             }, false, true);
 
-            Button buttonDelete = createButton(Word.PROJECT_SITE_DELETE_PACKAGE_BUTTON_TEXT, Icon.TRASH, (t) -> {
+            Button buttonDelete = createButton(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
                 Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", c.getName());
                 if (confirmed.isPresent() && confirmed.get()) {
                     c.destroy();

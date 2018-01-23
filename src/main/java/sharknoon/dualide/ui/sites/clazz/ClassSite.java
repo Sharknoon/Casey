@@ -15,13 +15,33 @@
  */
 package sharknoon.dualide.ui.sites.clazz;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import javafx.scene.Node;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.Class;
+import sharknoon.dualide.logic.Function;
+import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.logic.Variable;
+import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.sites.Dialogs;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -29,18 +49,154 @@ import sharknoon.dualide.ui.misc.Icons;
  */
 public class ClassSite extends Site<Class> {
 
+    private BorderPane borderPaneRoot;
+    private final GridPane gridPaneChildren = new GridPane();
+
+    private void init() {
+        borderPaneRoot = new BorderPane();
+        gridPaneChildren.setVgap(20);
+        gridPaneChildren.setHgap(20);
+        gridPaneChildren.setAlignment(Pos.TOP_CENTER);
+        gridPaneChildren.setPadding(new Insets(50));
+
+        refresh();
+
+        ColumnConstraints colIcon = new ColumnConstraints();
+        colIcon.setHalignment(HPos.LEFT);
+        ColumnConstraints colText = new ColumnConstraints();
+        colText.setHalignment(HPos.LEFT);
+        colText.setFillWidth(true);
+        colText.setHgrow(Priority.ALWAYS);
+        ColumnConstraints colButtonComments = new ColumnConstraints();
+        colButtonComments.setHalignment(HPos.RIGHT);
+        ColumnConstraints colButtonRename = new ColumnConstraints();
+        colButtonRename.setHalignment(HPos.RIGHT);
+        ColumnConstraints colButtonDelete = new ColumnConstraints();
+        colButtonDelete.setHalignment(HPos.RIGHT);
+        gridPaneChildren.getColumnConstraints().addAll(colIcon, colText, colButtonComments, colButtonRename, colButtonDelete);
+
+        GridPane gridPanePackageButtons = new GridPane();
+        gridPanePackageButtons.setHgap(20);
+        gridPanePackageButtons.setPadding(new Insets(50));
+
+        Button buttonAddFunction = createButton(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_FUNCTION_DIALOG, getForbittenValues());
+            if (name.isPresent()) {
+                Function fun = Item.createItem(Function.class, getItem(), name.get());
+                ItemTreeView.selectItem(fun);
+            }
+        });
+        Button buttonAddVariable = createButton(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_VARIABLE_DIALOG, getForbittenValues());
+            if (name.isPresent()) {
+                Variable var = Item.createItem(Variable.class, getItem(), name.get());
+                ItemTreeView.selectItem(var);
+            }
+        });
+        Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+            Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, getItem().getComments());
+            if (comments.isPresent()) {
+                getItem().setComments(comments.get());
+            }
+        });
+        Button buttonDelete = createButton(Word.CLASS_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
+            Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", getItem().getName());
+            if (confirmed.isPresent() && confirmed.get()) {
+                getItem().destroy();
+            }
+        });
+
+        gridPanePackageButtons.addRow(0,
+                buttonAddFunction,
+                buttonAddVariable,
+                buttonComment,
+                buttonDelete
+        );
+
+        ColumnConstraints colAddFunction = new ColumnConstraints();
+        colAddFunction.setHalignment(HPos.LEFT);
+        ColumnConstraints colAddVariable = new ColumnConstraints();
+        colAddVariable.setHalignment(HPos.LEFT);
+        colAddVariable.setFillWidth(true);
+        colAddVariable.setHgrow(Priority.ALWAYS);
+        ColumnConstraints colComment = new ColumnConstraints();
+        colComment.setHalignment(HPos.RIGHT);
+        ColumnConstraints colDelete = new ColumnConstraints();
+        colDelete.setHalignment(HPos.RIGHT);
+        gridPanePackageButtons.getColumnConstraints().addAll(colAddFunction, colAddVariable, colComment, colDelete);
+
+        ScrollPane scrollPaneChildren = new ScrollPane(gridPaneChildren);
+        scrollPaneChildren.setFitToHeight(true);
+        scrollPaneChildren.setFitToWidth(true);
+        borderPaneRoot.setCenter(scrollPaneChildren);
+        borderPaneRoot.setBottom(gridPanePackageButtons);
+    }
+
+    int rowCounter = 0;
+
+    @Override
+    public void refresh() {
+        gridPaneChildren.getChildren().clear();
+        rowCounter = 0;
+        getItem().getChildren().forEach(c -> {
+            ImageView icon = Icons.get(c.getSite().getTabIcon(), 50);
+            icon.setOnMouseClicked(e -> onClicked(c));
+
+            Text textName = new Text();
+            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+            shadowEffect.setSpread(0.5);
+            textName.setEffect(shadowEffect);
+            textName.setFont(Font.font(30));
+            textName.textProperty().bindBidirectional(c.nameProperty());
+            textName.setOnMouseClicked(e -> onClicked(c));
+
+            Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+                Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_CLASS_DIALOG, c.getComments());
+                if (comments.isPresent()) {
+                    c.setComments(comments.get());
+                }
+            }, false, true);
+
+            Button buttonRename = createButton(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
+                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getForbittenValues(c.getName()));
+                if (name.isPresent()) {
+                    c.setName(name.get());
+                }
+            }, false, true);
+
+            Button buttonDelete = createButton(Word.CLASS_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
+                Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_CLASS_DIALOG, "#CLASS", c.getName());
+                if (confirmed.isPresent() && confirmed.get()) {
+                    c.destroy();
+                }
+            }, false, true);
+
+            gridPaneChildren.addRow(rowCounter,
+                    icon,
+                    textName,
+                    buttonComment,
+                    buttonRename,
+                    buttonDelete
+            );
+
+            rowCounter++;
+        });
+    }
+
+    private void onClicked(Item item) {
+        ItemTreeView.selectItem(item);
+    }
     public ClassSite(Class item) {
         super(item);
     }
 
     @Override
-    public void refresh() {
-    }
-
-    @Override
     public CompletableFuture<Pane> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
-            return new Pane();
+            if (borderPaneRoot == null) {
+                init();
+            }
+            return borderPaneRoot;
         });
     }
 

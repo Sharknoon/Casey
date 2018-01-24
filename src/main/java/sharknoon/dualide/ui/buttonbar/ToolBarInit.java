@@ -15,11 +15,14 @@
  */
 package sharknoon.dualide.ui.buttonbar;
 
+import java.util.EnumSet;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.values.PopUp;
+import sharknoon.dualide.ui.values.Value;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -34,14 +37,21 @@ public class ToolBarInit {
     public static void init(ToolBar buttonBar) {
         buttonbar = buttonBar;
         initSaveButton();
+        initDebugButton();
     }
 
-    public static void initSaveButton() {
+    private static void initSaveButton() {
         Button buttonSave = new Button();
         Icons.set(buttonSave, Icon.SAVE);
         Language.set(Word.TOOLBAR_BUTTON_SAVE_TEXT, buttonSave);
         buttonSave.setOnAction(e -> Project.getCurrentProject().ifPresent(Project::save));
         buttonbar.getItems().add(buttonSave);
+    }
+
+    private static void initDebugButton() {
+        Button buttonDebug = new Button("Popup");
+        buttonDebug.setOnAction(e -> PopUp.showValueSelectionPopUp(buttonDebug, EnumSet.allOf(Value.class)));
+        buttonbar.getItems().add(buttonDebug);
     }
 
 }

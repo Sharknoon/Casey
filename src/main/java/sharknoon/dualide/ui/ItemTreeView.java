@@ -21,6 +21,7 @@ import java.util.Set;
 import javafx.scene.control.TreeItem;
 import sharknoon.dualide.logic.Item;
 import sharknoon.dualide.logic.Project;
+import sharknoon.dualide.logic.Type;
 import sharknoon.dualide.logic.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -45,24 +46,31 @@ public class ItemTreeView {
         MainController
                 .getTreeView()
                 .setFocusTraversable(false);
-        createRootItem();
+        selectWelcomeItem();
+    }
+
+    private static boolean isWelcome = true;
+
+    private static void selectWelcomeItem() {
+        isWelcome = true;
+        MainController.getTreeView().setRoot(createAndGetTreeItem(Welcome.getWelcome()));
         selectItem(Welcome.getWelcome());
     }
 
-    private static void createRootItem() {
-        TreeItem<Item> rootItem = createTreeItem(Welcome.getWelcome());
-        MainController.getTreeView().setRoot(rootItem);
-    }
-
-    public static void onItemAdded(Item item, Item parent) {
-        if (ITEMS.containsKey(parent)) {
-            TreeItem<Item> treeItem = createTreeItem(item);
-            TreeItem<Item> parentItem = ITEMS.get(parent);
+    public static void onItemAdded(Item item) {
+        TreeItem<Item> treeItem = createAndGetTreeItem(item);
+        if (item.getParent() != null && ITEMS.containsKey(item.getParent())) {
+            TreeItem<Item> parentItem = ITEMS.get(item.getParent());
             parentItem.getChildren().add(treeItem);
+        } else {
+            MainController.getTreeView().setRoot(treeItem);
         }
     }
 
-    private static TreeItem<Item> createTreeItem(Item item) {
+    private static TreeItem<Item> createAndGetTreeItem(Item item) {
+        if (ITEMS.containsKey(item)) {
+            return ITEMS.get(item);
+        }
         TreeItem<Item> treeItem = new TreeItem<>(item);
         Icons.setCustom(g -> treeItem.setGraphic(g), item.getSite().getTabIcon());
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
@@ -73,29 +81,30 @@ public class ItemTreeView {
         return treeItem;
     }
 
-    public static void onItemRemoved(Item item, Item parent) {
-        if (ITEMS.containsKey(parent) && ITEMS.containsKey(item)) {
-            TreeItem<Item> parentItem = ITEMS.get(parent);
+    public static void onItemRemoved(Item item) {
+        if (item.getParent() != null && ITEMS.containsKey(item.getParent()) && ITEMS.containsKey(item)) {
+            TreeItem<Item> parentItem = ITEMS.get(item.getParent());
             TreeItem<Item> itemToRemove = ITEMS.get(item);
             parentItem.getChildren().remove(itemToRemove);
-            ITEMS.remove(item);
         }
+        ITEMS.remove(item);
     }
 
     public static void selectItem(Item item) {
-        if (ITEMS.containsKey(item)) {
-            MainController
-                    .getTreeView()
-                    .getSelectionModel()
-                    .select(ITEMS.get(item));
+        if (!ITEMS.containsKey(item)) {
+            createAndGetTreeItem(item);
         }
+        if (isWelcome && item.getType() == Type.PROJECT) {
+            MainController.getTreeView().setRoot(ITEMS.get(item));
+            isWelcome = false;
+        }
+        MainController
+                .getTreeView()
+                .getSelectionModel()
+                .select(ITEMS.get(item));
     }
 
-    public static void hideRootItem() {
-        MainController.getTreeView().setShowRoot(false);
-    }
-
-    public static void closeAllItems() {
+    public static void closeProjectAndShowWelcome() {
         MainController
                 .getTreeView()
                 .getRoot()
@@ -104,7 +113,7 @@ public class ItemTreeView {
         TreeItem<Item> welcome = ITEMS.get(Welcome.getWelcome());
         ITEMS.clear();
         ITEMS.put(Welcome.getWelcome(), welcome);
-        MainController.getTreeView().setShowRoot(true);
+        selectWelcomeItem();
     }
 
     public static void refresh() {
@@ -116,12 +125,12 @@ public class ItemTreeView {
         TreeItem<Item> welcome = ITEMS.get(Welcome.getWelcome());
         ITEMS.clear();
         ITEMS.put(Welcome.getWelcome(), welcome);
-        Welcome.getWelcome().getChildren().forEach(ItemTreeView::refreshRecursive);
+        Project.getCurrentProject().ifPresent(p -> refreshRecursive(p));
     }
 
     private static void refreshRecursive(Item item) {
-        onItemAdded(item, item.getParent());
-        item.getChildren().forEach((item1) -> ItemTreeView.refreshRecursive((Item) item1));
+        onItemAdded(item);
+        item.getChildren().forEach(c -> refreshRecursive((Item) c));
     }
 
 }

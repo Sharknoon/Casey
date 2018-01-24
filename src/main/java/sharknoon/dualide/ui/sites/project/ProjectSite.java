@@ -111,7 +111,7 @@ public class ProjectSite extends Site<Project> {
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
                 ItemTabPane.closeAllTabs();
-                ItemTreeView.closeAllItems();
+                ItemTreeView.closeProjectAndShowWelcome();
             }
         }, false, true);
 

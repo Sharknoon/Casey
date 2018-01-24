@@ -50,7 +50,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     private final StringProperty comments = new SimpleStringProperty("");
     private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
     private final transient StringProperty fullName = new SimpleStringProperty();
-    private final transient ObjectProperty<Type> type = new SimpleObjectProperty<>();
+    private final transient ObjectProperty<Type> type = new SimpleObjectProperty<>(Type.valueOf(this.getClass()));
 
     /**
      * can return null!!!
@@ -70,11 +70,11 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
             case PACKAGE:
                 return (ITEM) new Package(parent, name);
             case PROJECT:
-                return (ITEM) new Project((Welcome) parent, name);
+                return (ITEM) new Project(null, name);
             case VARIABLE:
                 return (ITEM) new Variable(parent, name);
             case WELCOME:
-                return (ITEM) new Welcome(parent, name);
+                return (ITEM) new Welcome(null, name);
         }
         return null;
     }
@@ -84,23 +84,17 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     }
 
     protected Item(P parent, String name) {
-        onChange();
-        setName(name);
-        setType();
-        setParent(parent);
         setSite(Site.createSite(this));
+        setParent(parent);
+        setName(name);
+        onChange();
     }
 
     @Override
     public void postProcess() {
-        onChange();
-        setType();
-        getChildren().forEach(c -> c.setParent(this));
         setSite(Site.createSite(this));
-    }
-
-    private void setType() {
-        typeProperty().set(Type.valueOf(this.getClass()));
+        getChildren().forEach(c -> c.setParent(this));
+        onChange();
     }
 
     public String getName() {
@@ -201,11 +195,11 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
             if (change.wasAdded()) {
                 C elementAdded = change.getElementAdded();
-                ItemTreeView.onItemAdded(elementAdded, this);
+                ItemTreeView.onItemAdded(elementAdded);
                 ItemTabPane.onItemAdded(elementAdded);
             } else if (change.wasRemoved()) {
                 C elementRemoved = change.getElementRemoved();
-                ItemTreeView.onItemRemoved(elementRemoved, this);
+                ItemTreeView.onItemRemoved(elementRemoved);
                 ItemTabPane.onItemRemoved(elementRemoved);
             }
         });

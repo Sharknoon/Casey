@@ -180,16 +180,14 @@ public class WelcomeSite extends Site<Welcome> {
         if (project.isPresent()) {
             RecentProject.updateProject(project.get());
             ItemTreeView.selectItem(project.get());
-            ItemTreeView.hideRootItem();
             ItemTabPane.hideRootTab();
         }
     }
 
     private void createProject(String name) {
-        Project project = Item.createItem(Type.PROJECT, Welcome.getWelcome(), name);
+        Project project = Item.createItem(Type.PROJECT, null, name);
         RecentProject.updateProject(project);
         ItemTreeView.selectItem(project);
-        ItemTreeView.hideRootItem();
         ItemTabPane.hideRootTab();
     }
 

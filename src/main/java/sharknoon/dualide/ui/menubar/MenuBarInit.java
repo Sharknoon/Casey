@@ -149,7 +149,7 @@ public class MenuBarInit {
             Project.getCurrentProject().ifPresent(p -> {
                 p.save();
                 ItemTabPane.closeAllTabs();
-                ItemTreeView.closeAllItems();
+                ItemTreeView.closeProjectAndShowWelcome();
                 Welcome.getWelcome().getChildren().clear();
             });
         });

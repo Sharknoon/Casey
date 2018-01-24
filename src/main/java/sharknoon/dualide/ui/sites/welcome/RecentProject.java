@@ -32,7 +32,7 @@ import sharknoon.dualide.logic.Project;
 import sharknoon.dualide.utils.settings.Database;
 
 /**
- *
+ * TODO instead of fullname move to path of the savefile
  * @author Josua Frank
  */
 public class RecentProject {
@@ -44,8 +44,8 @@ public class RecentProject {
     private static transient ObservableMap<String, RecentProject> PROJECTS_MAP = FXCollections.observableMap(new HashMap<>());
 
     static {
-        Database.get(RecentProject.class).thenAccept((rp) -> {
-            rp.forEach(p -> PROJECTS_MAP.put(p.projectID, p));
+        Database.get(RecentProject.class).thenAccept((rps) -> {
+            rps.forEach(rp -> PROJECTS_MAP.put(rp.path, rp));
         });
     }
 
@@ -55,7 +55,7 @@ public class RecentProject {
     public RecentProject(Project project) {
         this.projectID = project.getFullName();
         this.time = LocalDateTime.now().toString();
-        this.path = project.getSaveFile().map(Path::toString).orElse(null);
+        this.path = project.getSaveFile().map(Path::toString).orElse("");
         Database.store(this);
     }
 
@@ -65,22 +65,26 @@ public class RecentProject {
 
     public static void updateProject(Project project) {
         CompletableFuture.runAsync(() -> {
-            if (PROJECTS_MAP.containsKey(project.getFullName())) {
-                RecentProject rp = PROJECTS_MAP.get(project.getFullName());
+            if (!project.getSaveFile().isPresent()) {
+                //No save file present means no option to open it from a file -> no need to store it in recent projects
+                return;
+            }
+            if (PROJECTS_MAP.containsKey(project.getSaveFile().get().toString())) {
+                RecentProject rp = PROJECTS_MAP.get(project.getSaveFile().get().toString());
                 rp.time = LocalDateTime.now().toString();
                 Database.store(rp);
                 LISTENERS.forEach(l -> l.run());
             } else {
                 RecentProject rp = new RecentProject(project);
-                PROJECTS_MAP.put(project.getFullName(), rp);
+                PROJECTS_MAP.put(project.getSaveFile().get().toString(), rp);
                 Database.store(rp);
             }
         });
     }
 
     public static void removeProject(RecentProject project){
-        if (PROJECTS_MAP.containsKey(project.projectID)) {
-            PROJECTS_MAP.remove(project.projectID);
+        if (PROJECTS_MAP.containsKey(project.path)) {
+            PROJECTS_MAP.remove(project.path);
             Database.delete(project);
         }
     }

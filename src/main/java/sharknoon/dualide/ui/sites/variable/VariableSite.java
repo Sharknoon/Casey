@@ -21,6 +21,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -88,7 +89,7 @@ public class VariableSite extends Site<Variable> {
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
                 ItemTabPane.closeAllTabs();
-                ItemTreeView.closeAllItems();
+                ItemTreeView.closeProjectAndShowWelcome();
             }
         }, false, true);
 
@@ -130,10 +131,7 @@ public class VariableSite extends Site<Variable> {
         Label labelClass = new Label();
         Language.set(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, labelClass);
 
-        Label labelName = new Label();
-        Language.set(Word.VARIABLE_SITE_NAME_LABEL_TEXT, labelClass);
-
-        gridPaneContent.addRow(0, labelClass, labelName);
+        gridPaneContent.addRow(0, labelClass);
 
         ComboBox<Class> comboBoxClasses = new ComboBox<>();
         comboBoxClasses.itemsProperty().bindBidirectional(Class.classesProperty());
@@ -142,10 +140,14 @@ public class VariableSite extends Site<Variable> {
             comboBoxClasses.itemsProperty().bindBidirectional(Class.classesProperty());
         });
 
-        TextField textFieldName = new TextField();
-        textFieldName.textProperty().bindBidirectional(getItem().nameProperty());
+        CheckBox checkBoxFinal = new CheckBox();
+        checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());
+        Language.set(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, checkBoxFinal);
+        checkBoxFinal.setDisable(true);//TMP to be implemented in the future
 
-        gridPaneContent.addRow(1, comboBoxClasses, textFieldName);
+        gridPaneContent.addRow(1, comboBoxClasses, checkBoxFinal);
+        
+        
     }
 
     @Override

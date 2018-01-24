@@ -99,7 +99,7 @@ public class ClassSite extends Site<Class> {
             }
         });
         Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
-            Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, getItem().getComments());
+            Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_CLASS_DIALOG, getItem().getComments());
             if (comments.isPresent()) {
                 getItem().setComments(comments.get());
             }
@@ -111,7 +111,7 @@ public class ClassSite extends Site<Class> {
             }
         }, false, true);
         Button buttonDelete = createButton(Word.CLASS_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
-            Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", getItem().getName());
+            Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_CLASS_DIALOG, "#CLASS", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
             }

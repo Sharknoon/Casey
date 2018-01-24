@@ -24,6 +24,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -38,6 +39,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
 import sharknoon.dualide.logic.Function;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
@@ -253,11 +255,11 @@ public class FunctionSite extends Site<Function> {
     }
 
     private void centerWorkspaceView() {
-        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-        double screenWidth = bounds.getWidth();
-        double screenHeight = bounds.getHeight();
-        root.setTranslateX(-((UISettings.maxWorkSpaceX / 2) - (screenWidth / 2)));
-        root.setTranslateY(-((UISettings.maxWorkSpaceY / 2) - (screenHeight / 2)));
+        TabPane tabPane = MainController.getTabPane();
+        double maxWidth = tabPane.getWidth();
+        double maxHeight = tabPane.getHeight();
+        root.setTranslateX(-((UISettings.maxWorkSpaceX / 2) - (maxWidth / 2)));
+        root.setTranslateY(-((UISettings.maxWorkSpaceY / 2) - (maxHeight / 2) + 50));
     }
 
     private void drawLineAroundWorkspace() {
@@ -297,6 +299,4 @@ public class FunctionSite extends Site<Function> {
         return Icon.PLUSFUNCTION;
     }
 
-    
-    
 }

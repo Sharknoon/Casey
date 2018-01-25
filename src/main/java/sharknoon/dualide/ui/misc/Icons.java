@@ -28,7 +28,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Ressources;
 

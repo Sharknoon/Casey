@@ -34,11 +34,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.logic.Class;
-import sharknoon.dualide.logic.Function;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Type;
-import sharknoon.dualide.logic.Variable;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Function;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -105,7 +105,7 @@ public class ClassSite extends Site<Class> {
             }
         }, false, true);
         Button buttonRename = createButton(Word.CLASS_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getItem().getParent().getSite().getForbittenChildNames());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getItem().getName(), getItem().getParent().getSite().getForbittenChildNames());
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }
@@ -171,7 +171,7 @@ public class ClassSite extends Site<Class> {
             }, false, true);
 
             Button buttonRename = createButton(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getForbittenChildNames(c.getName()));
+                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, c.getName(), getForbittenChildNames(c.getName()));
                 if (name.isPresent()) {
                     c.setName(name.get());
                 }

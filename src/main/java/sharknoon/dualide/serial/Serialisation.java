@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.hildan.fxgson.FxGson;
-import sharknoon.dualide.logic.Function;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Project;
-import sharknoon.dualide.logic.Variable;
+import sharknoon.dualide.logic.items.Function;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.utils.settings.Logger;
 
 /**
@@ -39,9 +39,9 @@ public class Serialisation {
 
     private static final RuntimeTypeAdapterFactory<Item> ITEM_ADAPTER = RuntimeTypeAdapterFactory
             .of(Item.class, "type")
-            .registerSubtype(sharknoon.dualide.logic.Class.class)
+            .registerSubtype(sharknoon.dualide.logic.items.Class.class)
             .registerSubtype(Function.class)
-            .registerSubtype(sharknoon.dualide.logic.Package.class)
+            .registerSubtype(sharknoon.dualide.logic.items.Package.class)
             .registerSubtype(Project.class)
             .registerSubtype(Variable.class);
     private static final Gson GSON = FxGson

@@ -13,25 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.values;
 
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
-import sharknoon.dualide.utils.language.Language;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  *
  * @author Josua Frank
  */
-public class Package extends Item<Package, Item<? extends Item, ? extends Item, Package>, Item<? extends Item, Package, ? extends Item>> {
-
-    private Package() {
-        super();
-    }
-
-    protected Package(Item<? extends Item, ? extends Item, Package> parent, String name) {
-        super(parent, name);
+public abstract class Value<V> {
+    
+    private final ReadOnlyObjectWrapper<V> value = new ReadOnlyObjectWrapper<>();
+    
+    protected Value(V value){
+        this.value.set(value);
     }
     
+    public abstract V getDefaultValue();
+
+    public ReadOnlyObjectProperty<V> valueProperty() {
+        return value.getReadOnlyProperty();
+    }
+    
+    public V getValue(){
+        return valueProperty().get();
+    }
     
 }

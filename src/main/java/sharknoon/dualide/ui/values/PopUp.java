@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.values;
 
+import sharknoon.dualide.logic.values.ValueType;
 import java.util.Set;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -26,9 +27,9 @@ import org.controlsfx.control.PopOver;
  */
 public class PopUp {
 
-    public static void showValueSelectionPopUp(Node ownerNode, Set<Value> allowedValues) {
+    public static void showValueSelectionPopUp(Node ownerNode, Set<ValueType> allowedValues) {
         PopOver popUp = new PopOver();
-        popUp.getRoot().getStylesheets().clear();
+        //popUp.getRoot().getStylesheets().clear();
         popUp.getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         Pane selectionPane = ValueSelection.getValueSelectionPane(allowedValues);
         popUp.setContentNode(selectionPane);

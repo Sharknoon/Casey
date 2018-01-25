@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.items;
 
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -24,16 +24,25 @@ import sharknoon.dualide.utils.language.Word;
  *
  * @author Josua Frank
  */
-public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Variable> {
+public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
 
-    private Function(){
+    private Welcome() {
         super();
     }
-    
-    protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
+
+    protected Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
         super(parent, name);
     }
 
+    private static Welcome welcome;
 
+    public static Welcome getWelcome() {
+        if (welcome == null) {
+            welcome = Item.createItem(Type.WELCOME, null, "");
+            Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
+        }
+        return welcome;
+    }
+ 
 
 }

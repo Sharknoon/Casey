@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.items;
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
+import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -24,25 +30,22 @@ import sharknoon.dualide.utils.language.Word;
  *
  * @author Josua Frank
  */
-public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
+public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
 
-    private Welcome() {
+    private static final transient ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private Class() {
         super();
+        CLASSES.add(this);
     }
 
-    protected Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
+    protected Class(Package parent, String name) {
         super(parent, name);
+        CLASSES.add(this);
+    }    
+    
+    public static ListProperty<Class> classesProperty() {
+        return CLASSES;
     }
-
-    private static Welcome welcome;
-
-    public static Welcome getWelcome() {
-        if (welcome == null) {
-            welcome = Item.createItem(Type.WELCOME, null, "");
-            Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
-        }
-        return welcome;
-    }
- 
 
 }

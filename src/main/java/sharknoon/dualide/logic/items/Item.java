@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.items;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -30,8 +30,6 @@ import sharknoon.dualide.serial.PostProcessable;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -211,8 +209,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
      * @return
      */
     public String getFullName() {
-        if (fullName.get() == null) {
-            if (getParent() != null && getParent().getClass() != Welcome.class) {
+        if (fullName.get() == null || !fullName.get().endsWith(getName())) {
+            if (getParent() != null) {
                 String idString = getParent().getFullName() + "." + getName();
                 fullName.set(idString);
                 return idString;

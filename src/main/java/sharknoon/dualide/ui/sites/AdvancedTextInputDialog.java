@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites;
 
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javafx.application.Platform;
@@ -51,7 +52,7 @@ public class AdvancedTextInputDialog extends Dialog<String> {
 
         this.forbiddenValues = forbiddenValues != null
                 ? forbiddenValues
-                : new HashSet<>();
+                : Collections.emptySet();
 
         // -- textfield
         this.textField = new TextField(defaultValue);

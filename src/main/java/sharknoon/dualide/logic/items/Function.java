@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.items;
 
-import java.util.ArrayList;
-import java.util.List;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.clazz.ClassSite;
+import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -30,22 +24,16 @@ import sharknoon.dualide.utils.language.Word;
  *
  * @author Josua Frank
  */
-public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
+public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Variable> {
 
-    private static final transient ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
-
-    private Class() {
+    private Function(){
         super();
-        CLASSES.add(this);
+    }
+    
+    protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
+        super(parent, name);
     }
 
-    protected Class(Package parent, String name) {
-        super(parent, name);
-        CLASSES.add(this);
-    }    
-    
-    public static ListProperty<Class> classesProperty() {
-        return CLASSES;
-    }
+
 
 }

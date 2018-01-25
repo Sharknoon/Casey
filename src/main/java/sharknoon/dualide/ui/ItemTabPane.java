@@ -24,8 +24,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
 /**

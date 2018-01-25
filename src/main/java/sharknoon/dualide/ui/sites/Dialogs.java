@@ -150,6 +150,24 @@ public class Dialogs {
                         defaultValue,
                         forbiddenEntries,
                         variables);
+            case RENAME_PROJECT_DIALOG:
+                return showTextInputDialog(
+                        RENAME_PROJECT_DIALOG_TITLE,
+                        RENAME_PROJECT_DIALOG_HEADER_TEXT,
+                        RENAME_PROJECT_DIALOG_CONTENT_TEXT,
+                        Icon.RENAME,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
+            case RENAME_VARIABLE_DIALOG:
+                return showTextInputDialog(
+                        RENAME_VARIABLE_DIALOG_TITLE,
+                        RENAME_VARIABLE_DIALOG_HEADER_TEXT,
+                        RENAME_VARIABLE_DIALOG_CONTENT_TEXT,
+                        Icon.RENAME,
+                        defaultValue,
+                        forbiddenEntries,
+                        variables);
         }
         return Optional.empty();
     }
@@ -177,6 +195,13 @@ public class Dialogs {
                         DELETE_CLASS_DIALOG_CONTENT_TEXT,
                         Icon.TRASH,
                         variables);
+            case DELETE_VARIABLE_DIALOG:
+                return showConfirmationDialog(
+                        DELETE_VARIABLE_DIALOG_TITLE,
+                        DELETE_VARIABLE_DIALOG_HEADER_TEXT,
+                        DELETE_VARIABLE_DIALOG_CONTENT_TEXT,
+                        Icon.TRASH,
+                        variables);                
         }
         return Optional.empty();
     }
@@ -204,6 +229,13 @@ public class Dialogs {
                         Icon.COMMENTS,
                         defaultValue,
                         variables);
+            case COMMENT_VARIABLE_DIALOG:
+                return showTextEditorDialog(
+                        COMMENT_VARIABLE_DIALOG_TITLE,
+                        COMMENT_VARIABLE_DIALOG_HEADER_TEXT,
+                        Icon.COMMENTS,
+                        defaultValue,
+                        variables);                
         }
         return Optional.empty();
     }

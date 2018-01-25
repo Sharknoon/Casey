@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javafx.scene.control.TreeItem;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Project;
-import sharknoon.dualide.logic.Type;
-import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
 /**

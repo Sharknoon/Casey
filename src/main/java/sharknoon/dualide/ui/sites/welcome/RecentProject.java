@@ -28,19 +28,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import org.dizitart.no2.objects.Id;
-import sharknoon.dualide.logic.Project;
+import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.utils.settings.Database;
 
 /**
  * TODO instead of fullname move to path of the savefile
+ *
  * @author Josua Frank
  */
 public class RecentProject {
 
     @Id
+    private String path;
     private String projectID;
     private String time;
-    private String path;
     private static transient ObservableMap<String, RecentProject> PROJECTS_MAP = FXCollections.observableMap(new HashMap<>());
 
     static {
@@ -71,6 +72,7 @@ public class RecentProject {
             }
             if (PROJECTS_MAP.containsKey(project.getSaveFile().get().toString())) {
                 RecentProject rp = PROJECTS_MAP.get(project.getSaveFile().get().toString());
+                rp.projectID = project.getFullName();
                 rp.time = LocalDateTime.now().toString();
                 Database.store(rp);
                 LISTENERS.forEach(l -> l.run());
@@ -82,13 +84,13 @@ public class RecentProject {
         });
     }
 
-    public static void removeProject(RecentProject project){
+    public static void removeProject(RecentProject project) {
         if (PROJECTS_MAP.containsKey(project.path)) {
             PROJECTS_MAP.remove(project.path);
             Database.delete(project);
         }
     }
-    
+
     public String getName() {
         int lastPointIndex = projectID.lastIndexOf(".");
         if (lastPointIndex >= 0) {

@@ -35,9 +35,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.logic.Package;
+import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -45,10 +45,10 @@ import sharknoon.dualide.ui.sites.Dialogs;
 import sharknoon.dualide.ui.sites.Dialogs.Confirmations;
 import sharknoon.dualide.ui.sites.Dialogs.TextInputs;
 import sharknoon.dualide.utils.language.Word;
-import sharknoon.dualide.logic.Class;
-import sharknoon.dualide.logic.Function;
-import sharknoon.dualide.logic.Type;
-import sharknoon.dualide.logic.Variable;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Function;
+import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.Variable;
 
 /**
  *
@@ -124,7 +124,7 @@ public class PackageSite extends Site<Package> {
             }
         }, false, true);
         Button buttonRename = createButton(Word.PACKAGE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getItem().getParent().getSite().getForbittenChildNames());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getItem().getName(), getItem().getParent().getSite().getForbittenChildNames());
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }
@@ -196,7 +196,7 @@ public class PackageSite extends Site<Package> {
             }, false, true);
 
             Button buttonRename = createButton(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getForbittenChildNames(c.getName()));
+                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, c.getName(), getForbittenChildNames(c.getName()));
                 if (name.isPresent()) {
                     c.setName(name.get());
                 }

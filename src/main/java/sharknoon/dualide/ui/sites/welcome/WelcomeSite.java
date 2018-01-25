@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -40,8 +41,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Welcome;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
@@ -50,8 +51,8 @@ import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.ui.sites.Site;
 
-import sharknoon.dualide.logic.Project;
-import sharknoon.dualide.logic.Type;
+import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.logic.items.Type;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.utils.settings.Props;
 
@@ -87,7 +88,6 @@ public class WelcomeSite extends Site<Welcome> {
         RecentProject.addListener(() -> {
             refreshRecentProjects();
         });
-        //refreshRecentProjects();
 
         scrollPaneRecentProjects.setFitToHeight(true);
         scrollPaneRecentProjects.setFitToWidth(true);
@@ -172,7 +172,9 @@ public class WelcomeSite extends Site<Welcome> {
 
                     vBoxLastProjects.getChildren().add(vBoxLastProject);
                 });
-        scrollPaneRecentProjects.setContent(vBoxLastProjects);
+        Platform.runLater(() -> {
+            scrollPaneRecentProjects.setContent(vBoxLastProjects);
+        });
     }
 
     private static void loadProject(Path path) {
@@ -215,6 +217,4 @@ public class WelcomeSite extends Site<Welcome> {
         return getTabIcon();
     }
 
-    
-    
 }

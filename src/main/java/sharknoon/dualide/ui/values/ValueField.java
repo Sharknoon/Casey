@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.values;
 
+import sharknoon.dualide.logic.values.ValueType;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,26 +39,26 @@ import org.controlsfx.control.PopOver;
  */
 public class ValueField extends BorderPane {
 
-    public SetProperty<Value> allowedValues = new SimpleSetProperty<>(FXCollections.observableSet(new LinkedHashSet<>()));
+    public SetProperty<ValueType> allowedValues = new SimpleSetProperty<>(FXCollections.observableSet(new LinkedHashSet<>()));
 
     public ValueField() {
         initGraphic();
-        setAllowedValues((Value[]) Value.getAll().toArray());
+        setAllowedValues((ValueType[]) ValueType.getAll().toArray());
     }
 
-    public ValueField(Value... allowedValue) {
+    public ValueField(ValueType... allowedValue) {
         setAllowedValues(allowedValue);
     }
 
-    public SetProperty<Value> allowedValuesProperty() {
+    public SetProperty<ValueType> allowedValuesProperty() {
         return allowedValues;
     }
 
-    public Set<Value> getAllowedValues() {
+    public Set<ValueType> getAllowedValues() {
         return allowedValues.get();
     }
 
-    public void setAllowedValues(Value... allowedValues) {
+    public void setAllowedValues(ValueType... allowedValues) {
         this.allowedValues.get().clear();
         this.allowedValues.get().addAll(Arrays.asList(allowedValues));
     }

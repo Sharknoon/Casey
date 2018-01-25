@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.values;
 
+import sharknoon.dualide.logic.values.ValueType;
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,7 +25,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.SegmentedButton;
-import sharknoon.dualide.logic.Item;
+import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.MainController;
 
@@ -34,13 +35,13 @@ import sharknoon.dualide.ui.MainController;
  */
 public class ValueSelection extends VBox {
 
-    public static Pane getValueSelectionPane(Set<Value> allowedValues) {
+    public static Pane getValueSelectionPane(Set<ValueType> allowedValues) {
         return new ValueSelection(allowedValues);
     }
 
-    private Set<Value> allowedValues;
+    private final Set<ValueType> allowedValues;
 
-    private ValueSelection(Set<Value> allowedValues) {
+    private ValueSelection(Set<ValueType> allowedValues) {
         init();
         this.allowedValues = allowedValues;
         addNewValueSelectors();
@@ -50,12 +51,13 @@ public class ValueSelection extends VBox {
     private void init() {
         setSpacing(20);
         setPadding(new Insets(25));
+        setMinWidth(800);
     }
 
     private void addNewValueSelectors() {
         addNewValueSparator();
         allowedValues.forEach(v -> {
-            addValueButton(v);
+            addNewValueButtons(v);
         });
     }
 
@@ -64,25 +66,38 @@ public class ValueSelection extends VBox {
         getChildren().add(separator);
     }
 
-    private void addValueButton(Value value) {
+    private void addNewValueButtons(ValueType value) {
         FlowPane flowPaneValueButtons = new FlowPane(20, 20);
         Label text = createLabel(value.name() + "values TODO");
         flowPaneValueButtons.getChildren().add(text);
-        for (int i = 0; i < 5; i++) {//Demo
-            flowPaneValueButtons.getChildren().add(new Button("Add TODO"));
-        }
+
+        value.getOperationTypes().forEach(ot -> {
+            
+        });
+
         getChildren().add(flowPaneValueButtons);
     }
 
     private void addExistingValueSelectors() {
         addExistingValueSeparator();
+        addContentListener();
         addValueSourceSegmentedButtons();
-        addContent();
     }
 
     private void addExistingValueSeparator() {
         Node separator = getSeparator("Existing ValuesTODO");
         getChildren().add(separator);
+    }
+
+    private final ObjectProperty<Node> content = new SimpleObjectProperty<>();
+
+    private void addContentListener() {
+        content.addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null) {
+                getChildren().remove(oldValue);
+            }
+            getChildren().add(newValue);
+        });
     }
 
     private void addValueSourceSegmentedButtons() {
@@ -104,18 +119,13 @@ public class ValueSelection extends VBox {
 
         segmentedButtonValueSource.getButtons().addAll(toggleButtonStatic, toggleButtonThisClass, toggleButtonThisFunction);
         getChildren().add(segmentedButtonValueSource);
+        toggleButtonStatic.fire();
     }
 
     private Node getStaticContent() {
         BreadCrumbBar<Item> breadCrumbBarNavigation = new BreadCrumbBar<>();
         TreeView<Item> tree = MainController.getTreeView();
         breadCrumbBarNavigation.setSelectedCrumb(tree.getSelectionModel().getSelectedItem());
-        tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            breadCrumbBarNavigation.setSelectedCrumb(newValue);
-        });
-        breadCrumbBarNavigation.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
-            tree.getSelectionModel().select(newValue);
-        });
         return breadCrumbBarNavigation;
     }
 
@@ -125,17 +135,6 @@ public class ValueSelection extends VBox {
 
     private Node getThisFunctionContent() {
         return new Label("This Function TODO");
-    }
-
-    private final ObjectProperty<Node> content = new SimpleObjectProperty<>();
-
-    private void addContent() {
-        content.addListener((observable, oldValue, newValue) -> {
-            if (oldValue != null) {
-                getChildren().remove(oldValue);
-            }
-            getChildren().add(newValue);
-        });
     }
 
     private Label createLabel(String stringText) {
@@ -153,6 +152,7 @@ public class ValueSelection extends VBox {
         separatorLeft.setMaxWidth(100);
 
         Label labelText = new Label(name);
+        labelText.setFont(Font.font(20));
 
         Separator separatorRight = new Separator();
 

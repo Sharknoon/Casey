@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.variable;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javafx.geometry.HPos;
@@ -31,9 +32,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import sharknoon.dualide.logic.Item;
-import sharknoon.dualide.logic.Variable;
-import sharknoon.dualide.logic.Class;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
@@ -79,7 +80,7 @@ public class VariableSite extends Site<Variable> {
             }
         }, false, true);
         Button buttonRename = createButton(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_VARIABLE_DIALOG);
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_VARIABLE_DIALOG, getItem().getName(), Collections.emptySet());
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }

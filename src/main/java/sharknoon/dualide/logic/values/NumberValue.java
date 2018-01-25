@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.values;
-
-import java.util.EnumSet;
-import java.util.Set;
+package sharknoon.dualide.logic.values;
 
 /**
  *
  * @author Josua Frank
  */
-public enum Value {
-    NUMBER,
-    BOOLEAN,
-    TEXT,
-    OBJECT;
-
-    public static Set<Value> getAll() {
-        return EnumSet.allOf(Value.class);
+public final class NumberValue extends Value<Double> {
+    
+    public NumberValue(Double value) {
+        super(value);
     }
+
+    public static final Double DEFAULT = 0.0;
+    
+    @Override
+    public Double getDefaultValue() {
+        return DEFAULT;
+    }
+    
 }

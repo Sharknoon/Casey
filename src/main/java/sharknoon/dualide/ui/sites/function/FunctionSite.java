@@ -38,7 +38,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
-import sharknoon.dualide.logic.Function;
+import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -259,7 +259,7 @@ public class FunctionSite extends Site<Function> {
         double maxWidth = tabPane.getWidth();
         double maxHeight = tabPane.getHeight();
         root.setTranslateX(-((UISettings.maxWorkSpaceX / 2) - (maxWidth / 2)));
-        root.setTranslateY(-((UISettings.maxWorkSpaceY / 2) - (maxHeight / 2) + 50));
+        root.setTranslateY(-((UISettings.maxWorkSpaceY / 2) - (maxHeight / 2)) + 100);
     }
 
     private void drawLineAroundWorkspace() {

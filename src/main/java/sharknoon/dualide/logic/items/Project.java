@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
+package sharknoon.dualide.logic.items;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -82,10 +82,10 @@ public class Project extends Item<Project, Item, Package> {
             File file = chooser.showSaveDialog(Stage.impl_getWindows().next());
             if (file != null) {
                 saveFile.set(file.toPath());
-                RecentProject.updateProject(this);
             }
         }
         if (saveFile.get() != null) {//If the user closes the project without saving
+            RecentProject.updateProject(this);
             Serialisation.saveProject(this);
         }
     }

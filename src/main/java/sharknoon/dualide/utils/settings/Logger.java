@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 /**
  *
@@ -29,10 +30,10 @@ import java.util.HashMap;
  */
 public class Logger {
 
-    //The user-set Loglevel, default is ERROR
+    //The user-set Loglevel, default is WARNING
     private static LogLevel logLevel = LogLevel.WARNING;
     //The output of the Logger
-    private static LogMessageConsumer logMessageConsumer = (LogMessage message) -> {
+    private static Consumer<LogMessage> logMessageConsumer = (LogMessage message) -> {
         if (message.errorLevel == LogLevel.OFF) {
             return;
         }
@@ -43,16 +44,11 @@ public class Logger {
         }
     };
 
-    public interface LogMessageConsumer {
-
-        public void log(LogMessage message);
-    }
-
+    /**
+     * The weight of the LogLevel, 0 means the worst and 5 the best
+     */
     public enum LogLevel {
         OFF(0), FATALERROR(1), ERROR(2), WARNING(3), INFO(4), DEBUG(5);
-        /**
-         * The weight of the LogLevel, 0 means the worst and 5 the best
-         */
         public final int level;
 
         private LogLevel(int level) {
@@ -60,6 +56,25 @@ public class Logger {
         }
     }
 
+    /**
+     * Sets the LogLevel of the logger, default is WARNING
+     * @param logLevel The new LogLevel
+     * @return The old LogLevel
+     */
+    public static LogLevel setLogLevel(LogLevel logLevel){
+        LogLevel oldLogLevel = Logger.logLevel;
+        Logger.logLevel = logLevel;
+        return oldLogLevel;
+    }
+    
+    /**
+     * Returns the current LogLevel, default is WARNING
+     * @return The current LogLevel
+     */
+    public static LogLevel getLogLevel(){
+        return Logger.logLevel;
+    }
+    
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.
@@ -244,14 +259,15 @@ public class Logger {
             linesToPrint[i] = linesToPrint[i].length() > 500 ? linesToPrint[i].substring(0, 499) + "... line is too long to be logged" : linesToPrint[i];
             message += (i == 0 ? header : headerBlanks) + linesToPrint[i] + (i + 1 < linesToPrint.length ? System.lineSeparator() : "");
         }
-        logMessageConsumer.log(LogMessage.of(level, message));
+        logMessageConsumer.accept(LogMessage.of(level, message));
     }
 
     /**
      * Sets the output of the logger
-     * @param logMessageConsumer 
+     *
+     * @param logMessageConsumer
      */
-    public static void setLogMessageConsumer(LogMessageConsumer logMessageConsumer) {
+    public static void setLogMessageConsumer(Consumer<LogMessage> logMessageConsumer) {
         Logger.logMessageConsumer = logMessageConsumer;
     }
 
@@ -310,7 +326,7 @@ public class Logger {
         for (StackTraceElement elem : stack) {
             try {
                 if (!Logger.class.isAssignableFrom(Class.forName(elem.getClassName()))) {
-                    return cleanClassName(elem.getClassName()) + " #" + elem.getMethodName();
+                    return cleanClassName(elem.getClassName()) + " #" + elem.getMethodName() + ":" + elem.getLineNumber();
                 }
             } catch (ClassNotFoundException ex) {
             }
@@ -328,7 +344,7 @@ public class Logger {
      * This class is responsible for transporting the messages to the
      * user-specified output. it contains a loglevel and a description.
      */
-    public static class LogMessage {
+    public static final class LogMessage {
 
         public final LogLevel errorLevel;
         public final String description;

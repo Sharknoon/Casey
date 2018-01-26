@@ -15,31 +15,29 @@
  */
 package sharknoon.dualide.logic.values;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
-
 /**
  *
  * @author Josua Frank
+ * @param <T> The type of the value
  */
-public abstract class Value<V> {
-    
-    private final ReadOnlyObjectWrapper<V> value = new ReadOnlyObjectWrapper<>();
-    
-    protected Value(V value){
-        this.value.set(value);
-    }
-    
-    public abstract V getDefaultValue();
+public abstract class Value<T> {
 
-    public ReadOnlyObjectProperty<V> valueProperty() {
-        return value.getReadOnlyProperty();
+    private T value;
+
+    protected Value(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
     }
     
-    public V getValue(){
-        return valueProperty().get();
-    }
+    abstract T getDefault();
     
+    public abstract boolean equals(Value other);
+
 }

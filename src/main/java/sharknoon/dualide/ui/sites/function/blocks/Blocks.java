@@ -36,71 +36,71 @@ import sharknoon.dualide.ui.sites.function.UISettings;
  */
 public class Blocks {
 
-    public static Block createStartBlock(FunctionSite flowchart) {
-        return new Start(flowchart);
+    public static Block createStartBlock(FunctionSite functionSite) {
+        return new Start(functionSite);
     }
 
-    public static Block createEndBlock(FunctionSite flowchart) {
-        return new End(flowchart);
+    public static Block createEndBlock(FunctionSite functionSite) {
+        return new End(functionSite);
     }
 
-    public static Block createDecisionBlock(FunctionSite flowchart) {
-        return new Decision(flowchart);
+    public static Block createDecisionBlock(FunctionSite functionSite) {
+        return new Decision(functionSite);
     }
 
-    public static Block createProcessBlock(FunctionSite flowchart) {
-        return new Process(flowchart);
+    public static Block createProcessBlock(FunctionSite functionSite) {
+        return new Process(functionSite);
     }
 
     private static final Map<FunctionSite, Set<Block>> BLOCKS = new HashMap<>();
     private static final Map<FunctionSite, Block> MOVING_BLOCK = new HashMap<>();
     private static final Set<Block> EMPTY = new HashSet<>();
 
-    static void registerBlock(FunctionSite flowchart, Block block) {
-        if (BLOCKS.containsKey(flowchart)) {
-            BLOCKS.get(flowchart).add(block);
+    static void registerBlock(FunctionSite functionSite, Block block) {
+        if (BLOCKS.containsKey(functionSite)) {
+            BLOCKS.get(functionSite).add(block);
         } else {
             Set<Block> list = new HashSet<>();
             list.add(block);
-            BLOCKS.put(flowchart, list);
+            BLOCKS.put(functionSite, list);
         }
     }
 
-    static void unregisterBlock(FunctionSite flowchart, Block block) {
-        if (BLOCKS.containsKey(flowchart)) {
-            BLOCKS.get(flowchart).remove(block);
+    static void unregisterBlock(FunctionSite functionSite, Block block) {
+        if (BLOCKS.containsKey(functionSite)) {
+            BLOCKS.get(functionSite).remove(block);
         }
     }
 
-    public static void unselectAll(FunctionSite flowchart) {
-        if (BLOCKS.containsKey(flowchart)) {
-            BLOCKS.get(flowchart).forEach(b -> b.unselect());
+    public static void unselectAll(FunctionSite functionSite) {
+        if (BLOCKS.containsKey(functionSite)) {
+            BLOCKS.get(functionSite).forEach(b -> b.unselect());
         }
     }
 
-    public static Block getMovingBlock(FunctionSite flowchart) {
-        return MOVING_BLOCK.get(flowchart);
+    public static Block getMovingBlock(FunctionSite functionSite) {
+        return MOVING_BLOCK.get(functionSite);
     }
 
-    public static void setMovingBlock(FunctionSite flowchart, Block block) {
-        MOVING_BLOCK.put(flowchart, block);
+    public static void setMovingBlock(FunctionSite functionSite, Block block) {
+        MOVING_BLOCK.put(functionSite, block);
     }
 
-    public static Collection<Block> getAllBlocks(FunctionSite flowchart) {
-        return BLOCKS.getOrDefault(flowchart, EMPTY);
+    public static Collection<Block> getAllBlocks(FunctionSite functionSite) {
+        return BLOCKS.getOrDefault(functionSite, EMPTY);
     }
 
-    public static Collection<Block> getSelectedBlocks(FunctionSite flowchart) {
+    public static Collection<Block> getSelectedBlocks(FunctionSite functionSite) {
         return BLOCKS
-                .getOrDefault(flowchart, EMPTY)
+                .getOrDefault(functionSite, EMPTY)
                 .stream()
                 .filter(Block::isSelected)
                 .collect(Collectors.toList());
     }
 
-    public static BlockGroup getSelectedBlocksGroup(FunctionSite flowchart) {
+    public static BlockGroup getSelectedBlocksGroup(FunctionSite functionSite) {
         return new BlockGroup(BLOCKS
-                .getOrDefault(flowchart, EMPTY)
+                .getOrDefault(functionSite, EMPTY)
                 .stream()
                 .filter(Block::isSelected)
                 .collect(Collectors.toList()));

@@ -18,6 +18,8 @@ package sharknoon.dualide.logic.items;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
@@ -47,8 +49,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
     private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
-    private final transient StringProperty fullName = new SimpleStringProperty();
-    private final transient ObjectProperty<Type> type = new SimpleObjectProperty<>(Type.valueOf(this.getClass()));
+    private final transient ReadOnlyStringWrapper fullName = new ReadOnlyStringWrapper();
+    private final transient ObjectProperty<ItemType> itemType = new SimpleObjectProperty<>(ItemType.valueOf(this));
 
     /**
      * can return null!!!
@@ -59,7 +61,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
      * @param name
      * @return
      */
-    public static <ITEM extends Item> ITEM createItem(Type itemType, Item parent, String name) {
+    public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name) {
         switch (itemType) {
             case CLASS:
                 return (ITEM) new Class((Package) parent, name);
@@ -83,16 +85,16 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
 
     protected Item(P parent, String name) {
         setSite(Site.createSite(this));
-        setParent(parent);
         setName(name);
-        onChange();
+        setParent(parent);
+        addListeners();
     }
 
     @Override
     public void postProcess() {
         setSite(Site.createSite(this));
         getChildren().forEach(c -> c.setParent(this));
-        onChange();
+        addListeners();
     }
 
     public String getName() {
@@ -129,18 +131,17 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
             //Backed by a set, so if its already in it, it changes nothing
             parent.addChildren(this);
         }
-
     }
 
     public ObjectProperty<P> parentProperty() {
         return parent;
     }
 
-    public ObjectProperty<Type> typeProperty() {
-        return type;
+    public ObjectProperty<ItemType> typeProperty() {
+        return itemType;
     }
 
-    public Type getType() {
+    public ItemType getType() {
         return typeProperty().get();
     }
 
@@ -189,7 +190,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         }
     }
 
-    private void onChange() {
+    private void addListeners() {
         getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
             if (change.wasAdded()) {
                 C elementAdded = change.getElementAdded();
@@ -201,6 +202,14 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
                 ItemTabPane.onItemRemoved(elementRemoved);
             }
         });
+        nameProperty().addListener((observable, oldValue, newValue) -> {
+            refreshFullNameRecursive();
+        });
+    }
+
+    private void refreshFullNameRecursive() {
+        getFullName();
+        childrenProperty().forEach(Item::refreshFullNameRecursive);
     }
 
     /**
@@ -221,6 +230,10 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         } else {
             return fullName.get();
         }
+    }
+
+    public ReadOnlyStringProperty fullNameProperty() {
+        return fullName.getReadOnlyProperty();
     }
 
     @Override

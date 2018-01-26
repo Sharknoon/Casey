@@ -15,16 +15,9 @@
  */
 package sharknoon.dualide.logic.items;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.clazz.ClassSite;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
 
 /**
  *

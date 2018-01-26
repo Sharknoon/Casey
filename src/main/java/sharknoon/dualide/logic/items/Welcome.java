@@ -38,7 +38,7 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
 
     public static Welcome getWelcome() {
         if (welcome == null) {
-            welcome = Item.createItem(Type.WELCOME, null, "");
+            welcome = Item.createItem(ItemType.WELCOME, null, "");
             Language.setCustom(Word.WELCOME_SITE_TAB_TITLE, n -> welcome.setName(n));
         }
         return welcome;

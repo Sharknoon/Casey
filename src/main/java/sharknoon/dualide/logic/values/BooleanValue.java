@@ -15,21 +15,34 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
+
 /**
  *
  * @author Josua Frank
  */
-public final class BooleanValue extends Value<Boolean>{
-    
-    public BooleanValue(Boolean value) {
+public final class BooleanValue extends Value<Boolean> {
+
+    private static final boolean DEFAULT = false;
+    public static final BooleanValue FALSE = new BooleanValue(false);
+    public static final BooleanValue TRUE = new BooleanValue(false);
+
+    public BooleanValue() {
+        super(DEFAULT);
+    }
+
+    public BooleanValue(boolean value) {
         super(value);
     }
 
-    public static final Boolean DEFAULT = false;
-    
     @Override
-    public Boolean getDefaultValue() {
+    Boolean getDefault() {
         return DEFAULT;
     }
-    
+
+    @Override
+    public boolean equals(Value other) {
+        return Objects.equals(getValue(), other.getValue());
+    }
+
 }

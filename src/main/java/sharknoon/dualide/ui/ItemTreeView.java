@@ -17,11 +17,10 @@ package sharknoon.dualide.ui;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javafx.scene.control.TreeItem;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -94,7 +93,7 @@ public class ItemTreeView {
         if (!ITEMS.containsKey(item)) {
             createAndGetTreeItem(item);
         }
-        if (isWelcome && item.getType() == Type.PROJECT) {
+        if (isWelcome && item.getType() == ItemType.PROJECT) {
             MainController.getTreeView().setRoot(ITEMS.get(item));
             isWelcome = false;
         }

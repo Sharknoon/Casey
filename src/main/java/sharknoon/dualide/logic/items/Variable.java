@@ -19,8 +19,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.variable.VariableSite;
 
 /**
  *
@@ -28,8 +26,8 @@ import sharknoon.dualide.ui.sites.variable.VariableSite;
  */
 public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
-    private ObjectProperty<Class> clazz = new SimpleObjectProperty<>();
-    private BooleanProperty modifiable = new SimpleBooleanProperty(true);
+    private final ObjectProperty<Class> type = new SimpleObjectProperty<>();
+    private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
 
     private Variable() {
         super();
@@ -40,7 +38,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     }
 
     public ObjectProperty<Class> classProperty() {
-        return clazz;
+        return type;
     }
 
     public BooleanProperty modifiableProperty() {

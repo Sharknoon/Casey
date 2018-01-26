@@ -27,7 +27,10 @@ import java.util.concurrent.CompletableFuture;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import org.dizitart.no2.IndexType;
 import org.dizitart.no2.objects.Id;
+import org.dizitart.no2.objects.Index;
+import org.dizitart.no2.objects.Indices;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.utils.settings.Database;
 
@@ -36,6 +39,9 @@ import sharknoon.dualide.utils.settings.Database;
  *
  * @author Josua Frank
  */
+@Indices(
+        @Index(value = "path")
+)
 public class RecentProject {
 
     @Id

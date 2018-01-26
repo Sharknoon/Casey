@@ -23,12 +23,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.hildan.fxgson.FxGson;
+import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.ui.sites.Dialogs;
 import sharknoon.dualide.utils.settings.Logger;
 
 /**
@@ -38,27 +40,30 @@ import sharknoon.dualide.utils.settings.Logger;
 public class Serialisation {
 
     private static final RuntimeTypeAdapterFactory<Item> ITEM_ADAPTER = RuntimeTypeAdapterFactory
-            .of(Item.class, "type")
-            .registerSubtype(sharknoon.dualide.logic.items.Class.class)
+            .of(Item.class, "item")
+            .registerSubtype(Class.class)
             .registerSubtype(Function.class)
-            .registerSubtype(sharknoon.dualide.logic.items.Package.class)
+            .registerSubtype(Package.class)
             .registerSubtype(Project.class)
             .registerSubtype(Variable.class);
-    private static final Gson GSON = FxGson
+    public static final Gson GSON = FxGson
             .fullBuilder()
             .setPrettyPrinting()
-            .registerTypeHierarchyAdapter(java.lang.Class.class, new ClassTypeAdapter())
+            // Handles the abstract class Item to write the actual type of the item into the json
             .registerTypeAdapterFactory(ITEM_ADAPTER)
+            //calls the method postProcess() in the class Item todo some further initialisation
             .registerTypeAdapterFactory(new PostProcessingEnabler())
             .create();
 
     private static Optional<Project> deserializeProject(String json) {
+        Optional<Project> result = Optional.empty();
         try {
-            return Optional.ofNullable(GSON.fromJson(json, Project.class));
+            result = Optional.ofNullable(GSON.fromJson(json, Project.class));
         } catch (JsonSyntaxException e) {
-            Logger.error("Could not load Project", e);
+            Dialogs.showErrorDialog(Dialogs.Errors.PROJECT_CORRUPT_DIALOG, e);
+            Logger.warning("Could not load Project", e);
         }
-        return Optional.empty();
+        return result;
     }
 
     private static String serializeProject(Item item) {
@@ -68,6 +73,12 @@ public class Serialisation {
     public static Optional<Project> loadProject(Path path) {
         try {
             String json = new String(Files.readAllBytes(path));
+            if (json.isEmpty()) {
+                Exception e = new FileEmptyException("The Project file seems to be empty");
+                Dialogs.showErrorDialog(Dialogs.Errors.PROJECT_CORRUPT_DIALOG, e);
+                Logger.warning("Could not load Project", e);
+                return Optional.empty();
+            }
             Optional<Project> project = deserializeProject(json);
             project.ifPresent(p -> p.setSaveFile(path));
             return project;
@@ -88,5 +99,13 @@ public class Serialisation {
         } catch (IOException ex) {
             Logger.error("Could not save File", ex);
         }
+    }
+
+    public static class FileEmptyException extends Exception {
+
+        public FileEmptyException(String message) {
+            super(message);
+        }
+
     }
 }

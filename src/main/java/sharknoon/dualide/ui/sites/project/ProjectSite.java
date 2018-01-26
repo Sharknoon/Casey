@@ -40,7 +40,7 @@ import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
@@ -89,7 +89,7 @@ public class ProjectSite extends Site<Project> {
         Button buttonAddPackage = createButton(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Package package_ = Item.createItem(Type.PACKAGE, getItem(), name.get());
+                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get());
                 ItemTreeView.selectItem(package_);
             }
 

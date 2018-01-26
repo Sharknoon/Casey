@@ -15,9 +15,7 @@
  */
 package sharknoon.dualide.logic.values;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 import sharknoon.dualide.logic.operations.OperationType;
 import static sharknoon.dualide.logic.operations.OperationType.*;
@@ -28,21 +26,21 @@ import sharknoon.dualide.utils.collection.Collections;
  * @author Josua Frank
  */
 public enum ValueType {
-    NUMBER(NumberValue.class, ADD),
-    BOOLEAN(BooleanValue.class),
-    TEXT(TextValue.class),
-    OBJECT(ObjectValue.class);
+    NUMBER(NumberValue.class, EnumSet.of(ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO)),
+    BOOLEAN(BooleanValue.class, EnumSet.of(EQUALS)),
+    TEXT(TextValue.class, EnumSet.of(null)),
+    OBJECT(ObjectValue.class, EnumSet.of(null));
 
     private final Class<? extends Value> type;
-    private final Set<OperationType> operations;
+    private final EnumSet<OperationType> operations;
 
-    private ValueType(Class<? extends Value> type, OperationType... operations) {
+    private ValueType(Class<? extends Value> type, EnumSet<OperationType> operations) {
         this.type = type;
-        this.operations = Collections.silentUnmodifiableSet(new HashSet<>(Arrays.asList(operations)));
+        this.operations = operations;
     }
 
     public Set<OperationType> getOperationTypes() {
-        return operations;
+        return Collections.silentUnmodifiableSet(operations);
     }
 
     public static Set<ValueType> getAll() {

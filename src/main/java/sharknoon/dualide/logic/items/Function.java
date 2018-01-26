@@ -15,11 +15,6 @@
  */
 package sharknoon.dualide.logic.items;
 
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
-
 /**
  *
  * @author Josua Frank

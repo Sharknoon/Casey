@@ -25,6 +25,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.project.ProjectSite;
 import sharknoon.dualide.ui.sites.welcome.RecentProject;
@@ -42,18 +43,25 @@ public class Project extends Item<Project, Item, Package> {
 
     private Project() {
         super();
-        currentProject.set(this);
     }
 
     protected Project(Welcome parent, String name) {
         super(parent, name);
-        currentProject.set(this);
+        init();
     }
 
     @Override
     public void postProcess() {
         super.postProcess();
+        init();
         ItemTreeView.refresh();
+    }
+
+    private void init() {
+        currentProject.set(this);
+        MainApplication.registerExitable(() -> {
+            save();
+        });
     }
 
     public Optional<Path> getSaveFile() {

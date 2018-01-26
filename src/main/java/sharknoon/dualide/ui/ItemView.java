@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.ui;
 
 /**
  *
  * @author Josua Frank
  */
-public class DivideOperator extends BiOperator<NumberValue, NumberValue, NumberValue> {
-
-    @Override
-    public NumberValue getValue() {
-        return new NumberValue(firstArgument.getValue() / secondArgument.getValue());
-    }
-
+public class ItemView {
+    
 }

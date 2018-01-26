@@ -37,7 +37,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
@@ -87,14 +87,14 @@ public class ClassSite extends Site<Class> {
         Button buttonAddFunction = createButton(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_FUNCTION_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Function fun = Item.createItem(Type.FUNCTION, getItem(), name.get());
+                Function fun = Item.createItem(ItemType.FUNCTION, getItem(), name.get());
                 ItemTreeView.selectItem(fun);
             }
         });
         Button buttonAddVariable = createButton(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_VARIABLE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Variable var = Item.createItem(Type.VARIABLE, getItem(), name.get());
+                Variable var = Item.createItem(ItemType.VARIABLE, getItem(), name.get());
                 ItemTreeView.selectItem(var);
             }
         });

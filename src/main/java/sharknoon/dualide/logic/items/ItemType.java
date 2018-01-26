@@ -17,8 +17,6 @@ package sharknoon.dualide.logic.items;
 
 import java.util.HashMap;
 import java.util.Map;
-import javafx.beans.property.MapProperty;
-import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import sharknoon.dualide.utils.language.Language;
@@ -27,9 +25,8 @@ import sharknoon.dualide.utils.language.Word;
 /**
  *
  * @author Josua Frank
- * @param <T>
  */
-public enum Type {
+public enum ItemType {
     CLASS(Class.class),
     FUNCTION(Function.class),
     PACKAGE(Package.class),
@@ -38,22 +35,23 @@ public enum Type {
     WELCOME(Welcome.class);
 
     private final java.lang.Class<? extends Item> type;
+    //Language dependent name, e.g. 'Klasse' in german, 'class' in english
     private final transient StringProperty name = new SimpleStringProperty();
-    private static final transient Map<java.lang.Class<? extends Item>, Type> TYPES = new HashMap<>();
+    private static final transient Map<java.lang.Class<? extends Item>, ItemType> TYPES = new HashMap<>();
 
-    private Type(java.lang.Class<? extends Item> type) {
+    private ItemType(java.lang.Class<? extends Item> type) {
         this.type = type;
         setTypeName();
     }
 
     static {
-        for (Type value : Type.values()) {
+        for (ItemType value : ItemType.values()) {
             TYPES.put(value.type, value);
         }
     }
 
-    public static Type valueOf(java.lang.Class<? extends Item> item) {
-        return TYPES.get(item);
+    public static <O extends Item> ItemType valueOf(O item) {
+        return TYPES.get(item.getClass());
     }
 
     private void setTypeName() {

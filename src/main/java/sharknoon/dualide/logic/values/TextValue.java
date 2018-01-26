@@ -15,21 +15,32 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
+
 /**
  *
  * @author Josua Frank
  */
 public final class TextValue extends Value<String> {
-    
+
+    private static final String DEFAULT = "";
+
+    public TextValue() {
+        super(DEFAULT);
+    }
+
     public TextValue(String value) {
         super(value);
     }
 
-    public static final String DEFAULT = "";
-    
     @Override
-    public String getDefaultValue() {
+    String getDefault() {
         return DEFAULT;
     }
-    
+
+    @Override
+    public boolean equals(Value other) {
+        return Objects.equals(getValue(), other.getValue());
+    }
+
 }

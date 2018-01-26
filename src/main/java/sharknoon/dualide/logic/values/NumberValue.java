@@ -15,21 +15,32 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
+
 /**
  *
  * @author Josua Frank
  */
 public final class NumberValue extends Value<Double> {
-    
-    public NumberValue(Double value) {
+
+    private static final double DEFAULT = 0.0;
+
+    public NumberValue() {
+        super(DEFAULT);
+    }
+
+    public NumberValue(double value) {
         super(value);
     }
 
-    public static final Double DEFAULT = 0.0;
-    
     @Override
-    public Double getDefaultValue() {
+    Double getDefault() {
         return DEFAULT;
     }
-    
+
+    @Override
+    public boolean equals(Value other) {
+        return Objects.equals(getValue(), other.getValue());
+    }
+
 }

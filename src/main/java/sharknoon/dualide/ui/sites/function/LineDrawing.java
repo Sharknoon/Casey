@@ -26,10 +26,10 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  */
 public class LineDrawing {
 
-    private final FunctionSite flowchart;
+    private final FunctionSite functionSite;
 
-    public LineDrawing(FunctionSite flowchart) {
-        this.flowchart = flowchart;
+    public LineDrawing(FunctionSite functionSite) {
+        this.functionSite = functionSite;
     }
 
     private boolean vertical = true;

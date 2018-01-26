@@ -51,7 +51,7 @@ public class Background implements Exitable {
     private static ScheduledFuture imageChangingScheduler;
     private static ImageView toBeResizedAsSoonAsAImageIsInIt = null;
 
-    public static void setBackground(ImageView imageView1, ImageView imageView2) {
+    public static void init(ImageView imageView1, ImageView imageView2) {
         Background wb = new Background(imageView1, imageView2);
     }
 
@@ -60,15 +60,19 @@ public class Background implements Exitable {
         view2 = imageView2;
         reloadImages();
         setDuration(1);
-        MainApplication.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            stageWidth = newValue.doubleValue();
-            resizeImage(view1);
-            resizeImage(view2);
+        MainApplication.registerInitializable((scene) -> {
+            scene.widthProperty().addListener((observable, oldValue, newValue) -> {
+                stageWidth = newValue.doubleValue();
+                resizeImage(view1);
+                resizeImage(view2);
+            });
         });
-        MainApplication.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            stageHeight = newValue.doubleValue();
-            resizeImage(view1);
-            resizeImage(view2);
+        MainApplication.registerInitializable((scene) -> {
+            scene.heightProperty().addListener((observable, oldValue, newValue) -> {
+                stageHeight = newValue.doubleValue();
+                resizeImage(view1);
+                resizeImage(view2);
+            });
         });
         fadeToView1 = new Timeline(
                 new KeyFrame(UISettings.workspaceBackgroundFadingDuration,

@@ -15,19 +15,28 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
+import sharknoon.dualide.utils.settings.Logger;
+
 /**
  *
  * @author Josua Frank
  */
-public class ObjectValue extends Value<Object> {
+public final class ObjectValue extends Value<Object> {
 
-    public ObjectValue(Object object) {
-        super(object);
+    public ObjectValue(Object value) {
+        super(value);
     }
 
     @Override
-    public Object getDefaultValue() {
+    Object getDefault() {
+        Logger.fatalError("THIS METHOD SHOULD NEVER BE CALLED!! NULL IS EVIL");
         return null;
+    }
+
+    @Override
+    public boolean equals(Value other) {
+        return Objects.equals(getValue(), other.getValue());
     }
 
 }

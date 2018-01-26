@@ -15,7 +15,8 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import java.util.List;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 import java.util.Set;
 import javafx.scene.Scene;
@@ -23,7 +24,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -66,13 +69,25 @@ public class Dialogs {
         COMMENT_VARIABLE_DIALOG
     }
 
+    public enum Errors implements DialogTypes {
+        PROJECT_CORRUPT_DIALOG
+    }
+
+    public static Optional showDialog(DialogTypes type, String... variables) {
+        return showDialog(type, EMPTY, null, variables);
+    }
+
     public static Optional showDialog(DialogTypes type, Set<String> forbiddenValues, String... variables) {
+        return showDialog(type, EMPTY, forbiddenValues, variables);
+    }
+
+    public static Optional showDialog(DialogTypes type, String defaultValue, Set<String> forbiddenValues, String... variables) {
         if (type instanceof TextInputs) {
-            return showTextInputDialog((TextInputs) type, forbiddenValues, variables);
+            return showTextInputDialog((TextInputs) type, defaultValue, forbiddenValues, variables);
         } else if (type instanceof Confirmations) {
             return showConfirmationDialog((Confirmations) type, variables);
         } else if (type instanceof TextEditors) {
-            return showTextEditorDialog((TextEditors) type, EMPTY, variables);
+            return showTextEditorDialog((TextEditors) type, defaultValue, variables);
         }
         return Optional.empty();
     }
@@ -201,7 +216,7 @@ public class Dialogs {
                         DELETE_VARIABLE_DIALOG_HEADER_TEXT,
                         DELETE_VARIABLE_DIALOG_CONTENT_TEXT,
                         Icon.TRASH,
-                        variables);                
+                        variables);
         }
         return Optional.empty();
     }
@@ -235,9 +250,22 @@ public class Dialogs {
                         COMMENT_VARIABLE_DIALOG_HEADER_TEXT,
                         Icon.COMMENTS,
                         defaultValue,
-                        variables);                
+                        variables);
         }
         return Optional.empty();
+    }
+
+    public static void showErrorDialog(Errors type, Exception exception, String... variables) {
+        switch (type) {
+            case PROJECT_CORRUPT_DIALOG:
+                showErrorDialog(
+                        PROJECT_CORRUPT_DIALOG_TITLE,
+                        PROJECT_CORRUPT_DIALOG_HEADER_TEXT,
+                        PROJECT_CORRUPT_DIALOG_CONTENT_TEXT,
+                        Icon.ERROR,
+                        exception,
+                        variables);
+        }
     }
 
     private static Optional<String> showTextInputDialog(Word title, Word headerText, Word conentText, Icon icon, String defaultValue, Set<String> forbiddenValues, String... variables) {
@@ -275,6 +303,32 @@ public class Dialogs {
         setIcon(icon, dialog);
         setStyle(dialog);
         return dialog.showAndWait();
+    }
+
+    private static void showErrorDialog(Word title, Word headerText, Word contentText, Icon icon, Exception exception, String... variables) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(fill(Language.get(title), variables));
+        alert.setHeaderText(fill(Language.get(headerText), variables));
+        alert.setContentText(fill(Language.get(contentText), variables));
+
+        if (exception != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            exception.printStackTrace(pw);
+            String exceptionText = sw.toString();
+
+            TextArea textArea = new TextArea(exceptionText);
+            textArea.setEditable(false);
+            textArea.setWrapText(true);
+            textArea.setMaxWidth(Double.MAX_VALUE);
+            textArea.setMaxHeight(Double.MAX_VALUE);
+
+            alert.getDialogPane().setExpandableContent(textArea);
+        }
+
+        setIcon(icon, alert);
+        setStyle(alert);
+        alert.showAndWait();
     }
 
     private static final String EMPTY = "";

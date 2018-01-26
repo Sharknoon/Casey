@@ -15,12 +15,14 @@
  */
 package sharknoon.dualide.misc;
 
+import javafx.scene.Scene;
+
 /**
  *
  * @author Josua Frank
  */
 public interface Initializable {
     
-    public void init();
+    public void init(Scene scene);
     
 }

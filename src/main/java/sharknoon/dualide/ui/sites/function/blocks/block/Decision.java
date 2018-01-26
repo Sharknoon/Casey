@@ -29,8 +29,8 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  */
 public class Decision extends Block {
 
-    public Decision(FunctionSite flowchart) {
-        super(flowchart);
+    public Decision(FunctionSite functionSite) {
+        super(functionSite);
     }
 
     @Override

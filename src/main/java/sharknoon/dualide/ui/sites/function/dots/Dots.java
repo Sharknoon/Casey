@@ -33,13 +33,13 @@ public class Dots {
     private static final HashSet<Dot> EMPTY = new HashSet<>();
     private static Dot mouseOverDot = null;
 
-    public static void registerDot(FunctionSite flowchart, Dot dot) {
-        if (DOTS.containsKey(flowchart)) {
-            DOTS.get(flowchart).add(dot);
+    public static void registerDot(FunctionSite functionSite, Dot dot) {
+        if (DOTS.containsKey(functionSite)) {
+            DOTS.get(functionSite).add(dot);
         } else {
             HashSet<Dot> dots = new HashSet<>();
             dots.add(dot);
-            DOTS.put(flowchart, dots);
+            DOTS.put(functionSite, dots);
         }
     }
 
@@ -59,9 +59,9 @@ public class Dots {
         return mouseOverDot;
     }
 
-    public static Optional<Dot> isOverDot(FunctionSite flowchart, double x, double y) {
+    public static Optional<Dot> isOverDot(FunctionSite functionSite, double x, double y) {
         return DOTS
-                .getOrDefault(flowchart, EMPTY)
+                .getOrDefault(functionSite, EMPTY)
                 .stream()
                 .filter(d -> d.getCenterX() == x && d.getCenterY() == y)
                 .findFirst();

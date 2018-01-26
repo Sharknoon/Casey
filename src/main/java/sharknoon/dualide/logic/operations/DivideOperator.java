@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.logic.operations;
+
+import sharknoon.dualide.logic.values.NumberValue;
 
 /**
  *
  * @author Josua Frank
  */
-public class BooleanValue extends Value<Boolean> {
-
-    private static final boolean DEFAULT = false;
-
-    public BooleanValue() {
-        super(DEFAULT);
-    }
-
-    public BooleanValue(boolean value) {
-        super(value);
-    }
+public class DivideOperator extends Operator<NumberValue, NumberValue> {
 
     @Override
-    Boolean getDefault() {
-        return DEFAULT;
+    public NumberValue calculateResult() {
+        return new NumberValue(
+                getParameters()
+                        .stream()
+                        .mapToDouble(p -> p.getValue())
+                        .reduce(0.0, (l, r) -> l / r)
+        );
     }
 
 }

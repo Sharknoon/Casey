@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.logic.operations;
+
+import sharknoon.dualide.logic.values.NumberValue;
+import sharknoon.dualide.logic.values.Value;
 
 /**
  *
  * @author Josua Frank
  */
-abstract class SingleOperator<R extends Value, A extends Value> extends Operator{
-    
+public class SubtractOperator extends Operator<NumberValue, NumberValue> {
+
+    @Override
+    public NumberValue calculateResult() {
+        return new NumberValue(
+                getParameters()
+                        .stream()
+                        .mapToDouble(p -> p.getValue())
+                        .reduce(0.0, (l, r) -> l - r)
+        );
+    }
+
 }

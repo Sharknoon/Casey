@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
+import sharknoon.dualide.utils.settings.Keyboard;
 import java.util.concurrent.CompletableFuture;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -59,7 +60,6 @@ public class FunctionSite extends Site<Function> {
     private final BlockMoving bm = new BlockMoving(this);
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
-    private final Keyboard kb = new Keyboard(this);
     private final LineDrawing ld = new LineDrawing(this);
 
     public FunctionSite(Function item) {
@@ -129,10 +129,6 @@ public class FunctionSite extends Site<Function> {
                 root.sceneToLocal(event.getSceneX(), event.getSceneY()),
                 new Point2D(event.getScreenX(), event.getScreenY()),
                 (Node) event.getSource());
-    }
-
-    public void onKeyReleased(KeyEvent event) {
-        kb.onKeyReleased(event);
     }
 
     public void onScroll(ScrollEvent event) {

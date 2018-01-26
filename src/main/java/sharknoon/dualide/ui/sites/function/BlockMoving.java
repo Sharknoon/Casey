@@ -30,7 +30,7 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  */
 public class BlockMoving {
 
-    private final FunctionSite flowchart;
+    private final FunctionSite functionSite;
     private double startX;
     private double startY;
     private int startGridX;
@@ -40,8 +40,8 @@ public class BlockMoving {
     boolean lastDragSwitch = false;
     boolean currentDragSwitch = true;
 
-    public BlockMoving(FunctionSite flowchart) {
-        this.flowchart = flowchart;
+    public BlockMoving(FunctionSite functionSite) {
+        this.functionSite = functionSite;
     }
 
     public void init() {
@@ -50,12 +50,12 @@ public class BlockMoving {
 
     public void onMousePressed(Point2D localMouse) {
         lastDragSwitch = !lastDragSwitch;
-        Block block = Blocks.getMovingBlock(flowchart);
+        Block block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }
         if (block.isSelected()) {
-            Blocks.getSelectedBlocks(flowchart).forEach(b -> {
+            Blocks.getSelectedBlocks(functionSite).forEach(b -> {
                 b.startX = b.getMinX();
                 b.startY = b.getMinY();
             });
@@ -70,7 +70,7 @@ public class BlockMoving {
     }
 
     public void onMouseDragged(Point2D localMouse) {
-        Block block = Blocks.getMovingBlock(flowchart);
+        Block block = Blocks.getMovingBlock(functionSite);
         if (block == null || Lines.isLineDrawing()) {
             return;
         }
@@ -83,7 +83,7 @@ public class BlockMoving {
         double deltaY = currentY - startY;
 
         if (block.isSelected()) {
-            Blocks.getSelectedBlocksGroup(flowchart).getBlocks().forEach(b -> {
+            Blocks.getSelectedBlocksGroup(functionSite).getBlocks().forEach(b -> {
                 b.setMinX(b.startX + deltaX);
                 b.setMinY(b.startY + deltaY);
             });
@@ -118,7 +118,7 @@ public class BlockMoving {
         lastGridY.put(block, currentGridY);
 
         if (block.isSelected()) {
-            Collection<Block> blocks = Blocks.getSelectedBlocks(flowchart);
+            Collection<Block> blocks = Blocks.getSelectedBlocks(functionSite);
             Map<Block, Double[]> futureShadows = new HashMap<>();
             boolean canMoveInX = true;
             boolean canMoveInY = true;
@@ -157,12 +157,12 @@ public class BlockMoving {
     }
 
     public void onMouseReleased() {
-        Block block = Blocks.getMovingBlock(flowchart);
+        Block block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }
         if (block.isSelected()) {
-            Blocks.getSelectedBlocks(flowchart).forEach(b -> {
+            Blocks.getSelectedBlocks(functionSite).forEach(b -> {
                 b.setMinXAnimated(b.getShadow().getTranslateX());
                 b.setMinYAnimated(b.getShadow().getTranslateY());
             });

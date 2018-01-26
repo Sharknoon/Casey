@@ -27,13 +27,13 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  */
 public class Selection {
 
-    private final FunctionSite flowchart;
+    private final FunctionSite functionSite;
     private final Rectangle selectionRectangle = new Rectangle();
     private double startX = 0;
     private double startY = 0;
 
     public Selection(FunctionSite controller) {
-        this.flowchart = controller;
+        this.functionSite = controller;
     }
 
     public void init() {
@@ -46,7 +46,7 @@ public class Selection {
         selectionRectangle.setStrokeWidth(1);
         selectionRectangle.setStroke(Color.BLUE);
         selectionRectangle.setVisible(false);
-        flowchart.add(selectionRectangle);
+        functionSite.add(selectionRectangle);
     }
 
     public void onMousePressed(Point2D localCoordinates) {
@@ -107,7 +107,7 @@ public class Selection {
         final double finalWidth = width;
         final double finalHight = hight;
 
-        Blocks.getAllBlocks(flowchart).stream().forEach(b -> {
+        Blocks.getAllBlocks(functionSite).stream().forEach(b -> {
             if (b.getMinX() > translateX
                     && b.getMinY() > translateY
                     && b.getMinX() + b.getWidth() < translateX + finalWidth
@@ -118,7 +118,7 @@ public class Selection {
             }
         });
 
-        Lines.getAllLines(flowchart).stream().forEach(l -> {
+        Lines.getAllLines(functionSite).stream().forEach(l -> {
             if (l.getMinX() > translateX
                     && l.getMinY() > translateY
                     && l.getMinX() + l.getWidth() < translateX + finalWidth
@@ -135,7 +135,7 @@ public class Selection {
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
         if (!Blocks.isMouseOverBlock() && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
-            Blocks.unselectAll(flowchart);
+            Blocks.unselectAll(functionSite);
         }
     }
 

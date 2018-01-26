@@ -27,12 +27,12 @@ import sharknoon.dualide.ui.sites.function.blocks.Blocks;
  */
 public class WorkspaceContextMenu {
 
-    private final FunctionSite flowchart;
+    private final FunctionSite functionSite;
     private ContextMenu menu;
     private Point2D origin;
 
-    public WorkspaceContextMenu(FunctionSite flowchart) {
-        this.flowchart = flowchart;
+    public WorkspaceContextMenu(FunctionSite functionSite) {
+        this.functionSite = functionSite;
     }
 
     public void init() {
@@ -70,13 +70,13 @@ public class WorkspaceContextMenu {
             MenuItem addNewProgressBlockItem = new MenuItem("Add Progress Block");
             MenuItem addNewEndBlockItem = new MenuItem("Add End Block");
             addNewDecisionBlockItem.setOnAction(e -> {
-                flowchart.addDecisionBlock(workspaceOrigin);
+                functionSite.addDecisionBlock(workspaceOrigin);
             });
             addNewProgressBlockItem.setOnAction(e -> {
-                flowchart.addProcessBlock(workspaceOrigin);
+                functionSite.addProcessBlock(workspaceOrigin);
             });
             addNewEndBlockItem.setOnAction(e -> {
-                flowchart.addEndBlock(workspaceOrigin);
+                functionSite.addEndBlock(workspaceOrigin);
             });
             menu.getItems().clear();
             menu.getItems().addAll(addNewDecisionBlockItem, addNewProgressBlockItem, addNewEndBlockItem);

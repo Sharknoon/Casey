@@ -52,7 +52,7 @@ import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.ui.sites.Site;
 
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.utils.settings.Props;
 
@@ -187,7 +187,7 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     private void createProject(String name) {
-        Project project = Item.createItem(Type.PROJECT, null, name);
+        Project project = Item.createItem(ItemType.PROJECT, null, name);
         RecentProject.updateProject(project);
         ItemTreeView.selectItem(project);
         ItemTabPane.hideRootTab();

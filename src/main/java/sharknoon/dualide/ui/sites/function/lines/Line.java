@@ -47,7 +47,7 @@ public class Line implements Moveable {
 
     private final Polyline line;
     private final Dot startDot;
-    private final FunctionSite flowchart;
+    private final FunctionSite functionSite;
     private final List<Point2D> points = new ArrayList<>();
     private final Timeline shadowShowTimeline = new Timeline();
     private final Timeline shadowRemoveTimeline = new Timeline();
@@ -56,15 +56,15 @@ public class Line implements Moveable {
     private boolean selected;
     private Bounds lineBounds = new BoundingBox(0, 0, 0, 0);
 
-    public Line(Dot startDot, FunctionSite flowchart) {
+    public Line(Dot startDot, FunctionSite functionSite) {
         this.startDot = startDot;
-        this.flowchart = flowchart;
+        this.functionSite = functionSite;
         line = initLine();
         addDropShadowEffect();
         addPoint(startDot.getCenterX(), startDot.getCenterY());
         addCorner();
         line.setOnMouseClicked(this::onMouseClicked);
-        this.flowchart.add(line);
+        this.functionSite.add(line);
     }
 
     private static Polyline initLine() {
@@ -80,13 +80,13 @@ public class Line implements Moveable {
     }
 
     public void remove() {
-        flowchart.remove(line);
+        functionSite.remove(line);
         startDot.removeLine();
         if (endDot != null) {
             endDot.removeLine();
         }
         Lines.removeLineDrawing();
-        Lines.unregisterLine(flowchart, this);
+        Lines.unregisterLine(functionSite, this);
     }
 
     public double getLastCornerX() {
@@ -141,12 +141,12 @@ public class Line implements Moveable {
 
     public boolean canExtendTo(double x, double y) {
         boolean noBlock = Blocks
-                .getAllBlocks(flowchart)
+                .getAllBlocks(functionSite)
                 .stream()
                 .noneMatch(block -> block.getBounds().contains(x, y));
 
         if (!noBlock) {
-            Optional<Dot> dot = Dots.isOverDot(flowchart, x, y);
+            Optional<Dot> dot = Dots.isOverDot(functionSite, x, y);
             if (dot.isPresent() && !dot.get().hasLine()) {
                 noBlock = true;
                 overDot = dot.get();
@@ -304,8 +304,8 @@ public class Line implements Moveable {
      * @return
      */
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
-        Stream<Line> lines = Lines.getAllLines(flowchart).stream();
-        Stream<Block> blocks = Blocks.getAllBlocks(flowchart).stream();
+        Stream<Line> lines = Lines.getAllLines(functionSite).stream();
+        Stream<Block> blocks = Blocks.getAllBlocks(functionSite).stream();
         Stream<Moveable> moveables = Stream.concat(lines, blocks);
         return false;
     }

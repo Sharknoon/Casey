@@ -120,13 +120,15 @@ import com.google.gson.stream.JsonWriter;
  *       .registerSubtype(Circle.class)
  *       .registerSubtype(Diamond.class);
  * }</pre>
+ *
+ * @param <T>
  */
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
     private final Class<?> baseType;
     private final String typeFieldName;
-    private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
-    private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+    private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
+    private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<>();
 
     private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName) {
         if (typeFieldName == null || baseType == null) {
@@ -140,23 +142,35 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
      * Creates a new runtime type adapter using for {@code baseType} using {@code
      * typeFieldName} as the type field name. Type field names are case
      * sensitive.
+     *
+     * @param <T>
+     * @param baseType
+     * @param typeFieldName
+     * @return
      */
     public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
-        return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName);
+        return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName);
     }
 
     /**
      * Creates a new runtime type adapter for {@code baseType} using
      * {@code "type"} as the type field name.
+     *
+     * @param <T>
+     * @param baseType
+     * @return
      */
     public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
-        return new RuntimeTypeAdapterFactory<T>(baseType, "type");
+        return new RuntimeTypeAdapterFactory<>(baseType, "type");
     }
 
     /**
      * Registers {@code type} identified by {@code label}. Labels are case
      * sensitive.
      *
+     * @param type
+     * @param label
+     * @return
      * @throws IllegalArgumentException if either {@code type} or {@code label}
      * have already been registered on this type adapter.
      */
@@ -176,6 +190,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
      * Registers {@code type} identified by its {@link Class#getSimpleName simple
      * name}. Labels are case sensitive.
      *
+     * @param type
+     * @return
      * @throws IllegalArgumentException if either {@code type} or its simple
      * name have already been registered on this type adapter.
      */
@@ -183,20 +199,21 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         return registerSubtype(type, type.getSimpleName());
     }
 
+    @Override
     public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
         if (type.getRawType() != baseType) {
             return null;
         }
 
         final Map<String, TypeAdapter<?>> labelToDelegate
-                = new LinkedHashMap<String, TypeAdapter<?>>();
+                = new LinkedHashMap<>();
         final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
-                = new LinkedHashMap<Class<?>, TypeAdapter<?>>();
-        for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
+                = new LinkedHashMap<>();
+        labelToSubtype.entrySet().forEach((entry) -> {
             TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
             labelToDelegate.put(entry.getKey(), delegate);
             subtypeToDelegate.put(entry.getValue(), delegate);
-        }
+        });
 
         return new TypeAdapter<R>() {
             @Override
@@ -234,9 +251,9 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
                 }
                 JsonObject clone = new JsonObject();
                 clone.add(typeFieldName, new JsonPrimitive(label));
-                for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
+                jsonObject.entrySet().forEach((e) -> {
                     clone.add(e.getKey(), e.getValue());
-                }
+                });
                 Streams.write(clone, out);
             }
         }.nullSafe();

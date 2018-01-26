@@ -42,7 +42,7 @@ import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;

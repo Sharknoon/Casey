@@ -13,31 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.logic.operations;
+
+import sharknoon.dualide.logic.values.NumberValue;
 
 /**
  *
  * @author Josua Frank
  */
-abstract class BiOperator<R extends Returnable, A1 extends Returnable, A2 extends Returnable> extends Operator<R> {
+public class MultiplyOperator extends Operator<NumberValue, NumberValue> {
 
-    public A1 firstArgument;
-    public A2 secondArgument;
-
-    public A1 getFirstArgument() {
-        return firstArgument;
-    }
-
-    public A2 getSecondArgument() {
-        return secondArgument;
-    }
-
-    public void setFirstArgument(A1 firstArgument) {
-        this.firstArgument = firstArgument;
-    }
-
-    public void setSecondArgument(A2 secondArgument) {
-        this.secondArgument = secondArgument;
+    @Override
+    public NumberValue calculateResult() {
+        return new NumberValue(
+                getParameters()
+                        .stream()
+                        .mapToDouble(p -> p.getValue())
+                        .reduce(0.0, (l, r) -> l * r)
+        );
     }
 
 }

@@ -29,14 +29,14 @@ import sharknoon.dualide.ui.sites.function.dots.Dot;
  */
 public class Lines {
 
-    public static Line createLine(FunctionSite flowchart, Dot dot) {
-        Line line = new Line(dot, flowchart);
-        if (LINES.containsKey(flowchart)) {
-            LINES.get(flowchart).add(line);
+    public static Line createLine(FunctionSite functionSite, Dot dot) {
+        Line line = new Line(dot, functionSite);
+        if (LINES.containsKey(functionSite)) {
+            LINES.get(functionSite).add(line);
         } else {
             List<Line> lines = new ArrayList<>();
             lines.add(line);
-            LINES.put(flowchart, lines);
+            LINES.put(functionSite, lines);
         }
         setLineDrawing(line);
         return line;
@@ -63,13 +63,13 @@ public class Lines {
         return lineDrawing;
     }
 
-    public static Collection<Line> getAllLines(FunctionSite flowchart) {
-        return LINES.getOrDefault(flowchart, EMPTY);
+    public static Collection<Line> getAllLines(FunctionSite functionSite) {
+        return LINES.getOrDefault(functionSite, EMPTY);
     }
 
-    public static void unregisterLine(FunctionSite flowchart, Line line) {
-        if (LINES.containsKey(flowchart)) {
-            LINES.get(flowchart).remove(line);
+    public static void unregisterLine(FunctionSite functionSite, Line line) {
+        if (LINES.containsKey(functionSite)) {
+            LINES.get(functionSite).remove(line);
         }
     }
 

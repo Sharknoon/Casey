@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.operations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import sharknoon.dualide.logic.values.Value;
  * @param <PV> Parameter value, if the type is unimportant, use the abstract
  * type value
  */
-public abstract class Operation<RV extends Value, PV extends Value> {
+public abstract class Operator<RV extends Value, PV extends Value> {
 
     private final MapProperty<Integer, PV> parameters = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>()));
 
@@ -53,8 +54,8 @@ public abstract class Operation<RV extends Value, PV extends Value> {
         return Optional.ofNullable(parameters.get(index));
     }
 
-    public Collection<PV> getParameters() {
-        return parameters.values();
+    public List<PV> getParameters() {
+        return new ArrayList<>(parameters.values());
     }
 
     public abstract RV calculateResult();

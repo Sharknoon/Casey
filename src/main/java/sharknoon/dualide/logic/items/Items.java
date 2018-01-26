@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.logic.items;
+
+import javafx.beans.property.ReadOnlyMapWrapper;
+import javafx.collections.FXCollections;
 
 /**
  *
  * @author Josua Frank
- * @param <T>
  */
-public interface Returnable<T> {
-
-    public T getValue();
+public class Items {
+    
+    private static ReadOnlyMapWrapper<String, Item> ITEMS = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
+    
+    static void registerItem(Item item) {
+        ITEMS.put(item.getFullName(), item);
+        item.fullNameProperty().addListener((observable, oldValue, newValue) -> {
+            ITEMS.remove(oldValue);
+            ITEMS.put(newValue, item);
+        });
+    }
+    
 }

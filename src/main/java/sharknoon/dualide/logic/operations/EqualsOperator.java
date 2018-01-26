@@ -15,21 +15,28 @@
  */
 package sharknoon.dualide.logic.operations;
 
-import sharknoon.dualide.logic.values.NumberValue;
+import java.util.List;
+import sharknoon.dualide.logic.values.BooleanValue;
+import sharknoon.dualide.logic.values.Value;
 
 /**
  *
  * @author Josua Frank
  */
-public class AddOperation extends Operation<NumberValue, NumberValue> {
+public class EqualsOperator extends Operator<BooleanValue, Value> {
 
     @Override
-    public NumberValue calculateResult() {
-        return new NumberValue(getParameters()
-                .stream()
-                .mapToDouble(NumberValue::getValue)
-                .sum()
-        );
+    public BooleanValue calculateResult() {
+        List<Value> parameters = getParameters();
+        if (parameters.size() < 2) {
+            return BooleanValue.FALSE;
+        }
+        for (int i = 1; i < parameters.size(); i++) {
+            if (!parameters.get(i - 1).equals(parameters.get(i))) {
+                return BooleanValue.FALSE;
+            }
+        }
+        return BooleanValue.TRUE;
     }
 
 }

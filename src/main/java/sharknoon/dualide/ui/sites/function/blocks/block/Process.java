@@ -29,8 +29,8 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  */
 public class Process extends Block {
 
-    public Process(FunctionSite flowchart) {
-        super(flowchart);
+    public Process(FunctionSite functionSite) {
+        super(functionSite);
     }
 
     @Override

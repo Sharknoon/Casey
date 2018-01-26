@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.values;
+package sharknoon.dualide.logic.operations;
+
+import sharknoon.dualide.logic.values.NumberValue;
 
 /**
  *
  * @author Josua Frank
  */
-public class TextValue extends Value<String> {
-
-    private static final String DEFAULT = "";
-
-    public TextValue() {
-        super(DEFAULT);
-    }
-
-    public TextValue(String value) {
-        super(value);
-    }
+public class AddOperator extends Operator<NumberValue, NumberValue> {
 
     @Override
-    String getDefault() {
-        return DEFAULT;
+    public NumberValue calculateResult() {
+        return new NumberValue(
+                getParameters()
+                        .stream()
+                        .mapToDouble(p -> p.getValue())
+                        .reduce(0.0, (l, r) -> l + r)
+        );
     }
 
 }

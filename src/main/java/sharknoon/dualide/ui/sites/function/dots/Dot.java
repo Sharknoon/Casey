@@ -74,7 +74,7 @@ public class Dot {
                 circle.setCenterY(0);
                 break;
         }
-        Dots.registerDot(block.getFlowchart(), this);
+        Dots.registerDot(block.getfunctionSite(), this);
     }
 
     public void addTo(Pane pane) {
@@ -135,7 +135,7 @@ public class Dot {
 
     public void onMouseClicked(MouseEvent event) {
         if (!Lines.isLineDrawing()) {
-            line = Lines.createLine(block.getFlowchart(), this);
+            line = Lines.createLine(block.getfunctionSite(), this);
         } else {
             line = Lines.getDrawingLine();
             Lines.removeLineDrawing();

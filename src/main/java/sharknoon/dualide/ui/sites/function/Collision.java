@@ -27,17 +27,17 @@ public class Collision {
 
     private static final Map<FunctionSite, Map<Moveable, double[]>> OCCUPIED_POINTS = new HashMap<>();
 
-    public static void update(FunctionSite flowchart, Moveable moveable) {
-        if (OCCUPIED_POINTS.containsKey(flowchart)) {
-            OCCUPIED_POINTS.get(flowchart).put(moveable, moveable.getPoints());
+    public static void update(FunctionSite functionSite, Moveable moveable) {
+        if (OCCUPIED_POINTS.containsKey(functionSite)) {
+            OCCUPIED_POINTS.get(functionSite).put(moveable, moveable.getPoints());
         } else {
             HashMap<Moveable, double[]> map = new HashMap<>();
             map.put(moveable, moveable.getPoints());
-            OCCUPIED_POINTS.put(flowchart, map);
+            OCCUPIED_POINTS.put(functionSite, map);
         }
     }
     
-    public static boolean isSpaceFree(FunctionSite flowchart, double x, double y){
+    public static boolean isSpaceFree(FunctionSite functionSite, double x, double y){
         return false;
     }
 }

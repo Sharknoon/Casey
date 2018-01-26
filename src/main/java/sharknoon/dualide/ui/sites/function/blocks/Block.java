@@ -65,8 +65,8 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final Timeline movingYTimeline = new Timeline();
     //The 1-4 dots of a block
     private final List<Dot> dots = new ArrayList<>();
-    //The current flowchart of this block
-    private final FunctionSite flowchart;
+    //The current functionSite of this block
+    private final FunctionSite functionSite;
     //The current state of the block
     private boolean selected;
     //The contextmenu for a block
@@ -76,10 +76,10 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     /**
      *
-     * @param flowchart
+     * @param functionSite
      */
-    public Block(FunctionSite flowchart) {
-        this.flowchart = flowchart;
+    public Block(FunctionSite functionSite) {
+        this.functionSite = functionSite;
         shapeHeight = initShapeHeight();
         shapeWidth = initShapeWidth();
         dotSides = initDotSides();
@@ -90,7 +90,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
         createDots();
-        Blocks.registerBlock(flowchart, this);
+        Blocks.registerBlock(functionSite, this);
     }
 
     /**
@@ -165,12 +165,12 @@ public abstract class Block implements Moveable, MouseConsumable {
     @Override
     public void onMousePressed(MouseEvent event) {
         Blocks.setMouseOverBlock(this);
-        Blocks.setMovingBlock(flowchart, this);
+        Blocks.setMovingBlock(functionSite, this);
         hideDots();
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
             if (selected) {
-                Blocks.getAllBlocks(flowchart).stream()
+                Blocks.getAllBlocks(functionSite).stream()
                         .filter(Block::isSelected)
                         .forEach(Block::highlight);
             } else {
@@ -190,7 +190,7 @@ public abstract class Block implements Moveable, MouseConsumable {
             showDots();
         }
         if (isSelected()) {
-            Blocks.getAllBlocks(flowchart).stream()
+            Blocks.getAllBlocks(functionSite).stream()
                     .filter(Block::isSelected)
                     .forEach(Block::unhighlight);
         } else {
@@ -201,7 +201,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     @Override
     public void onMouseClicked(MouseEvent event) {
         if (!event.isControlDown()) {
-            Blocks.getAllBlocks(flowchart).forEach(Block::unselect);
+            Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
         }
         select();
     }
@@ -345,7 +345,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
         boolean noBlock = Blocks
-                .getAllBlocks(flowchart)
+                .getAllBlocks(functionSite)
                 .stream()
                 .filter(b -> ignoreSelection || !b.isSelected())
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
@@ -362,10 +362,10 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     /**
      *
-     * @return The flowchart, in which this block is in
+     * @return The functionSite, in which this block is in
      */
-    public FunctionSite getFlowchart() {
-        return flowchart;
+    public FunctionSite getfunctionSite() {
+        return functionSite;
     }
 
     /**
@@ -518,7 +518,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Destroyes this block completely
      */
     public void remove() {
-        Blocks.unregisterBlock(flowchart, this);
+        Blocks.unregisterBlock(functionSite, this);
         ((Pane) pane.getParent()).getChildren().removeAll(predictionShadowShape, pane);
     }
 

@@ -35,6 +35,7 @@ import javafx.scene.layout.Priority;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
@@ -134,11 +135,11 @@ public class VariableSite extends Site<Variable> {
 
         gridPaneContent.addRow(0, labelClass);
 
-        ComboBox<Class> comboBoxClasses = new ComboBox<>();
-        comboBoxClasses.itemsProperty().bindBidirectional(Class.classesProperty());
-        comboBoxClasses.valueProperty().bindBidirectional(getItem().classProperty());
+        ComboBox<Class> comboBoxTypes = new ComboBox<>();
+        comboBoxTypes.itemsProperty().bindBidirectional(Class.classesProperty());
+        comboBoxTypes.valueProperty().bindBidirectional(getItem().classProperty());
         getItem().nameProperty().addListener((observable, oldValue, newValue) -> {
-            comboBoxClasses.itemsProperty().bindBidirectional(Class.classesProperty());
+            comboBoxTypes.itemsProperty().bindBidirectional(Class.classesProperty());
         });
 
         CheckBox checkBoxFinal = new CheckBox();
@@ -146,7 +147,7 @@ public class VariableSite extends Site<Variable> {
         Language.set(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, checkBoxFinal);
         checkBoxFinal.setDisable(true);//TMP to be implemented in the future
 
-        gridPaneContent.addRow(1, comboBoxClasses, checkBoxFinal);
+        gridPaneContent.addRow(1, comboBoxTypes, checkBoxFinal);
         
         
     }

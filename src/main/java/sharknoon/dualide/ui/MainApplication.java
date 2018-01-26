@@ -16,8 +16,7 @@
 package sharknoon.dualide.ui;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -35,28 +34,20 @@ import sharknoon.dualide.utils.settings.Ressources;
  */
 public class MainApplication extends Application {
 
-    public static Stage stage;
-
     @Override
-    public void init() throws Exception {
-        INITIALIZABLES.forEach(Initializable::init);
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws IOException {
-        stage = primaryStage;
+    public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        Path fxmlPath = Ressources.createAndGetFile("sharknoon/dualide/ui/MainFXML.fxml", true);
-        Parent root = loader.load(Files.newInputStream(fxmlPath));
+        InputStream fxmlStream = Ressources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
+        Parent root = loader.load(fxmlStream);
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        INITIALIZABLES.forEach(i -> i.init(scene));
 
-        stage.setTitle("IDE");
+        stage.setTitle("DualIDE");
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
-
     }
 
     private static final List<Initializable> INITIALIZABLES = new ArrayList<>();

@@ -20,11 +20,14 @@ import java.util.Map;
 import java.util.Optional;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -36,7 +39,7 @@ public class ItemTabPane {
 
     private static final Map<Item, Tab> TABS = new HashMap<>();
     private static final Map<Tab, Item> ITEMS = new HashMap<>();
-    private static ObjectProperty<Item> selectedItem = new SimpleObjectProperty<>();
+    private static ReadOnlyObjectWrapper<Item> selectedItem = new ReadOnlyObjectWrapper<>();
 
     public static void init() {
         MainController
@@ -81,7 +84,7 @@ public class ItemTabPane {
         });
         TABS.put(item, newTab);
         ITEMS.put(newTab, item);
-        if (item.getType().equals(Welcome.class)) {
+        if (item.getType().equals(ItemType.WELCOME)) {
             newTab.setClosable(false);
         }
         tabPane.getTabs().add(newTab);
@@ -115,7 +118,7 @@ public class ItemTabPane {
         onItemAdded(Welcome.getWelcome());
     }
 
-    public static ObjectProperty<Item> selectedItemProperty() {
-        return selectedItem;
+    public static ReadOnlyObjectProperty<Item> selectedItemProperty() {
+        return selectedItem.getReadOnlyProperty();
     }
 }

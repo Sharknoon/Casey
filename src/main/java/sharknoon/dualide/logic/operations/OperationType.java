@@ -23,11 +23,16 @@ import java.util.Set;
  * @author Josua Frank
  */
 public enum OperationType {
-    ADD(AddOperation.class);
+    ADD(AddOperator.class),
+    SUBTRACT(SubtractOperator.class),
+    MULTIPLY(MultiplyOperator.class),
+    DIVIDE(DivideOperator.class),
+    MODULO(ModuloOperator.class),
+    EQUALS(EqualsOperator.class);
 
-    private final Class<? extends Operation> type;
+    private final Class<? extends Operator> type;
 
-    private OperationType(Class<? extends Operation> type) {
+    private OperationType(Class<? extends Operator> type) {
         this.type = type;
     }
 

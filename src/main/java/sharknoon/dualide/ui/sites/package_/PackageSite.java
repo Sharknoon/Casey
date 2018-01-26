@@ -47,7 +47,7 @@ import sharknoon.dualide.ui.sites.Dialogs.TextInputs;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
-import sharknoon.dualide.logic.items.Type;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 
 /**
@@ -92,28 +92,28 @@ public class PackageSite extends Site<Package> {
         Button buttonAddPackage = createButton(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Package package_ = Item.createItem(Type.PACKAGE, getItem(), name.get());
+                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get());
                 ItemTreeView.selectItem(package_);
             }
         });
         Button buttonAddClass = createButton(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, Icon.PLUSCLASS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_CLASS_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Class clazz = Item.createItem(Type.CLASS, getItem(), name.get());
+                Class clazz = Item.createItem(ItemType.CLASS, getItem(), name.get());
                 ItemTreeView.selectItem(clazz);
             }
         });
         Button buttonAddFunction = createButton(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_FUNCTION_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Function fun = Item.createItem(Type.FUNCTION, getItem(), name.get());
+                Function fun = Item.createItem(ItemType.FUNCTION, getItem(), name.get());
                 ItemTreeView.selectItem(fun);
             }
         });
         Button buttonAddVariable = createButton(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_VARIABLE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Variable var = Item.createItem(Type.VARIABLE, getItem(), name.get());
+                Variable var = Item.createItem(ItemType.VARIABLE, getItem(), name.get());
                 ItemTreeView.selectItem(var);
             }
         });

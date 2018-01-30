@@ -45,7 +45,7 @@ import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.sites.Dialogs;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 
 /**
  *

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites;
+package sharknoon.dualide.ui.dialogs;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,6 +28,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import sharknoon.dualide.logic.creations.CreationType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
@@ -52,7 +53,16 @@ public class Dialogs {
         RENAME_PACKAGE_DIALOG,
         RENAME_CLASS_DIALOG,
         RENAME_PROJECT_DIALOG,
-        RENAME_VARIABLE_DIALOG
+        RENAME_VARIABLE_DIALOG,
+        NEW_TEXT_VALUE
+    }
+
+    public enum NumberInputs implements DialogTypes {
+        NEW_NUMBER_VALUE
+    }
+
+    public enum BooleanInputs implements DialogTypes {
+        NEW_BOOLEAN_VALUE
     }
 
     public enum Confirmations implements DialogTypes {
@@ -73,34 +83,15 @@ public class Dialogs {
         PROJECT_CORRUPT_DIALOG
     }
 
-    public static Optional showDialog(DialogTypes type, String... variables) {
-        return showDialog(type, EMPTY, null, variables);
-    }
-
-    public static Optional showDialog(DialogTypes type, Set<String> forbiddenValues, String... variables) {
-        return showDialog(type, EMPTY, forbiddenValues, variables);
-    }
-
-    public static Optional showDialog(DialogTypes type, String defaultValue, Set<String> forbiddenValues, String... variables) {
-        if (type instanceof TextInputs) {
-            return showTextInputDialog((TextInputs) type, defaultValue, forbiddenValues, variables);
-        } else if (type instanceof Confirmations) {
-            return showConfirmationDialog((Confirmations) type, variables);
-        } else if (type instanceof TextEditors) {
-            return showTextEditorDialog((TextEditors) type, defaultValue, variables);
-        }
-        return Optional.empty();
-    }
-
     public static Optional<String> showTextInputDialog(TextInputs type, String... variables) {
         return showTextInputDialog(type, null, variables);
     }
 
-    public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenEntries, String... variables) {
-        return showTextInputDialog(type, "", forbiddenEntries, variables);
+    public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenValues, String... variables) {
+        return showTextInputDialog(type, null, forbiddenValues, variables);
     }
 
-    public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenEntries, String... variables) {
+    public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenValues, String... variables) {
         switch (type) {
             case NEW_PROJECT_DIALOG:
                 return showTextInputDialog(
@@ -109,7 +100,7 @@ public class Dialogs {
                         NEW_PROJECT_DIALOG_CONTENT_TEXT,
                         Icon.PLUSPROJECT,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case NEW_PACKAGE_DIALOG:
                 return showTextInputDialog(
@@ -118,7 +109,7 @@ public class Dialogs {
                         NEW_PACKAGE_DIALOG_CONTENT_TEXT,
                         Icon.PLUSPACKAGE,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case NEW_CLASS_DIALOG:
                 return showTextInputDialog(
@@ -127,7 +118,7 @@ public class Dialogs {
                         NEW_CLASS_DIALOG_CONTENT_TEXT,
                         Icon.PLUSCLASS,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case NEW_FUNCTION_DIALOG:
                 return showTextInputDialog(
@@ -136,7 +127,7 @@ public class Dialogs {
                         NEW_FUNCTION_DIALOG_CONTENT_TEXT,
                         Icon.PLUSFUNCTION,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case NEW_VARIABLE_DIALOG:
                 return showTextInputDialog(
@@ -145,7 +136,7 @@ public class Dialogs {
                         NEW_VARIABLE_DIALOG_CONTENT_TEXT,
                         Icon.PLUSVARIABLE,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case RENAME_PACKAGE_DIALOG:
                 return showTextInputDialog(
@@ -154,7 +145,7 @@ public class Dialogs {
                         RENAME_PACKAGE_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case RENAME_CLASS_DIALOG:
                 return showTextInputDialog(
@@ -163,7 +154,7 @@ public class Dialogs {
                         RENAME_CLASS_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case RENAME_PROJECT_DIALOG:
                 return showTextInputDialog(
@@ -172,7 +163,7 @@ public class Dialogs {
                         RENAME_PROJECT_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
                         variables);
             case RENAME_VARIABLE_DIALOG:
                 return showTextInputDialog(
@@ -181,7 +172,62 @@ public class Dialogs {
                         RENAME_VARIABLE_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
                         defaultValue,
-                        forbiddenEntries,
+                        forbiddenValues,
+                        variables);
+            case NEW_TEXT_VALUE:
+                return showTextInputDialog(
+                        NEW_TEXT_VALUE_DIALOG_TITLE,
+                        NEW_TEXT_VALUE_DIALOG_HEADER_TEXT,
+                        NEW_TEXT_VALUE_DIALOG_CONTENT_TEXT,
+                        Icon.TEXT,
+                        defaultValue,
+                        forbiddenValues,
+                        variables);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Double> showNumberInputDialog(NumberInputs type, String... variables) {
+        return showNumberInputDialog(type, null, variables);
+    }
+
+    public static Optional<Double> showNumberInputDialog(NumberInputs type, Set<Double> forbiddenValues, String... variables) {
+        return showNumberInputDialog(type, null, forbiddenValues, variables);
+    }
+
+    public static Optional<Double> showNumberInputDialog(NumberInputs type, Double defaultValue, Set<Double> forbiddenValues, String... variables) {
+        switch (type) {
+            case NEW_NUMBER_VALUE:
+                return showNumberInputDialog(
+                        NEW_NUMBER_VALUE_DIALOG_TITLE,
+                        NEW_NUMBER_VALUE_DIALOG_HEADER_TEXT,
+                        NEW_NUMBER_VALUE_DIALOG_CONTENT_TEXT,
+                        Icon.NUMBER,
+                        defaultValue,
+                        forbiddenValues,
+                        variables);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, String... variables) {
+        return showBooleanInputDialog(type, null, variables);
+    }
+    
+    public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type,Boolean forbiddenValue, String... variables) {
+        return showBooleanInputDialog(type, null, forbiddenValue, variables);
+    }
+    
+    public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Boolean defaultValue, Boolean forbiddenValue, String... variables) {
+        switch (type) {
+            case NEW_BOOLEAN_VALUE:
+                return showBooleanInputDialog(
+                        NEW_BOOLEAN_VALUE_DIALOG_TITLE,
+                        NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT,
+                        NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT,
+                        Icon.BOOLEAN,
+                        defaultValue,
+                        forbiddenValue,
                         variables);
         }
         return Optional.empty();
@@ -268,11 +314,31 @@ public class Dialogs {
         }
     }
 
-    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word conentText, Icon icon, String defaultValue, Set<String> forbiddenValues, String... variables) {
+    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word contentText, Icon icon, String defaultValue, Set<String> forbiddenValues, String... variables) {
         AdvancedTextInputDialog dialog = new AdvancedTextInputDialog(defaultValue, forbiddenValues);
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));
-        dialog.setContentText(fill(Language.get(conentText), variables));
+        dialog.setContentText(fill(Language.get(contentText), variables));
+        setIcon(icon, dialog);
+        setStyle(dialog);
+        return dialog.showAndWait();
+    }
+
+    private static Optional<Double> showNumberInputDialog(Word title, Word headerText, Word contentText, Icon icon, Double defaultValue, Set<Double> forbiddenValues, String... variables) {
+        AdvancedNumberInputDialog dialog = new AdvancedNumberInputDialog(defaultValue, forbiddenValues);
+        dialog.setTitle(fill(Language.get(title), variables));
+        dialog.setHeaderText(fill(Language.get(headerText), variables));
+        dialog.setContentText(fill(Language.get(contentText), variables));
+        setIcon(icon, dialog);
+        setStyle(dialog);
+        return dialog.showAndWait();
+    }
+
+    private static Optional<Boolean> showBooleanInputDialog(Word title, Word headerText, Word contentText, Icon icon, Boolean defaultValue, Boolean forbiddenValue, String... variables) {
+        AdvancedBooleanInputDialog dialog = new AdvancedBooleanInputDialog(defaultValue, forbiddenValue);
+        dialog.setTitle(fill(Language.get(title), variables));
+        dialog.setHeaderText(fill(Language.get(headerText), variables));
+        dialog.setContentText(fill(Language.get(contentText), variables));
         setIcon(icon, dialog);
         setStyle(dialog);
         return dialog.showAndWait();

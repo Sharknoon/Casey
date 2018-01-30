@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.creations;
+
+import java.util.Optional;
+import sharknoon.dualide.logic.values.BooleanValue;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
  */
-public abstract class Value<T> {
-
-    private T value;
-
-    protected Value(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
+public class BooleanCreation extends Creation<BooleanValue> {
 
     @Override
-    public String toString() {
-        return value.toString();
+    public BooleanValue create() {
+                Optional<BooleanValue> dialogResult = Dialogs
+                .showBooleanInputDialog(Dialogs.BooleanInputs.NEW_BOOLEAN_VALUE)
+                .map(b -> new BooleanValue(b));
+        return dialogResult.isPresent()
+                ? dialogResult.get()
+                : new BooleanValue();
     }
 
 }

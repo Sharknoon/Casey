@@ -17,7 +17,6 @@ package sharknoon.dualide.logic.items;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -26,8 +25,6 @@ import javafx.stage.Stage;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.MainApplication;
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.project.ProjectSite;
 import sharknoon.dualide.ui.sites.welcome.RecentProject;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;

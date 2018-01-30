@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.operations;
+
+import java.util.List;
+import sharknoon.dualide.logic.values.BooleanValue;
+import sharknoon.dualide.logic.values.Value;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
  */
-public abstract class Value<T> {
-
-    private T value;
-
-    protected Value(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
+public class NotEqualsOperator extends Operator<BooleanValue, Value> {
 
     @Override
-    public String toString() {
-        return value.toString();
+    public BooleanValue calculateResult() {
+        List<Value> parameters = getParameters();
+        if (parameters.size() < 2) {
+            return BooleanValue.FALSE;
+        }
+        for (int i = 1; i < parameters.size(); i++) {
+            if (parameters.get(i - 1).equals(parameters.get(i))) {
+                return BooleanValue.FALSE;
+            }
+        }
+        return BooleanValue.TRUE;
     }
 
 }

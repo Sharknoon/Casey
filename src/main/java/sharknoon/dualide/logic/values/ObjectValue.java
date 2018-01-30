@@ -17,6 +17,7 @@ package sharknoon.dualide.logic.values;
 
 import java.util.Objects;
 import sharknoon.dualide.utils.settings.Logger;
+import sharknoon.dualide.logic.items.Class;
 
 /**
  *
@@ -24,8 +25,11 @@ import sharknoon.dualide.utils.settings.Logger;
  */
 public final class ObjectValue extends Value<Object> {
 
-    public ObjectValue(Object value) {
+    private final Class type;
+
+    public ObjectValue(Class type, Object value) {
         super(value);
+        this.type = type;
     }
 
     @Override
@@ -37,6 +41,10 @@ public final class ObjectValue extends Value<Object> {
     @Override
     public boolean equals(Value other) {
         return Objects.equals(getValue(), other.getValue());
+    }
+
+    public Class getType() {
+        return type;
     }
 
 }

@@ -51,20 +51,22 @@ public class English extends Language {
         //Projectsite
         add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Add package");
         add(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, "Comment project");
+        add(Word.PROJECT_SITE_RENAME_BUTTON_TEXT, "Rename project");
         add(Word.PROJECT_SITE_DELETE_BUTTON_TEXT, "Delete project");
         add(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment package");
         add(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename package");
         add(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete package");
         //Packagesite
+        add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment");
+        add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
+        add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete");
         add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Add package");
         add(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, "Add class");
         add(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, "Add function");
         add(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
         add(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, "Comment package");
+        add(Word.PACKAGE_SITE_RENAME_BUTTON_TEXT, "Rename package");
         add(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, "Delete package");
-        add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment");
-        add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
-        add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete");
         //ClassSite
         add(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment");
         add(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
@@ -72,12 +74,23 @@ public class English extends Language {
         add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Add function");
         add(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
         add(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, "Comment class");
+        add(Word.CLASS_SITE_RENAME_BUTTON_TEXT,"Rename class");
         add(Word.CLASS_SITE_DELETE_BUTTON_TEXT, "Delete class");
+        //VariableSite
+        add(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, "Variabletype");
+        add(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, "Variable modifiable");
+        add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Comment variable");
+        add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Rename variable");
+        add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Delete variable");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");
         add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Enter projectname");
         add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projectname");
+        //Rename Project
+        add(Word.RENAME_PROJECT_DIALOG_TITLE, "Rename project");
+        add(Word.RENAME_PROJECT_DIALOG_HEADER_TEXT, "Enter new projectname");
+        add(Word.RENAME_PROJECT_DIALOG_CONTENT_TEXT, "Projectname");
         ///Comment Project
         add(Word.COMMENT_PROJECT_DIALOG_TITLE, "Comment project");
         add(Word.COMMENT_PROJECT_DIALOG_HEADER_TEXT, "Enter comments");
@@ -128,7 +141,47 @@ public class English extends Language {
         add(Word.NEW_VARIABLE_DIALOG_TITLE, "Create new Variable");
         add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Enter new variablename");
         add(Word.NEW_VARIABLE_DIALOG_CONTENT_TEXT, "Variablename");
-
+        ///Rename Variable
+        add(Word.RENAME_VARIABLE_DIALOG_TITLE, "Rename variable");
+        add(Word.RENAME_VARIABLE_DIALOG_HEADER_TEXT, "Enter new variablename");
+        add(Word.RENAME_VARIABLE_DIALOG_CONTENT_TEXT, "Variablename");
+        ///Comment Variable
+        add(Word.COMMENT_VARIABLE_DIALOG_TITLE, "Comment variable");
+        add(Word.COMMENT_VARIABLE_DIALOG_HEADER_TEXT, "Enter comments");
+        ///Delete Variable
+        add(Word.DELETE_VARIABLE_DIALOG_TITLE, "Delete variable #VARIABLE");
+        add(Word.DELETE_VARIABLE_DIALOG_HEADER_TEXT, "Really delete variable #VARIABLE?");
+        add(Word.DELETE_VARIABLE_DIALOG_CONTENT_TEXT, "The variable #VARIABLE will be deleted permanently!");
+        ///Corrupt project
+        add(Word.PROJECT_CORRUPT_DIALOG_TITLE, "Corrupt project");
+        add(Word.PROJECT_CORRUPT_DIALOG_HEADER_TEXT, "The project is corrupt");
+        add(Word.PROJECT_CORRUPT_DIALOG_CONTENT_TEXT, "The porject couldn't be opened due to a fault in the projectfile. For details look at the stacktrace.");
+        ///New Text value
+        add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "New text");
+        add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Please enter a text");
+        add(Word.NEW_TEXT_VALUE_DIALOG_CONTENT_TEXT, "Text");
+        ///New Number value
+        add(Word.NEW_NUMBER_VALUE_DIALOG_TITLE, "New number");
+        add(Word.NEW_NUMBER_VALUE_DIALOG_HEADER_TEXT, "Please enter a number");
+        add(Word.NEW_NUMBER_VALUE_DIALOG_CONTENT_TEXT, "Number");
+        ///New Boolean value
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_TITLE, "New Boolean");
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Please select a boolean");
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
+        //ValueSelectionPopup
+        add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "New values");
+        add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-values");
+        add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Existing values");
+        add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "General values");
+        add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Values of this class");
+        add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Values of this function");
+        //General
+        add(Word.FUNCTION, "Function");
+        add(Word.CLASS, "Class");
+        add(Word.PROJECT, "Project");
+        add(Word.VARIABLE, "Variable");
+        add(Word.PACKAGE, "Package");
+        add(Word.WELCOME, "Welcome");
     }
 
 }

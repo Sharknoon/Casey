@@ -48,9 +48,10 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
-    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>();
-    private final transient ReadOnlyStringWrapper fullName = new ReadOnlyStringWrapper();
+    //DO NOT CHANGE ORDER!!!
     private final transient ObjectProperty<ItemType> itemType = new SimpleObjectProperty<>(ItemType.valueOf(this));
+    private final transient ReadOnlyStringWrapper fullName = new ReadOnlyStringWrapper();
+    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>(Site.createSite(this));
 
     /**
      * can return null!!!
@@ -84,15 +85,13 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     }
 
     protected Item(P parent, String name) {
-        setSite(Site.createSite(this));
-        setName(name);
         setParent(parent);
+        setName(name);
         addListeners();
     }
 
     @Override
     public void postProcess() {
-        setSite(Site.createSite(this));
         getChildren().forEach(c -> c.setParent(this));
         addListeners();
     }
@@ -127,10 +126,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
 
     protected void setParent(P parent) {
         parentProperty().set(parent);
-        if (parent != null) {
-            //Backed by a set, so if its already in it, it changes nothing
-            parent.addChildren(this);
-        }
     }
 
     public ObjectProperty<P> parentProperty() {
@@ -143,10 +138,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
 
     public ItemType getType() {
         return typeProperty().get();
-    }
-
-    private void setSite(Site<I> site) {
-        siteProperty().set(site);
     }
 
     public Site<I> getSite() {
@@ -194,6 +185,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
             if (change.wasAdded()) {
                 C elementAdded = change.getElementAdded();
+                elementAdded.setParent(this);
                 ItemTreeView.onItemAdded(elementAdded);
                 ItemTabPane.onItemAdded(elementAdded);
             } else if (change.wasRemoved()) {
@@ -205,11 +197,23 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         nameProperty().addListener((observable, oldValue, newValue) -> {
             refreshFullNameRecursive();
         });
+        parentProperty().addListener((observable, oldValue, newValue) -> {
+            refreshFullNameRecursive();
+        });
     }
 
     private void refreshFullNameRecursive() {
-        getFullName();
+        refreshFullName();
         childrenProperty().forEach(Item::refreshFullNameRecursive);
+    }
+
+    private void refreshFullName() {
+        if (getParent() != null) {
+            String idString = getParent().getFullName() + "." + getName();
+            fullName.set(idString);
+        } else {
+            fullName.set(getName());
+        }
     }
 
     /**

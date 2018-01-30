@@ -42,7 +42,7 @@ import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.sites.Dialogs;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.language.Word;
 
 /**

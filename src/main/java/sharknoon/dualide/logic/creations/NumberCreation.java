@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.creations;
+
+import java.util.Optional;
+import sharknoon.dualide.logic.values.NumberValue;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
  */
-public abstract class Value<T> {
-
-    private T value;
-
-    protected Value(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
+public class NumberCreation extends Creation<NumberValue> {
 
     @Override
-    public String toString() {
-        return value.toString();
+    public NumberValue create() {
+        Optional<NumberValue> dialogResult = Dialogs
+                .showNumberInputDialog(Dialogs.NumberInputs.NEW_NUMBER_VALUE)
+                .map(d -> new NumberValue(d));
+        return dialogResult.isPresent()
+                ? dialogResult.get()
+                : new NumberValue();
     }
 
 }

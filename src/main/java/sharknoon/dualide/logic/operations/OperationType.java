@@ -28,7 +28,16 @@ public enum OperationType {
     MULTIPLY(MultiplyOperator.class),
     DIVIDE(DivideOperator.class),
     MODULO(ModuloOperator.class),
-    EQUALS(EqualsOperator.class);
+    EQUALS(EqualsOperator.class),
+    NOT_EQUALS(NotEqualsOperator.class),
+    GREATER_THAN(GreaterThanOperator.class),
+    LESS_THAN(LessThanOperator.class),
+    GREATER_OR_EQUAL_THAN(GreaterOrEqualThanOperator.class),
+    LESS_OR_EQUAL_THAN(LessOrEqualThanOperator.class),
+    AND(AndOperator.class),
+    OR(OrOperator.class),
+    NOT(NotOperator.class),
+    CONCAT(ConcatOperator.class);
 
     private final Class<? extends Operator> type;
 

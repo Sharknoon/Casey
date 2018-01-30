@@ -16,15 +16,10 @@
 package sharknoon.dualide.logic.operations;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.MapProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import sharknoon.dualide.logic.values.Value;

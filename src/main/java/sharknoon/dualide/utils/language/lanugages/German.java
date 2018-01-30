@@ -51,20 +51,22 @@ public class German extends Language {
         //Projectsite
         add(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
         add(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, "Projekt kommentieren");
+        add(Word.PROJECT_SITE_RENAME_BUTTON_TEXT, "Projekt umbenennen");
         add(Word.PROJECT_SITE_DELETE_BUTTON_TEXT, "Projekt löschen");
         add(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         //Packagesite
+        add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
+        add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
+        add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzugügen");
         add(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, "Klasse hinzufügen");
         add(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzufügen");
         add(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
         add(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, "Paket kommentieren");
+        add(Word.PACKAGE_SITE_RENAME_BUTTON_TEXT, "Paket umbenennen");
         add(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, "Paket löschen");
-        add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
-        add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
-        add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         //ClassSite
         add(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
@@ -72,12 +74,23 @@ public class German extends Language {
         add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzugügen");
         add(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
         add(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, "Klasse kommentieren");
+        add(Word.CLASS_SITE_RENAME_BUTTON_TEXT, "Klasse umbenennen");
         add(Word.CLASS_SITE_DELETE_BUTTON_TEXT, "Klasse löschen");
+        //VariableSite
+        add(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, "Variablentyp");
+        add(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, "Variable änderbar");
+        add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Variable kommentieren");
+        add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Variable umbenennen");
+        add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Variable löschen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
         add(Word.NEW_PROJECT_DIALOG_HEADER_TEXT, "Projektname eingeben");
         add(Word.NEW_PROJECT_DIALOG_CONTENT_TEXT, "Projektname");
+        //Rename Project
+        add(Word.RENAME_PROJECT_DIALOG_TITLE, "Projekt umbenennen");
+        add(Word.RENAME_PROJECT_DIALOG_HEADER_TEXT, "Neuen Projektnamen eingeben");
+        add(Word.RENAME_PROJECT_DIALOG_CONTENT_TEXT, "Projektname");
         ///Comment Project
         add(Word.COMMENT_PROJECT_DIALOG_TITLE, "Projekt kommentieren");
         add(Word.COMMENT_PROJECT_DIALOG_HEADER_TEXT, "Kommentare eingeben");
@@ -118,7 +131,7 @@ public class German extends Language {
         add(Word.COMMENT_CLASS_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         //Delete Class
         add(Word.DELETE_CLASS_DIALOG_TITLE, "Klasse #CLASS löschen");
-        add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse #CLASS wircklich löschen?");
+        add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse #CLASS wirklich löschen?");
         add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "Alle Inhalte der Klasse #CLASS werden unwiederruflich gelöscht!");
         ///New Function
         add(Word.NEW_FUNCTION_DIALOG_TITLE, "Neue Funktion anlegen");
@@ -128,5 +141,46 @@ public class German extends Language {
         add(Word.NEW_VARIABLE_DIALOG_TITLE, "Neue Variable anlegen");
         add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Variablennamen eingeben");
         add(Word.NEW_VARIABLE_DIALOG_CONTENT_TEXT, "Variablenname");
+        ///Rename Variable
+        add(Word.RENAME_VARIABLE_DIALOG_TITLE, "Variable umbenennen");
+        add(Word.RENAME_VARIABLE_DIALOG_HEADER_TEXT, "Neuen Variablennamen eingeben");
+        add(Word.RENAME_VARIABLE_DIALOG_CONTENT_TEXT, "Variablenname");
+        ///Comment Variable
+        add(Word.COMMENT_VARIABLE_DIALOG_TITLE, "Variable kommentieren");
+        add(Word.COMMENT_VARIABLE_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        ///Delete Variable
+        add(Word.DELETE_VARIABLE_DIALOG_TITLE, "Variable #VARIABLE löschen");
+        add(Word.DELETE_VARIABLE_DIALOG_HEADER_TEXT, "Variable #VARIABLE wirklich löschen?");
+        add(Word.DELETE_VARIABLE_DIALOG_CONTENT_TEXT, "Die Variable #VARIABLE wird unwiederruflich gelöscht!");
+        ///Corrupt project
+        add(Word.PROJECT_CORRUPT_DIALOG_TITLE, "Fehlerhaftes Projekt");
+        add(Word.PROJECT_CORRUPT_DIALOG_HEADER_TEXT, "Projekt ist fehlerhaft");
+        add(Word.PROJECT_CORRUPT_DIALOG_CONTENT_TEXT, "Das Projekt konnte aufgrund eines Fehlers in der Projektdatei nicht geöffnet werden. Siehe den Stacktrace für Details.");
+        ///New Text value
+        add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "Neuer Text");
+        add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Bitte Text eingeben");
+        add(Word.NEW_TEXT_VALUE_DIALOG_CONTENT_TEXT, "Text");
+        ///New Number value
+        add(Word.NEW_NUMBER_VALUE_DIALOG_TITLE, "Neuer Nummer");
+        add(Word.NEW_NUMBER_VALUE_DIALOG_HEADER_TEXT, "Bitte Nummer eingeben");
+        add(Word.NEW_NUMBER_VALUE_DIALOG_CONTENT_TEXT, "Nummer");
+        ///New Boolean value
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_TITLE, "Neuer Boolean");
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Bitte Boolean auswählen");
+        add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
+        //ValueSelectionPopup
+        add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neuen Werte");
+        add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-Werte");
+        add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Bestehende Werte");
+        add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "Allgemeine Werte");
+        add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Werte dieser Klasse");
+        add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Werte dieser Funktion");
+        //General
+        add(Word.FUNCTION, "Funktion");
+        add(Word.CLASS, "Klasse");
+        add(Word.PROJECT, "Projekt");
+        add(Word.VARIABLE, "Variable");
+        add(Word.PACKAGE, "Paket");
+        add(Word.WELCOME, "Willkommen");
     }
 }

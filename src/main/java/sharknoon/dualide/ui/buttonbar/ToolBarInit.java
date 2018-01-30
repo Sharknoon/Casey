@@ -16,13 +16,18 @@
 package sharknoon.dualide.ui.buttonbar;
 
 import java.util.EnumSet;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.values.PopUp;
 import sharknoon.dualide.logic.values.ValueType;
+import sharknoon.dualide.ui.values.ValueField;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -49,9 +54,27 @@ public class ToolBarInit {
     }
 
     private static void initDebugButton() {
-        Button buttonDebug = new Button("Popup");
-        buttonDebug.setOnAction(e -> PopUp.showValueSelectionPopUp(buttonDebug, EnumSet.allOf(ValueType.class)));
+        Button buttonDebug = new Button("ValuesCheck");
+        buttonDebug.setOnAction(e -> TMP());
         buttonbar.getItems().add(buttonDebug);
+    }
+
+    private static void TMP() {
+        FlowPane root = new FlowPane(20, 20);
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+
+        root.setPadding(new Insets(20));
+        ValueField bool = new ValueField(EnumSet.of(ValueType.BOOLEAN));
+        ValueField number = new ValueField(EnumSet.of(ValueType.NUMBER));
+        ValueField obj = new ValueField(EnumSet.of(ValueType.OBJECT));
+        ValueField text = new ValueField(EnumSet.of(ValueType.TEXT));
+        ValueField all = new ValueField();
+        root.getChildren().addAll(bool, number, obj, text, all);
+
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
     }
 
 }

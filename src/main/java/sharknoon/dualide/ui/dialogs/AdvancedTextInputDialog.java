@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites;
+package sharknoon.dualide.ui.dialogs;
 
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -55,8 +56,11 @@ public class AdvancedTextInputDialog extends Dialog<String> {
                 : Collections.emptySet();
 
         // -- textfield
-        this.textField = new TextField(defaultValue);
+        this.textField = new TextField();
         this.textField.setMaxWidth(Double.MAX_VALUE);
+        if (defaultValue != null) {
+            this.textField.setText(defaultValue);
+        }
         if (forbiddenValues != null) {
             this.textField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (forbiddenValues.contains(newValue)) {
@@ -129,4 +133,5 @@ public class AdvancedTextInputDialog extends Dialog<String> {
 
         Platform.runLater(() -> textField.requestFocus());
     }
+
 }

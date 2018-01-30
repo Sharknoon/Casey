@@ -13,36 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.creations;
+
+import sharknoon.dualide.logic.values.ObjectValue;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
  */
-public abstract class Value<T> {
-
-    private T value;
-
-    protected Value(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
+public class ObjectCreation extends Creation<ObjectValue> {
 
     @Override
-    public String toString() {
-        return value.toString();
+    public ObjectValue create() {
+        return new ObjectValue(null, this);//TODO
     }
-
+    
 }

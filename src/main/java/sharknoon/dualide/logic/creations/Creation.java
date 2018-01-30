@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.creations;
+
+import java.util.Optional;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import sharknoon.dualide.logic.values.Value;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
+ * @param <V> The type of the new value to be created
  */
-public abstract class Value<T> {
+public abstract class Creation<V extends Value> {
 
-    private T value;
+    private final ObjectProperty<V> value = new SimpleObjectProperty<>();
 
-    protected Value(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
+    public ObjectProperty<V> valueProperty() {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
+    public void setValue(V value) {
+        valueProperty().set(value);
     }
 
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
-
-    @Override
-    public String toString() {
-        return value.toString();
+    public Optional<V> getValue() {
+        return Optional.ofNullable(valueProperty().get());
     }
 
+    public abstract V create();
+    
 }

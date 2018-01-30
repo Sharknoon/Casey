@@ -30,7 +30,7 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.ui.sites.Dialogs;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.settings.Logger;
 
 /**

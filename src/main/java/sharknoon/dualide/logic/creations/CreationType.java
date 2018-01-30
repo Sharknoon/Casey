@@ -13,36 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.values;
+package sharknoon.dualide.logic.creations;
 
 /**
  *
  * @author Josua Frank
- * @param <T> The type of the value
  */
-public abstract class Value<T> {
+public enum CreationType {
+    NUMBER_CREATION(new NumberCreation()),
+    BOOLEAN_CREATION(new BooleanCreation()),
+    TEXT_CREATION(new TextCreation()),
+    OBJECT_CREATION(new ObjectCreation());
 
-    private T value;
+    private final Creation instance;
 
-    protected Value(T value) {
-        this.value = value;
+    private <C extends Creation> CreationType(C type) {
+        this.instance = type;
     }
 
-    public T getValue() {
-        return value;
+    public Creation getInstance() {
+        return instance;
     }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    abstract T getDefault();
-
-    public abstract boolean equals(Value other);
-
-    @Override
-    public String toString() {
-        return value.toString();
-    }
-
 }

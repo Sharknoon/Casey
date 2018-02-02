@@ -74,7 +74,7 @@ public class English extends Language {
         add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Add function");
         add(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
         add(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, "Comment class");
-        add(Word.CLASS_SITE_RENAME_BUTTON_TEXT,"Rename class");
+        add(Word.CLASS_SITE_RENAME_BUTTON_TEXT, "Rename class");
         add(Word.CLASS_SITE_DELETE_BUTTON_TEXT, "Delete class");
         //VariableSite
         add(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, "Variabletype");
@@ -182,6 +182,29 @@ public class English extends Language {
         add(Word.VARIABLE, "Variable");
         add(Word.PACKAGE, "Package");
         add(Word.WELCOME, "Welcome");
+        add(Word.NUMBER, "Number");
+        add(Word.BOOLEAN, "Boolean");
+        add(Word.TEXT, "Text");
+        add(Word.OBJECT, "Object");
+        add(Word.NUMBER_CREATION, "Create new Number");
+        add(Word.BOOLEAN_CREATION, "Create new Boolean");
+        add(Word.TEXT_CREATION, "Create new Text");
+        add(Word.OBJECT_CREATION, "Create new Object");
+        add(Word.ADD, "Addition");
+        add(Word.SUBTRACT, "Subtraction");
+        add(Word.MULTIPLY, "Multiplication");
+        add(Word.DIVIDE, "Division");
+        add(Word.MODULO, "Modulo");
+        add(Word.EQUALS, "Equal");
+        add(Word.NOT_EQUALS, "Not equal");
+        add(Word.GREATER_THAN, "Greater than");
+        add(Word.LESS_THAN, "Less than");
+        add(Word.GREATER_OR_EQUAL_THAN, "Greater or equal than");
+        add(Word.LESS_OR_EQUAL_THAN, "Less or equal than");
+        add(Word.AND, "And");
+        add(Word.OR, "Or");
+        add(Word.NOT, "Not");
+        add(Word.CONCAT, "Concat");
     }
 
 }

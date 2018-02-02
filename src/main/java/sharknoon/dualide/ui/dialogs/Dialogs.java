@@ -28,7 +28,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import sharknoon.dualide.logic.creations.CreationType;
+import sharknoon.dualide.logic.statements.values.creations.CreationType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;

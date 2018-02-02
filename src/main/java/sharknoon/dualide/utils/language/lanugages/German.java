@@ -182,5 +182,28 @@ public class German extends Language {
         add(Word.VARIABLE, "Variable");
         add(Word.PACKAGE, "Paket");
         add(Word.WELCOME, "Willkommen");
+        add(Word.NUMBER, "Nummer");
+        add(Word.BOOLEAN, "Boolean");
+        add(Word.TEXT, "Text");
+        add(Word.OBJECT, "Objekt");
+        add(Word.NUMBER_CREATION, "Nummer erzeugen");
+        add(Word.BOOLEAN_CREATION, "Boolean erzeugen");
+        add(Word.TEXT_CREATION, "Text erzeugen");
+        add(Word.OBJECT_CREATION, "Objekt erzeugen");
+        add(Word.ADD, "Addieren");
+        add(Word.SUBTRACT, "Subtrahieren");
+        add(Word.MULTIPLY, "Multiplizieren");
+        add(Word.DIVIDE, "Teilen");
+        add(Word.MODULO, "Modulo");
+        add(Word.EQUALS, "Gleicht");
+        add(Word.NOT_EQUALS, "Gleicht nicht");
+        add(Word.GREATER_THAN, "Größer als");
+        add(Word.LESS_THAN, "Kleiner als");
+        add(Word.GREATER_OR_EQUAL_THAN, "Größer oder gleich als");
+        add(Word.LESS_OR_EQUAL_THAN, "Kleiner oder gleich als");
+        add(Word.AND, "Und");
+        add(Word.OR, "Oder");
+        add(Word.NOT, "Nicht");
+        add(Word.CONCAT, "Zusammenfügen");
     }
 }

@@ -20,14 +20,22 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.logic.statements.operations.AddOperator;
+import sharknoon.dualide.logic.statements.operations.Operator;
+import sharknoon.dualide.logic.statements.values.BooleanValue;
+import sharknoon.dualide.logic.statements.values.NumberValue;
+import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.logic.values.ValueType;
-import sharknoon.dualide.ui.values.ValueField;
+import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.ui.statements.Body;
+
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -60,17 +68,17 @@ public class ToolBarInit {
     }
 
     private static void TMP() {
-        FlowPane root = new FlowPane(20, 20);
+        FlowPane root = new FlowPane();
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
-        root.setPadding(new Insets(20));
-        ValueField bool = new ValueField(EnumSet.of(ValueType.BOOLEAN));
-        ValueField number = new ValueField(EnumSet.of(ValueType.NUMBER));
-        ValueField obj = new ValueField(EnumSet.of(ValueType.OBJECT));
-        ValueField text = new ValueField(EnumSet.of(ValueType.TEXT));
-        ValueField all = new ValueField();
-        root.getChildren().addAll(bool, number, obj, text, all);
+//        FieldStatement bool = new FieldStatement(null, EnumSet.of(ValueType.BOOLEAN));
+        Operator op = new AddOperator(null);
+        op.addParameter(0, new NumberValue(42.0, op));
+        op.addParameter(1, new NumberValue(op));
+
+        root.getChildren().add(new BooleanValue(true, null).getBody());
+        root.getChildren().add(new TextValue("sdg", null).getBody());
 
         Stage stage = new Stage();
         stage.setScene(scene);

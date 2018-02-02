@@ -18,20 +18,18 @@ package sharknoon.dualide.ui.dialogs;
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import sharknoon.dualide.utils.javafx.NumberField;
 
 /**
  *
@@ -41,7 +39,7 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
 
     private final GridPane grid;
     private final Label label;
-    private final TextField textField;
+    private final NumberField numberfield;
     private final Double defaultValue;
     private final Set<Double> forbiddenValues;
 
@@ -60,35 +58,26 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
                 ? forbiddenValues
                 : Collections.emptySet();
 
-        // -- textfield
-        this.textField = new TextField();
-        this.textField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            //Character filter
-            if (!newValue.matches("[0-9\\.\\+-Ee]*")) {
-                textField.setText(newValue.replaceAll("[^0-9\\.\\+-Ee]", ""));
-            }
-        });
-        this.textField.setMaxWidth(Double.MAX_VALUE);
-        if (defaultValue != null) {
-            this.textField.setText(defaultValue.toString());
-        }
+        // -- numberfield
+        defaultValue = defaultValue == null ? 0.0 : defaultValue;
+        this.numberfield = new NumberField(defaultValue);
+        this.numberfield.setMaxWidth(Double.MAX_VALUE);
         if (forbiddenValues != null) {
-            this.textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!isDouble(newValue)
-                        || forbiddenValues
-                                .stream()
-                                .map(d -> d.toString())
-                                .anyMatch((f) -> f.equals(newValue))) {
-                    this.textField.setStyle("-fx-text-fill: #FF0000;");
+            this.numberfield.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!forbiddenValues
+                        .stream()
+                        .map(d -> d.toString())
+                        .anyMatch((f) -> f.equals(newValue))) {
+                    this.numberfield.setStyle("-fx-text-fill: #FF0000;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
                 } else {
-                    this.textField.setStyle("-fx-text-fill: -fx-text-inner-color;");
+                    this.numberfield.setStyle("-fx-text-fill: -fx-text-inner-color;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(false);
                 }
             });
         }
-        GridPane.setHgrow(textField, Priority.ALWAYS);
-        GridPane.setFillWidth(textField, true);
+        GridPane.setHgrow(numberfield, Priority.ALWAYS);
+        GridPane.setFillWidth(numberfield, true);
 
         // -- label
         label = createContentLabel(dialogPane.getContentText());
@@ -113,15 +102,12 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
 
         setResultConverter((dialogButton) -> {
             ButtonBar.ButtonData data = dialogButton == null ? null : dialogButton.getButtonData();
-            String text = textField.getText();
-            return data == ButtonBar.ButtonData.OK_DONE
-                    ? (isDouble(text) ? Double.parseDouble(text) : 0.0)
-                    : null;
+            return data == ButtonBar.ButtonData.OK_DONE ? numberfield.getValue() : null;
         });
     }
 
-    public final TextField getEditor() {
-        return textField;
+    public final NumberField getEditor() {
+        return numberfield;
     }
 
     public final Double getDefaultValue() {
@@ -146,57 +132,10 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
         grid.getChildren().clear();
 
         grid.add(label, 0, 0);
-        grid.add(textField, 1, 0);
+        grid.add(numberfield, 1, 0);
         getDialogPane().setContent(grid);
 
-        Platform.runLater(() -> textField.requestFocus());
-    }
-
-    /**
-     *
-     * @param input
-     * @return
-     * @author
-     * https://stackoverflow.com/questions/3543729/how-to-check-that-a-string-is-parseable-to-a-double
-     */
-    private static boolean isDouble(String input) {
-        final String Digits = "(\\p{Digit}+)";
-        final String HexDigits = "(\\p{XDigit}+)";
-        // an exponent is 'e' or 'E' followed by an optionally 
-        // signed decimal integer.
-        final String Exp = "[eE][+-]?" + Digits;
-        final String fpRegex
-                = ("[\\x00-\\x20]*"
-                + // Optional leading "whitespace"
-                "[+-]?("
-                + // Optional sign character
-                "NaN|"
-                + // "NaN" string
-                "Infinity|"
-                + // "Infinity" string
-                // A decimal floating-point string representing a finite positive
-                // number without a leading sign has at most five basic pieces:
-                // Digits . Digits ExponentPart FloatTypeSuffix
-                // 
-                // Since this method allows integer-only strings as input
-                // in addition to strings of floating-point literals, the
-                // two sub-patterns below are simplifications of the grammar
-                // productions from the Java Language Specification, 2nd 
-                // edition, section 3.10.2.
-                // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
-                "(((" + Digits + "(\\.)?(" + Digits + "?)(" + Exp + ")?)|"
-                + // . Digits ExponentPart_opt FloatTypeSuffix_opt
-                "(\\.(" + Digits + ")(" + Exp + ")?)|"
-                + // Hexadecimal strings
-                "(("
-                + // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
-                "(0[xX]" + HexDigits + "(\\.)?)|"
-                + // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
-                "(0[xX]" + HexDigits + "?(\\.)" + HexDigits + ")"
-                + ")[pP][+-]?" + Digits + "))"
-                + "[fFdD]?))"
-                + "[\\x00-\\x20]*");// Optional trailing "whitespace"
-        return Pattern.matches(fpRegex, input);
+        Platform.runLater(() -> numberfield.requestFocus());
     }
 
 }

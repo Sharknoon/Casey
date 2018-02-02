@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.statements;
+package sharknoon.dualide.ui.bodies;
 
 import java.util.Optional;
 import sharknoon.dualide.logic.statements.values.ValueType;

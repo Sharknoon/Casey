@@ -34,7 +34,7 @@ import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.logic.statements.values.ValueType;
-import sharknoon.dualide.ui.statements.Body;
+import sharknoon.dualide.ui.bodies.Body;
 
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -72,13 +72,13 @@ public class ToolBarInit {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
-//        FieldStatement bool = new FieldStatement(null, EnumSet.of(ValueType.BOOLEAN));
         Operator op = new AddOperator(null);
         op.addParameter(0, new NumberValue(42.0, op));
         op.addParameter(1, new NumberValue(op));
 
         root.getChildren().add(new BooleanValue(true, null).getBody());
         root.getChildren().add(new TextValue("sdg", null).getBody());
+        root.getChildren().add(new NumberValue(42.0, null).getBody());
 
         Stage stage = new Stage();
         stage.setScene(scene);

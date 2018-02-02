@@ -26,7 +26,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.ui.statements.Body;
+import sharknoon.dualide.ui.bodies.Body;
 
 /**
  * The statement is the base class for values, operators, ...

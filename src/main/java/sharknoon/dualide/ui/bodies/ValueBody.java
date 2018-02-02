@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.statements;
+package sharknoon.dualide.ui.bodies;
 
+import com.sun.javafx.scene.control.skin.SpinnerSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
@@ -38,7 +34,6 @@ import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
 import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.utils.javafx.NumberField;
 
 /**
  *
@@ -63,29 +58,43 @@ public class ValueBody extends Body<Value> {
                 BooleanValue val = (BooleanValue) value;
                 CheckBox checkBoxValue = new CheckBox();
                 int margin = 26;
+                StackPane.setMargin(checkBoxValue, new Insets(0, margin, 0, margin));
                 widthProperty.bind(checkBoxValue.prefWidthProperty().add(margin * 2));
                 checkBoxValue.setPadding(new Insets(0, 0, 10, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
                 checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
-                StackPane.setMargin(checkBoxValue, new Insets(0, margin, 0, margin));
                 return checkBoxValue;
             case NUMBER:
                 NumberValue val2 = (NumberValue) value;
-                NumberField numberFieldValue = new NumberField(val2.getValue());
+                Spinner<Double> spinnerValue = new Spinner<>(Double.MIN_VALUE, Double.MAX_VALUE, Double.MIN_VALUE);
                 int margin2 = 15;
-                widthProperty.bind(minTextFieldWidthProperty(numberFieldValue.getEditor()).add(margin2 * 2));
-                numberFieldValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
-                StackPane.setMargin(numberFieldValue, new Insets(0, margin2, 0, margin2));
-                return numberFieldValue;
+                StackPane.setMargin(spinnerValue, new Insets(0, margin2, 0, margin2));
+                //Can be removed on JavaFX 9 TODO
+                //http://hg.openjdk.java.net/openjfx/9-dev/rt/rev/4cc3cc9bc47d
+                //https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8140507
+                spinnerValue.setSkin(new SpinnerSkin(spinnerValue) {
+                    @Override
+                    protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
+                        return spinnerValue.getEditor().minWidth(height);
+                    }
+                });
+                DoubleBinding spinnerWidth = minTextFieldWidthProperty(spinnerValue.getEditor()).add(23);
+                widthProperty.addListener((observable, oldValue, newValue) -> {//Spinner does not resize automatically like textfield :(
+                    spinnerValue.setPrefWidth(newValue.doubleValue());
+                });
+                widthProperty.bind(spinnerWidth.add(margin2 * 2));
+                spinnerValue.setEditable(true);
+                spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
+                return spinnerValue;
             case OBJECT:
-
+                break;//TODO
             case TEXT:
                 TextValue val4 = (TextValue) value;
                 TextField textFieldValue = new TextField();
                 int margin4 = 10;
+                StackPane.setMargin(textFieldValue, new Insets(0, margin4, 0, margin4));
                 widthProperty.bind(minTextFieldWidthProperty(textFieldValue).add(margin4 * 2));
                 textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
-                StackPane.setMargin(textFieldValue, new Insets(0, margin4, 0, margin4));
                 return textFieldValue;
         }
         return new Label("Error");

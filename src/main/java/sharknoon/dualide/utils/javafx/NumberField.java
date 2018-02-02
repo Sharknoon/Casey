@@ -16,13 +16,10 @@
 package sharknoon.dualide.utils.javafx;
 
 import javafx.application.Platform;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.AccessibleRole;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 
 /**

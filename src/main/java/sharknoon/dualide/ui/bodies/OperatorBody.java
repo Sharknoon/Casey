@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.statements;
+package sharknoon.dualide.ui.bodies;
 
 import java.util.List;
 import java.util.stream.Collectors;

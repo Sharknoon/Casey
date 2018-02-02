@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.statements;
+package sharknoon.dualide.ui.bodies;
 
 import java.util.HashSet;
 import java.util.Set;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -56,6 +62,7 @@ public abstract class Body<S extends Statement> extends StackPane {
     public Body(S statement) {
         this.statement = statement;
         setPrefSize(0, 0);
+        //setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
     }
 
     public S getStatement() {

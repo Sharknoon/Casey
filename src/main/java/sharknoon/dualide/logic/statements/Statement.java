@@ -66,12 +66,18 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
         return body.get();
     }
 
+    public void destroy() {
+        childs.forEach(c -> c.destroy());
+        parent.get().childs.remove((Statement) this);
+        getBody().destroy();
+    }
+
     public abstract RV calculateResult();
-    
+
     public abstract StatementType getStatementType();
-    
+
     public abstract ValueType getReturnType();
-    
+
     @Override
     public abstract String toString();
 

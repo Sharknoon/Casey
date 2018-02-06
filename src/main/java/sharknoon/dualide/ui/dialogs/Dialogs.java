@@ -25,10 +25,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import sharknoon.dualide.logic.statements.values.creations.CreationType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
@@ -213,11 +211,11 @@ public class Dialogs {
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, String... variables) {
         return showBooleanInputDialog(type, null, variables);
     }
-    
-    public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type,Boolean forbiddenValue, String... variables) {
+
+    public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Boolean forbiddenValue, String... variables) {
         return showBooleanInputDialog(type, null, forbiddenValue, variables);
     }
-    
+
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Boolean defaultValue, Boolean forbiddenValue, String... variables) {
         switch (type) {
             case NEW_BOOLEAN_VALUE:
@@ -411,7 +409,8 @@ public class Dialogs {
 
     private static void setIcon(Icon icon, Dialog dialog) {
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(Icons.get(icon).getImage());
+        Optional<Image> image = Icons.getImage(icon);
+        image.ifPresent(i -> stage.getIcons().add(i));//TODO convert evtl svg to image
     }
 
     private static final String CSSPATH = "sharknoon/dualide/ui/MainCSS.css";

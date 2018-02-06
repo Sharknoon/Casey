@@ -15,22 +15,15 @@
  */
 package sharknoon.dualide.ui.menubar;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.Background;
@@ -100,8 +93,8 @@ public class MenuBarInit {
         gridPaneMenuItemBackgroundDurationContent.setHgap(10);
         gridPaneMenuItemBackgroundDurationContent.setAlignment(Pos.CENTER);
 
-        ImageView imageViewIcon = Icons.get(Icon.DURATION);
-        gridPaneMenuItemBackgroundDurationContent.add(imageViewIcon, 0, 0, 1, 2);
+        Node nodeIcon = Icons.get(Icon.DURATION);
+        gridPaneMenuItemBackgroundDurationContent.add(nodeIcon, 0, 0, 1, 2);
 
         Label labelSetDurationText = new Label();
         Language.set(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, labelSetDurationText);

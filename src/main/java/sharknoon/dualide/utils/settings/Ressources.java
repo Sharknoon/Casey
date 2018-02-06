@@ -52,7 +52,7 @@ public class Ressources {
     private static final String PRIVATE_DIR_NAME = ".dualide";
     private static final String PUBLIC_DIR_NAME = "DualIDE";
     private static final Map<String, Path> CACHE;
-    
+
     static {
         CACHE = new HashMap<>();
         Path privPath = null;
@@ -109,7 +109,7 @@ public class Ressources {
         }
         return Optional.empty();
     }
-    
+
     public static Optional<InputStream> getFileAsStream(String fileName, boolean privateFile) {
         return getFile(fileName, privateFile)
                 .map(file -> {
@@ -121,7 +121,7 @@ public class Ressources {
                     }
                 });
     }
-    
+
     public static Optional<Path> getDirectory(String directoryName, boolean privateDirectory) {
         Optional<Path> dir = lookup(directoryName, privateDirectory);
         if (dir.isPresent()) {
@@ -163,7 +163,7 @@ public class Ressources {
         }
         return false;
     }
-    
+
     public static boolean createDirectory(String path, boolean privateDirectory) {
         Optional<Path> dirSearch = lookup(path, privateDirectory);
         if (!dirSearch.isPresent()) {
@@ -194,7 +194,7 @@ public class Ressources {
         }
         return null;
     }
-    
+
     public static InputStream createAndGetFileAsStream(String path, boolean privateField) {
         Path path2 = createAndGetFile(path, privateField);
         if (path2 == null) {
@@ -292,13 +292,13 @@ public class Ressources {
         }
         return Optional.empty();
     }
-    
+
     private static Path createPath(String fileName, boolean privateFile) {
         Path res = privateFile ? PRIVATE_PATH : PUBLIC_PATH;
         fileName = clean(fileName);
         return res.resolve(Paths.get(fileName));
     }
-    
+
     private static String clean(String fileOrDirectory) {
         fileOrDirectory = fileOrDirectory.replace("\\", "/");
         while (fileOrDirectory.startsWith("/")) {
@@ -306,7 +306,7 @@ public class Ressources {
         }
         return fileOrDirectory;
     }
-    
+
     private static boolean isFirstStart() {
         try {
             if (Files.list(PRIVATE_PATH).findAny().isPresent()) {
@@ -333,7 +333,7 @@ public class Ressources {
             initPrivateDir();
         }
     }
-    
+
     private static void deleteRessourcesDir(boolean privateRes) {
         Path toDelete = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
         try {
@@ -435,13 +435,13 @@ public class Ressources {
             }
         }
     }
-    
+
     public static void initPublicDir() {
         createDirectory("/Projects", false);
         createDirectory("/Backgroundimages", false);
         copyDirectory("sharknoon/dualide/ui/backgroundimages", "Backgroundimages");
     }
-    
+
     public static String getPackageNameOfCaller() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement elem : stack) {
@@ -454,25 +454,26 @@ public class Ressources {
         }
         return stack.length > 0 ? stack[0].getClass().getPackage().getName() : "";
     }
-    
-    public static String search(String fileName, boolean privateRes) {
+
+    public static Optional<Path> search(String fileName, boolean privateRes) {
         return search(fileName, privateRes, false, false);
     }
-    
-    public static String search(String fileName, boolean privateRes, boolean ignoreCase) {
+
+    public static Optional<Path> search(String fileName, boolean privateRes, boolean ignoreCase) {
         return search(fileName, privateRes, ignoreCase, false);
     }
-    
-    private static transient String name;
-    
-    public static String search(String fileName, boolean privateRes, boolean ignoreCase, boolean ignoreFileextension) {
+
+    private static String name;
+    //private static Map<String,
+
+    public static Optional<Path> search(String fileName, boolean privateRes, boolean ignoreCase, boolean ignoreFileextension) {
         name = fileName;
         if (ignoreFileextension && name.contains(".")) {
             name = name.substring(0, name.lastIndexOf("."));
         }
         try {
             Path res = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
-            Optional<Path> pathOptional = Files.find(res, 99, (path, attrs) -> {
+            return Files.find(res, 99, (path, attrs) -> {
                 if (attrs.isRegularFile()) {
                     String currentFileName = path.getFileName().toString();
                     if (ignoreFileextension && currentFileName.contains(".")) {
@@ -486,13 +487,10 @@ public class Ressources {
                 }
                 return false;
             }).findFirst();
-            if (pathOptional.isPresent()) {
-                return pathOptional.get().toString();
-            }
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Ressources.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.error("Could not search for the file " + fileName, ex);
         }
-        return "";
+        return Optional.empty();
     }
-    
+
 }

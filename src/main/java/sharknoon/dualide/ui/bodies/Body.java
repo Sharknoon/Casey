@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.bodies;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -39,6 +40,8 @@ import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 
 /**
  * Helper class
@@ -48,7 +51,9 @@ import sharknoon.dualide.logic.statements.values.ValueType;
  */
 public abstract class Body<S extends Statement> extends Group {
 
+    private final Statement statement;
     private final StackPane contentPane = new StackPane();
+    private final Shape backgroundShape;
 
     public static final Body createBody(Statement statement) {
         switch (statement.getStatementType()) {
@@ -60,16 +65,45 @@ public abstract class Body<S extends Statement> extends Group {
         return null;
     }
 
-    public Body(ValueType valueType) {
+    public Body(Statement statement) {
         super();
-        contentPane.setMinSize(57, 57);
-        super.getChildren().addAll(createOuterShape(valueType), contentPane);
+        this.statement = statement;
+        this.backgroundShape = createOuterShape(statement.getReturnType());
+        init();
+        super.getChildren().addAll(backgroundShape, contentPane);
     }
 
     public Body(Set<ValueType> valueTypes) {
         super();
+        this.statement = null;
+        this.backgroundShape = createOuterShape(valueTypes);
+        init();
+        super.getChildren().addAll(backgroundShape, contentPane);
+    }
+
+    private void init() {
         contentPane.setMinSize(57, 57);
-        super.getChildren().addAll(createOuterShape(valueTypes), contentPane);
+        if (!(this instanceof PlaceholderBody)) {
+            Node closeIcon = Icons.get(Icon.CLOSEROUND, 15);
+            closeIcon.setOnMouseClicked((event) -> {
+                if (statement != null) {
+                    statement.destroy();
+                }
+            });
+            closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(closeIcon.prefWidth(0.0)));
+            closeIcon.setLayoutY(0);
+            getChildren().add(closeIcon);
+            backgroundShape.setOnMouseEntered((event) -> {
+                closeIcon.setVisible(true);
+            });
+            backgroundShape.setOnMouseExited((event) -> {
+                closeIcon.setVisible(false);
+            });
+        }
+    }
+
+    public Optional<Statement> getStatement() {
+        return Optional.ofNullable(statement);
     }
 
     /**
@@ -173,12 +207,22 @@ public abstract class Body<S extends Statement> extends Group {
             shape.setStroke(Color.BLACK);
         }
         shape.setStrokeWidth(3);
-        shape.setStrokeType(StrokeType.INSIDE);
+        //shape.setStrokeType(StrokeType.INSIDE);
         return shape;
     }
 
     public void setContent(Node... node) {
+        contentPane.getChildren().clear();
         contentPane.getChildren().addAll(node);
+    }
+
+    /**
+     * Do not call directly! call getStatement().ifPresent(s -> s.destroy());
+     */
+    public void destroy() {
+        contentPane.getChildren().clear();
+        getChildren().clear();
+
     }
 
 }

@@ -15,6 +15,9 @@
  */
 package sharknoon.dualide.ui.misc;
 
+import java.nio.file.Path;
+import java.util.Optional;
+import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Ressources;
 
 /**
@@ -28,6 +31,7 @@ public enum Icon {
     BOOLEAN,
     CLASS,
     CLOSE,
+    CLOSEROUND,
     COG,
     COMMENTS,
     CONCAT,
@@ -77,15 +81,26 @@ public enum Icon {
     private boolean isSearched = false;
 
     private Icon() {
-        this.path = name().toLowerCase() + ".png";
+        this.path = name().toLowerCase();
     }
 
-    public String getPath() {
+    public String getPath(boolean asSVG) {
         if (!isSearched) {
-            path = Ressources.search(path, true);
+            Optional<Path> fullPath = Ressources.search(path, true, false, true);
+            if (fullPath.isPresent()) {
+                path = fullPath.get().toString();
+                int index = path.lastIndexOf(".");
+                if (index != -1) {
+                    path = path.substring(0, path.lastIndexOf("."));
+                } else {
+                    Logger.error("Path " + path + " should contain a file ending!");
+                }
+            } else {
+                path = "";
+            }
             isSearched = true;
         }
-        return path;
+        return path.isEmpty() ? path : path + (asSVG ? ".svg" : ".png");
     }
 
     public static Icon forName(String name) {

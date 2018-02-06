@@ -93,7 +93,7 @@ public class StatementPopUp extends PopOver {
     private void addNewValueButtons(ValueType value) {
         FlowPane flowPaneValueButtons = new FlowPane(20, 20);
         String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
-        ImageView icon = Icons.get(value.getIcon());
+        Node icon = Icons.get(value.getIcon());
         Label text = createLabel(value.getName() + stringValues);
         flowPaneValueButtons.getChildren().addAll(icon, text);
 
@@ -192,7 +192,7 @@ public class StatementPopUp extends PopOver {
                             HBox hBoxPackage = new HBox(20);
                             hBoxPackage.setAlignment(Pos.CENTER);
                             Item item = ti.getValue();
-                            ImageView icon = Icons.get(item.getSite().getTabIcon());
+                            Node icon = Icons.get(item.getSite().getTabIcon());
                             Label name = new Label(item.getName());
                             hBoxPackage.setOnMouseClicked((event) -> {
                                 breadCrumbBarNavigation.setSelectedCrumb(ti);
@@ -221,7 +221,7 @@ public class StatementPopUp extends PopOver {
                         .forEach((t) -> {
                             HBox hBoxFunctionOrVariable = new HBox(10);
                             hBoxFunctionOrVariable.setAlignment(Pos.CENTER);
-                            ImageView icon = Icons.get(t.getSite().getTabIcon());
+                            Node icon = Icons.get(t.getSite().getTabIcon());
                             Label name = new Label(t.getName());
                             hBoxFunctionOrVariable.setOnMouseClicked((event) -> {
                                 //TODO

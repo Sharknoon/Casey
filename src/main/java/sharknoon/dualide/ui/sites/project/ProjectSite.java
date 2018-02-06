@@ -22,10 +22,10 @@ import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -41,7 +41,6 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -152,7 +151,7 @@ public class ProjectSite extends Site<Project> {
                 .stream()
                 .sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
                 .forEach(p -> {
-                    ImageView icon = Icons.get(Icon.PACKAGE, 50);
+                    Node icon = Icons.get(Icon.PACKAGE, 50);
                     icon.setOnMouseClicked(e -> onClicked(p));
 
                     Text textPackageName = new Text();

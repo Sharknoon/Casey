@@ -167,5 +167,10 @@
             <version>8.40.14</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.afester.javafx</groupId>
+            <artifactId>FranzXaver</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 </project>

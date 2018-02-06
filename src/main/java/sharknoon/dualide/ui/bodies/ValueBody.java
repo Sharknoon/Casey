@@ -17,10 +17,7 @@ package sharknoon.dualide.ui.bodies;
 
 import com.sun.javafx.scene.control.skin.SpinnerSkin;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.util.Set;
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.geometry.Insets;
@@ -31,15 +28,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
 import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
  *
@@ -52,7 +46,7 @@ public class ValueBody extends Body<Value> {
     }
 
     public ValueBody(Value value) {
-        super(value.getValueType());
+        super(value);
         Control content = createContentNode(value);
         setContent(content);
     }

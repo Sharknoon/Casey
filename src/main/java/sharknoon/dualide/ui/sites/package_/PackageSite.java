@@ -21,11 +21,10 @@ import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -34,7 +33,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Package;
@@ -177,7 +175,7 @@ public class PackageSite extends Site<Package> {
         gridPaneChildren.getChildren().clear();
         rowCounter = 0;
         getItem().getChildren().forEach(c -> {
-            ImageView icon = Icons.get(c.getSite().getTabIcon(), 50);
+            Node icon = Icons.get(c.getSite().getTabIcon(), 50);
             icon.setOnMouseClicked(e -> onClicked(c));
 
             Text textName = new Text();

@@ -22,6 +22,8 @@ import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 
 /**
  *
@@ -37,6 +39,13 @@ public class PlaceholderBody extends Body {
         super(types);
         setOnMouseClicked((event) -> {
             StatementPopUp.showValueSelectionPopUp(this, types, parent, valueConsumer, operatorConsumer);
+        });
+        setOnMouseEntered((event) -> {
+            setContent(Icons.get(Icon.PLUS, 50));
+        });
+        setOnMouseDragExited((event) -> {
+            System.out.println("exited!!!!!");
+            setContent();
         });
     }
 }

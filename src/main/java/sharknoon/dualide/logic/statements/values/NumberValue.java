@@ -24,10 +24,10 @@ import sharknoon.dualide.logic.statements.Statement;
  */
 public final class NumberValue extends Value<Double, NumberValue> {
 
-    private static final double DEFAULT = 0.0;
+    private static final Double DEFAULT = 0.0;
 
     public NumberValue(Statement parent) {
-        super(DEFAULT, parent);
+        this(DEFAULT, parent);
     }
 
     public NumberValue(Double value, Statement parent) {

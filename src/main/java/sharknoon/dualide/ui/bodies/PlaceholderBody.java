@@ -15,7 +15,13 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import java.util.Set;
+import java.util.function.Consumer;
+import javafx.scene.shape.Shape;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.operations.Operator;
+import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
  *
@@ -23,12 +29,14 @@ import sharknoon.dualide.logic.statements.Statement;
  */
 public class PlaceholderBody extends Body {
 
-    public static PlaceholderBody createPlaceholderBody(){
-        return null;
-    }
-    
-    public PlaceholderBody(Statement statement) {
-        super(statement);
+    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
+        return new PlaceholderBody(types, parent, valueConsumer, operatorConsumer);
     }
 
+    public PlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
+        super(types);
+        setOnMouseClicked((event) -> {
+            StatementPopUp.showValueSelectionPopUp(this, types, parent, valueConsumer, operatorConsumer);
+        });
+    }
 }

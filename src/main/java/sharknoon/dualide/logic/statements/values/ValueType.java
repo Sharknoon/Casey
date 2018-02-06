@@ -33,19 +33,21 @@ import sharknoon.dualide.utils.language.Word;
  * @author Josua Frank
  */
 public enum ValueType {
-    NUMBER(NumberValue.class, Word.NUMBER, Icon.NUMBER, NUMBER_CREATION, EnumSet.of(ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO)),
-    BOOLEAN(BooleanValue.class, Word.BOOLEAN, Icon.BOOLEAN, BOOLEAN_CREATION, EnumSet.of(EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN, GREATER_OR_EQUAL_THAN, LESS_OR_EQUAL_THAN, AND, OR, NOT)),
-    TEXT(TextValue.class, Word.TEXT, Icon.TEXT, TEXT_CREATION, EnumSet.of(CONCAT)),
-    OBJECT(ObjectValue.class, Word.OBJECT, Icon.CLASS, OBJECT_CREATION, EnumSet.noneOf(OperatorType.class));
+    NUMBER(new NumberValue(null), Word.NUMBER, Icon.NUMBER, NUMBER_CREATION, EnumSet.of(ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO)),
+    BOOLEAN(new BooleanValue(null), Word.BOOLEAN, Icon.BOOLEAN, BOOLEAN_CREATION, EnumSet.of(EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN, GREATER_OR_EQUAL_THAN, LESS_OR_EQUAL_THAN, AND, OR, NOT)),
+    TEXT(new TextValue(null), Word.TEXT, Icon.TEXT, TEXT_CREATION, EnumSet.of(CONCAT)),
+    OBJECT(new ObjectValue(null, null, null), Word.OBJECT, Icon.CLASS, OBJECT_CREATION, EnumSet.noneOf(OperatorType.class));
 
     private static Map<Class<? extends Value>, ValueType> TYPES;
+    private final Value defaultValue;
     private final Word name;
     private final Icon icon;
     private final EnumSet<OperatorType> operations;
     private final CreationType creation;
 
-    private ValueType(Class<? extends Value> type, Word name, Icon icon, CreationType creation, EnumSet<OperatorType> operations) {
-        init(type);
+    private ValueType(Value defaultValue, Word name, Icon icon, CreationType creation, EnumSet<OperatorType> operations) {
+        init(defaultValue.getClass());
+        this.defaultValue = defaultValue;
         this.name = name;
         this.icon = icon;
         this.operations = operations;
@@ -65,6 +67,10 @@ public enum ValueType {
 
     public Icon getIcon() {
         return icon;
+    }
+
+    public Value getDefault() {
+        return defaultValue;
     }
 
     public CreationType getCreationType() {

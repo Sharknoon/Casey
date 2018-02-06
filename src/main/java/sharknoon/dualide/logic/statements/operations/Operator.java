@@ -15,11 +15,11 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -39,17 +39,31 @@ import sharknoon.dualide.logic.statements.values.ValueType;
  */
 public abstract class Operator<RV extends Value, CV extends Value> extends Statement<Value, RV, CV> {
 
-    private final MapProperty<Integer, CV> parameters = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>()));
+    //A map instead of a list to leave empty spaces inbetween the indexes
+    private final MapProperty<Integer, Statement<Value, CV, Value>> parameters = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>()));
     private final ValueType returnType;
     private final Set<ValueType> parameterTypes;
+    private final int minimumParameters;
+    private final int maximumParamerters;
 
-    public Operator(Statement parent, ValueType returnType, ValueType... parameterTypes) {
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, ValueType returnType, ValueType... parameterTypes) {
         super(parent);
         this.returnType = returnType;
         if (parameterTypes.length > 0) {
             this.parameterTypes = new HashSet<>(Arrays.asList(parameterTypes));
         } else {
             this.parameterTypes = EnumSet.allOf(ValueType.class);
+        }
+        this.minimumParameters = minimumParameters;
+        this.maximumParamerters = maximumParameters;
+    }
+
+    public void addParameter(Statement<Value, CV, Value> parameter) {
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            if (!parameters.containsKey(i)) {
+                addParameter(i, parameter);
+                return;
+            }
         }
     }
 
@@ -59,20 +73,26 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
      * @param index starting at 0
      * @param parameter
      */
-    public void addParameter(int index, CV parameter) {
+    public void addParameter(int index, Statement<Value, CV, Value> parameter) {
+        while (index > parameters.size()) {
+            addParameter(returnType.getDefault());
+        }
         parameters.put(index, parameter);
     }
 
-    public Optional<CV> getParameter(int index) {
+    public Optional<Statement<Value, CV, Value>> getParameter(int index) {
         return Optional.ofNullable(parameters.get(index));
     }
 
-    public List<CV> getParameters() {
-        return new ArrayList<>(parameters.values());
+    public Collection<Statement<Value, CV, Value>> getParameters() {
+        return parameters.values();
+    }
+    
+    public Map<Integer, Statement<Value, CV, Value>> getParameterIndexMap(){
+        return parameters;
     }
 
-    public abstract RV calculateResult();
-
+    @Override
     public ValueType getReturnType() {
         return returnType;
     }
@@ -86,8 +106,21 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
     }
 
     @Override
-    public StatementType getStatementType(){
+    public StatementType getStatementType() {
         return StatementType.OPERATOR;
+    }
+
+    public int getMinimumParameterAmount() {
+        return minimumParameters;
+    }
+
+    public int getMaximumParamerterAmount() {
+        return maximumParamerters;
+    }
+    
+    @Override
+    public String toString() {
+        return calculateResult().toString();
     }
 
 }

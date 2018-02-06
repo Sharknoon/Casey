@@ -15,9 +15,10 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
-import java.util.List;
+import java.util.Collection;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
@@ -27,16 +28,16 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class NotOperator extends Operator<BooleanValue, BooleanValue> {
 
     public NotOperator(Statement parent) {
-        super(parent, ValueType.BOOLEAN, ValueType.BOOLEAN);
+        super(parent, 1, 1, ValueType.BOOLEAN, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        List<BooleanValue> parameters = getParameters();
-        if (parameters.size() < 1) {
+        Collection<Statement<Value, BooleanValue, Value>> parameters = getParameters();
+        if (parameters.size() < getMinimumParameterAmount()) {
             return new BooleanValue(parentProperty().get());
         }
-        boolean result = !parameters.get(0).getValue();
+        boolean result = !parameters.iterator().next().calculateResult().getValue();
         return new BooleanValue(result, parentProperty().get());
     }
 

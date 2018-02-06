@@ -102,6 +102,7 @@ public class StatementPopUp extends PopOver {
         buttonCreation.setOnAction((event) -> {
             Optional<Value> createdValue = ct.create().create(parent);
             createdValue.ifPresent(cv -> valueConsumer.accept(cv));
+            hide();
         });
         flowPaneValueButtons.getChildren().add(buttonCreation);
 
@@ -109,6 +110,7 @@ public class StatementPopUp extends PopOver {
             Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
             buttonOperation.setOnAction((event) -> {
                 operatorConsumer.accept(ot.create(parent));
+                hide();
             });
             flowPaneValueButtons.getChildren().add(buttonOperation);
         });

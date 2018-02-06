@@ -24,8 +24,10 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.bodies.Body;
 
 /**
@@ -64,7 +66,14 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
         return body.get();
     }
 
+    public abstract RV calculateResult();
+    
     public abstract StatementType getStatementType();
+    
+    public abstract ValueType getReturnType();
+    
+    @Override
+    public abstract String toString();
 
     public enum StatementType {
         OPERATOR(Operator.class),

@@ -16,6 +16,9 @@
 package sharknoon.dualide.ui.bodies;
 
 import com.sun.javafx.scene.control.skin.SpinnerSkin;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -30,10 +33,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.util.StringConverter;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
 import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
  *
@@ -46,29 +52,27 @@ public class ValueBody extends Body<Value> {
     }
 
     public ValueBody(Value value) {
-        super(value);
-        Shape shape = createOuterShape(value.getValueType());
+        super(value.getValueType());
         Control content = createContentNode(value);
-        getChildren().addAll(shape, content);
+        setContent(content);
     }
 
-    private Control createContentNode(Value value) {
+    private static Control createContentNode(Value value) {
         switch (value.getValueType()) {
             case BOOLEAN:
                 BooleanValue val = (BooleanValue) value;
                 CheckBox checkBoxValue = new CheckBox();
-                int margin = 26;
-                StackPane.setMargin(checkBoxValue, new Insets(0, margin, 0, margin));
-                widthProperty.bind(checkBoxValue.prefWidthProperty().add(margin * 2));
-                checkBoxValue.setPadding(new Insets(0, 0, 10, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
+                int margin = 10;
+                StackPane.setMargin(checkBoxValue, new Insets(margin));
+                checkBoxValue.setPadding(new Insets(5, 0, 5, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
                 checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
                 return checkBoxValue;
             case NUMBER:
                 NumberValue val2 = (NumberValue) value;
-                Spinner<Double> spinnerValue = new Spinner<>(Double.MIN_VALUE, Double.MAX_VALUE, Double.MIN_VALUE);
-                int margin2 = 15;
-                StackPane.setMargin(spinnerValue, new Insets(0, margin2, 0, margin2));
+                Spinner<Double> spinnerValue = new Spinner<>(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN);
+                int margin2 = 10;
+                StackPane.setMargin(spinnerValue, new Insets(margin2));
                 //Can be removed on JavaFX 9 TODO
                 //http://hg.openjdk.java.net/openjfx/9-dev/rt/rev/4cc3cc9bc47d
                 //https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8140507
@@ -78,11 +82,42 @@ public class ValueBody extends Body<Value> {
                         return spinnerValue.getEditor().minWidth(height);
                     }
                 });
-                DoubleBinding spinnerWidth = minTextFieldWidthProperty(spinnerValue.getEditor()).add(23);
-                widthProperty.addListener((observable, oldValue, newValue) -> {//Spinner does not resize automatically like textfield :(
-                    spinnerValue.setPrefWidth(newValue.doubleValue());
+                spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
+                    private final DecimalFormat df = new DecimalFormat("#.##");
+
+                    @Override
+                    public String toString(Double value) {
+                        // If the specified value is null, return a zero-length String
+                        if (value == null) {
+                            return "";
+                        }
+
+                        return value.toString();
+                    }
+
+                    @Override
+                    public Double fromString(String value) {
+                        try {
+                            // If the specified value is null or zero-length, return null
+                            if (value == null) {
+                                return null;
+                            }
+
+                            value = value.trim();
+
+                            if (value.length() < 1) {
+                                return null;
+                            }
+
+                            // Perform the requested parsing
+                            return Double.parseDouble(value);
+                        } catch (NumberFormatException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
                 });
-                widthProperty.bind(spinnerWidth.add(margin2 * 2));
+                spinnerValue.prefWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
+                spinnerValue.getEditor().setMinWidth(14);
                 spinnerValue.setEditable(true);
                 spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
                 return spinnerValue;
@@ -92,8 +127,8 @@ public class ValueBody extends Body<Value> {
                 TextValue val4 = (TextValue) value;
                 TextField textFieldValue = new TextField();
                 int margin4 = 10;
-                StackPane.setMargin(textFieldValue, new Insets(0, margin4, 0, margin4));
-                widthProperty.bind(minTextFieldWidthProperty(textFieldValue).add(margin4 * 2));
+                StackPane.setMargin(textFieldValue, new Insets(margin4));
+                textFieldValue.prefWidthProperty().bind(minTextFieldWidthProperty(textFieldValue));
                 textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
                 return textFieldValue;
         }
@@ -114,7 +149,6 @@ public class ValueBody extends Body<Value> {
                 tf.positionCaret(tf.getCaretPosition()); // If you remove this line, it flashes a little bit
             });
         });
-        tf.setText(tf.getText());
         return minTextFieldWidthProperty.getReadOnlyProperty();
     }
 

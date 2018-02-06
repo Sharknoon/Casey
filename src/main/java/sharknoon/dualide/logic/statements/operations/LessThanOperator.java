@@ -15,10 +15,11 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
-import java.util.List;
+import java.util.Collection;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
@@ -28,17 +29,25 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class LessThanOperator extends Operator<BooleanValue, NumberValue> {
 
     public LessThanOperator(Statement parent) {
-        super(parent, ValueType.BOOLEAN, ValueType.NUMBER);
+        super(parent, 2, -1, ValueType.BOOLEAN, ValueType.NUMBER);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        List<NumberValue> parameters = getParameters();
-        if (parameters.size() < 2) {
+        Collection<Statement<Value, NumberValue, Value>> parameters = getParameters();
+        if (parameters.size() < getMinimumParameterAmount()) {
             return new BooleanValue(parentProperty().get());
         }
-        boolean result = parameters.get(0).getValue() < parameters.get(1).getValue();
-        return new BooleanValue(result, parentProperty().get());
+        Statement<Value, NumberValue, Value> lastPar = null;
+        for (Statement<Value, NumberValue, Value> par : parameters) {
+            if (lastPar != null) {
+                if (!(lastPar.calculateResult().getValue() < par.calculateResult().getValue())) {
+                    return new BooleanValue(parentProperty().get());
+                }
+            }
+            lastPar = par;
+        }
+        return new BooleanValue(true, parentProperty().get());
     }
 
 }

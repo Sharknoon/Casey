@@ -24,10 +24,10 @@ import sharknoon.dualide.logic.statements.Statement;
  */
 public final class BooleanValue extends Value<Boolean, BooleanValue> {
 
-    private static final boolean DEFAULT = false;
+    private static final Boolean DEFAULT = false;
 
     public BooleanValue(Statement parent) {
-        super(DEFAULT, parent);
+        this(DEFAULT, parent);
     }
 
     public BooleanValue(boolean value, Statement parent) {

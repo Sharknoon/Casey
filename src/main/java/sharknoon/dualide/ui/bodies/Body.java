@@ -17,18 +17,24 @@ package sharknoon.dualide.ui.bodies;
 
 import java.util.HashSet;
 import java.util.Set;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.StrokeType;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -40,12 +46,9 @@ import sharknoon.dualide.logic.statements.values.ValueType;
  * @author Josua Frank
  * @param <S> The Statement this body corresponds to
  */
-public abstract class Body<S extends Statement> extends StackPane {
+public abstract class Body<S extends Statement> extends Group {
 
-    //Controls the Shape because the shape is the biggest object in the stackpane
-    //and the shape controls the overall size of the stackpane
-    protected final ReadOnlyDoubleWrapper widthProperty = new ReadOnlyDoubleWrapper(75);
-    protected final ReadOnlyDoubleWrapper heightProperty = new ReadOnlyDoubleWrapper(50);
+    private final StackPane contentPane = new StackPane();
 
     public static final Body createBody(Statement statement) {
         switch (statement.getStatementType()) {
@@ -57,16 +60,16 @@ public abstract class Body<S extends Statement> extends StackPane {
         return null;
     }
 
-    private final S statement;
-
-    public Body(S statement) {
-        this.statement = statement;
-        setPrefSize(0, 0);
-        //setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+    public Body(ValueType valueType) {
+        super();
+        contentPane.setMinSize(57, 57);
+        super.getChildren().addAll(createOuterShape(valueType), contentPane);
     }
 
-    public S getStatement() {
-        return statement;
+    public Body(Set<ValueType> valueTypes) {
+        super();
+        contentPane.setMinSize(57, 57);
+        super.getChildren().addAll(createOuterShape(valueTypes), contentPane);
     }
 
     /**
@@ -76,7 +79,7 @@ public abstract class Body<S extends Statement> extends StackPane {
      * @param parentHeight
      * @param parentWidth
      */
-    public static void redrawPolygon(Polygon polygon, boolean isOctagon, double parentHeight, double parentWidth) {
+    private static void redrawPolygon(Polygon polygon, boolean isOctagon, double parentHeight, double parentWidth) {
         if (isOctagon) {
             polygon.getPoints().clear();
             polygon.getPoints().addAll(
@@ -102,27 +105,27 @@ public abstract class Body<S extends Statement> extends StackPane {
         }
     }
 
-    public Shape createOuterShape(ValueType valueType) {
+    private Shape createOuterShape(ValueType valueType) {
         //To be replaced by Set.of(...); TODO
         Set<ValueType> valueTypes = new HashSet<>();
         valueTypes.add(valueType);
         return createOuterShape(valueTypes);
     }
 
-    public Shape createOuterShape(Set<ValueType> valueTypes) {
+    private Shape createOuterShape(Set<ValueType> valueTypes) {
         final Shape shape;
-        double height = heightProperty.get();
-        double width = widthProperty.get();
+        double height = contentPane.getHeight();
+        double width = contentPane.getWidth();
         if (valueTypes.size() == 1) {
             switch (valueTypes.iterator().next()) {
                 case BOOLEAN:
                     Polygon poly = new Polygon();
                     redrawPolygon(poly, false, height, width);
-                    heightProperty.addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly, false, heightProperty.get(), widthProperty.get());
+                    contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                        redrawPolygon(poly, false, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                     });
-                    widthProperty.addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly, false, heightProperty.get(), widthProperty.get());
+                    contentPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                        redrawPolygon(poly, false, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                     });
                     shape = poly;
                     break;
@@ -130,29 +133,27 @@ public abstract class Body<S extends Statement> extends StackPane {
                     Rectangle rect = new Rectangle();
                     rect.arcHeightProperty().bind(rect.heightProperty());
                     rect.arcWidthProperty().bind(rect.heightProperty());
-                    rect.heightProperty().bind(heightProperty);
-                    rect.widthProperty().bind(widthProperty);
+                    rect.heightProperty().bind(contentPane.heightProperty());
+                    rect.widthProperty().bind(contentPane.widthProperty());
                     shape = rect;
                     break;
                 case OBJECT:
                     Polygon poly2 = new Polygon();
                     redrawPolygon(poly2, true, height, width);
-                    heightProperty.addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly2, true, heightProperty.get(), widthProperty.get());
+                    contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                        redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                     });
-                    widthProperty.addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly2, true, heightProperty.get(), widthProperty.get());
+                    contentPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                        redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                     });
                     shape = poly2;
                     break;
                 case TEXT:
                     Rectangle rect2 = new Rectangle();
-                    rect2.heightProperty().addListener((observable, oldValue, newValue) -> {
-                        rect2.setArcHeight(newValue.doubleValue() / 2);
-                        rect2.setArcWidth(newValue.doubleValue() / 2);
-                    });
-                    rect2.heightProperty().bind(heightProperty);
-                    rect2.widthProperty().bind(widthProperty);
+                    rect2.arcHeightProperty().bind(rect2.heightProperty().divide(2));
+                    rect2.arcWidthProperty().bind(rect2.heightProperty().divide(2));
+                    rect2.heightProperty().bind(contentPane.heightProperty());
+                    rect2.widthProperty().bind(contentPane.widthProperty());
                     shape = rect2;
                     break;
                 default:
@@ -161,13 +162,23 @@ public abstract class Body<S extends Statement> extends StackPane {
             }
         } else {
             Rectangle rect = new Rectangle();
-            rect.heightProperty().bind(heightProperty);
-            rect.widthProperty().bind(widthProperty);
+            rect.heightProperty().bind(contentPane.heightProperty());
+            rect.widthProperty().bind(contentPane.widthProperty());
             shape = rect;
         }
         shape.setFill(Color.WHITE);
-        shape.setStroke(Color.BLACK);
+        if (this instanceof PlaceholderBody) {
+            shape.setStroke(Color.GREY);
+        } else {
+            shape.setStroke(Color.BLACK);
+        }
         shape.setStrokeWidth(3);
+        shape.setStrokeType(StrokeType.INSIDE);
         return shape;
     }
+
+    public void setContent(Node... node) {
+        contentPane.getChildren().addAll(node);
+    }
+
 }

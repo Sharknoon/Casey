@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
-import java.util.List;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.ValueType;
@@ -27,17 +26,19 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class AndOperator extends Operator<BooleanValue, BooleanValue> {
 
     public AndOperator(Statement parent) {
-        super(parent, ValueType.BOOLEAN, ValueType.BOOLEAN);
+        super(parent, 2, -1, ValueType.BOOLEAN, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        List<BooleanValue> parameters = getParameters();
-        if (parameters.size() < 2) {
-            return new BooleanValue(parentProperty().get());
-        }
-        boolean result = parameters.get(0).getValue() && parameters.get(1).getValue();
-        return new BooleanValue(result, parentProperty().get());
+        return new BooleanValue(
+                getParameters()
+                        .stream()
+                        .map(p -> p.calculateResult())
+                        .map(v -> v.getValue())
+                        .reduce(false, (l, r) -> l && r),
+                parentProperty().get()
+        );
     }
 
 }

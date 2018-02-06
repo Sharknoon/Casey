@@ -25,7 +25,7 @@ import sharknoon.dualide.logic.statements.Statement;
  * @param <T> The type of the value
  * @param <U> This value itself
  */
-public abstract class Value<T, U extends Value> extends Statement<Value, U, Value>{
+public abstract class Value<T, U extends Value> extends Statement<Value, U, Value> {
 
     private final ObjectProperty<T> value = new SimpleObjectProperty<>();
 
@@ -42,11 +42,11 @@ public abstract class Value<T, U extends Value> extends Statement<Value, U, Valu
         this.value.set(value);
     }
 
-    public ObjectProperty<T> valueProperty(){
+    public ObjectProperty<T> valueProperty() {
         return value;
     }
-    
-    public ValueType getValueType(){
+
+    public ValueType getValueType() {
         return ValueType.valueOf(this);
     }
 
@@ -54,9 +54,17 @@ public abstract class Value<T, U extends Value> extends Statement<Value, U, Valu
     public StatementType getStatementType() {
         return StatementType.VALUE;
     }
-    
-    
-    
+
+    @Override
+    public U calculateResult() {
+        return (U) this;
+    }
+
+    @Override
+    public ValueType getReturnType() {
+        return getValueType();
+    }
+
     abstract T getDefault();
 
     public abstract boolean equals(Value other);

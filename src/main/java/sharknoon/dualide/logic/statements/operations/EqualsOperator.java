@@ -15,7 +15,7 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
-import java.util.List;
+import java.util.Collection;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -28,19 +28,23 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class EqualsOperator extends Operator<BooleanValue, Value> {
 
     public EqualsOperator(Statement parent) {
-        super(parent, ValueType.BOOLEAN);
+        super(parent, 2, -1, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        List<Value> parameters = getParameters();
-        if (parameters.size() < 2) {
+        Collection<Statement<Value, Value, Value>> parameters = getParameters();
+        if (parameters.size() < getMinimumParameterAmount()) {
             return new BooleanValue(parentProperty().get());
         }
-        for (int i = 1; i < parameters.size(); i++) {
-            if (!parameters.get(i - 1).equals(parameters.get(i))) {
-                return new BooleanValue(parentProperty().get());
+        Statement<Value, Value, Value> lastPar = null;
+        for (Statement<Value, Value, Value> par : parameters) {
+            if (lastPar != null) {
+                if (!lastPar.equals(par)) {
+                    return new BooleanValue(parentProperty().get());
+                }
             }
+            lastPar = par;
         }
         return new BooleanValue(true, parentProperty().get());
     }

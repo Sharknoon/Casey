@@ -27,6 +27,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.statements.operations.AddOperator;
+import sharknoon.dualide.logic.statements.operations.ConcatOperator;
+import sharknoon.dualide.logic.statements.operations.EqualsOperator;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
@@ -35,6 +37,7 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.bodies.Body;
+import sharknoon.dualide.ui.bodies.PlaceholderBody;
 
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -72,13 +75,24 @@ public class ToolBarInit {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
-        Operator op = new AddOperator(null);
-        op.addParameter(0, new NumberValue(42.0, op));
-        op.addParameter(1, new NumberValue(op));
+        Operator opConcat = new ConcatOperator(null);
 
-        root.getChildren().add(new BooleanValue(true, null).getBody());
+        Operator opAdd = new AddOperator(opConcat);
+        opAdd.addParameter(new NumberValue(42.0, opAdd));
+        opAdd.addParameter(new NumberValue(opAdd));
+        opAdd.addParameter(new NumberValue(27.0, opAdd));
+
+        opConcat.addParameter(opAdd);
+        opConcat.addParameter(new TextValue("hehehe", opConcat));
+
         root.getChildren().add(new TextValue("sdg", null).getBody());
-        root.getChildren().add(new NumberValue(42.0, null).getBody());
+        root.getChildren().add(new NumberValue(1.0, null).getBody());
+        root.getChildren().add(new BooleanValue(true, null).getBody());
+        root.getChildren().add(new PlaceholderBody(EnumSet.allOf(ValueType.class), null, v -> {
+        }, o -> {
+        }));
+        root.getChildren().add(opConcat.getBody());
+        root.getChildren().add(new EqualsOperator(null).getBody());
 
         Stage stage = new Stage();
         stage.setScene(scene);

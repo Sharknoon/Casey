@@ -27,7 +27,7 @@ public final class TextValue extends Value<String, TextValue> {
     private static final String DEFAULT = "";
 
     public TextValue(Statement parent) {
-        super(DEFAULT, parent);
+        this(DEFAULT, parent);
     }
 
     public TextValue(String value, Statement parent) {

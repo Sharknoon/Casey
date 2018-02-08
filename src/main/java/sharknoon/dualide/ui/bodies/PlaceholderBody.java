@@ -66,4 +66,11 @@ public class PlaceholderBody extends Body {
         });
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    
+    
 }

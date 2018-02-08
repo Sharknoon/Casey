@@ -89,7 +89,6 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
             }
         }
         content.addListener((Change<? extends Node> c) -> {
-            System.out.println(c);
             while (c.next()) {
                 if (c.wasReplaced()) {
                     for (int i = 0; i < c.getAddedSize(); i++) {

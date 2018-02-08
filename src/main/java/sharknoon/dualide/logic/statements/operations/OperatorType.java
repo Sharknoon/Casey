@@ -30,32 +30,34 @@ import sharknoon.dualide.utils.language.Word;
  * @author Josua Frank
  */
 public enum OperatorType {
-    ADD(AddOperator::new, AddOperator.class, Word.ADD, Icon.PLUS),
-    SUBTRACT(SubtractOperator::new, SubtractOperator.class, Word.SUBTRACT, Icon.MINUS),
-    MULTIPLY(MultiplyOperator::new, MultiplyOperator.class, Word.MULTIPLY, Icon.MULTIPLY),
-    DIVIDE(DivideOperator::new, DivideOperator.class, Word.DIVIDE, Icon.DIVIDE),
-    MODULO(ModuloOperator::new, ModuloOperator.class, Word.MODULO, Icon.MODULO),
-    EQUALS(EqualsOperator::new, EqualsOperator.class, Word.EQUALS, Icon.EQUAL),
-    NOT_EQUALS(NotEqualsOperator::new, NotEqualsOperator.class, Word.NOT_EQUALS, Icon.NOTEQUAL),
-    GREATER_THAN(GreaterThanOperator::new, GreaterThanOperator.class, Word.GREATER_THAN, Icon.GREATERTHAN),
-    LESS_THAN(LessThanOperator::new, LessThanOperator.class, Word.LESS_THAN, Icon.LESSTHAN),
-    GREATER_OR_EQUAL_THAN(GreaterOrEqualThanOperator::new, GreaterOrEqualThanOperator.class, Word.GREATER_OR_EQUAL_THAN, Icon.GREATEROREQUALTHAN),
-    LESS_OR_EQUAL_THAN(LessOrEqualThanOperator::new, LessOrEqualThanOperator.class, Word.LESS_OR_EQUAL_THAN, Icon.LESSOREQUALTHAN),
-    AND(AndOperator::new, AndOperator.class, Word.AND, Icon.AND),
-    OR(OrOperator::new, OrOperator.class, Word.OR, Icon.OR),
-    NOT(NotOperator::new, NotOperator.class, Word.NOT, Icon.NOT),
-    CONCAT(ConcatOperator::new, ConcatOperator.class, Word.CONCAT, Icon.CONCAT);
+    ADD(AddOperator::new, AddOperator.class, Word.ADD, Icon.PLUS, "+"),
+    SUBTRACT(SubtractOperator::new, SubtractOperator.class, Word.SUBTRACT, Icon.MINUS, "-"),
+    MULTIPLY(MultiplyOperator::new, MultiplyOperator.class, Word.MULTIPLY, Icon.MULTIPLY, "×"),
+    DIVIDE(DivideOperator::new, DivideOperator.class, Word.DIVIDE, Icon.DIVIDE, "÷"),
+    MODULO(ModuloOperator::new, ModuloOperator.class, Word.MODULO, Icon.MODULO, "mod"),
+    EQUALS(EqualsOperator::new, EqualsOperator.class, Word.EQUALS, Icon.EQUAL, "="),
+    NOT_EQUALS(NotEqualsOperator::new, NotEqualsOperator.class, Word.NOT_EQUALS, Icon.NOTEQUAL, "≠"),
+    GREATER_THAN(GreaterThanOperator::new, GreaterThanOperator.class, Word.GREATER_THAN, Icon.GREATERTHAN, ">"),
+    LESS_THAN(LessThanOperator::new, LessThanOperator.class, Word.LESS_THAN, Icon.LESSTHAN, "<"),
+    GREATER_OR_EQUAL_THAN(GreaterOrEqualThanOperator::new, GreaterOrEqualThanOperator.class, Word.GREATER_OR_EQUAL_THAN, Icon.GREATEROREQUALTHAN, "≥"),
+    LESS_OR_EQUAL_THAN(LessOrEqualThanOperator::new, LessOrEqualThanOperator.class, Word.LESS_OR_EQUAL_THAN, Icon.LESSOREQUALTHAN, "≤"),
+    AND(AndOperator::new, AndOperator.class, Word.AND, Icon.AND, "∧"),
+    OR(OrOperator::new, OrOperator.class, Word.OR, Icon.OR, "∨"),
+    NOT(NotOperator::new, NotOperator.class, Word.NOT, Icon.NOT, "¬"),
+    CONCAT(ConcatOperator::new, ConcatOperator.class, Word.CONCAT, Icon.CONCAT, "∪");
 
     private static Map<Class<? extends Operator>, OperatorType> OPERATOR_TYPES;
     private final Function<Statement, Operator> creator;
     private final Word name;
     private final Icon icon;
+    private final String stringRep;
 
-    private OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, Word name, Icon icon) {
+    private OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, Word name, Icon icon, String stringRep) {
         init(type);
         this.creator = creator;
         this.name = name;
         this.icon = icon;
+        this.stringRep = stringRep;
     }
 
     private void init(Class<? extends Operator> type) {
@@ -71,6 +73,11 @@ public enum OperatorType {
 
     public Icon getIcon() {
         return icon;
+    }
+
+    @Override
+    public String toString() {
+        return stringRep;
     }
 
     public Operator create(Statement parent) {

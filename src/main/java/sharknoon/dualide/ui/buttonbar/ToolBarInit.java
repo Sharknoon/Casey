@@ -88,8 +88,7 @@ public class ToolBarInit {
         root.getChildren().add(new TextValue("sdg", null).getBody());
         root.getChildren().add(new NumberValue(1.0, null).getBody());
         root.getChildren().add(new BooleanValue(true, null).getBody());
-        root.getChildren().add(new PlaceholderBody(EnumSet.allOf(ValueType.class), null, v -> {
-        }, o -> {
+        root.getChildren().add(new PlaceholderBody(EnumSet.allOf(ValueType.class), null, s -> {
         }));
         root.getChildren().add(opConcat.getBody());
         root.getChildren().add(new EqualsOperator(null).getBody());

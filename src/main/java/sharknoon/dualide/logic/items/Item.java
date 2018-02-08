@@ -88,6 +88,9 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         setParent(parent);
         setName(name);
         addListeners();
+        if (parent != null) {
+            getParent().getChildren().add(this);
+        }
     }
 
     @Override

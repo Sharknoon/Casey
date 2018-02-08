@@ -15,27 +15,21 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import javafx.scene.shape.StrokeType;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -51,7 +45,7 @@ import sharknoon.dualide.ui.misc.Icons;
  */
 public abstract class Body<S extends Statement> extends Group {
 
-    private final Statement statement;
+    private final S statement;
     private final StackPane contentPane = new StackPane();
     private final Shape backgroundShape;
 
@@ -65,7 +59,7 @@ public abstract class Body<S extends Statement> extends Group {
         return null;
     }
 
-    public Body(Statement statement) {
+    public Body(S statement) {
         super();
         this.statement = statement;
         this.backgroundShape = createOuterShape(statement.getReturnType());
@@ -102,7 +96,7 @@ public abstract class Body<S extends Statement> extends Group {
         }
     }
 
-    public Optional<Statement> getStatement() {
+    public Optional<S> getStatement() {
         return Optional.ofNullable(statement);
     }
 
@@ -216,13 +210,37 @@ public abstract class Body<S extends Statement> extends Group {
         contentPane.getChildren().addAll(node);
     }
 
+    public List<Node> getContent() {
+        return contentPane.getChildren();
+    }
+
+    public ReadOnlyDoubleProperty heightProperty() {
+        return contentPane.heightProperty();
+    }
+
+    private List<Runnable> onDestroy;
+
+    public void setOnBodyDestroyed(Runnable runnable) {
+        if (onDestroy == null) {
+            onDestroy = new ArrayList<>();
+        }
+        onDestroy.add(runnable);
+    }
+
     /**
      * Do not call directly! call getStatement().ifPresent(s -> s.destroy());
      */
     public void destroy() {
+        if (onDestroy != null) {
+            onDestroy.forEach(Runnable::run);
+        }
         contentPane.getChildren().clear();
         getChildren().clear();
+    }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + String.valueOf(statement);
     }
 
 }

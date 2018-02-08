@@ -15,9 +15,10 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import javafx.scene.shape.Shape;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -31,21 +32,38 @@ import sharknoon.dualide.ui.misc.Icons;
  */
 public class PlaceholderBody extends Body {
 
-    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
-        return new PlaceholderBody(types, parent, valueConsumer, operatorConsumer);
+    /**
+     * all types
+     *
+     * @param parent
+     * @param statementConsumer
+     * @return
+     */
+    public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
+        return new PlaceholderBody(EnumSet.allOf(ValueType.class), parent, statementConsumer);
     }
 
-    public PlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
+    public static PlaceholderBody createValuePlaceholderBody(ValueType type, Statement parent, Consumer<Statement> statementConsumer) {
+        Set<ValueType> types = new HashSet<>();
+        types.add(type);
+        return new PlaceholderBody(types, parent, statementConsumer);
+    }
+
+    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Statement> statementConsumer) {
+        return new PlaceholderBody(types, parent, statementConsumer);
+    }
+
+    public PlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
         setOnMouseClicked((event) -> {
-            StatementPopUp.showValueSelectionPopUp(this, types, parent, valueConsumer, operatorConsumer);
+            StatementPopUp.showValueSelectionPopUp(this, types, parent, statementConsumer);
         });
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.PLUS, 50));
         });
-        setOnMouseDragExited((event) -> {
-            System.out.println("exited!!!!!");
+        setOnMouseExited((event) -> {
             setContent();
         });
     }
+
 }

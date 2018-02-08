@@ -16,10 +16,16 @@
 package sharknoon.dualide.logic.statements.operations;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Supplier;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.ui.bodies.Body;
 
 /**
  *
@@ -39,6 +45,24 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
         }
         boolean result = !parameters.iterator().next().calculateResult().getValue();
         return new BooleanValue(result, parentProperty().get());
+    }
+
+    @Override
+    public ObservableList<Node> setOperatorsBetweenParameters(List<Body> parameters, Supplier<Node> operator) {
+        ObservableList<Node> listResult = FXCollections.observableArrayList();
+        listResult.add(operator.get());
+        listResult.add(parameters.get(0));
+        return listResult;
+    }
+
+    @Override
+    public String toString() {
+        return getOperatorType().toString() + getParameterIndexMap().get(0);
+    }
+
+    @Override
+    public boolean startsWithParameter() {
+        return false;
     }
 
 }

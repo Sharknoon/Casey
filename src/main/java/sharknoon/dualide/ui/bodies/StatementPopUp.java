@@ -16,7 +16,6 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -35,7 +34,6 @@ import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -46,21 +44,19 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class StatementPopUp extends PopOver {
 
-    public static void showValueSelectionPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
-        StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, valueConsumer, operatorConsumer);
+    public static void showValueSelectionPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+        StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, statementConsumer);
     }
 
     private final VBox vBoxRoot = new VBox();
     private final Set<ValueType> allowedValues;
     private final Statement parent;
-    private final Consumer<Value> valueConsumer;
-    private final Consumer<Operator> operatorConsumer;
+    private final Consumer<Statement> statementConsumer;
 
-    private StatementPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Value> valueConsumer, Consumer<Operator> operatorConsumer) {
+    private StatementPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
         this.allowedValues = allowedValues;
         this.parent = parent;
-        this.valueConsumer = valueConsumer;
-        this.operatorConsumer = operatorConsumer;
+        this.statementConsumer = statementConsumer;
         init();
         addNewValueSelectors();
         addExistingValueSelectors();
@@ -101,7 +97,7 @@ public class StatementPopUp extends PopOver {
         Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
         buttonCreation.setOnAction((event) -> {
             Optional<Value> createdValue = ct.create().create(parent);
-            createdValue.ifPresent(cv -> valueConsumer.accept(cv));
+            createdValue.ifPresent(cv -> statementConsumer.accept(cv));
             hide();
         });
         flowPaneValueButtons.getChildren().add(buttonCreation);
@@ -109,7 +105,7 @@ public class StatementPopUp extends PopOver {
         value.getOperationTypes().forEach(ot -> {
             Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
             buttonOperation.setOnAction((event) -> {
-                operatorConsumer.accept(ot.create(parent));
+                statementConsumer.accept(ot.create(parent));
                 hide();
             });
             flowPaneValueButtons.getChildren().add(buttonOperation);

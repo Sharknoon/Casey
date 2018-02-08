@@ -455,6 +455,8 @@ public class Ressources {
         return stack.length > 0 ? stack[0].getClass().getPackage().getName() : "";
     }
 
+    private static final Map<String, Optional<Path>> SEARCH_CACHE = new HashMap<>();
+
     public static Optional<Path> search(String fileName, boolean privateRes) {
         return search(fileName, privateRes, false, false);
     }
@@ -463,17 +465,19 @@ public class Ressources {
         return search(fileName, privateRes, ignoreCase, false);
     }
 
-    private static String name;
-    //private static Map<String,
-
     public static Optional<Path> search(String fileName, boolean privateRes, boolean ignoreCase, boolean ignoreFileextension) {
-        name = fileName;
-        if (ignoreFileextension && name.contains(".")) {
-            name = name.substring(0, name.lastIndexOf("."));
+        final String name;
+        if (ignoreFileextension && fileName.contains(".")) {
+            name = fileName.substring(0, fileName.lastIndexOf("."));
+        } else {
+            name = fileName;
+        }
+        if (SEARCH_CACHE.containsKey(name)) {
+            return SEARCH_CACHE.get(name);
         }
         try {
             Path res = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
-            return Files.find(res, 99, (path, attrs) -> {
+            Optional<Path> result = Files.find(res, 99, (path, attrs) -> {
                 if (attrs.isRegularFile()) {
                     String currentFileName = path.getFileName().toString();
                     if (ignoreFileextension && currentFileName.contains(".")) {
@@ -487,9 +491,12 @@ public class Ressources {
                 }
                 return false;
             }).findFirst();
+            SEARCH_CACHE.put(name, result);
+            return result;
         } catch (IOException ex) {
             Logger.error("Could not search for the file " + fileName, ex);
         }
+        SEARCH_CACHE.put(name, Optional.empty());
         return Optional.empty();
     }
 

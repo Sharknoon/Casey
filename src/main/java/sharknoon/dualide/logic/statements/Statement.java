@@ -68,8 +68,10 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
 
     public void destroy() {
         childs.forEach(c -> c.destroy());
-        parent.get().childs.remove((Statement) this);
         getBody().destroy();
+        if (parent.get() != null) {
+            parent.get().childs.remove((Statement) this);
+        }
     }
 
     public abstract RV calculateResult();

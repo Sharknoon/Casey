@@ -34,9 +34,9 @@ import sharknoon.dualide.utils.language.Word;
  */
 public enum ValueType {
     BOOLEAN(new BooleanValue(null), Word.BOOLEAN, Icon.BOOLEAN, BOOLEAN_CREATION, EnumSet.of(EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN, GREATER_OR_EQUAL_THAN, LESS_OR_EQUAL_THAN, AND, OR, NOT)),
-    TEXT(new TextValue(null), Word.TEXT, Icon.TEXT, TEXT_CREATION, EnumSet.of(CONCAT)),
     NUMBER(new NumberValue(null), Word.NUMBER, Icon.NUMBER, NUMBER_CREATION, EnumSet.of(ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO)),
-    OBJECT(new ObjectValue(null, null, null), Word.OBJECT, Icon.CLASS, OBJECT_CREATION, EnumSet.noneOf(OperatorType.class));
+    OBJECT(new ObjectValue(null, null, null), Word.OBJECT, Icon.CLASS, OBJECT_CREATION, EnumSet.noneOf(OperatorType.class)),
+    TEXT(new TextValue(null), Word.TEXT, Icon.TEXT, TEXT_CREATION, EnumSet.of(CONCAT));
 
     private static Map<Class<? extends Value>, ValueType> TYPES;
     private final Value defaultValue;

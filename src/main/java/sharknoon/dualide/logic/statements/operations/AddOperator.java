@@ -26,7 +26,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class AddOperator extends Operator<NumberValue, NumberValue> {
 
     public AddOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.NUMBER, ValueType.NUMBER);
+        super(parent, 2, -1, true, ValueType.NUMBER, ValueType.NUMBER);
     }
 
     @Override

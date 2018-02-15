@@ -20,8 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operations.Operator;
-import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;

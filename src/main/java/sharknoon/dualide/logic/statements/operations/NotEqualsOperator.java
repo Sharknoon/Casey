@@ -28,7 +28,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class NotEqualsOperator extends Operator<BooleanValue, Value> {
 
     public NotEqualsOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.BOOLEAN);
+        super(parent, 2, -1, true,ValueType.BOOLEAN);
     }
 
     @Override

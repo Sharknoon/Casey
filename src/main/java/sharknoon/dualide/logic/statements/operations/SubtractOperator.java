@@ -26,7 +26,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class SubtractOperator extends Operator<NumberValue, NumberValue> {
 
     public SubtractOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.NUMBER, ValueType.NUMBER);
+        super(parent, 2, -1,true, ValueType.NUMBER, ValueType.NUMBER);
     }
 
     @Override

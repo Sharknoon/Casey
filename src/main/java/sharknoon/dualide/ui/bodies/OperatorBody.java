@@ -58,6 +58,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     }
 
     private static final int DEFAULT_MARGIN = 5;
+    private ObservableList<Node> content;
 
     private Node createContentNode() {
         Operator<Value, Value> operator = getStatement().get();
@@ -68,20 +69,20 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
 
         //contains nulls for empty parameter
         ObservableList<Body> bodies = statementsToBody(operator);
-        ObservableList<Node> content = operator.setOperatorsBetweenParameters(bodies, () -> Icons.get(operator.getOperatorType().getIcon(), 50));
+        content = operator.setOperatorsBetweenParameters(bodies, () -> Icons.get(operator.getOperatorType().getIcon(), 50));
         for (int i = 0; i < content.size(); i++) {
             Node node = content.get(i);
             if (node == null) {
                 final int index = i;
-                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator, s -> {
+                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
                     content.set(index, s.getBody());
                 });
-                content.set(i, pb);
+                content.set(index, pb);
             } else if (node instanceof Body) {
                 Body body = (Body) node;
                 int index = i;
                 body.setOnBodyDestroyed(() -> {
-                    PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator, s -> {
+                    PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
                         content.set(index, s.getBody());
                     });
                     content.set(index, pb);
@@ -97,7 +98,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
                             Body body = (Body) a;
                             int index = c.getFrom() + i;
                             body.setOnBodyDestroyed(() -> {
-                                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator, s -> {
+                                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
                                     content.set(index, s.getBody());
                                 });
                                 content.set(index, pb);
@@ -112,6 +113,27 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
         Bindings.bindContentBidirectional(hBoxContent.getChildren(), content);
 
         return hBoxContent;
+    }
+
+    public void extend() {
+        Operator operator = getStatement().get();
+        if (operator.isExtensible()) {
+            List<Node> extension = getStatement().get().extend(() -> Icons.get(operator.getOperatorType().getIcon(), 50));
+            for (int i = 0; i < extension.size(); i++) {
+                Node node = extension.get(i);
+                if (node == null) {
+                    int index = 0;
+                    PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
+                        content.set(index, s.getBody());
+                    });
+                    content.add(pb);
+                    index = content.indexOf(pb);
+                } else {
+                    content.add(node);
+                }
+            }
+        }
+
     }
 
     private ObservableList<Body> statementsToBody(Operator<Value, Value> o) {

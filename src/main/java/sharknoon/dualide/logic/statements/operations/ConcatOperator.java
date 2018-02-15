@@ -28,7 +28,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class ConcatOperator extends Operator<TextValue, Value> {
 
     public ConcatOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.TEXT);
+        super(parent, 2, -1, true, ValueType.TEXT);
     }
 
     @Override

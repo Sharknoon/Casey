@@ -66,12 +66,13 @@ public class Icons {
     private static Node create(Icon icon, double desiredHeight) {
         Optional<Group> svg = getSVG(icon);
         if (svg.isPresent()) {
+            
             Group group = svg.get();
             double originalHeight = group.prefHeight(0.0);
             double scale = desiredHeight / originalHeight;
             group.setScaleX(scale);
             group.setScaleY(scale);
-            return new Group(group);
+            //return new Group(group);
         }
         ImageView view = new ImageView();
         Optional<Image> image = getImage(icon);

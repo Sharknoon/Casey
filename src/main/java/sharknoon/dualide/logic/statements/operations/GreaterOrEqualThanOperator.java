@@ -29,7 +29,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class GreaterOrEqualThanOperator extends Operator<BooleanValue, NumberValue> {
 
     public GreaterOrEqualThanOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.BOOLEAN, ValueType.NUMBER);
+        super(parent, 2, -1, true,ValueType.BOOLEAN, ValueType.NUMBER);
     }
 
     @Override

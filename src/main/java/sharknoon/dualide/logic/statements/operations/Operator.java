@@ -53,8 +53,9 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
     private final Set<ValueType> parameterTypes;
     private final int minimumParameters;
     private final int maximumParamerters;
+    private final boolean isExtensible;
 
-    public Operator(Statement parent, int minimumParameters, int maximumParameters, ValueType returnType, ValueType... parameterTypes) {
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, ValueType returnType, ValueType... parameterTypes) {
         super(parent);
         this.returnType = returnType;
         if (parameterTypes.length > 0) {
@@ -64,15 +65,11 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
         }
         this.minimumParameters = minimumParameters;
         this.maximumParamerters = maximumParameters;
+        this.isExtensible = isExtensible;
     }
 
     public void addParameter(Statement<Value, CV, Value> parameter) {
-        for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            if (!parameters.containsKey(i)) {
-                addParameter(i, parameter);
-                return;
-            }
-        }
+        addParameter(getParameterAmount(), parameter);
     }
 
     /**
@@ -161,6 +158,13 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
         return listParameter;
     }
 
+    public List<Node> extend(Supplier<Node> operator) {
+        List<Node> result = new ArrayList<>();
+        result.add(operator.get());
+        result.add(null);//The placeholder
+        return result;
+    }
+
     public Optional<Statement<Value, CV, Value>> getFirstParameter() {
         return Optional.ofNullable(parameters.get(0));
     }
@@ -197,5 +201,10 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
         builder.deleteCharAt(builder.length() - 1);
         return builder.append(')').toString();
     }
+
+    public boolean isExtensible() {
+        return isExtensible;
+    }
+;
 
 }

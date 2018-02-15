@@ -30,8 +30,8 @@ import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.ui.MainController;
+import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.ui.misc.Icons;
@@ -69,7 +69,7 @@ public class StatementPopUp extends PopOver {
         vBoxRoot.setMinWidth(800);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         setContentNode(vBoxRoot);
-        setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
+        setArrowLocation(ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.VALUE_SELECTION_POPUP_TITLE));
     }
 
@@ -86,6 +86,7 @@ public class StatementPopUp extends PopOver {
         vBoxRoot.getChildren().add(separator);
     }
 
+    //TODO slow
     private void addNewValueButtons(ValueType value) {
         FlowPane flowPaneValueButtons = new FlowPane(20, 20);
         String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
@@ -232,10 +233,14 @@ public class StatementPopUp extends PopOver {
 
         TreeView<Item> tree = MainController.getTreeView();
         TreeItem<Item> selectedItem = tree.getSelectionModel().getSelectedItem();
-        while (!(selectedItem.getValue() instanceof Package) && !(selectedItem.getValue() instanceof Project)) {
-            selectedItem = selectedItem.getParent();
+        if (selectedItem != null) {
+            while ((selectedItem.getValue() instanceof Function)
+                    || (selectedItem.getValue() instanceof Variable)
+                    || (selectedItem.getValue() instanceof Class)) {
+                selectedItem = selectedItem.getParent();
+            }
+            breadCrumbBarNavigation.setSelectedCrumb(selectedItem);
         }
-        breadCrumbBarNavigation.setSelectedCrumb(selectedItem);
         return gridPaneStaticContent;
     }
 

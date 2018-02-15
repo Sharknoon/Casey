@@ -34,7 +34,7 @@ import sharknoon.dualide.ui.bodies.Body;
 public class NotOperator extends Operator<BooleanValue, BooleanValue> {
 
     public NotOperator(Statement parent) {
-        super(parent, 1, 1, ValueType.BOOLEAN, ValueType.BOOLEAN);
+        super(parent, 1, 1, false,ValueType.BOOLEAN, ValueType.BOOLEAN);
     }
 
     @Override

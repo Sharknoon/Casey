@@ -26,7 +26,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class OrOperator extends Operator<BooleanValue, BooleanValue> {
 
     public OrOperator(Statement parent) {
-        super(parent, 2, -1, ValueType.BOOLEAN, ValueType.BOOLEAN);
+        super(parent, 2, -1, true,ValueType.BOOLEAN, ValueType.BOOLEAN);
     }
 
     @Override

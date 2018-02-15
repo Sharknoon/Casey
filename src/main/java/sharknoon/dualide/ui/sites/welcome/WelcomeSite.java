@@ -105,7 +105,7 @@ public class WelcomeSite extends Site<Welcome> {
 
         Button buttonLoadProject = createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
             FileChooser chooser = new FileChooser();
-            if (lastDirectory.isPresent()) {
+            if (lastDirectory.isPresent() && new File(lastDirectory.get()).isFile()) {
                 chooser.setInitialDirectory(new File(lastDirectory.get()));
             } else {
                 chooser.setInitialDirectory(new File(System.getProperty("user.home")));

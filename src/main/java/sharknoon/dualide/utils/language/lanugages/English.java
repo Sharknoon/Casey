@@ -175,6 +175,7 @@ public class English extends Language {
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "General values");
         add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Values of this class");
         add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Values of this function");
+        add(Word.VALUE_SELECTION_POPUP_TITLE, "Valueselection");
         //General
         add(Word.FUNCTION, "Function");
         add(Word.CLASS, "Class");

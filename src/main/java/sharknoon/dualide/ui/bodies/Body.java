@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -77,22 +78,52 @@ public abstract class Body<S extends Statement> extends Group {
 
     private void init() {
         contentPane.setMinSize(57, 57);
+        initCloseButton();
+        initPlusButton();
+    }
+
+    private void initCloseButton() {
         if (!(this instanceof PlaceholderBody)) {
-            Node closeIcon = Icons.get(Icon.CLOSEROUND, 15);
+            Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
             closeIcon.setOnMouseClicked((event) -> {
                 if (statement != null) {
                     statement.destroy();
                 }
             });
-            closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(closeIcon.prefWidth(0.0)));
+            closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
             closeIcon.setLayoutY(0);
+            closeIcon.setVisible(false);
             getChildren().add(closeIcon);
-            backgroundShape.setOnMouseEntered((event) -> {
+            setOnMouseEntered((event) -> {
                 closeIcon.setVisible(true);
+                closeIcon.toFront();
             });
-            backgroundShape.setOnMouseExited((event) -> {
+            setOnMouseExited((event) -> {
                 closeIcon.setVisible(false);
             });
+        }
+    }
+
+    private void initPlusButton() {
+        if (this instanceof OperatorBody) {
+            Operator operator = (Operator) getStatement().get();
+            if (operator.isExtensible()) {
+                Node addIcon = Icons.get(Icon.PLUSROUND, 25);
+                addIcon.setOnMouseClicked((event) -> {
+                    ((OperatorBody) this).extend();
+                });
+                addIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+                addIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
+                addIcon.setVisible(false);
+                getChildren().add(addIcon);
+                setOnMouseEntered((event) -> {
+                    addIcon.setVisible(true);
+                    addIcon.toFront();
+                });
+                setOnMouseExited((event) -> {
+                    addIcon.setVisible(false);
+                });
+            }
         }
     }
 

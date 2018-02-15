@@ -175,6 +175,7 @@ public class German extends Language {
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "Allgemeine Werte");
         add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Werte dieser Klasse");
         add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Werte dieser Funktion");
+        add(Word.VALUE_SELECTION_POPUP_TITLE, "Werteauswahl");
         //General
         add(Word.FUNCTION, "Funktion");
         add(Word.CLASS, "Klasse");

@@ -20,11 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -80,10 +82,12 @@ public abstract class Body<S extends Statement> extends Group {
         contentPane.setMinSize(57, 57);
         initCloseButton();
         initPlusButton();
+        initMinusButton();
+        initListeners();
     }
 
     private void initCloseButton() {
-        if (!(this instanceof PlaceholderBody)) {
+//        if (getStatement().map(s -> s.parentProperty().get() != null).orElse(false)) {
             Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
             closeIcon.setOnMouseClicked((event) -> {
                 if (statement != null) {
@@ -94,14 +98,14 @@ public abstract class Body<S extends Statement> extends Group {
             closeIcon.setLayoutY(0);
             closeIcon.setVisible(false);
             getChildren().add(closeIcon);
-            setOnMouseEntered((event) -> {
+            onMouseEntered((event) -> {
                 closeIcon.setVisible(true);
                 closeIcon.toFront();
             });
-            setOnMouseExited((event) -> {
+            onMouseExited((event) -> {
                 closeIcon.setVisible(false);
             });
-        }
+//        }
     }
 
     private void initPlusButton() {
@@ -116,15 +120,58 @@ public abstract class Body<S extends Statement> extends Group {
                 addIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
                 addIcon.setVisible(false);
                 getChildren().add(addIcon);
-                setOnMouseEntered((event) -> {
+                onMouseEntered((event) -> {
                     addIcon.setVisible(true);
                     addIcon.toFront();
                 });
-                setOnMouseExited((event) -> {
+                onMouseExited((event) -> {
                     addIcon.setVisible(false);
                 });
             }
         }
+    }
+
+    private void initMinusButton() {
+        if (this instanceof OperatorBody) {
+            Operator operator = (Operator) getStatement().get();
+            if (operator.isExtensible()) {
+                Node removeIcon = Icons.get(Icon.MINUSROUND, 25);
+                removeIcon.setOnMouseClicked((event) -> {
+                    ((OperatorBody) this).reduce();
+                });
+                removeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+                removeIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
+                removeIcon.setVisible(false);
+                getChildren().add(removeIcon);
+                onMouseEntered((event) -> {
+                    removeIcon.visibleProperty().bind(operator.parameterAmountProperty().greaterThan(operator.getMinimumParameterAmount()));
+                    removeIcon.toFront();
+                });
+                onMouseExited((event) -> {
+                    removeIcon.visibleProperty().unbind();
+                    removeIcon.setVisible(false);
+                });
+            }
+        }
+    }
+    private final List<Consumer<MouseEvent>> onMouseEntered = new ArrayList<>();
+
+    private void onMouseEntered(Consumer<MouseEvent> event) {
+        onMouseEntered.add(event);
+    }
+    private final List<Consumer<MouseEvent>> onMouseExited = new ArrayList<>();
+
+    private void onMouseExited(Consumer<MouseEvent> event) {
+        onMouseExited.add(event);
+    }
+
+    private void initListeners() {
+        setOnMouseEntered((event) -> {
+            onMouseEntered.forEach(c -> c.accept(event));
+        });
+        setOnMouseExited((event) -> {
+            onMouseExited.forEach(c -> c.accept(event));
+        });
     }
 
     public Optional<S> getStatement() {

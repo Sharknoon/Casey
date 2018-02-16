@@ -15,20 +15,15 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -73,19 +68,12 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
         for (int i = 0; i < content.size(); i++) {
             Node node = content.get(i);
             if (node == null) {
-                final int index = i;
-                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
-                    content.set(index, s.getBody());
-                });
-                content.set(index, pb);
+                content.set(i, createPlaceholder());
             } else if (node instanceof Body) {
                 Body body = (Body) node;
                 int index = i;
                 body.setOnBodyDestroyed(() -> {
-                    PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
-                        content.set(index, s.getBody());
-                    });
-                    content.set(index, pb);
+                    content.set(index, createPlaceholder());
                 });
             }
         }
@@ -98,10 +86,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
                             Body body = (Body) a;
                             int index = c.getFrom() + i;
                             body.setOnBodyDestroyed(() -> {
-                                PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
-                                    content.set(index, s.getBody());
-                                });
-                                content.set(index, pb);
+                                content.set(index, createPlaceholder());
                             });
                         }
                     }
@@ -116,43 +101,52 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     }
 
     public void extend() {
-        Operator operator = getStatement().get();
+        Operator<Value, Value> operator = getStatement().get();
         if (operator.isExtensible()) {
             List<Node> extension = getStatement().get().extend(() -> Icons.get(operator.getOperatorType().getIcon(), 50));
             for (int i = 0; i < extension.size(); i++) {
                 Node node = extension.get(i);
                 if (node == null) {
-                    int index = 0;
-                    PlaceholderBody pb = PlaceholderBody.createValuePlaceholderBody(operator.getParameterTypes(), operator, s -> {
-                        content.set(index, s.getBody());
-                    });
-                    content.add(pb);
-                    index = content.indexOf(pb);
+                    content.add(createPlaceholder());
                 } else {
                     content.add(node);
                 }
             }
         }
+    }
 
+    private PlaceholderBody createPlaceholder() {
+        Operator<Value, Value> operator = getStatement().get();
+        Set<ValueType> parameterTypes = operator.getParameterTypes();
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
+
+        Consumer<Statement> statementConsumer = s -> {
+            if (content.contains(body)) {
+                int index = content.indexOf(body);
+                content.set(index, s.getBody());
+                operator.setParameter(operator.indexWithOperatorsToRegularIndex(index), s);
+            }
+        };
+        body.setStatementConsumer(statementConsumer);
+        return body;
+    }
+
+    public void reduce() {
+        Operator<Value, Value> operator = getStatement().get();
+        if (operator.isExtensible() && operator.getParameterAmount() > operator.getMinimumParameterAmount()) {
+            int toReduce = getStatement().get().reduce();
+            content.remove(content.size() - toReduce, content.size());
+        }
     }
 
     private ObservableList<Body> statementsToBody(Operator<Value, Value> o) {
         ObservableList<Body> listBody = FXCollections.observableArrayList();
-        for (int i = 0; i < Math.max(o.getParameterAmount(), o.getMinimumParameterAmount()); i++) {
-            //can be null
-            Statement<Value, Value, Value> statementPar = o.getParameterIndexMap().get(i);
-            //Not null
-            Body nodePar = getBody(statementPar);
-            listBody.add(nodePar);
-        }
+        o.getParameters().stream()
+                .map((parameter) -> parameter == null ? null : parameter.getBody())
+                .forEachOrdered((nodePar) -> {
+                    listBody.add(nodePar);
+                });
         return listBody;
-    }
-
-    private Body getBody(Statement statement) {
-        if (statement != null) {
-            return statement.getBody();
-        }
-        return null;
     }
 
     private void onChildChange(Operator<Value, Value> operator, HBox hBoxContent) {

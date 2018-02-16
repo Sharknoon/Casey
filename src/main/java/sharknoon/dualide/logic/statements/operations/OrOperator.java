@@ -34,10 +34,11 @@ public class OrOperator extends Operator<BooleanValue, BooleanValue> {
         return new BooleanValue(
                 getParameters()
                         .stream()
+                        .filter(p -> p != null)
                         .map(p -> p.calculateResult())
                         .map(v -> v.getValue())
                         .reduce(false, (l, r) -> l || r),
-                parentProperty().get()
+                null
         );
     }
 

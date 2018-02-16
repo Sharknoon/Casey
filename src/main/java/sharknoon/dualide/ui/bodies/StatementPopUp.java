@@ -98,7 +98,11 @@ public class StatementPopUp extends PopOver {
         Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
         buttonCreation.setOnAction((event) -> {
             Optional<Value> createdValue = ct.create().create(parent);
-            createdValue.ifPresent(cv -> statementConsumer.accept(cv));
+            createdValue.ifPresent(cv -> {
+                if (statementConsumer != null) {
+                    statementConsumer.accept(cv);
+                }
+            });
             hide();
         });
         flowPaneValueButtons.getChildren().add(buttonCreation);
@@ -106,7 +110,9 @@ public class StatementPopUp extends PopOver {
         value.getOperationTypes().forEach(ot -> {
             Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
             buttonOperation.setOnAction((event) -> {
-                statementConsumer.accept(ot.create(parent));
+                if (statementConsumer != null) {
+                    statementConsumer.accept(ot.create(parent));
+                }
                 hide();
             });
             flowPaneValueButtons.getChildren().add(buttonOperation);

@@ -26,7 +26,7 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class ModuloOperator extends Operator<NumberValue, NumberValue> {
 
     public ModuloOperator(Statement parent) {
-        super(parent, 2, -1, true,ValueType.NUMBER, ValueType.NUMBER);
+        super(parent, 2, -1, true, ValueType.NUMBER, ValueType.NUMBER);
     }
 
     @Override
@@ -34,10 +34,11 @@ public class ModuloOperator extends Operator<NumberValue, NumberValue> {
         return new NumberValue(
                 getParameters()
                         .stream()
+                        .filter(p -> p != null)
                         .map(p -> p.calculateResult())
                         .map(v -> v.getValue())
                         .reduce(0.0, (l, r) -> l % r),
-                parentProperty().get()
+                null
         );
     }
 

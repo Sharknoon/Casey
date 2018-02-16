@@ -15,16 +15,15 @@
  */
 package sharknoon.dualide.logic.statements;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.statements.operations.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
@@ -47,8 +46,13 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
     public Statement(Statement<Value, Value, RV> parent) {
         if (parent != null) {
             this.parent.set(parent);
-            this.parent.get().childs.add((Statement) this);
+            if (!(this.parent.get() instanceof Operator)) {//Operators are managing their childs itself
+                this.parent.get().childs.add((Statement) this);
+            }
         }
+        childs.addListener((observable, oldValue, newValue) -> {
+            onChildChanged();
+        });
     }
 
     public ReadOnlyObjectProperty<Statement<Value, Value, RV>> parentProperty() {
@@ -74,11 +78,30 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
     }
 
     private void destroy_impl() {
-        childs.forEach(c -> c.destroy_impl());
+        childs.forEach(c -> {
+            if (c != null) {
+                c.destroy_impl();
+            }
+        });
         childs.clear();
         getBody().destroy();
     }
 
+    private void onChildChanged() {
+        changeListeners.forEach(Runnable::run);
+    }
+
+    private final List<Runnable> changeListeners = new ArrayList<>();
+
+    public void addChangeListener(Runnable onChange) {
+        changeListeners.add(onChange);
+    }
+
+    /**
+     * You shouldnt need this method, use the resultproperty instead
+     *
+     * @return
+     */
     public abstract RV calculateResult();
 
     public abstract StatementType getStatementType();

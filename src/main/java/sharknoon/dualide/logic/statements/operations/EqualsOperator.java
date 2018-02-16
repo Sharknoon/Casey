@@ -33,20 +33,17 @@ public class EqualsOperator extends Operator<BooleanValue, Value> {
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<Value, Value, Value>> parameters = getParameters();
-        if (parameters.size() < getMinimumParameterAmount()) {
-            return new BooleanValue(parentProperty().get());
-        }
-        Statement<Value, Value, Value> lastPar = null;
-        for (Statement<Value, Value, Value> par : parameters) {
-            if (lastPar != null) {
+        Collection<Statement<BooleanValue, Value, Value>> parameters = getParameters();
+        Statement<BooleanValue, Value, Value> lastPar = null;
+        for (Statement<BooleanValue, Value, Value> par : parameters) {
+            if (lastPar != null && par != null) {
                 if (!lastPar.equals(par)) {
-                    return new BooleanValue(parentProperty().get());
+                    return new BooleanValue(null);
                 }
             }
             lastPar = par;
         }
-        return new BooleanValue(true, parentProperty().get());
+        return new BooleanValue(true, null);
     }
 
 }

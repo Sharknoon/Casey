@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.statements.operations;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.TextValue;
@@ -33,13 +34,18 @@ public class ConcatOperator extends Operator<TextValue, Value> {
 
     @Override
     public TextValue calculateResult() {
+        //TMP
+        List<Statement<TextValue, Value, Value>> parameters = getParameters();
+        List<Value> list = parameters.stream().filter(p -> p != null).map(p -> p.calculateResult()).collect(Collectors.toList());
+        //TMP
         return new TextValue(
                 getParameters()
                         .stream()
+                        .filter(p -> p != null)
                         .map(p -> p.calculateResult())
                         .map(v -> v.toString())
                         .collect(Collectors.joining()),
-                parentProperty().get()
+                null
         );
     }
 

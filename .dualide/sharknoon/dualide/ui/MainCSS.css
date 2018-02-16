@@ -65,13 +65,13 @@
     -fx-effect: innershadow(gaussian, rgba(0,0,0,.2), 3, 0.5, 1.0, 1.0);
 }
 /*For the invalidation of a checkbox*/
-.check-box-incorrect:selected > .box > .mark,
-.check-box-incorrect:indeterminate  > .box > .mark {
+/*.check-box-incorrect:selected > .box > .mark,
+.check-box-incorrect:indeterminate  > .box > .mark {*/
     /* modify mark color */
-    -fx-background-color: black;
+    /*-fx-background-color: black;
 }
 
-.check-box-incorrect > .box {
+.check-box-incorrect > .box {*/
     /* background color of unselected checkbox */
-    -fx-background-color: crimson;
-}
+    /*-fx-background-color: crimson;
+}*/

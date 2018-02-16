@@ -15,18 +15,13 @@
  */
 package sharknoon.dualide.ui.dialogs;
 
-import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;

@@ -71,7 +71,7 @@ public abstract class Value<T, U extends Value> extends Statement<Value, U, Valu
 
     @Override
     public String toString() {
-        return value.toString();
+        return String.valueOf(value.get());
     }
 
 }

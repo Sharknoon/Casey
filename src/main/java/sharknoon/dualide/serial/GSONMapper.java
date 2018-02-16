@@ -15,15 +15,12 @@
  */
 package sharknoon.dualide.serial;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
-import com.sun.xml.internal.ws.developer.Serialization;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;

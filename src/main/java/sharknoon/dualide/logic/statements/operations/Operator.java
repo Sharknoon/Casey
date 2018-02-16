@@ -21,14 +21,10 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import javafx.beans.property.MapProperty;
-import javafx.beans.property.SimpleMapProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -47,8 +43,6 @@ import sharknoon.dualide.ui.bodies.Body;
 public abstract class Operator<RV extends Value, CV extends Value> extends Statement<Value, RV, CV> {
 
     //A map instead of a list to leave empty spaces inbetween the indexes
-    private final TreeMap<Integer, Statement<Value, CV, Value>> internal_parameters = new TreeMap<>();
-    private final MapProperty<Integer, Statement<Value, CV, Value>> parameters = new SimpleMapProperty<>(FXCollections.observableMap(internal_parameters));
     private final ValueType returnType;
     private final Set<ValueType> parameterTypes;
     private final int minimumParameters;
@@ -64,12 +58,27 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
             this.parameterTypes = EnumSet.allOf(ValueType.class);
         }
         this.minimumParameters = minimumParameters;
+        for (int i = 0; i < minimumParameters; i++) {
+            addParameter(null);
+        }
         this.maximumParamerters = maximumParameters;
         this.isExtensible = isExtensible;
     }
 
-    public void addParameter(Statement<Value, CV, Value> parameter) {
-        addParameter(getParameterAmount(), parameter);
+    public void addParameter(Statement<RV, CV, Value> parameter) {
+        if (parameter != null) {//If the parameter is null, add it to the end, if not, replace the first null value
+            for (int i = 0; i < childs.size(); i++) {
+                if (childs.get(i) == null) {
+                    setParameter(i, parameter);
+                    return;
+                }
+            }
+        }
+        setParameter(getParameterAmount(), parameter);
+    }
+
+    public void removeLastParameter() {
+        childs.remove(childs.size() - 1);
     }
 
     /**
@@ -78,26 +87,31 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
      * @param index starting at 0
      * @param parameter
      */
-    public void addParameter(int index, Statement<Value, CV, Value> parameter) {
-        parameters.put(index, parameter);
+    public void setParameter(int index, Statement<RV, CV, Value> parameter) {
+        if (index < 0) {
+            return;
+        }
+        while (index > getParameterAmount()) {
+            childs.add(null);
+        }
+        if (getParameterAmount() > index) {
+            childs.set(index, parameter);
+        } else {
+            childs.add(parameter);
+        }
     }
 
-    public Optional<Statement<Value, CV, Value>> getParameter(int index) {
-        return Optional.ofNullable(parameters.get(index));
+    public Optional<Statement<RV, CV, Value>> getParameter(int index) {
+        return Optional.ofNullable(childs.get(index));
     }
 
     /**
-     * be warned, there could be some gapps inbetween the parameters, to get the
-     * correct parameters, use getParemeterIndexMap()
+     * be warned, there could be some null gapps inbetween the parameters
      *
      * @return
      */
-    public Collection<Statement<Value, CV, Value>> getParameters() {
-        return parameters.values();
-    }
-
-    public Map<Integer, Statement<Value, CV, Value>> getParameterIndexMap() {
-        return parameters;
+    public List<Statement<RV, CV, Value>> getParameters() {
+        return childs;
     }
 
     @Override
@@ -131,10 +145,11 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
     }
 
     public int getParameterAmount() {
-        if (internal_parameters.isEmpty()) {
-            return 0;
-        }
-        return internal_parameters.lastKey() + 1;
+        return parameterAmountProperty().get();
+    }
+
+    public ReadOnlyIntegerProperty parameterAmountProperty() {
+        return childs.sizeProperty();
     }
 
     /**
@@ -158,19 +173,40 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
         return listParameter;
     }
 
+    /**
+     * to be overridden
+     *
+     * @param operator
+     * @return
+     */
     public List<Node> extend(Supplier<Node> operator) {
         List<Node> result = new ArrayList<>();
         result.add(operator.get());
         result.add(null);//The placeholder
+        addParameter(null);
         return result;
     }
 
-    public Optional<Statement<Value, CV, Value>> getFirstParameter() {
-        return Optional.ofNullable(parameters.get(0));
+    public int indexWithOperatorsToRegularIndex(int indexWithOperators) {
+        return indexWithOperators / 2;
     }
 
-    public Optional<Statement<Value, CV, Value>> getLastParameter() {
-        return Optional.ofNullable(parameters.get(getParameterAmount() - 1));
+    /**
+     * to be overridden
+     *
+     * @return
+     */
+    public int reduce() {
+        removeLastParameter();
+        return 2;
+    }
+
+    public Optional<Statement<RV, CV, Value>> getFirstParameter() {
+        return Optional.ofNullable(childs.get(0));
+    }
+
+    public Optional<Statement<RV, CV, Value>> getLastParameter() {
+        return Optional.ofNullable(childs.get(getParameterAmount() - 1));
     }
 
     /**
@@ -194,10 +230,10 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder().append('(');
-        for (int i = 0; i < Math.max(getMinimumParameterAmount(), getParameterAmount()); i++) {
-            builder.append(getParameterIndexMap().get(i));
-            builder.append(getOperatorType());
-        }
+        childs.stream().forEach((child) -> {
+            builder.append(String.valueOf(child));
+            builder.append(String.valueOf(getOperatorType()));
+        });
         builder.deleteCharAt(builder.length() - 1);
         return builder.append(')').toString();
     }

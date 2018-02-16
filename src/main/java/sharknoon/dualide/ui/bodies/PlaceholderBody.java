@@ -29,7 +29,13 @@ import sharknoon.dualide.ui.misc.Icons;
  * @author Josua Frank
  */
 public class PlaceholderBody extends Body {
+    
+    private Consumer<Statement> statementConsumer;
 
+    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent) {
+        return createValuePlaceholderBody(types, parent, null);
+    }
+    
     /**
      * all types
      *
@@ -53,8 +59,9 @@ public class PlaceholderBody extends Body {
 
     public PlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
+        this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
-            StatementPopUp.showValueSelectionPopUp(this, types, parent, statementConsumer);
+            StatementPopUp.showValueSelectionPopUp(this, types, parent, this.statementConsumer);
         });
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.PLUS, 50));
@@ -64,6 +71,10 @@ public class PlaceholderBody extends Body {
         });
     }
 
+    public void setStatementConsumer(Consumer<Statement> consumer){
+        this.statementConsumer = consumer;
+    }
+    
     @Override
     public String toString() {
         return getClass().getSimpleName();

@@ -16,7 +16,6 @@
 package sharknoon.dualide.logic.statements.operations;
 
 import java.util.Collection;
-import java.util.List;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
 import sharknoon.dualide.logic.statements.values.NumberValue;
@@ -35,20 +34,17 @@ public class LessOrEqualThanOperator extends Operator<BooleanValue, NumberValue>
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<Value, NumberValue, Value>> parameters = getParameters();
-        if (parameters.size() < getMinimumParameterAmount()) {
-            return new BooleanValue(parentProperty().get());
-        }
-        Statement<Value, NumberValue, Value> lastPar = null;
-        for (Statement<Value, NumberValue, Value> par : parameters) {
-            if (lastPar != null) {
+        Collection<Statement<BooleanValue, NumberValue, Value>> parameters = getParameters();
+        Statement<BooleanValue, NumberValue, Value> lastPar = null;
+        for (Statement<BooleanValue, NumberValue, Value> par : parameters) {
+            if (lastPar != null && par != null) {
                 if (!(lastPar.calculateResult().getValue() <= par.calculateResult().getValue())) {
-                    return new BooleanValue(parentProperty().get());
+                    return new BooleanValue(null);
                 }
             }
             lastPar = par;
         }
-        return new BooleanValue(true, parentProperty().get());
+        return new BooleanValue(true, null);
     }
 
 }

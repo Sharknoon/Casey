@@ -29,25 +29,22 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class LessThanOperator extends Operator<BooleanValue, NumberValue> {
 
     public LessThanOperator(Statement parent) {
-        super(parent, 2, -1,true,  ValueType.BOOLEAN, ValueType.NUMBER);
+        super(parent, 2, -1, true, ValueType.BOOLEAN, ValueType.NUMBER);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<Value, NumberValue, Value>> parameters = getParameters();
-        if (parameters.size() < getMinimumParameterAmount()) {
-            return new BooleanValue(parentProperty().get());
-        }
-        Statement<Value, NumberValue, Value> lastPar = null;
-        for (Statement<Value, NumberValue, Value> par : parameters) {
-            if (lastPar != null) {
+        Collection<Statement<BooleanValue, NumberValue, Value>> parameters = getParameters();
+        Statement<BooleanValue, NumberValue, Value> lastPar = null;
+        for (Statement<BooleanValue, NumberValue, Value> par : parameters) {
+            if (lastPar != null && par != null) {
                 if (!(lastPar.calculateResult().getValue() < par.calculateResult().getValue())) {
-                    return new BooleanValue(parentProperty().get());
+                    return new BooleanValue(null);
                 }
             }
             lastPar = par;
         }
-        return new BooleanValue(true, parentProperty().get());
+        return new BooleanValue(true, null);
     }
 
 }

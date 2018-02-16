@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.dialogs;
 
-import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import java.util.Collections;
 import java.util.Set;
 import javafx.application.Platform;
@@ -25,7 +24,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;

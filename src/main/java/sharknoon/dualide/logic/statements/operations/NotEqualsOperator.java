@@ -28,25 +28,22 @@ import sharknoon.dualide.logic.statements.values.ValueType;
 public class NotEqualsOperator extends Operator<BooleanValue, Value> {
 
     public NotEqualsOperator(Statement parent) {
-        super(parent, 2, -1, true,ValueType.BOOLEAN);
+        super(parent, 2, -1, true, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<Value, Value, Value>> parameters = getParameters();
-        if (parameters.size() < getMinimumParameterAmount()) {
-            return new BooleanValue(parentProperty().get());
-        }
-        Statement<Value, Value, Value> lastPar = null;
-        for (Statement<Value, Value, Value> par : parameters) {
-            if (lastPar != null) {
+        Collection<Statement<BooleanValue, Value, Value>> parameters = getParameters();
+        Statement<BooleanValue, Value, Value> lastPar = null;
+        for (Statement<BooleanValue, Value, Value> par : parameters) {
+            if (lastPar != null && par != null) {
                 if (lastPar.equals(par)) {
-                    return new BooleanValue(parentProperty().get());
+                    return new BooleanValue(null);
                 }
             }
             lastPar = par;
         }
-        return new BooleanValue(true, parentProperty().get());
+        return new BooleanValue(true, null);
     }
 
 }

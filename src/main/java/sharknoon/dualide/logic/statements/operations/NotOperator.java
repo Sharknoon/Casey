@@ -34,17 +34,17 @@ import sharknoon.dualide.ui.bodies.Body;
 public class NotOperator extends Operator<BooleanValue, BooleanValue> {
 
     public NotOperator(Statement parent) {
-        super(parent, 1, 1, false,ValueType.BOOLEAN, ValueType.BOOLEAN);
+        super(parent, 1, 1, false, ValueType.BOOLEAN, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<Value, BooleanValue, Value>> parameters = getParameters();
-        if (parameters.size() < getMinimumParameterAmount()) {
-            return new BooleanValue(parentProperty().get());
+        Collection<Statement<BooleanValue, BooleanValue, Value>> parameters = getParameters();
+        Statement<BooleanValue, BooleanValue, Value> next = parameters.iterator().next();
+        if (next != null) {
+            return new BooleanValue(!next.calculateResult().getValue(), null);
         }
-        boolean result = !parameters.iterator().next().calculateResult().getValue();
-        return new BooleanValue(result, parentProperty().get());
+        return new BooleanValue(null);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
 
     @Override
     public String toString() {
-        return getOperatorType().toString() + getParameterIndexMap().get(0);
+        return getOperatorType().toString() + getParameters().get(0);
     }
 
     @Override

@@ -15,8 +15,7 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import com.sun.javafx.scene.control.skin.SpinnerSkin;
-import java.text.DecimalFormat;
+import javafx.scene.control.skin.SpinnerSkin;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -64,7 +63,7 @@ public class ValueBody extends Body<Value> {
                 return checkBoxValue;
             case NUMBER:
                 NumberValue val2 = (NumberValue) value;
-                Spinner<Double> spinnerValue = new Spinner<>(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN);
+                Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
                 int margin2 = 10;
                 StackPane.setMargin(spinnerValue, new Insets(margin2));
                 //Can be removed on JavaFX 9 TODO
@@ -77,8 +76,6 @@ public class ValueBody extends Body<Value> {
                     }
                 });
                 spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
-                    private final DecimalFormat df = new DecimalFormat("#.##");
-
                     @Override
                     public String toString(Double value) {
                         // If the specified value is null, return a zero-length String

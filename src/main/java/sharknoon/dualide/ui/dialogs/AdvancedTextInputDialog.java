@@ -15,11 +15,8 @@
  */
 package sharknoon.dualide.ui.dialogs;
 
-import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar.ButtonData;

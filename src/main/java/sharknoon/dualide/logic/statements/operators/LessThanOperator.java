@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
 import java.util.Collection;
 import sharknoon.dualide.logic.statements.Statement;
@@ -26,23 +26,35 @@ import sharknoon.dualide.logic.statements.values.ValueType;
  *
  * @author Josua Frank
  */
-public class GreaterOrEqualThanOperator extends Operator<BooleanValue, NumberValue> {
+public class LessThanOperator extends Operator<BooleanValue, NumberValue> {
 
-    public GreaterOrEqualThanOperator(Statement parent) {
-        super(parent, 2, -1, true,ValueType.BOOLEAN, ValueType.NUMBER);
+    public LessThanOperator(Statement parent) {
+        super(parent, 2, -1, true, ValueType.BOOLEAN, ValueType.NUMBER);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<BooleanValue, NumberValue, Value>> parameters = getParameters();
-        Statement<BooleanValue, NumberValue, Value> lastPar = null;
-        for (Statement<BooleanValue, NumberValue, Value> par : parameters) {
-            if (lastPar != null && par != null) {
-                if (!(lastPar.calculateResult().getValue() >= par.calculateResult().getValue())) {
-                    return new BooleanValue(null);
+        Statement<BooleanValue, NumberValue, Value> previous = null;
+        int iterations = 0;
+        for (Statement<BooleanValue, NumberValue, Value> next : getParameters()) {
+            if (next != null) {
+                iterations++;
+                if (previous != null) {
+                    //specific code
+                    double previousValue = previous.calculateResult().getValue();
+                    double nextValue = next.calculateResult().getValue();
+                    if (!(previousValue < nextValue)) {
+                        return new BooleanValue(null);
+                    }
+                    //end specific code
                 }
+                previous = next;
             }
-            lastPar = par;
+        }
+        if (iterations < getMinimumParameterAmount()) {
+            //specific code
+            return new BooleanValue(null);
+            //end specific code
         }
         return new BooleanValue(true, null);
     }

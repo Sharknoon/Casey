@@ -13,31 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.values.NumberValue;
+import sharknoon.dualide.logic.statements.values.TextValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
  *
  * @author Josua Frank
  */
-public class ModuloOperator extends Operator<NumberValue, NumberValue> {
+public class ConcatOperator extends Operator<TextValue, Value> {
 
-    public ModuloOperator(Statement parent) {
-        super(parent, 2, -1, true, ValueType.NUMBER, ValueType.NUMBER);
+    public ConcatOperator(Statement parent) {
+        super(parent, 2, -1, true, ValueType.TEXT);
     }
 
     @Override
-    public NumberValue calculateResult() {
-        return new NumberValue(
+    public TextValue calculateResult() {
+        return new TextValue(
                 getParameters()
                         .stream()
                         .filter(p -> p != null)
                         .map(p -> p.calculateResult())
-                        .map(v -> v.getValue())
-                        .reduce(0.0, (l, r) -> l % r),
+                        .map(v -> v.toString())
+                        .collect(Collectors.joining()),
                 null
         );
     }

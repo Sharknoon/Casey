@@ -66,15 +66,6 @@ public class ValueBody extends Body<Value> {
                 Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
                 int margin2 = 10;
                 StackPane.setMargin(spinnerValue, new Insets(margin2));
-                //Can be removed on JavaFX 9 TODO
-                //http://hg.openjdk.java.net/openjfx/9-dev/rt/rev/4cc3cc9bc47d
-                //https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8140507
-                spinnerValue.setSkin(new SpinnerSkin(spinnerValue) {
-                    @Override
-                    protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-                        return spinnerValue.getEditor().minWidth(height);
-                    }
-                });
                 spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
                     @Override
                     public String toString(Double value) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
 import java.util.Collection;
 import sharknoon.dualide.logic.statements.Statement;
@@ -25,23 +25,35 @@ import sharknoon.dualide.logic.statements.values.ValueType;
  *
  * @author Josua Frank
  */
-public class NotEqualsOperator extends Operator<BooleanValue, Value> {
+public class EqualsOperator extends Operator<BooleanValue, Value> {
 
-    public NotEqualsOperator(Statement parent) {
+    public EqualsOperator(Statement parent) {
         super(parent, 2, -1, true, ValueType.BOOLEAN);
     }
 
     @Override
     public BooleanValue calculateResult() {
-        Collection<Statement<BooleanValue, Value, Value>> parameters = getParameters();
-        Statement<BooleanValue, Value, Value> lastPar = null;
-        for (Statement<BooleanValue, Value, Value> par : parameters) {
-            if (lastPar != null && par != null) {
-                if (lastPar.equals(par)) {
-                    return new BooleanValue(null);
+        Statement<BooleanValue, Value, Value> previous = null;
+        int iterations = 0;
+        for (Statement<BooleanValue, Value, Value> next : getParameters()) {
+            if (next != null) {
+                iterations++;
+                if (previous != null) {
+                    //specific code
+                    Value previousValue = previous.calculateResult();
+                    Value nextValue = next.calculateResult();
+                    if (!(previousValue.equals(nextValue))) {
+                        return new BooleanValue(null);
+                    }
+                    //end specific code
                 }
+                previous = next;
             }
-            lastPar = par;
+        }
+        if (iterations < getMinimumParameterAmount()) {
+            //specific code
+            return new BooleanValue(null);
+            //end specific code
         }
         return new BooleanValue(true, null);
     }

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.BooleanValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
@@ -31,15 +32,29 @@ public class AndOperator extends Operator<BooleanValue, BooleanValue> {
 
     @Override
     public BooleanValue calculateResult() {
-        return new BooleanValue(
-                getParameters()
-                        .stream()
-                        .filter(p -> p != null)
-                        .map(p -> p.calculateResult())
-                        .map(v -> v.getValue())
-                        .reduce(true, (l, r) -> l && r),
-                null
-        );
+        Statement<BooleanValue, BooleanValue, Value> previous = null;
+        int iterations = 0;
+        for (Statement<BooleanValue, BooleanValue, Value> next : getParameters()) {
+            if (next != null) {
+                iterations++;
+                if (previous != null) {
+                    //specific code
+                    boolean previousValue = previous.calculateResult().getValue();
+                    boolean nextValue = next.calculateResult().getValue();
+                    if (!(previousValue && nextValue)) {
+                        return new BooleanValue(null);
+                    }
+                    //end specific code
+                }
+                previous = next;
+            }
+        }
+        if (iterations < getMinimumParameterAmount()) {
+            //specific code
+            return new BooleanValue(null);
+            //end specific code
+        }
+        return new BooleanValue(true, null);
     }
 
 }

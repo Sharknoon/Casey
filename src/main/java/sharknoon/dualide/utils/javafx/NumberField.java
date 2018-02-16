@@ -81,10 +81,10 @@ public class NumberField extends Spinner<Double> {
     private NumberField(SpinnerValueFactory<Double> valueFactory) {
     }
 
-//    @Override
-//    protected Skin<?> createDefaultSkin() {
-//        return new FixedSpinnerSkin<>(this);
-//    }
+    @Override
+    protected Skin<?> createDefaultSkin() {
+        return new FixedSpinnerSkin<>(this);
+    }
 
     public class MyDoubleConverter extends SpinnerValueFactory<Double> {
 

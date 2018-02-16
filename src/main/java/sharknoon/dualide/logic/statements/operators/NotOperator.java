@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
 import java.util.Collection;
 import java.util.List;
@@ -51,13 +51,22 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
     public ObservableList<Node> setOperatorsBetweenParameters(List<Body> parameters, Supplier<Node> operator) {
         ObservableList<Node> listResult = FXCollections.observableArrayList();
         listResult.add(operator.get());
-        listResult.add(parameters.get(0));
+        if (parameters.size() > 0) {
+            listResult.add(parameters.get(0));
+        } else {
+            listResult.add(null);
+        }
         return listResult;
     }
 
     @Override
     public String toString() {
-        return getOperatorType().toString() + getParameters().get(0);
+        List<Statement<BooleanValue, BooleanValue, Value>> parameters = getParameters();
+        String parameter = "null";
+        if (parameters.size() > 0) {
+            parameter = parameters.get(0).toString();
+        }
+        return '(' + getOperatorType().toString() + parameter + ')';
     }
 
     @Override

@@ -24,7 +24,7 @@ import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
-import sharknoon.dualide.logic.statements.operations.Operator;
+import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.bodies.Body;

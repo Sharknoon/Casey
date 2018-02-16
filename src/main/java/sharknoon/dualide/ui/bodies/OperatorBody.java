@@ -31,7 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operations.Operator;
+import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.misc.Icons;
@@ -48,8 +48,8 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
 
     public OperatorBody(Operator operator) {
         super(operator);
-        Node content = createContentNode();
-        setContent(content);
+        Node contentNode = createContentNode();
+        setContent(contentNode);
     }
 
     private static final int DEFAULT_MARGIN = 5;

@@ -16,7 +16,6 @@
 package sharknoon.dualide.ui.buttonbar;
 
 import java.util.EnumSet;
-import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,14 +23,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operations.AddOperator;
-import sharknoon.dualide.logic.statements.operations.ConcatOperator;
-import sharknoon.dualide.logic.statements.operations.EqualsOperator;
-import sharknoon.dualide.logic.statements.operations.Operator;
-import sharknoon.dualide.logic.statements.values.BooleanValue;
-import sharknoon.dualide.logic.statements.values.NumberValue;
-import sharknoon.dualide.logic.statements.values.TextValue;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.logic.statements.values.ValueType;
@@ -77,7 +68,7 @@ public class ToolBarInit {
         PlaceholderBody body = new PlaceholderBody(EnumSet.allOf(ValueType.class), null, s -> {
             root.getChildren().set(0, s.getBody());
             s.addChangeListener(() -> {
-                result.setText(s.calculateResult().toString());
+                result.setText(s.calculateResult().toString() + "\n" + s.toString());
             });
         });
 

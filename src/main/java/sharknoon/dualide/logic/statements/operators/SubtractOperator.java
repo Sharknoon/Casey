@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic.statements.operations;
+package sharknoon.dualide.logic.statements.operators;
 
+import java.util.List;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.NumberValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
@@ -31,15 +33,25 @@ public class SubtractOperator extends Operator<NumberValue, NumberValue> {
 
     @Override
     public NumberValue calculateResult() {
-        return new NumberValue(
-                getParameters()
-                        .stream()
-                        .filter(p -> p != null)
-                        .map(p -> p.calculateResult())
-                        .map(v -> v.getValue())
-                        .reduce(0.0, (l, r) -> l - r),
-                null
-        );
+        List<Statement<NumberValue, NumberValue, Value>> parameters = getParameters();
+        double result = Double.NaN;
+        int iterations = 0;
+        for (int i = 0; i < parameters.size(); i++) {
+            Statement<NumberValue, NumberValue, Value> par = parameters.get(i);
+            if (par != null) {
+                double value = par.calculateResult().getValue();
+                if (Double.isNaN(result)) {
+                    result = value;
+                } else {
+                    result = result - value;
+                }
+                iterations++;
+            }
+        }
+        if (iterations < getMinimumParameterAmount()) {
+            return new NumberValue(null);
+        }
+        return new NumberValue(result, null);
     }
 
 }

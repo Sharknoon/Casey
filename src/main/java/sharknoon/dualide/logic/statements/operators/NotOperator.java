@@ -40,9 +40,11 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
     @Override
     public BooleanValue calculateResult() {
         Collection<Statement<BooleanValue, BooleanValue, Value>> parameters = getParameters();
-        Statement<BooleanValue, BooleanValue, Value> next = parameters.iterator().next();
-        if (next != null) {
-            return new BooleanValue(!next.calculateResult().getValue(), null);
+        if (getParameters().size() > 0) {
+            Statement<BooleanValue, BooleanValue, Value> next = parameters.iterator().next();
+            if (next != null) {
+                return new BooleanValue(!next.calculateResult().getValue(), null);
+            }
         }
         return new BooleanValue(null);
     }
@@ -51,7 +53,7 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
     public ObservableList<Node> setOperatorsBetweenParameters(List<Body> parameters, Supplier<Node> operator) {
         ObservableList<Node> listResult = FXCollections.observableArrayList();
         listResult.add(operator.get());
-        if (parameters.size() > 0) {
+        if (parameters.size() > 0 && parameters.get(0) != null) {
             listResult.add(parameters.get(0));
         } else {
             listResult.add(null);
@@ -63,7 +65,7 @@ public class NotOperator extends Operator<BooleanValue, BooleanValue> {
     public String toString() {
         List<Statement<BooleanValue, BooleanValue, Value>> parameters = getParameters();
         String parameter = "null";
-        if (parameters.size() > 0) {
+        if (parameters.size() > 0 && parameters.get(0) != null) {
             parameter = parameters.get(0).toString();
         }
         return '(' + getOperatorType().toString() + parameter + ')';

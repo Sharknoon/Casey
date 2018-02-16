@@ -26,6 +26,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.logic.statements.StatementField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.logic.statements.values.ValueType;
@@ -70,15 +71,16 @@ public class ToolBarInit {
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
         Label result = new Label();
-        PlaceholderBody body = new PlaceholderBody(EnumSet.allOf(ValueType.class), null, s -> {
-            center.getChildren().set(0, s.getBody());
-            s.addChangeListener(() -> {
-                result.setText(s.calculateResult().toString() + "\n" + s.toString());
-            });
+        StatementField field = new StatementField();
+        field.setOnStatementSet(s -> {
+            result.setText(s.calculateResult().toString() + "\n" + s.toString());
+        });
+        field.setOnStatementDestroyed(() -> result.setText(""));
+        field.addStatementChangeListener(s -> {
+            result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });
 
-        center.getChildren().add(body);
-        center.getChildren().add(result);
+        center.getChildren().addAll(field, result);
 
         Stage stage = new Stage();
         stage.setScene(scene);

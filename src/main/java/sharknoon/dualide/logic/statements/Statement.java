@@ -72,7 +72,7 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
 
     public void destroy() {
         destroy_impl();
-        if (parentProperty().get() != null) {
+        if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
             parentProperty().get().childs.remove((Statement) this);
         }
     }

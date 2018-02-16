@@ -77,27 +77,31 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
                 });
             }
         }
-        content.addListener((Change<? extends Node> c) -> {
-            while (c.next()) {
-                if (c.wasReplaced()) {
-                    for (int i = 0; i < c.getAddedSize(); i++) {
-                        Node a = c.getAddedSubList().get(i);
-                        if (a instanceof Body) {
-                            Body body = (Body) a;
-                            int index = c.getFrom() + i;
-                            body.setOnBodyDestroyed(() -> {
-                                content.set(index, createPlaceholder());
-                            });
-                        }
-                    }
-                }
-            }
-        });
         hBoxContent.setSpacing(DEFAULT_MARGIN);
         hBoxContent.setPadding(new Insets(DEFAULT_MARGIN));
         Bindings.bindContentBidirectional(hBoxContent.getChildren(), content);
 
         return hBoxContent;
+    }
+
+    private PlaceholderBody createPlaceholder() {
+        Operator<Value, Value> operator = getStatement().get();
+        Set<ValueType> parameterTypes = operator.getParameterTypes();
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
+
+        Consumer<Statement> statementConsumer = s -> {
+            if (content.contains(body)) {
+                int index = content.indexOf(body);
+                content.set(index, s.getBody());
+                operator.setParameter(operator.indexWithOperatorsToRegularIndex(index), s);
+                s.getBody().setOnBodyDestroyed(() -> {
+                    content.set(index, body);
+                    operator.setParameter(operator.indexWithOperatorsToRegularIndex(index), null);
+                });
+            }
+        };
+        body.setStatementConsumer(statementConsumer);
+        return body;
     }
 
     public void extend() {
@@ -113,22 +117,6 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
                 }
             }
         }
-    }
-
-    private PlaceholderBody createPlaceholder() {
-        Operator<Value, Value> operator = getStatement().get();
-        Set<ValueType> parameterTypes = operator.getParameterTypes();
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
-
-        Consumer<Statement> statementConsumer = s -> {
-            if (content.contains(body)) {
-                int index = content.indexOf(body);
-                content.set(index, s.getBody());
-                operator.setParameter(operator.indexWithOperatorsToRegularIndex(index), s);
-            }
-        };
-        body.setStatementConsumer(statementConsumer);
-        return body;
     }
 
     public void reduce() {

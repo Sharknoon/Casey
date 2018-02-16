@@ -21,11 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import javafx.collections.ListChangeListener;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.statements.values.ValueType;
-import sharknoon.dualide.ui.bodies.Body;
 import sharknoon.dualide.ui.bodies.PlaceholderBody;
 
 /**
@@ -33,7 +30,7 @@ import sharknoon.dualide.ui.bodies.PlaceholderBody;
  * @author Josua Frank
  */
 public class StatementField extends Pane {
-
+    
     private Statement statement;
     private Consumer<Statement> onStatementSet;
     private Runnable onStatementDestroyed;
@@ -77,7 +74,7 @@ public class StatementField extends Pane {
         onStatementDestroyed = runnable;
     }
 
-    private List<Consumer<Statement>> statementChangeListeners = new ArrayList<>();
+    private final List<Consumer<Statement>> statementChangeListeners = new ArrayList<>();
 
     public void addStatementChangeListener(Consumer<Statement> consumer) {
         statementChangeListeners.add(consumer);

@@ -32,6 +32,9 @@ public abstract class Value<T, U extends Value> extends Statement<Value, U, Valu
     protected Value(T value, Statement parent) {
         super(parent);
         setValue(value);
+        valueProperty().addListener((observable, oldValue, newValue) -> {
+            onChange();
+        });
     }
 
     public T getValue() {

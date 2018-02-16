@@ -16,11 +16,14 @@
 package sharknoon.dualide.ui.buttonbar;
 
 import java.util.EnumSet;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.misc.Icon;
@@ -60,23 +63,27 @@ public class ToolBarInit {
     }
 
     private static void TMP() {
-        FlowPane root = new FlowPane();
+        VBox center = new VBox();
+        Group vBoxGroup = new Group(center);
+        BorderPane root = new BorderPane(vBoxGroup);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
         Label result = new Label();
         PlaceholderBody body = new PlaceholderBody(EnumSet.allOf(ValueType.class), null, s -> {
-            root.getChildren().set(0, s.getBody());
+            center.getChildren().set(0, s.getBody());
             s.addChangeListener(() -> {
                 result.setText(s.calculateResult().toString() + "\n" + s.toString());
             });
         });
 
-        root.getChildren().add(body);
-        root.getChildren().add(result);
+        center.getChildren().add(body);
+        center.getChildren().add(result);
 
         Stage stage = new Stage();
         stage.setScene(scene);
+        stage.setHeight(750);
+        stage.setWidth(1200);
         stage.show();
     }
 

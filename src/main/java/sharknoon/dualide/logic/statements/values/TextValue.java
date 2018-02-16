@@ -44,9 +44,4 @@ public final class TextValue extends Value<String, TextValue> {
         return Objects.equals(getValue(), other.getValue());
     }
 
-    @Override
-    public String toString() {
-        return "\"" + super.toString() + "\"";
-    }
-
 }

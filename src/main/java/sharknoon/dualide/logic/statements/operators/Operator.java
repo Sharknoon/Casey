@@ -233,7 +233,9 @@ public abstract class Operator<RV extends Value, CV extends Value> extends State
             builder.append(String.valueOf(child));
             builder.append(String.valueOf(getOperatorType()));
         });
-        builder.deleteCharAt(builder.length() - 1);
+        if (childs.size() > 0) {
+            builder.deleteCharAt(builder.length() - getOperatorType().toString().length());
+        }
         return builder.append(')').toString();
     }
 

@@ -46,12 +46,12 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
     public Statement(Statement<Value, Value, RV> parent) {
         if (parent != null) {
             this.parent.set(parent);
-            if (!(this.parent.get() instanceof Operator)) {//Operators are managing their childs itself
-                this.parent.get().childs.add((Statement) this);
+            if (!(parentProperty().get() instanceof Operator)) {//Operators are managing their childs itself
+                parentProperty().get().childs.add((Statement) this);
             }
         }
         childs.addListener((observable, oldValue, newValue) -> {
-            onChildChanged();
+            onChange();
         });
     }
 
@@ -72,8 +72,8 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
 
     public void destroy() {
         destroy_impl();
-        if (parent.get() != null) {
-            parent.get().childs.remove((Statement) this);
+        if (parentProperty().get() != null) {
+            parentProperty().get().childs.remove((Statement) this);
         }
     }
 
@@ -87,8 +87,11 @@ public abstract class Statement<PV extends Value, RV extends Value, CV extends V
         getBody().destroy();
     }
 
-    private void onChildChanged() {
+    protected void onChange() {
         changeListeners.forEach(Runnable::run);
+        if (parentProperty().get() != null) {
+            parentProperty().get().onChange();
+        }
     }
 
     private final List<Runnable> changeListeners = new ArrayList<>();

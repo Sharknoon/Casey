@@ -39,9 +39,9 @@ public class AndOperator extends Operator<BooleanValue, BooleanValue> {
                 iterations++;
                 if (previous != null) {
                     //specific code
-                    boolean previousValue = previous.calculateResult().getValue();
-                    boolean nextValue = next.calculateResult().getValue();
-                    if (!(previousValue && nextValue)) {
+                    Value previousValue = previous.calculateResult();
+                    Value nextValue = next.calculateResult();
+                    if (!(previousValue.equals(nextValue))) {
                         return new BooleanValue(null);
                     }
                     //end specific code

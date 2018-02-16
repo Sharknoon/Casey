@@ -32,21 +32,18 @@ public class OrOperator extends Operator<BooleanValue, BooleanValue> {
 
     @Override
     public BooleanValue calculateResult() {
-        Statement<BooleanValue, BooleanValue, Value> previous = null;
         int iterations = 0;
+        boolean result = false;
         for (Statement<BooleanValue, BooleanValue, Value> next : getParameters()) {
             if (next != null) {
                 iterations++;
-                if (previous != null) {
-                    //specific code
-                    boolean previousValue = previous.calculateResult().getValue();
-                    boolean nextValue = next.calculateResult().getValue();
-                    if (previousValue || nextValue) {
-                        return new BooleanValue(true, null);
+                boolean nextValue = next.calculateResult().getValue();
+                if (nextValue) {
+                    result = true;
+                    if (iterations >= getMinimumParameterAmount()) {
+                        break;
                     }
-                    //end specific code
                 }
-                previous = next;
             }
         }
         if (iterations < getMinimumParameterAmount()) {
@@ -54,7 +51,7 @@ public class OrOperator extends Operator<BooleanValue, BooleanValue> {
             return new BooleanValue(null);
             //end specific code
         }
-        return new BooleanValue(true, null);
+        return new BooleanValue(result, null);
     }
 
 }

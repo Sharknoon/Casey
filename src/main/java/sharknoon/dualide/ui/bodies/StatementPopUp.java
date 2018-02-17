@@ -8,6 +8,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +17,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -75,50 +77,64 @@ public class StatementPopUp extends PopOver {
 
     private void addNewValueSelectors() {
         addNewValueSparator();
-        allowedValues.forEach(v -> {
-            addNewValueButtons(v);
-        });
+        GridPane gp = new GridPane();
+        gp.setHgap(10);
+        gp.setVgap(10);
+        gp.setAlignment(Pos.TOP_LEFT);
+        int row = 0;
+        for (ValueType value : allowedValues) {
+            String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
+
+            Node icon = Icons.get(value.getIcon());
+            Label text = createLabel(value.getName() + stringValues);
+            gp.add(new HBox(10, icon, text), 0, row);
+
+            FlowPane flowPaneButtons = new FlowPane();
+            flowPaneButtons.setHgap(10);
+            flowPaneButtons.setVgap(10);
+            CreationType ct = value.getCreationType();
+            Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
+            flowPaneButtons.getChildren().add(buttonCreation);
+
+            buttonCreation.setOnAction((event) -> {
+                Optional<Value> createdValue = ct.create().create(parent);
+                createdValue.ifPresent(cv -> {
+                    if (statementConsumer != null) {
+                        statementConsumer.accept(cv);
+                    }
+                });
+                hide();
+            });
+            value.getOperationTypes().forEach(ot -> {
+                Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
+                buttonOperation.setOnAction((event) -> {
+                    if (statementConsumer != null) {
+                        statementConsumer.accept(ot.create(parent));
+                    }
+                    hide();
+                });
+                flowPaneButtons.getChildren().add(buttonOperation);
+            });
+
+            gp.add(flowPaneButtons, 1, row);
+
+            if ((row / 2) + 1 < allowedValues.size()) {
+                Separator separator = new Separator();
+                gp.add(separator, 1, row + 1);
+            }
+            row += 2;
+        }
+        ColumnConstraints col0 = new ColumnConstraints();
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.ALWAYS);
+        gp.getColumnConstraints().addAll(col0, col1);
+        vBoxRoot.getChildren().add(gp);
     }
 
     private void addNewValueSparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_VALUES);
         Node separator = getSeparator(text);
         vBoxRoot.getChildren().add(separator);
-    }
-
-    //TODO slow
-    private void addNewValueButtons(ValueType value) {
-        FlowPane flowPaneValueButtons = new FlowPane(20, 20);
-        String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
-        Node icon = Icons.get(value.getIcon());
-        Label text = createLabel(value.getName() + stringValues);
-        flowPaneValueButtons.getChildren().addAll(icon, text);
-
-        CreationType ct = value.getCreationType();
-        Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
-        buttonCreation.setOnAction((event) -> {
-            Optional<Value> createdValue = ct.create().create(parent);
-            createdValue.ifPresent(cv -> {
-                if (statementConsumer != null) {
-                    statementConsumer.accept(cv);
-                }
-            });
-            hide();
-        });
-        flowPaneValueButtons.getChildren().add(buttonCreation);
-
-        value.getOperationTypes().forEach(ot -> {
-            Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
-            buttonOperation.setOnAction((event) -> {
-                if (statementConsumer != null) {
-                    statementConsumer.accept(ot.create(parent));
-                }
-                hide();
-            });
-            flowPaneValueButtons.getChildren().add(buttonOperation);
-        });
-
-        vBoxRoot.getChildren().add(flowPaneValueButtons);
     }
 
     private void addExistingValueSelectors() {

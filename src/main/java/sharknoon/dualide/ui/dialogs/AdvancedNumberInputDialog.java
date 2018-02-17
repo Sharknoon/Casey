@@ -19,14 +19,18 @@ import java.util.Collections;
 import java.util.Set;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.util.StringConverter;
 import sharknoon.dualide.utils.javafx.NumberField;
 
 /**
@@ -37,7 +41,7 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
 
     private final GridPane grid;
     private final Label label;
-    private final NumberField numberfield;
+    private final Spinner<Double> spinner;
     private final Double defaultValue;
     private final Set<Double> forbiddenValues;
 
@@ -56,26 +60,66 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
                 ? forbiddenValues
                 : Collections.emptySet();
 
-        // -- numberfield
+        // -- spinner
         defaultValue = defaultValue == null ? 0.0 : defaultValue;
-        this.numberfield = new NumberField(defaultValue);
-        this.numberfield.setMaxWidth(Double.MAX_VALUE);
+        this.spinner = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, defaultValue);
+        this.spinner.setMaxWidth(Double.MAX_VALUE);
+        this.spinner.getValueFactory().setConverter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double value) {
+                // If the specified value is null, return a zero-length String
+                if (value == null) {
+                    return "";
+                }
+
+                return value.toString();
+            }
+
+            @Override
+            public Double fromString(String value) {
+                try {
+                    // If the specified value is null or zero-length, return null
+                    if (value == null) {
+                        return null;
+                    }
+
+                    value = value.trim();
+
+                    if (value.length() < 1) {
+                        return null;
+                    }
+
+                    // Perform the requested parsing
+                    return Double.parseDouble(value);
+                } catch (NumberFormatException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        this.spinner.getEditor().setMinWidth(14);
+        this.spinner.setEditable(true);
         if (forbiddenValues != null) {
-            this.numberfield.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            this.spinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!forbiddenValues
                         .stream()
                         .map(d -> d.toString())
                         .anyMatch((f) -> f.equals(newValue))) {
-                    this.numberfield.setStyle("-fx-text-fill: #FF0000;");
+                    this.spinner.setStyle("-fx-text-fill: #FF0000;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
                 } else {
-                    this.numberfield.setStyle("-fx-text-fill: -fx-text-inner-color;");
+                    this.spinner.setStyle("-fx-text-fill: -fx-text-inner-color;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(false);
                 }
             });
         }
-        GridPane.setHgrow(numberfield, Priority.ALWAYS);
-        GridPane.setFillWidth(numberfield, true);
+        this.spinner.getEditor().setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                ((Button) dialogPane.lookupButton(ButtonType.OK)).fire();
+                event.consume();
+            }
+        });
+        GridPane.setHgrow(spinner, Priority.ALWAYS);
+        GridPane.setFillWidth(spinner, true);
 
         // -- label
         label = createContentLabel(dialogPane.getContentText());
@@ -100,12 +144,12 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
 
         setResultConverter((dialogButton) -> {
             ButtonBar.ButtonData data = dialogButton == null ? null : dialogButton.getButtonData();
-            return data == ButtonBar.ButtonData.OK_DONE ? numberfield.getValue() : null;
+            return data == ButtonBar.ButtonData.OK_DONE ? spinner.getValue() : null;
         });
     }
 
-    public final NumberField getEditor() {
-        return numberfield;
+    public final Spinner<Double> getEditor() {
+        return spinner;
     }
 
     public final Double getDefaultValue() {
@@ -130,10 +174,10 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
         grid.getChildren().clear();
 
         grid.add(label, 0, 0);
-        grid.add(numberfield, 1, 0);
+        grid.add(spinner, 1, 0);
         getDialogPane().setContent(grid);
 
-        Platform.runLater(() -> numberfield.requestFocus());
+        Platform.runLater(() -> {spinner.requestFocus();spinner.getEditor().selectAll();});
     }
 
 }

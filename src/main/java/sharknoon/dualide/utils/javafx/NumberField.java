@@ -17,7 +17,6 @@ package sharknoon.dualide.utils.javafx;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Skin;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.util.StringConverter;
@@ -79,11 +78,6 @@ public class NumberField extends Spinner<Double> {
     }
 
     private NumberField(SpinnerValueFactory<Double> valueFactory) {
-    }
-
-    @Override
-    protected Skin<?> createDefaultSkin() {
-        return new FixedSpinnerSkin<>(this);
     }
 
     public class MyDoubleConverter extends SpinnerValueFactory<Double> {

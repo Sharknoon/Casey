@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import javafx.scene.control.skin.SpinnerSkin;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;

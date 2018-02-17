@@ -17,12 +17,14 @@ package sharknoon.dualide.ui.dialogs;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -65,6 +67,12 @@ public class AdvancedBooleanInputDialog extends Dialog<Boolean> {
                 }
             });
         }
+        checkBox.setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                ((Button) dialogPane.lookupButton(ButtonType.OK)).fire();
+                event.consume();
+            }
+        });
         GridPane.setHgrow(checkBox, Priority.ALWAYS);
         GridPane.setFillWidth(checkBox, true);
 

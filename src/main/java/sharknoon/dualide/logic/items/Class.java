@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.items;
 
+import java.util.stream.Collectors;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -27,16 +28,11 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
     private static final transient ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    private Class() {
-        super();
-        CLASSES.add(this);
-    }
-
     protected Class(Package parent, String name) {
         super(parent, name);
         CLASSES.add(this);
-    }    
-    
+    }
+
     public static ListProperty<Class> classesProperty() {
         return CLASSES;
     }

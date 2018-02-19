@@ -22,12 +22,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.collections.ListChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -87,25 +84,23 @@ public abstract class Body<S extends Statement> extends Group {
     }
 
     private void initCloseButton() {
-//        if (getStatement().map(s -> s.parentProperty().get() != null).orElse(false)) {
-            Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
-            closeIcon.setOnMouseClicked((event) -> {
-                if (statement != null) {
-                    statement.destroy();
-                }
-            });
-            closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-            closeIcon.setLayoutY(0);
+        Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
+        closeIcon.setOnMouseClicked((event) -> {
+            if (statement != null) {
+                statement.destroy();
+            }
+        });
+        closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+        closeIcon.setLayoutY(0);
+        closeIcon.setVisible(false);
+        getChildren().add(closeIcon);
+        onMouseEntered((event) -> {
+            closeIcon.setVisible(true);
+            closeIcon.toFront();
+        });
+        onMouseExited((event) -> {
             closeIcon.setVisible(false);
-            getChildren().add(closeIcon);
-            onMouseEntered((event) -> {
-                closeIcon.setVisible(true);
-                closeIcon.toFront();
-            });
-            onMouseExited((event) -> {
-                closeIcon.setVisible(false);
-            });
-//        }
+        });
     }
 
     private void initPlusButton() {
@@ -154,6 +149,15 @@ public abstract class Body<S extends Statement> extends Group {
             }
         }
     }
+    private Node previousCloseIcon;
+
+    private void setCurrentCloseIcon(Node newCloseIcon) {
+        if (previousCloseIcon != null) {
+            previousCloseIcon.setVisible(false);
+        }
+        previousCloseIcon = newCloseIcon;
+    }
+
     private final List<Consumer<MouseEvent>> onMouseEntered = new ArrayList<>();
 
     private void onMouseEntered(Consumer<MouseEvent> event) {
@@ -181,7 +185,7 @@ public abstract class Body<S extends Statement> extends Group {
     /**
      *
      * @param polygon
-     * @param isOctagon wehter this is a octagon(true) or a hexagon(false)
+     * @param isOctagon wether this is a octagon(true) or a hexagon(false)
      * @param parentHeight
      * @param parentWidth
      */

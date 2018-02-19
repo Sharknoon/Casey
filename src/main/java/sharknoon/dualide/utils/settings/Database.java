@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
-import org.dizitart.no2.fulltext.UniversalTextTokenizer;
 import org.dizitart.no2.objects.ObjectFilter;
 import org.dizitart.no2.objects.ObjectRepository;
 import sharknoon.dualide.misc.Exitable;
-import sharknoon.dualide.serial.GSONMapper;
 import sharknoon.dualide.ui.MainApplication;
 
 /**
@@ -25,7 +23,6 @@ public class Database implements Exitable {
 
     private static final Nitrite DB = Nitrite
             .builder()
-            .nitriteMapper(new GSONMapper())
             .filePath(Ressources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
             .openOrCreate();
 

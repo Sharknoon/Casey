@@ -13,12 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.serial;
+package sharknoon.dualide.utils.java;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 
 /**
  *
  * @author Josua Frank
  */
-public interface PostProcessable {
-    void postProcess();
+public class Stacktrace {
+
+    private void printStackTrace() {
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement traceElement : trace) {
+            System.out.println("\tat " + traceElement);
+        }
+
+    }
+
 }

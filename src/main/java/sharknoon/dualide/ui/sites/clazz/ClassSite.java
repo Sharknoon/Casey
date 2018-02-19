@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites.clazz;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
@@ -105,7 +106,7 @@ public class ClassSite extends Site<Class> {
             }
         }, false, true);
         Button buttonRename = createButton(Word.CLASS_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getItem().getName(), getItem().getParent().getSite().getForbittenChildNames());
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, getItem().getName(), getItem().getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()));
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }

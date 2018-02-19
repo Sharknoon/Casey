@@ -17,21 +17,30 @@ package sharknoon.dualide.logic.items;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlySetProperty;
+import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
-import sharknoon.dualide.serial.PostProcessable;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.collection.Collections;
 
 /**
  *
@@ -41,17 +50,16 @@ import sharknoon.dualide.ui.sites.Site;
  * @param <C> The type of the children, only useful for the type project and
  * welcome
  */
-public abstract class Item<I extends Item, P extends Item, C extends Item> implements PostProcessable {
+public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
-    private final SetProperty<C> children = new SimpleSetProperty<>(FXCollections.observableSet(new LinkedHashSet<>()));
+    private final ReadOnlySetWrapper<C> children = new ReadOnlySetWrapper<>(FXCollections.observableSet(new LinkedHashSet<>()));
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
     //DO NOT CHANGE ORDER!!!
-    private final transient ObjectProperty<ItemType> itemType = new SimpleObjectProperty<>(ItemType.valueOf(this));
-    private final transient ReadOnlyStringWrapper fullName = new ReadOnlyStringWrapper();
-    private final transient ObjectProperty<Site<I>> site = new SimpleObjectProperty<>(Site.createSite(this));
+    private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
+    private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
 
     /**
      * can return null!!!
@@ -80,87 +88,52 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
         return null;
     }
 
-    //Just for initializing fields
-    protected Item() {
-    }
-
     protected Item(P parent, String name) {
-        setParent(parent);
-        setName(name);
+        parentProperty().set(parent);
+        if (name != null) {
+            nameProperty().set(name);
+        }
         addListeners();
-        if (parent != null) {
-            getParent().getChildren().add(this);
+        if (parentProperty().get() != null) {
+            parentProperty().get().childrenProperty().add(this);
         }
     }
 
-    @Override
-    public void postProcess() {
-        getChildren().forEach(c -> c.setParent(this));
-        addListeners();
-    }
-
-    public String getName() {
-        return nameProperty().get();
-    }
-
-    public void setName(String name) {
-        nameProperty().set(name == null ? "" : name);
+    public void move(P newParent) {
+        //parentProperty().set(null);
+        if (parentProperty().get() != null) {
+            parentProperty().get().childrenProperty().remove(this);
+        }
+        parentProperty().set(newParent);
+        parentProperty().get().childrenProperty().add(this);
     }
 
     public StringProperty nameProperty() {
         return name;
     }
 
-    public String getComments() {
-        return commentsProperty().get();
-    }
-
-    public void setComments(String comments) {
-        commentsProperty().set(comments == null ? "" : comments);
-    }
-
     public StringProperty commentsProperty() {
         return comments;
-    }
-
-    public P getParent() {
-        return parentProperty().get();
-    }
-
-    protected void setParent(P parent) {
-        parentProperty().set(parent);
     }
 
     public ObjectProperty<P> parentProperty() {
         return parent;
     }
 
-    public ObjectProperty<ItemType> typeProperty() {
-        return itemType;
+    public ReadOnlyObjectProperty<ItemType> typeProperty() {
+        return itemType.getReadOnlyProperty();
     }
 
-    public ItemType getType() {
-        return typeProperty().get();
-    }
-
-    public Site<I> getSite() {
-        return siteProperty().get();
-    }
-
-    public ObjectProperty<Site<I>> siteProperty() {
-        return site;
-    }
-
-    public ObservableSet<C> getChildren() {
-        return children;
+    public ReadOnlyObjectProperty<Site<I>> siteProperty() {
+        return site.getReadOnlyProperty();
     }
 
     public void addChildren(C children) {
-        getChildren().add(children);
+        childrenProperty().add(children);
     }
 
-    public SetProperty<C> childrenProperty() {
-        return children;
+    public ReadOnlySetProperty<C> childrenProperty() {
+        return children.getReadOnlyProperty();
     }
 
     @Override
@@ -169,26 +142,15 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
     }
 
     public void destroy() {
-        destroyImpl();
-        if (parentProperty().get() != null) {
-            parentProperty().get().getChildren().remove(this);
-        }
-    }
-
-    protected void destroyImpl() {
-        Iterator<C> iterator = getChildren().iterator();
-        while (iterator.hasNext()) {
-            C next = iterator.next();
-            next.destroyImpl();
-            iterator.remove();
-        }
+        childrenProperty().forEach(c -> c.destroy());
+        parentProperty().set(null);
+        childrenProperty().clear();
     }
 
     private void addListeners() {
-        getChildren().addListener((SetChangeListener.Change<? extends C> change) -> {
+        childrenProperty().addListener((SetChangeListener.Change<? extends C> change) -> {
             if (change.wasAdded()) {
                 C elementAdded = change.getElementAdded();
-                elementAdded.setParent(this);
                 ItemTreeView.onItemAdded(elementAdded);
                 ItemTabPane.onItemAdded(elementAdded);
             } else if (change.wasRemoved()) {
@@ -197,55 +159,28 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
                 ItemTabPane.onItemRemoved(elementRemoved);
             }
         });
-        nameProperty().addListener((observable, oldValue, newValue) -> {
-            refreshFullNameRecursive();
-        });
-        parentProperty().addListener((observable, oldValue, newValue) -> {
-            refreshFullNameRecursive();
-        });
     }
 
-    private void refreshFullNameRecursive() {
-        refreshFullName();
-        childrenProperty().forEach(Item::refreshFullNameRecursive);
-    }
-
-    private void refreshFullName() {
-        if (getParent() != null) {
-            String idString = getParent().getFullName() + "." + getName();
-            fullName.set(idString);
+    public StringExpression fullNameProperty() {
+        StringProperty sp = new SimpleStringProperty();
+        if (parentProperty().get() != null) {
+            sp.bind(parentProperty().get().fullNameProperty().concat(".").concat(nameProperty()));
         } else {
-            fullName.set(getName());
+            sp.bind(nameProperty());
         }
-    }
-
-    /**
-     * Also the unique id
-     *
-     * @return
-     */
-    public String getFullName() {
-        if (fullName.get() == null || !fullName.get().endsWith(getName())) {
-            if (getParent() != null) {
-                String idString = getParent().getFullName() + "." + getName();
-                fullName.set(idString);
-                return idString;
+        parentProperty().addListener((ObservableValue<? extends P> observable, P oldValue, P newValue) -> {
+            if (parentProperty().get() != null) {
+                sp.bind(parentProperty().get().fullNameProperty().concat(".").concat(nameProperty()));
             } else {
-                fullName.set(getName());
-                return getName();
+                sp.bind(nameProperty());
             }
-        } else {
-            return fullName.get();
-        }
-    }
-
-    public ReadOnlyStringProperty fullNameProperty() {
-        return fullName.getReadOnlyProperty();
+        });
+        return sp;
     }
 
     @Override
     public int hashCode() {
-        return getFullName().hashCode();
+        return fullNameProperty().get().hashCode();
     }
 
     @Override
@@ -260,7 +195,44 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> imple
             return false;
         }
         final Item<?, ?, ?> other = (Item<?, ?, ?>) obj;
-        return this.getFullName().equals(other.getFullName());
+        return this.fullNameProperty().get().equals(other.fullNameProperty().get());
+    }
+
+    //Utils
+    public Optional<P> getParent() {
+        return Optional.ofNullable(parentProperty().get());
+    }
+
+    public Set<C> getChildren() {
+        return Collections.silentUnmodifiableSet(childrenProperty().get());
+    }
+
+    public String getName() {
+        return nameProperty().get();
+    }
+
+    public void setName(String name) {
+        nameProperty().set(name);
+    }
+
+    public String getComments() {
+        return commentsProperty().get();
+    }
+
+    public void setComments(String comments) {
+        commentsProperty().set(comments);
+    }
+
+    public ItemType getType() {
+        return typeProperty().get();
+    }
+
+    public String getFullName() {
+        return fullNameProperty().get();
+    }
+
+    public Site getSite() {
+        return siteProperty().get();
     }
 
 }

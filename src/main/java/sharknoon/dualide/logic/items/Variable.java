@@ -29,10 +29,6 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     private final ObjectProperty<Class> type = new SimpleObjectProperty<>();
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
 
-    private Variable() {
-        super();
-    }
-
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         super(parent, name);
     }

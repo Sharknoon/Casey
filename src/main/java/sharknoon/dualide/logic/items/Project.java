@@ -35,23 +35,12 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class Project extends Item<Project, Item, Package> {
 
-    private final transient ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
+    private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
-
-    private Project() {
-        super();
-    }
 
     protected Project(Welcome parent, String name) {
         super(parent, name);
         init();
-    }
-
-    @Override
-    public void postProcess() {
-        super.postProcess();
-        init();
-        ItemTreeView.refresh();
     }
 
     private void init() {

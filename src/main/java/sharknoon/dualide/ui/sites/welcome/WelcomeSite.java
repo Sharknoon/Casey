@@ -178,6 +178,7 @@ public class WelcomeSite extends Site<Welcome> {
         Optional<Project> project = Serialisation.loadProject(path);
         if (project.isPresent()) {
             RecentProject.updateProject(project.get());
+            ItemTreeView.refresh();
             ItemTreeView.selectItem(project.get());
             ItemTabPane.hideRootTab();
         }

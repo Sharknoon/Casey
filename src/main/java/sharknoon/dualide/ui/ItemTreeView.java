@@ -22,6 +22,7 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.ui.misc.Icons;
 
 /**
@@ -56,10 +57,10 @@ public class ItemTreeView {
         selectItem(Welcome.getWelcome());
     }
 
-    public static void onItemAdded(Item item) {
+    public static void onItemAdded(Item<Item, Item, Item> item) {
         TreeItem<Item> treeItem = createAndGetTreeItem(item);
-        if (item.getParent() != null && ITEMS.containsKey(item.getParent())) {
-            TreeItem<Item> parentItem = ITEMS.get(item.getParent());
+        if (item.getParent().isPresent() && ITEMS.containsKey(item.getParent().get())) {
+            TreeItem<Item> parentItem = ITEMS.get(item.getParent().get());
             parentItem.getChildren().add(treeItem);
         } else {
             MainController.getTreeView().setRoot(treeItem);
@@ -80,9 +81,9 @@ public class ItemTreeView {
         return treeItem;
     }
 
-    public static void onItemRemoved(Item item) {
-        if (item.getParent() != null && ITEMS.containsKey(item.getParent()) && ITEMS.containsKey(item)) {
-            TreeItem<Item> parentItem = ITEMS.get(item.getParent());
+    public static void onItemRemoved(Item<Item, Item, Item> item) {
+        if (item.getParent().isPresent() && ITEMS.containsKey(item.getParent().get()) && ITEMS.containsKey(item)) {
+            TreeItem<Item> parentItem = ITEMS.get(item.getParent().get());
             TreeItem<Item> itemToRemove = ITEMS.get(item);
             parentItem.getChildren().remove(itemToRemove);
         }

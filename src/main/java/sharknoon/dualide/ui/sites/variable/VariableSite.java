@@ -29,11 +29,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.skin.ListViewSkin;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.util.StringConverter;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.items.Class;
@@ -134,22 +136,30 @@ public class VariableSite extends Site<Variable> {
         ComboBox<Class> comboBoxTypes = new ComboBox<>();
         comboBoxTypes.itemsProperty().bindBidirectional(Class.classesProperty());
         comboBoxTypes.setCellFactory((param) -> {
-            return new ListCell<Class>(){
+            return new ListCell<Class>() {
                 @Override
                 protected void updateItem(Class item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item != null) {
-                        setText(item.getName());
+                        textProperty().bind(item.nameProperty());
                         setTooltip(new Tooltip(item.getFullName()));
                     }
                 }
-                
+
             };
         });
+        comboBoxTypes.setButtonCell(new ListCell<Class>() {
+            @Override
+            protected void updateItem(Class item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null) {
+                    textProperty().bind(item.nameProperty());
+                    setTooltip(new Tooltip(item.getFullName()));
+                }
+            }
+
+        });
         comboBoxTypes.valueProperty().bindBidirectional(getItem().classProperty());
-//        getItem().nameProperty().addListener((observable, oldValue, newValue) -> {
-//            comboBoxTypes.itemsProperty().bindBidirectional(Class.classesProperty());
-//        });
 
         CheckBox checkBoxFinal = new CheckBox();
         checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());

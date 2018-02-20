@@ -15,15 +15,18 @@
  */
 package sharknoon.dualide.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-import javafx.scene.control.TreeItem;
+import javafx.event.EventHandler;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 
@@ -34,19 +37,16 @@ import sharknoon.dualide.ui.sites.Site;
 public class ItemTreeView {
 
     public static void init() {
-        MainController
-                .getTreeView()
-                .getSelectionModel()
+        TreeView<Item> treeView = MainController.getTreeView();
+        treeView.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null && newValue.getValue() != null) {
                         newValue.getValue().getSite().select();
                     }
                 });
-        Site
-                .currentSelectedProperty()
+        Site.currentSelectedProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    TreeView<Item> treeView = MainController.getTreeView();
                     if (newValue.getType() == ItemType.WELCOME || newValue.getType() == ItemType.PROJECT) {
                         treeView.setRoot(newValue.getSite().getTreeItem());
                     } else {
@@ -55,9 +55,21 @@ public class ItemTreeView {
                                 .select(newValue.getSite().getTreeItem());
                     }
                 });
-        MainController
-                .getTreeView()
-                .setFocusTraversable(false);
+        treeView.setFocusTraversable(false);
+
+        //Works, but its very buggy, probably a javafx bug
+//        treeView.setCellFactory((param) -> {
+//            return new TreeCell<Item>() {
+//                @Override
+//                protected void updateItem(Item item, boolean empty) {
+//                    super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+//                    if (item != null) {
+//                        setText(item.getName());//textProperty().bind(item.nameProperty());
+//                        setGraphic(Icons.get(item.getSite().getTabIcon()));
+//                    }
+//                }
+//            };
+//        });
     }
 
 }

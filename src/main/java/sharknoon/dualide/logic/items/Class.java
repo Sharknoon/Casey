@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.items;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -35,6 +36,18 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
     public static ListProperty<Class> classesProperty() {
         return CLASSES;
+    }
+
+    /**
+     * case sensitive!
+     *
+     * @param fullName
+     * @return
+     */
+    public static Optional<Class> forName(String fullName) {
+        return CLASSES.stream()
+                .filter(c -> c.getFullName().equals(fullName))
+                .findFirst();
     }
 
 }

@@ -15,22 +15,25 @@
  */
 package sharknoon.dualide.serial;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.settings.Logger;
 
@@ -47,11 +50,38 @@ public class Serialisation {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static final Map<Item, Map<String, JsonNode>> ADDITIONAL_NODES = new HashMap<>();
+
     private static Optional<Item> deserializeItem(ObjectNode item, Item... parentItem) {
-        JsonNode nameNode = item.get(NAME);
-        JsonNode commentsNode = item.get(COMMENTS);
-        JsonNode typeNode = item.get(ITEM);
-        JsonNode childrenNode = item.get(CHILDREN);
+        JsonNode nameNode = null;
+        JsonNode commentsNode = null;
+        JsonNode typeNode = null;
+        JsonNode childrenNode = null;
+        Map<String, JsonNode> additionalNodes = null;
+        for (Iterator<Entry<String, JsonNode>> it = item.fields(); it.hasNext();) {
+            Entry<String, JsonNode> f = it.next();
+            switch (f.getKey()) {
+                case NAME:
+                    nameNode = f.getValue();
+                    break;
+                case COMMENTS:
+                    commentsNode = f.getValue();
+                    break;
+                case ITEM:
+                    typeNode = f.getValue();
+                    break;
+                case CHILDREN:
+                    childrenNode = f.getValue();
+                    break;
+                default:
+                    if (additionalNodes == null) {
+                        additionalNodes = new HashMap<>();
+                    }
+                    additionalNodes.put(f.getKey(), f.getValue());
+                    break;
+            }
+
+        }
 
         String name = nameNode != null && nameNode.isValueNode() ? nameNode.asText() : null;
         String comments = commentsNode != null && commentsNode.isValueNode() ? commentsNode.asText() : null;
@@ -64,6 +94,9 @@ public class Serialisation {
         Item result = Item.createItem(type, parentItem.length > 0 ? parentItem[0] : null, name);
         if (result != null) {
             result.setComments(comments);
+            if (additionalNodes != null) {
+                ADDITIONAL_NODES.put(result, additionalNodes);
+            }
         } else {
             return Optional.empty();
         }
@@ -75,14 +108,19 @@ public class Serialisation {
                 }
             }
         }
+        if (parentItem.length < 1) {
+            ADDITIONAL_NODES.forEach((i, ad) -> i.setAdditionalProperties(ad));
+            ADDITIONAL_NODES.clear();
+        }
         return Optional.ofNullable(result);
     }
 
-    private static Optional<ObjectNode> serializeItem(Item<? extends Item, ? extends Item, ? extends Item> item) {
+    private static Optional<ObjectNode> serializeItem(Item<?, ?, ?> item) {
         ObjectNode object = MAPPER.createObjectNode();
         object.put(NAME, item.getName());
         object.put(COMMENTS, item.getComments());
         object.put(ITEM, item.getType().name().toLowerCase());
+        object.setAll(item.getAdditionalProperties());
 
         ArrayNode array = object.putArray(CHILDREN);
         item.childrenProperty().forEach(c -> {

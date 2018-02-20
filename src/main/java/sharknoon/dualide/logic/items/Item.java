@@ -15,15 +15,14 @@
  */
 package sharknoon.dualide.logic.items;
 
-import java.util.LinkedHashSet;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlySetProperty;
-import javafx.beans.property.ReadOnlySetWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -32,10 +31,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.SetChangeListener;
-import sharknoon.dualide.ui.ItemTabPane;
-import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.collection.Collections;
 
@@ -48,7 +43,7 @@ import sharknoon.dualide.utils.collection.Collections;
  * welcome
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
-    
+
     private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
     private final ReadOnlyListWrapper<C> children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
@@ -175,6 +170,14 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return sp;
     }
 
+    public Map<String, JsonNode> getAdditionalProperties() {
+        return new HashMap<>();
+    }
+
+    public void setAdditionalProperties(Map<String, JsonNode> properties){
+        
+    }
+    
     @Override
     public int hashCode() {
         return fullNameProperty().get().hashCode();

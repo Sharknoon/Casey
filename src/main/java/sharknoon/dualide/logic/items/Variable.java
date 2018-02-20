@@ -15,6 +15,11 @@
  */
 package sharknoon.dualide.logic.items;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.Map;
+import java.util.Optional;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,10 +32,36 @@ import javafx.beans.property.SimpleObjectProperty;
 public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
     private final ObjectProperty<Class> type = new SimpleObjectProperty<>();
+    private static final String TYPE = "type";
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
+    private static final String MODIFIABLE = "modifiable";
 
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         super(parent, name);
+    }
+
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = super.getAdditionalProperties();
+        String typeString = classProperty().get() != null ? classProperty().get().getFullName() : "";
+        map.put(TYPE, TextNode.valueOf(typeString));
+        map.put(MODIFIABLE, BooleanNode.valueOf(modifiable.get()));
+        return map;
+    }
+
+    @Override
+    public void setAdditionalProperties(Map<String, JsonNode> properties) {
+        properties.forEach((key, value) -> {
+            switch (key) {
+                case MODIFIABLE:
+                    modifiable.set(value.asBoolean(true));
+                    break;
+                case TYPE:
+                    Optional<Class> clazz = Class.forName(value.asText());
+                    clazz.ifPresent(c -> type.set(c));
+                    break;
+            }
+        });
     }
 
     public ObjectProperty<Class> classProperty() {

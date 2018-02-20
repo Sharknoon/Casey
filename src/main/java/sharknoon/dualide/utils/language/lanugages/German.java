@@ -161,7 +161,7 @@ public class German extends Language {
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Bitte Text eingeben");
         add(Word.NEW_TEXT_VALUE_DIALOG_CONTENT_TEXT, "Text");
         ///New Number value
-        add(Word.NEW_NUMBER_VALUE_DIALOG_TITLE, "Neuer Nummer");
+        add(Word.NEW_NUMBER_VALUE_DIALOG_TITLE, "Neue Nummer");
         add(Word.NEW_NUMBER_VALUE_DIALOG_HEADER_TEXT, "Bitte Nummer eingeben");
         add(Word.NEW_NUMBER_VALUE_DIALOG_CONTENT_TEXT, "Nummer");
         ///New Boolean value
@@ -169,7 +169,7 @@ public class German extends Language {
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Bitte Boolean auswählen");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
         //ValueSelectionPopup
-        add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neuen Werte");
+        add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neue Werte");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-Werte");
         add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Bestehende Werte");
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "Allgemeine Werte");

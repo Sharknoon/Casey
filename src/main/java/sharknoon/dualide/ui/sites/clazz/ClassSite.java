@@ -34,6 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
@@ -53,18 +54,16 @@ import sharknoon.dualide.utils.language.Word;
 public class ClassSite extends Site<Class> {
 
     private BorderPane borderPaneRoot;
-    private final GridPane gridPaneChildren = new GridPane();
+    private GridPane gridPaneChildren;
 
     private void init() {
         borderPaneRoot = new BorderPane();
+        gridPaneChildren = new GridPane();
         gridPaneChildren.setVgap(20);
         gridPaneChildren.setHgap(20);
         gridPaneChildren.setAlignment(Pos.TOP_CENTER);
         gridPaneChildren.setPadding(new Insets(50));
 
-        getItem().childrenProperty().addListener((SetChangeListener.Change<? extends Item<? extends Item, Class, ? extends Item>> change) -> {
-            setContent();
-        });
         setContent();
 
         ColumnConstraints colIcon = new ColumnConstraints();
@@ -88,15 +87,13 @@ public class ClassSite extends Site<Class> {
         Button buttonAddFunction = createButton(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_FUNCTION_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Function fun = Item.createItem(ItemType.FUNCTION, getItem(), name.get());
-                ItemTreeView.selectItem(fun);
+                Function fun = Item.createItem(ItemType.FUNCTION, getItem(), name.get(), true);
             }
         });
         Button buttonAddVariable = createButton(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_VARIABLE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Variable var = Item.createItem(ItemType.VARIABLE, getItem(), name.get());
-                ItemTreeView.selectItem(var);
+                Variable var = Item.createItem(ItemType.VARIABLE, getItem(), name.get(), true);
             }
         });
         Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
@@ -150,55 +147,57 @@ public class ClassSite extends Site<Class> {
     int rowCounter = 0;
 
     public void setContent() {
-        gridPaneChildren.getChildren().clear();
-        rowCounter = 0;
-        getItem().getChildren().forEach(c -> {
-            Node icon = Icons.get(c.getSite().getTabIcon(), 50);
-            icon.setOnMouseClicked(e -> onClicked(c));
+        EasyBind.subscribe(getItem().childrenProperty(), childs -> {
+            gridPaneChildren.getChildren().clear();
+            rowCounter = 0;
+            childs.forEach(c -> {
+                Node icon = Icons.get(c.getSite().getTabIcon(), 50);
+                icon.setOnMouseClicked(e -> onClicked(c));
 
-            Text textName = new Text();
-            DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-            shadowEffect.setSpread(0.5);
-            textName.setEffect(shadowEffect);
-            textName.setFont(Font.font(30));
-            textName.textProperty().bindBidirectional(c.nameProperty());
-            textName.setOnMouseClicked(e -> onClicked(c));
+                Text textName = new Text();
+                DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+                shadowEffect.setSpread(0.5);
+                textName.setEffect(shadowEffect);
+                textName.setFont(Font.font(30));
+                textName.textProperty().bindBidirectional(c.nameProperty());
+                textName.setOnMouseClicked(e -> onClicked(c));
 
-            Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
-                Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_CLASS_DIALOG, c.getComments());
-                if (comments.isPresent()) {
-                    c.setComments(comments.get());
-                }
-            }, false, true);
+                Button buttonComment = createButton(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+                    Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_CLASS_DIALOG, c.getComments());
+                    if (comments.isPresent()) {
+                        c.setComments(comments.get());
+                    }
+                }, false, true);
 
-            Button buttonRename = createButton(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, c.getName(), getForbittenChildNames(c.getName()));
-                if (name.isPresent()) {
-                    c.setName(name.get());
-                }
-            }, false, true);
+                Button buttonRename = createButton(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
+                    Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_CLASS_DIALOG, c.getName(), getForbittenChildNames(c.getName()));
+                    if (name.isPresent()) {
+                        c.setName(name.get());
+                    }
+                }, false, true);
 
-            Button buttonDelete = createButton(Word.CLASS_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
-                Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_CLASS_DIALOG, "#CLASS", c.getName());
-                if (confirmed.isPresent() && confirmed.get()) {
-                    c.destroy();
-                }
-            }, false, true);
+                Button buttonDelete = createButton(Word.CLASS_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
+                    Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_CLASS_DIALOG, "#CLASS", c.getName());
+                    if (confirmed.isPresent() && confirmed.get()) {
+                        c.destroy();
+                    }
+                }, false, true);
 
-            gridPaneChildren.addRow(rowCounter,
-                    icon,
-                    textName,
-                    buttonComment,
-                    buttonRename,
-                    buttonDelete
-            );
+                gridPaneChildren.addRow(rowCounter,
+                        icon,
+                        textName,
+                        buttonComment,
+                        buttonRename,
+                        buttonDelete
+                );
 
-            rowCounter++;
+                rowCounter++;
+            });
         });
     }
 
     private void onClicked(Item item) {
-        ItemTreeView.selectItem(item);
+        item.getSite().select();
     }
 
     public ClassSite(Class item) {

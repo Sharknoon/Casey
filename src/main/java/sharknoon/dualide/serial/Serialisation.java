@@ -30,6 +30,7 @@ import java.util.Optional;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.settings.Logger;
 
@@ -43,7 +44,7 @@ public class Serialisation {
     private static final String COMMENTS = "comments";
     private static final String ITEM = "item";
     private static final String CHILDREN = "children";
-    
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static Optional<Item> deserializeItem(ObjectNode item, Item... parentItem) {
@@ -70,10 +71,7 @@ public class Serialisation {
             while (children.hasNext()) {
                 JsonNode child = children.next();
                 if (child.isObject()) {
-                    Optional<Item> childItem = deserializeItem((ObjectNode) child, result);//safe cast
-                    if (childItem.isPresent()) {
-                        result.addChildren(childItem.get());
-                    }
+                    deserializeItem((ObjectNode) child, result);//safe cast
                 }
             }
         }
@@ -107,7 +105,9 @@ public class Serialisation {
             }
             Optional<Item> item = deserializeItem((ObjectNode) new ObjectMapper().readTree(json));
             Optional<Project> project = item.map(i -> (Project) i);
-            project.ifPresent(p -> p.setSaveFile(path));
+            project.ifPresent(p -> {
+                p.setSaveFile(path);
+            });
             return project;
         } catch (IOException e) {
             Logger.error("Could not read Project file", e);

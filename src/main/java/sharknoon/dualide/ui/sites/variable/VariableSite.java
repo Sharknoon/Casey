@@ -52,10 +52,11 @@ import sharknoon.dualide.utils.language.Word;
 public class VariableSite extends Site<Variable> {
 
     private BorderPane borderPaneRoot;
-    private final GridPane gridPaneContent = new GridPane();
+    private GridPane gridPaneContent;
 
     private void init() {
         borderPaneRoot = new BorderPane();
+        gridPaneContent = new GridPane();
         gridPaneContent.setVgap(20);
         gridPaneContent.setHgap(20);
         gridPaneContent.setAlignment(Pos.TOP_CENTER);
@@ -91,8 +92,6 @@ public class VariableSite extends Site<Variable> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_VARIABLE_DIALOG, "#VARIABLE", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
-                ItemTabPane.closeAllTabs();
-                ItemTreeView.closeProjectAndShowWelcome();
             }
         }, false, true);
 
@@ -121,10 +120,6 @@ public class VariableSite extends Site<Variable> {
     }
 
     int rowCounter = 0;
-
-    private void onClicked(Item item) {
-        ItemTreeView.selectItem(item);
-    }
 
     public VariableSite(Variable item) {
         super(item);

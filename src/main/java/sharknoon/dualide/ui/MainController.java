@@ -28,8 +28,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.buttonbar.ToolBarInit;
 import sharknoon.dualide.ui.menubar.MenuBarInit;
+import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.utils.settings.Keyboard;
 
@@ -38,7 +40,7 @@ import sharknoon.dualide.utils.settings.Keyboard;
  * @author Josua Frank
  */
 public class MainController implements Initializable {
-    
+
     @FXML
     private TabPane tabPane;
 
@@ -67,7 +69,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //init of handlers
-        ItemTabPane.selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        Site.currentSelectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue instanceof Function) {
                 currentFunction = Optional.ofNullable((FunctionSite) newValue.getSite());
             } else {
@@ -105,6 +107,7 @@ public class MainController implements Initializable {
         ItemTreeView.init();
         ItemTabPane.init();
         Keyboard.init();
+        Welcome.getWelcome().getSite().select();
     }
 
     public static TreeView<Item> getTreeView() {

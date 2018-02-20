@@ -64,6 +64,10 @@ public class Project extends Item<Project, Item, Package> {
         return Optional.ofNullable(currentProject.get());
     }
 
+    public static ObjectProperty<Project> currentProjectProperty() {
+        return currentProject;
+    }
+
     public void save() {
         if (saveFile.get() == null) {//If the programm has no path (hasnt been saved yet)
             FileChooser chooser = new FileChooser();

@@ -141,10 +141,8 @@ public class MenuBarInit {
         menuCloseProject.setOnAction((event) -> {
             Project.getCurrentProject().ifPresent(p -> {
                 p.save();
-                ItemTabPane.closeAllTabs();
-                ItemTreeView.closeProjectAndShowWelcome();
-                Welcome.getWelcome().getChildren().clear();
             });
+            Welcome.getWelcome().getSite().select();
         });
         menuProject.getItems().add(menuCloseProject);
     }

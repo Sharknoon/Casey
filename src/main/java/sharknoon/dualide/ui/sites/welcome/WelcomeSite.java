@@ -51,6 +51,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.serial.Serialisation;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.utils.settings.Props;
 
 /**
@@ -60,12 +61,13 @@ import sharknoon.dualide.utils.settings.Props;
 public class WelcomeSite extends Site<Welcome> {
 
     private BorderPane borderPaneRoot;
-    private final ScrollPane scrollPaneRecentProjects = new ScrollPane();
-    private final String lastDirectoryKey = "lastProjectDirectory";
-    private Optional<String> lastDirectory = Optional.empty();
+    private ScrollPane scrollPaneRecentProjects;
+    private static final String lastDirectoryKey = "lastProjectDirectory";
+    private static Optional<String> lastDirectory = Optional.empty();
 
     private void init() {
         borderPaneRoot = new BorderPane();
+        scrollPaneRecentProjects = new ScrollPane();
         GridPane gridPaneContent = new GridPane();
         gridPaneContent.setAlignment(Pos.CENTER);
         gridPaneContent.setMaxSize(1000, 600);
@@ -178,17 +180,14 @@ public class WelcomeSite extends Site<Welcome> {
         Optional<Project> project = Serialisation.loadProject(path);
         if (project.isPresent()) {
             RecentProject.updateProject(project.get());
-            ItemTreeView.refresh();
-            ItemTreeView.selectItem(project.get());
-            ItemTabPane.hideRootTab();
+            project.get().getSite().select();
         }
     }
 
     private void createProject(String name) {
         Project project = Item.createItem(ItemType.PROJECT, null, name);
         RecentProject.updateProject(project);
-        ItemTreeView.selectItem(project);
-        ItemTabPane.hideRootTab();
+        project.getSite().select();
     }
 
     public WelcomeSite(Welcome item) {

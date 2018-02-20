@@ -391,7 +391,7 @@ public class Ressources {
                 Files.walk(classesFolder)
                         .filter(entry -> !entry.getFileName().toString().endsWith("class"))
                         .filter(entry -> !Files.isDirectory(entry))
-                        .filter(entry -> entry.getFileName().toString().startsWith(rootPackage))
+                        .filter(entry -> entry.toAbsolutePath().toString().contains(rootPackage))
                         .forEach(entry -> {
                             try {
                                 String name = classesFolder.relativize(entry).toString();

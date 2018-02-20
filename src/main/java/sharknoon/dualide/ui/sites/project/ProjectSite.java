@@ -34,6 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -41,6 +42,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.ItemType;
+import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -53,18 +55,16 @@ import sharknoon.dualide.ui.dialogs.Dialogs;
 public class ProjectSite extends Site<Project> {
 
     private BorderPane borderPaneRoot;
-    private final GridPane gridPanePackages = new GridPane();
+    private GridPane gridPanePackages;
 
     private void init() {
         borderPaneRoot = new BorderPane();
+        gridPanePackages = new GridPane();
         gridPanePackages.setVgap(20);
         gridPanePackages.setHgap(20);
         gridPanePackages.setAlignment(Pos.TOP_CENTER);
         gridPanePackages.setPadding(new Insets(50));
 
-        getItem().childrenProperty().addListener((SetChangeListener.Change<? extends Package> change) -> {
-            setContent();
-        });
         setContent();
 
         ColumnConstraints colIcon = new ColumnConstraints();
@@ -88,10 +88,8 @@ public class ProjectSite extends Site<Project> {
         Button buttonAddPackage = createButton(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get());
-                ItemTreeView.selectItem(package_);
+                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get(),true);
             }
-
         });
 
         Button buttonComment = createButton(Word.PROJECT_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
@@ -110,8 +108,7 @@ public class ProjectSite extends Site<Project> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PROJECT_DIALOG, "#PROJECT", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
-                ItemTabPane.closeAllTabs();
-                ItemTreeView.closeProjectAndShowWelcome();
+                Welcome.getWelcome().getSite().select();
             }
         }, false, true);
 
@@ -144,59 +141,61 @@ public class ProjectSite extends Site<Project> {
     int rowCounter = 0;
 
     public void setContent() {
-        gridPanePackages.getChildren().clear();
-        rowCounter = 0;
-        getItem()
-                .getChildren()
-                .stream()
-                .sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
-                .forEach(p -> {
-                    Node icon = Icons.get(Icon.PACKAGE, 50);
-                    icon.setOnMouseClicked(e -> onClicked(p));
+        EasyBind.subscribe(getItem().childrenProperty(), childs -> {
+            gridPanePackages.getChildren().clear();
+            rowCounter = 0;
+            getItem()
+                    .getChildren()
+                    .stream()
+                    .sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
+                    .forEach(p -> {
+                        Node icon = Icons.get(Icon.PACKAGE, 50);
+                        icon.setOnMouseClicked(e -> onClicked(p));
 
-                    Text textPackageName = new Text();
-                    DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-                    shadowEffect.setSpread(0.5);
-                    textPackageName.setEffect(shadowEffect);
-                    textPackageName.setFont(Font.font(30));
-                    textPackageName.textProperty().bindBidirectional(p.nameProperty());
-                    textPackageName.setOnMouseClicked(e -> onClicked(p));
+                        Text textPackageName = new Text();
+                        DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+                        shadowEffect.setSpread(0.5);
+                        textPackageName.setEffect(shadowEffect);
+                        textPackageName.setFont(Font.font(30));
+                        textPackageName.textProperty().bindBidirectional(p.nameProperty());
+                        textPackageName.setOnMouseClicked(e -> onClicked(p));
 
-                    Button buttonCommentPackage = createButton(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
-                        Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
-                        if (comments.isPresent()) {
-                            p.setComments(comments.get());
-                        }
-                    }, false, true);
+                        Button buttonCommentPackage = createButton(Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+                            Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, p.getComments());
+                            if (comments.isPresent()) {
+                                p.setComments(comments.get());
+                            }
+                        }, false, true);
 
-                    Button buttonRenamePackage = createButton(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                        Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, p.getName(), getForbittenChildNames(p.getName()));
-                        if (name.isPresent()) {
-                            p.setName(name.get());
-                        }
-                    }, false, true);
+                        Button buttonRenamePackage = createButton(Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
+                            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, p.getName(), getForbittenChildNames(p.getName()));
+                            if (name.isPresent()) {
+                                p.setName(name.get());
+                            }
+                        }, false, true);
 
-                    Button buttonDeletePackage = createButton(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
-                        Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", p.getName());
-                        if (confirmed.isPresent() && confirmed.get()) {
-                            p.destroy();
-                        }
-                    }, false, true);
+                        Button buttonDeletePackage = createButton(Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
+                            Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", p.getName());
+                            if (confirmed.isPresent() && confirmed.get()) {
+                                p.destroy();
+                            }
+                        }, false, true);
 
-                    gridPanePackages.addRow(rowCounter,
-                            icon,
-                            textPackageName,
-                            buttonCommentPackage,
-                            buttonRenamePackage,
-                            buttonDeletePackage
-                    );
+                        gridPanePackages.addRow(rowCounter,
+                                icon,
+                                textPackageName,
+                                buttonCommentPackage,
+                                buttonRenamePackage,
+                                buttonDeletePackage
+                        );
 
-                    rowCounter++;
-                });
+                        rowCounter++;
+                    });
+        });
     }
 
     private void onClicked(Item item) {
-        ItemTreeView.selectItem(item);
+        item.getSite().select();
     }
 
     public ProjectSite(Project item) {

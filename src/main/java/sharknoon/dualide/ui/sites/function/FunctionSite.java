@@ -278,7 +278,7 @@ public class FunctionSite extends Site<Function> {
     @Override
     public CompletableFuture<Pane> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
-            if (root.getChildren().size() < 1) {
+            if (root == null || root.getChildren().size() < 1) {
                 init();
             }
             return root;

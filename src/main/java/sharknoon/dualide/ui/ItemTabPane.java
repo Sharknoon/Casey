@@ -30,6 +30,7 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.sites.Site;
 
 /**
  *
@@ -37,9 +38,7 @@ import sharknoon.dualide.ui.misc.Icons;
  */
 public class ItemTabPane {
 
-    private static final Map<Item, Tab> TABS = new HashMap<>();
     private static final Map<Tab, Item> ITEMS = new HashMap<>();
-    private static ReadOnlyObjectWrapper<Item> selectedItem = new ReadOnlyObjectWrapper<>();
 
     public static void init() {
         MainController
@@ -47,78 +46,33 @@ public class ItemTabPane {
                 .getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    if (newValue != null) {
-                        Item item = ITEMS.get(newValue);
-                        ItemTreeView.selectItem(item);
-                        selectedItem.set(item);
-                    } else {
-                        selectedItem.set(null);
+                    Item item = ITEMS.get(newValue);
+                    if (item != null) {
+                        item.getSite().select();
                     }
                 });
+        Site.currentSelectedProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    TabPane tabPane = MainController.getTabPane();
+                    Tab tab = newValue.getSite().getTab();
+                    if (newValue.getType() == ItemType.WELCOME) {
+                        tabPane.getTabs().clear();
+                        tabPane.getTabs().add(tab);
+                    } else {
+                        tabPane.getTabs().remove(Welcome.getWelcome().getSite().getTab());
+                        if (!tabPane.getTabs().contains(tab)) {
+                            tabPane.getTabs().add(tab);
+                            ITEMS.put(tab, newValue);
+                        }
+                        tabPane
+                                .getSelectionModel()
+                                .select(tab);
+                    }
+                });
+
         MainController
                 .getTabPane()
                 .setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
     }
 
-    public static void setTab(Item item) {
-        TabPane tabPane = MainController.getTabPane();
-        if (TABS.containsKey(item)) {//Tab already exists
-            tabPane.getSelectionModel().select(TABS.get(item));
-        } else {//create tab
-            onItemAdded(item);
-        }
-    }
-
-    public static void onItemAdded(Item item) {
-        TabPane tabPane = MainController.getTabPane();
-        Tab newTab = new Tab();
-        item.getSite().getTabContentPane().thenAccept((t) -> {
-            Platform.runLater(() -> {
-                newTab.setContent((Pane) t);
-            });
-        });
-        newTab.textProperty().bindBidirectional(item.getSite().getTabNameProperty());
-        Icons.setCustom(g -> newTab.setGraphic(g), item.getSite().getTabIcon());
-        newTab.setOnClosed((event) -> {
-            TABS.remove(ITEMS.remove(newTab));
-        });
-        TABS.put(item, newTab);
-        ITEMS.put(newTab, item);
-        if (item.getType().equals(ItemType.WELCOME)) {
-            newTab.setClosable(false);
-        }
-        tabPane.getTabs().add(newTab);
-        tabPane.getSelectionModel().select(newTab);
-    }
-
-    public static void onItemRemoved(Item item) {
-        if (TABS.containsKey(item)) {
-            Tab tab = TABS.get(item);
-            MainController.getTabPane().getTabs().remove(tab);
-            ITEMS.remove(tab);
-        }
-        TABS.remove(item);
-    }
-
-    public static void hideRootTab() {
-        Welcome welcome = Welcome.getWelcome();
-        Tab tab = TABS.get(welcome);
-        if (tab != null) {
-            MainController.getTabPane().getTabs().remove(tab);
-        }
-    }
-
-    public static void closeAllTabs() {
-        MainController
-                .getTabPane()
-                .getTabs()
-                .clear();
-        TABS.clear();
-        ITEMS.clear();
-        onItemAdded(Welcome.getWelcome());
-    }
-
-    public static ReadOnlyObjectProperty<Item> selectedItemProperty() {
-        return selectedItem.getReadOnlyProperty();
-    }
 }

@@ -22,6 +22,7 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.MainApplication;
+import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
@@ -53,7 +54,7 @@ public class Keyboard {
     }
 
     private static void onDELETE() {
-        Item currentItem = ItemTabPane.selectedItemProperty().get();
+        Item currentItem = Site.currentSelectedProperty().get();
         if (currentItem != null) {
             if (currentItem.getType().equals(ItemType.FUNCTION)) {
                 FunctionSite functionSite = (FunctionSite) currentItem.getSite();

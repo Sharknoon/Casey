@@ -15,27 +15,24 @@
  */
 package sharknoon.dualide.logic.items;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.ReadOnlySetWrapper;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
 import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -51,15 +48,19 @@ import sharknoon.dualide.utils.collection.Collections;
  * welcome
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
-
+    
     private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
-    private final ReadOnlySetWrapper<C> children = new ReadOnlySetWrapper<>(FXCollections.observableSet(new LinkedHashSet<>()));
+    private final ReadOnlyListWrapper<C> children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty comments = new SimpleStringProperty("");
     //DO NOT CHANGE ORDER!!!
     private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
     private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
+
+    public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name) {
+        return createItem(itemType, parent, name, false);
+    }
 
     /**
      * can return null!!!
@@ -68,34 +69,44 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
      * @param itemType
      * @param parent
      * @param name
+     * @param select
      * @return
      */
-    public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name) {
+    public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name, boolean select) {
+        ITEM item = null;
         switch (itemType) {
             case CLASS:
-                return (ITEM) new Class((Package) parent, name);
+                item = (ITEM) new Class((Package) parent, name);
+                break;
             case FUNCTION:
-                return (ITEM) new Function(parent, name);
+                item = (ITEM) new Function(parent, name);
+                break;
             case PACKAGE:
-                return (ITEM) new Package(parent, name);
+                item = (ITEM) new Package(parent, name);
+                break;
             case PROJECT:
-                return (ITEM) new Project(null, name);
+                item = (ITEM) new Project(null, name);
+                break;
             case VARIABLE:
-                return (ITEM) new Variable(parent, name);
+                item = (ITEM) new Variable(parent, name);
+                break;
             case WELCOME:
-                return (ITEM) new Welcome(null, name);
+                item = (ITEM) new Welcome(null, name);
+                break;
         }
-        return null;
+        if (item != null && select) {
+            item.getSite().select();
+        }
+        return item;
     }
 
     protected Item(P parent, String name) {
-        parentProperty().set(parent);
+        this.parent.set(parent);
         if (name != null) {
-            nameProperty().set(name);
+            this.name.set(name);
         }
-        addListeners();
-        if (parentProperty().get() != null) {
-            parentProperty().get().childrenProperty().add(this);
+        if (this.parent.get() != null) {
+            this.parent.get().childrenProperty().add(this);
         }
     }
 
@@ -132,7 +143,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         childrenProperty().add(children);
     }
 
-    public ReadOnlySetProperty<C> childrenProperty() {
+    public ReadOnlyListProperty<C> childrenProperty() {
         return children.getReadOnlyProperty();
     }
 
@@ -145,20 +156,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         childrenProperty().forEach(c -> c.destroy());
         parentProperty().set(null);
         childrenProperty().clear();
-    }
-
-    private void addListeners() {
-        childrenProperty().addListener((SetChangeListener.Change<? extends C> change) -> {
-            if (change.wasAdded()) {
-                C elementAdded = change.getElementAdded();
-                ItemTreeView.onItemAdded(elementAdded);
-                ItemTabPane.onItemAdded(elementAdded);
-            } else if (change.wasRemoved()) {
-                C elementRemoved = change.getElementRemoved();
-                ItemTreeView.onItemRemoved(elementRemoved);
-                ItemTabPane.onItemRemoved(elementRemoved);
-            }
-        });
     }
 
     public StringExpression fullNameProperty() {
@@ -203,8 +200,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return Optional.ofNullable(parentProperty().get());
     }
 
-    public Set<C> getChildren() {
-        return Collections.silentUnmodifiableSet(childrenProperty().get());
+    public List<C> getChildren() {
+        return Collections.silentUnmodifiableList(childrenProperty().get());
     }
 
     public String getName() {

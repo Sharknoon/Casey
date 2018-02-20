@@ -19,15 +19,20 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
@@ -44,8 +49,10 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
+import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -54,6 +61,8 @@ import sharknoon.dualide.ui.sites.variable.VariableSite;
  *
  */
 public abstract class Site<I extends Item> {
+
+    private static final ObjectProperty<Item> CURRENT_SELECTED_ITEM = new SimpleObjectProperty<>();
 
     public static Site createSite(Item item) {
         switch (item.getType()) {
@@ -74,13 +83,60 @@ public abstract class Site<I extends Item> {
     }
 
     private final I item;
+    private final TreeItem<Item> treeItem = new TreeItem(null, Icons.get(getTabIcon()));
+    private final Tab tab = new Tab();
 
     public Site(I item) {
         this.item = item;
+        //treeitem setup
+        treeItem.setValue(item);
+        ReadOnlyListProperty<Item> childrenProperty = item.childrenProperty();
+        ObservableList<TreeItem<Item>> treeItems = EasyBind.map(childrenProperty, (Item i) -> {
+            return i.getSite().getTreeItem();
+        });
+        Bindings.bindContentBidirectional(treeItem.getChildren(), treeItems);
+        //tab setup
+        tab.textProperty().bind(item.nameProperty());
+        Icons.setCustom(g -> tab.setGraphic(g), getTabIcon());
+        if (item.getType().equals(ItemType.WELCOME)) {
+            tab.setClosable(false);
+        }
+        tab.setOnSelectionChanged((event) -> {
+            if (tab.isSelected()) {
+                getTabContentPane().thenAccept((t) -> {
+                    Platform.runLater(() -> {
+                        tab.setContent((Pane) t);
+                    });
+                }).exceptionally((ex) -> {
+                    if (ex instanceof Exception) {
+                        Logger.error("Could not set the content pane", (Exception) ex);
+                    } else {
+                        Logger.error("Coudl not set the content pane " + ex);
+                    }
+                    return null;
+                });
+            }
+        });
     }
 
     public I getItem() {
         return item;
+    }
+
+    public TreeItem<Item> getTreeItem() {
+        return treeItem;
+    }
+
+    public Tab getTab() {
+        return tab;
+    }
+
+    public void select() {
+        CURRENT_SELECTED_ITEM.set(item);
+    }
+
+    public static ObjectProperty<Item> currentSelectedProperty() {
+        return CURRENT_SELECTED_ITEM;
     }
 
     /**
@@ -99,7 +155,7 @@ public abstract class Site<I extends Item> {
         return item.getName();
     }
 
-    public StringProperty getTabNameProperty() {
+    public StringProperty tabNameProperty() {
         return item.nameProperty();
     }
 

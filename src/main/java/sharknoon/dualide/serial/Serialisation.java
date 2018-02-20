@@ -80,7 +80,6 @@ public class Serialisation {
                     additionalNodes.put(f.getKey(), f.getValue());
                     break;
             }
-
         }
 
         String name = nameNode != null && nameNode.isValueNode() ? nameNode.asText() : null;

@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -49,6 +50,7 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
@@ -173,12 +175,14 @@ public abstract class Site<I extends Item> {
     }
 
     public Set<String> getForbittenChildNames(String ignoreMe) {
-        return (Set<String>) getItem()
+        Set<String> set = (Set<String>) getItem()
                 .getChildren()
                 .stream()
                 .map(i -> ((Item) i).getName())
                 .filter(n -> ignoreMe == null || !n.equals(ignoreMe))
                 .collect(Collectors.toSet());
+        set.addAll(ValueType.getForbiddenNames());
+        return set;
     }
 
     protected static Button createButton(Word buttonText, Consumer<ActionEvent> onAction) {

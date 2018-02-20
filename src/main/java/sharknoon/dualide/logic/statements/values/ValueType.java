@@ -17,6 +17,7 @@ package sharknoon.dualide.logic.statements.values;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import sharknoon.dualide.logic.statements.values.creations.CreationType;
@@ -39,6 +40,7 @@ public enum ValueType {
     TEXT(new TextValue(null), Word.TEXT, Icon.TEXT, TEXT_CREATION, EnumSet.of(CONCAT));
 
     private static Map<Class<? extends Value>, ValueType> TYPES;
+    public static Set<String> forbiddenNames;
     private final Value defaultValue;
     private final Word name;
     private final Icon icon;
@@ -87,6 +89,17 @@ public enum ValueType {
 
     public static <V extends Value> ValueType valueOf(V value) {
         return TYPES.get(value.getClass());
+    }
+
+
+    public static Set<String> getForbiddenNames() {
+        if (forbiddenNames == null) {
+            forbiddenNames = new HashSet<>();
+            for (ValueType value : values()) {
+                forbiddenNames.add(value.name());
+            }
+        }
+        return forbiddenNames;
     }
 
 }

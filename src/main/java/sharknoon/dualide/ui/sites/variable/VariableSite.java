@@ -134,7 +134,8 @@ public class VariableSite extends Site<Variable> {
         gridPaneContent.addRow(0, labelClass);
 
         ComboBox<Class> comboBoxTypes = new ComboBox<>();
-        comboBoxTypes.itemsProperty().bindBidirectional(Class.classesProperty());
+
+        comboBoxTypes.itemsProperty().bind(Class.classesProperty());
         comboBoxTypes.setCellFactory((param) -> {
             return new ListCell<Class>() {
                 @Override
@@ -159,7 +160,7 @@ public class VariableSite extends Site<Variable> {
             }
 
         });
-        comboBoxTypes.valueProperty().bindBidirectional(getItem().classProperty());
+        comboBoxTypes.valueProperty().bindBidirectional(getItem().objectTypeProperty());
 
         CheckBox checkBoxFinal = new CheckBox();
         checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());

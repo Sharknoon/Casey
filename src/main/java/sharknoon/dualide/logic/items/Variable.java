@@ -24,6 +24,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sharknoon.dualide.logic.statements.values.ValueType;
 
 /**
  *
@@ -31,7 +32,9 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
 
-    private final ObjectProperty<Class> type = new SimpleObjectProperty<>();
+    private final ObjectProperty<Class> objectType = new SimpleObjectProperty<>();
+    private final ObjectProperty<ValueType> valueType = new SimpleObjectProperty<>(ValueType.TEXT);//Default is a empty text
+    private final BooleanProperty isPrimitive = new SimpleBooleanProperty(true);
     private static final String TYPE = "type";
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
     private static final String MODIFIABLE = "modifiable";
@@ -43,7 +46,9 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();
-        String typeString = classProperty().get() != null ? classProperty().get().getFullName() : "";
+        String typeString = isPrimitive.get()
+                ? valueType.get() != null ? valueType.get().name() : ""
+                : objectTypeProperty().get() != null ? objectTypeProperty().get().getFullName() : "";
         map.put(TYPE, TextNode.valueOf(typeString));
         map.put(MODIFIABLE, BooleanNode.valueOf(modifiable.get()));
         return map;
@@ -57,15 +62,28 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
                     modifiable.set(value.asBoolean(true));
                     break;
                 case TYPE:
-                    Optional<Class> clazz = Class.forName(value.asText());
-                    clazz.ifPresent(c -> type.set(c));
+                    try {
+                        ValueType vt = ValueType.valueOf(value.asText());
+                        valueType.set(vt);
+                        isPrimitive.set(true);
+                    } catch (Exception e) {
+                        Optional<Class> clazz = Class.forName(value.asText());
+                        clazz.ifPresent(c -> {
+                            objectType.set(c);
+                            isPrimitive.set(false);
+                        });
+                    }
                     break;
             }
         });
     }
 
-    public ObjectProperty<Class> classProperty() {
-        return type;
+    public ObjectProperty<Class> objectTypeProperty() {
+        return objectType;
+    }
+    
+    public ObjectProperty<ValueType> ValueTypeProperty(){
+        return valueType;
     }
 
     public BooleanProperty modifiableProperty() {

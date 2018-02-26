@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -33,7 +34,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
-import org.fxmisc.easybind.EasyBind;
+import org.reactfx.EventStreams;
+import org.reactfx.collection.LiveList;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
@@ -93,7 +95,7 @@ public abstract class Site<I extends Item> {
         //treeitem setup
         treeItem.setValue(item);
         ReadOnlyListProperty<Item> childrenProperty = item.childrenProperty();
-        ObservableList<TreeItem<Item>> treeItems = EasyBind.map(childrenProperty, (Item i) -> {
+        ObservableList<TreeItem<Item>> treeItems = LiveList.map(childrenProperty, (i) -> {
             return i.getSite().getTreeItem();
         });
         Bindings.bindContentBidirectional(treeItem.getChildren(), treeItems);

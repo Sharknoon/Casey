@@ -34,7 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.fxmisc.easybind.EasyBind;
+import org.reactfx.EventStreams;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
@@ -147,7 +147,7 @@ public class ClassSite extends Site<Class> {
     int rowCounter = 0;
 
     public void setContent() {
-        EasyBind.subscribe(getItem().childrenProperty(), childs -> {
+        EventStreams.valuesOf(getItem().childrenProperty()).subscribe(childs -> {
             gridPaneChildren.getChildren().clear();
             rowCounter = 0;
             childs.forEach(c -> {

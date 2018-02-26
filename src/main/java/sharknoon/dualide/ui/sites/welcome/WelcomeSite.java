@@ -84,9 +84,10 @@ public class WelcomeSite extends Site<Welcome> {
         shadowEffect.setSpread(0.5);
         textRecentProjects.setEffect(shadowEffect);
 
-        RecentProject.addListener(() -> {
+        RecentProject.recentProjectsProperty().addListener((observable, oldValue, newValue) -> {
             refreshRecentProjects();
         });
+        refreshRecentProjects();
 
         scrollPaneRecentProjects.setFitToHeight(true);
         scrollPaneRecentProjects.setFitToWidth(true);
@@ -107,7 +108,7 @@ public class WelcomeSite extends Site<Welcome> {
 
         Button buttonLoadProject = createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
             FileChooser chooser = new FileChooser();
-            if (lastDirectory.isPresent() && new File(lastDirectory.get()).isFile()) {
+            if (lastDirectory.isPresent() && Files.exists(Paths.get(lastDirectory.get()))) {
                 chooser.setInitialDirectory(new File(lastDirectory.get()));
             } else {
                 chooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -140,39 +141,44 @@ public class WelcomeSite extends Site<Welcome> {
     private void refreshRecentProjects() {
         VBox vBoxLastProjects = new VBox(10);
         RecentProject.getAllProjects()
-                .stream()
-                .sorted((p1, p2) -> p2.getTime().compareTo(p1.getTime()))
-                .forEach((lastProject) -> {
-                    VBox vBoxLastProject = new VBox(10);
+                .thenAccept((rpc) -> {
+                    rpc
+                            .stream()
+                            .sorted((p1, p2) -> p2.getTime().compareTo(p1.getTime()))
+                            .forEach((lastProject) -> {
+                                VBox vBoxLastProject = new VBox(10);
+                                vBoxLastProject.setPadding(new Insets(5));
 
-                    DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-                    shadowEffect.setSpread(0.5);
+                                DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
+                                shadowEffect.setSpread(0.5);
 
-                    Text textRecentProjectName = new Text();
-                    textRecentProjectName.setText(lastProject.getName());
-                    textRecentProjectName.setFont(Font.font(30));
-                    textRecentProjectName.setEffect(shadowEffect);
+                                Text textRecentProjectName = new Text();
+                                textRecentProjectName.setText(lastProject.getName());
+                                textRecentProjectName.setFont(Font.font(30));
+                                textRecentProjectName.setEffect(shadowEffect);
 
-                    Text textRecentProjectDate = new Text();
-                    textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
-                    textRecentProjectDate.setFont(Font.font(20));
-                    textRecentProjectDate.setEffect(shadowEffect);
+                                Text textRecentProjectDate = new Text();
+                                textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+                                textRecentProjectDate.setFont(Font.font(20));
+                                textRecentProjectDate.setEffect(shadowEffect);
 
-                    vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
+                                vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
 
-                    vBoxLastProject.setOnMouseClicked((event) -> {
-                        Path pathToFile = Paths.get(lastProject.getPath());
-                        if (Files.exists(pathToFile)) {
-                            loadProject(pathToFile);
-                        } else {
-                            RecentProject.removeProject(lastProject);
-                        }
-                    });
+                                vBoxLastProject.setOnMouseClicked((event) -> {
+                                    Path pathToFile = Paths.get(lastProject.getPath());
+                                    if (Files.exists(pathToFile)) {
+                                        loadProject(pathToFile);
+                                    } else {
+                                        RecentProject.removeProject(lastProject);
+                                    }
+                                });
 
-                    vBoxLastProjects.getChildren().add(vBoxLastProject);
-                });
-        Platform.runLater(() -> {
-            scrollPaneRecentProjects.setContent(vBoxLastProjects);
+                                vBoxLastProjects.getChildren().add(vBoxLastProject);
+                            });
+                }).thenRun(() -> {
+            Platform.runLater(() -> {
+                scrollPaneRecentProjects.setContent(vBoxLastProjects);
+            });
         });
     }
 

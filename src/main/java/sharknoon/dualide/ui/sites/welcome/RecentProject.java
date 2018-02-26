@@ -17,20 +17,15 @@ package sharknoon.dualide.ui.sites.welcome;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
-import org.dizitart.no2.IndexType;
-import org.dizitart.no2.objects.Id;
-import org.dizitart.no2.objects.Index;
-import org.dizitart.no2.objects.Indices;
+import org.dizitart.no2.Document;
+import org.dizitart.no2.NitriteCollection;
+import org.dizitart.no2.filters.Filters;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.utils.settings.Database;
 
@@ -39,83 +34,93 @@ import sharknoon.dualide.utils.settings.Database;
  *
  * @author Josua Frank
  */
-@Indices(
-        @Index(value = "path")
-)
 public class RecentProject {
 
-    @Id
+    private String id;
+    private static final String ID = "id";
+    private String name;
+    private static final String NAME = "name";
     private String path;
-    private String projectID;
+    private static final String PATH = "path";
     private String time;
-    private static transient ObservableMap<String, RecentProject> PROJECTS_MAP = FXCollections.observableMap(new HashMap<>());
-
-    static {
-        Database.get(RecentProject.class).thenAccept((rps) -> {
-            rps.forEach(rp -> PROJECTS_MAP.put(rp.path, rp));
-        });
-    }
+    private static final String TIME = "time";
+    private static NitriteCollection COL;
+    private static ListProperty<RecentProject> PROJECTS_LIST = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private RecentProject() {
     }
 
-    public RecentProject(Project project) {
-        this.projectID = project.getFullName();
-        this.time = LocalDateTime.now().toString();
+    private RecentProject(Project project) {
+        this.id = project.getID();
+        this.name = project.getFullName();
         this.path = project.getSaveFile().map(Path::toString).orElse("");
-        Database.store(this);
+        this.time = LocalDateTime.now().toString();
     }
 
-    public static Collection<RecentProject> getAllProjects() {
-        return PROJECTS_MAP.values();
+    private static CompletableFuture<Void> init() {
+        if (COL != null) {
+            return CompletableFuture.completedFuture(null);
+        }
+        return Database.getCollection("recentProjects").thenAccept((col) -> {
+            COL = col;
+            COL.find().forEach((d) -> {
+                String idString = d.get(ID, String.class);
+                String nameString = d.get(NAME, String.class);
+                String pathString = d.get(PATH, String.class);
+                String timeString = d.get(TIME, String.class);
+                RecentProject rp = new RecentProject();
+                rp.id = idString;
+                rp.name = nameString;
+                rp.path = pathString;
+                rp.time = timeString;
+                PROJECTS_LIST.add(rp);
+            });
+        });
+    }
+
+    public static CompletableFuture<Collection<RecentProject>> getAllProjects() {
+        return init().thenApply(v -> PROJECTS_LIST);
     }
 
     public static void updateProject(Project project) {
-        CompletableFuture.runAsync(() -> {
-            if (!project.getSaveFile().isPresent()) {
-                //No save file present means no option to open it from a file -> no need to store it in recent projects
-                return;
-            }
-            if (PROJECTS_MAP.containsKey(project.getSaveFile().get().toString())) {
-                RecentProject rp = PROJECTS_MAP.get(project.getSaveFile().get().toString());
-                rp.projectID = project.getFullName();
-                rp.time = LocalDateTime.now().toString();
-                Database.store(rp);
-                LISTENERS.forEach(l -> l.run());
+        RecentProject rp = new RecentProject(project);
+        PROJECTS_LIST.removeIf(rpl -> rpl.getID().equals(rp.getID()));
+        PROJECTS_LIST.add(rp);
+        Document doc = Document.createDocument(ID, project.getID());
+        doc.put(NAME, project.getFullName());
+        doc.put(PATH, project.getSaveFile().map(Path::toString).orElse(""));
+        doc.put(TIME, LocalDateTime.now().toString());
+        init().thenRun(() -> {
+            if (COL.find(Filters.eq(ID, project.getID())).size() < 1) {
+                COL.insert(doc);
             } else {
-                RecentProject rp = new RecentProject(project);
-                PROJECTS_MAP.put(project.getSaveFile().get().toString(), rp);
-                Database.store(rp);
+                COL.update(Filters.eq(ID, project.getID()), doc);
             }
         });
     }
 
     public static void removeProject(RecentProject project) {
-        if (PROJECTS_MAP.containsKey(project.path)) {
-            PROJECTS_MAP.remove(project.path);
-            Database.delete(project);
-        }
+        PROJECTS_LIST.remove(project);
+        init().thenRun(() -> {
+            COL.remove(Filters.eq(ID, project.id));
+        });
+    }
+
+    public String getID() {
+        return id;
     }
 
     public String getName() {
-        int lastPointIndex = projectID.lastIndexOf(".");
+        int lastPointIndex = name.lastIndexOf(".");
         if (lastPointIndex >= 0) {
-            return projectID.substring(projectID.lastIndexOf("."), projectID.length() - 1);
+            return name.substring(name.lastIndexOf("."), name.length() - 1);
         } else {
-            return projectID;
+            return name;
         }
     }
 
     public LocalDateTime getTime() {
         return LocalDateTime.parse(time);
-    }
-    private static final List<Runnable> LISTENERS = new ArrayList<>();
-
-    public static void addListener(Runnable listener) {
-        LISTENERS.add(listener);
-        PROJECTS_MAP.addListener((MapChangeListener.Change<? extends String, ? extends RecentProject> change) -> {
-            listener.run();
-        });
     }
 
     /**
@@ -125,5 +130,10 @@ public class RecentProject {
      */
     public String getPath() {
         return path;
+    }
+
+    public static ListProperty recentProjectsProperty() {
+        init().join();
+        return PROJECTS_LIST;
     }
 }

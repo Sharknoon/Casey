@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -63,6 +64,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
      * @param <ITEM>
      * @param itemType
      * @param parent
+     * @param id
      * @param name
      * @param select
      * @return
@@ -80,7 +82,9 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 item = (ITEM) new Package(parent, name);
                 break;
             case PROJECT:
-                item = (ITEM) new Project(null, name);
+                Project project = new Project(null, name);
+                project.setID(UUID.randomUUID().toString());
+                item = (ITEM) project;
                 break;
             case VARIABLE:
                 item = (ITEM) new Variable(parent, name);
@@ -174,10 +178,10 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return new HashMap<>();
     }
 
-    public void setAdditionalProperties(Map<String, JsonNode> properties){
-        
+    public void setAdditionalProperties(Map<String, JsonNode> properties) {
+
     }
-    
+
     @Override
     public int hashCode() {
         return fullNameProperty().get().hashCode();

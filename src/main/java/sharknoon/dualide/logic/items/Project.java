@@ -15,8 +15,12 @@
  */
 package sharknoon.dualide.logic.items;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,6 +39,8 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class Project extends Item<Project, Item, Package> {
 
+    private String id;
+    private static final String ID = "id";
     private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
 
@@ -45,9 +51,15 @@ public class Project extends Item<Project, Item, Package> {
 
     private void init() {
         currentProject.set(this);
-        MainApplication.registerExitable(() -> {
-            save();
-        });
+        MainApplication.registerExitable(this::save);
+    }
+
+    public void setID(String id){
+        this.id = id;
+    }
+    
+    public final String getID() {
+        return id;
     }
 
     public Optional<Path> getSaveFile() {
@@ -66,6 +78,25 @@ public class Project extends Item<Project, Item, Package> {
 
     public static ObjectProperty<Project> currentProjectProperty() {
         return currentProject;
+    }
+
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> result = new HashMap<>();
+        TextNode idNode = TextNode.valueOf(getID());
+        result.put("id", idNode);
+        return result;
+    }
+
+    @Override
+    public void setAdditionalProperties(Map<String, JsonNode> properties) {
+        properties.forEach((k, v) -> {
+            switch (k) {
+                case ID:
+                    id = v.asText();
+                    break;
+            }
+        });
     }
 
     public void save() {

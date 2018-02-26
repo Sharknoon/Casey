@@ -34,7 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.fxmisc.easybind.EasyBind;
+import org.reactfx.EventStreams;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -88,7 +88,7 @@ public class ProjectSite extends Site<Project> {
         Button buttonAddPackage = createButton(Word.PROJECT_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
-                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get(),true);
+                Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get(), true);
             }
         });
 
@@ -141,7 +141,7 @@ public class ProjectSite extends Site<Project> {
     int rowCounter = 0;
 
     public void setContent() {
-        EasyBind.subscribe(getItem().childrenProperty(), childs -> {
+        EventStreams.valuesOf(getItem().childrenProperty()).subscribe(childs -> {
             gridPanePackages.getChildren().clear();
             rowCounter = 0;
             getItem()

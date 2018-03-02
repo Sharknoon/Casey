@@ -34,7 +34,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.reactfx.EventStreams;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.ItemTreeView;
@@ -47,6 +46,7 @@ import sharknoon.dualide.ui.ItemTabPane;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.dialogs.Dialogs;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
@@ -141,11 +141,10 @@ public class ProjectSite extends Site<Project> {
     int rowCounter = 0;
 
     public void setContent() {
-        EventStreams.valuesOf(getItem().childrenProperty()).subscribe(childs -> {
+        BindUtils.listen(getItem().childrenProperty(), childs -> {
             gridPanePackages.getChildren().clear();
             rowCounter = 0;
-            getItem()
-                    .getChildren()
+            childs
                     .stream()
                     .sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
                     .forEach(p -> {

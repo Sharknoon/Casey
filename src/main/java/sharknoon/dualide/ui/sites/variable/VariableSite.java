@@ -15,10 +15,10 @@
  */
 package sharknoon.dualide.ui.sites.variable;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,18 +29,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.skin.ListViewSkin;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.util.StringConverter;
-import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.items.Class;
-import sharknoon.dualide.ui.ItemTabPane;
-import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.sites.Site;
@@ -133,39 +128,41 @@ public class VariableSite extends Site<Variable> {
 
         gridPaneContent.addRow(0, labelClass);
 
-        ComboBox<Class> comboBoxTypes = new ComboBox<>();
+        ComboBox<Type> comboBoxTypes = new ComboBox<>();
+        comboBoxTypes.itemsProperty().bindBidirectional(Type.getAllTypes());
 
-        comboBoxTypes.itemsProperty().bind(Class.classesProperty());
         comboBoxTypes.setCellFactory((param) -> {
-            return new ListCell<Class>() {
+            return new ListCell<Type>() {
                 @Override
-                protected void updateItem(Class item, boolean empty) {
+                protected void updateItem(Type item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item != null) {
-                        textProperty().bind(item.nameProperty());
-                        setTooltip(new Tooltip(item.getFullName()));
+                        textProperty().bind(item.getSimpleName());
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.textProperty().bindBidirectional(item.getFullName());
+                        tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
                     }
                 }
-
             };
         });
-        comboBoxTypes.setButtonCell(new ListCell<Class>() {
+        comboBoxTypes.setButtonCell(new ListCell<Type>() {
             @Override
-            protected void updateItem(Class item, boolean empty) {
+            protected void updateItem(Type item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null) {
-                    textProperty().bind(item.nameProperty());
-                    setTooltip(new Tooltip(item.getFullName()));
+                    textProperty().bind(item.getSimpleName());
+                    Tooltip tooltip = new Tooltip();
+                    tooltip.textProperty().bindBidirectional(item.getFullName());
+                    tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
                 }
             }
 
         });
-        comboBoxTypes.valueProperty().bindBidirectional(getItem().objectTypeProperty());
+        comboBoxTypes.valueProperty().bindBidirectional(getItem().typeProperty());
 
         CheckBox checkBoxFinal = new CheckBox();
         checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());
         Language.set(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, checkBoxFinal);
-        checkBoxFinal.setDisable(true);//TMP to be implemented in the future
 
         gridPaneContent.addRow(1, comboBoxTypes, checkBoxFinal);
 

@@ -26,6 +26,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -130,7 +131,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return parent;
     }
 
-    public ReadOnlyObjectProperty<ItemType> typeProperty() {
+    public ReadOnlyObjectProperty<ItemType> itemTypeProperty() {
         return itemType.getReadOnlyProperty();
     }
 
@@ -228,7 +229,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     }
 
     public ItemType getType() {
-        return typeProperty().get();
+        return itemTypeProperty().get();
     }
 
     public String getFullName() {

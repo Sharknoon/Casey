@@ -26,10 +26,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.statements.StatementField;
+import sharknoon.dualide.ui.bodies.StatementField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.bodies.PlaceholderBody;
 
 import sharknoon.dualide.utils.language.Language;

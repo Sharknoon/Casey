@@ -28,6 +28,7 @@ public enum Icon {
 
     AND,
     BACKGROUND,
+    BANNED,
     BOOLEAN,
     CLASS,
     CLOSE,
@@ -45,6 +46,7 @@ public enum Icon {
     GREATEROREQUALTHAN,
     GREATERTHAN,
     LANGUAGE,
+    LENGTH,
     LESSOREQUALTHAN,
     LESSTHAN,
     LOAD,

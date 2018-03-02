@@ -53,7 +53,7 @@ public interface Moveable {
     public default Bounds getBounds() {
         return new BoundingBox(getMinX(), getMinY(), getWidth(), getHeight());
     }
-    
+
     public double[] getPoints();
 
 }

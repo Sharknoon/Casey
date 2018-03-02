@@ -1,14 +1,11 @@
 package sharknoon.dualide.ui.bodies;
 
 import java.util.Optional;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import java.util.Set;
 import java.util.function.Consumer;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,7 +13,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -27,16 +23,17 @@ import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.SegmentedButton;
-import sharknoon.dualide.logic.statements.values.creations.CreationType;
+import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.ui.MainController;
+import sharknoon.dualide.logic.values.Value;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -46,16 +43,16 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class StatementPopUp extends PopOver {
 
-    public static void showValueSelectionPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+    public static void showValueSelectionPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
         StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, statementConsumer);
     }
 
-    private final VBox vBoxRoot = new VBox();
-    private final Set<ValueType> allowedValues;
+    private final GridPane gridPaneRoot = new GridPane();
+    private final Set<Type> allowedValues;
     private final Statement parent;
     private final Consumer<Statement> statementConsumer;
 
-    private StatementPopUp(Node ownerNode, Set<ValueType> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+    private StatementPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
         this.allowedValues = allowedValues;
         this.parent = parent;
         this.statementConsumer = statementConsumer;
@@ -66,11 +63,19 @@ public class StatementPopUp extends PopOver {
     }
 
     private void init() {
-        vBoxRoot.setSpacing(20);
-        vBoxRoot.setPadding(new Insets(25));
-        vBoxRoot.setMinWidth(800);
+        gridPaneRoot.setVgap(10);
+        gridPaneRoot.setHgap(10);
+        gridPaneRoot.setPadding(new Insets(25));
+        gridPaneRoot.setPrefWidth(1300);
+        gridPaneRoot.setMaxSize(1500, 500);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(60);
+        col1.setHgrow(Priority.ALWAYS);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(40);
+        gridPaneRoot.getColumnConstraints().addAll(col1, col2);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
-        setContentNode(vBoxRoot);
+        setContentNode(gridPaneRoot);
         setArrowLocation(ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.VALUE_SELECTION_POPUP_TITLE));
     }
@@ -82,17 +87,20 @@ public class StatementPopUp extends PopOver {
         gp.setVgap(10);
         gp.setAlignment(Pos.TOP_LEFT);
         int row = 0;
-        for (ValueType value : allowedValues) {
+        if (allowedValues == null) {
+            allowedValues.addAll(PrimitiveType.getAll());
+        }
+        for (Type value : allowedValues) {
             String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
 
             Node icon = Icons.get(value.getIcon());
-            Label text = createLabel(value.getName() + stringValues);
+            Label text = createLabel(value.getSimpleName() + stringValues);
             gp.add(new HBox(10, icon, text), 0, row);
 
             FlowPane flowPaneButtons = new FlowPane();
             flowPaneButtons.setHgap(10);
             flowPaneButtons.setVgap(10);
-            CreationType ct = value.getCreationType();
+//            CreationType ct = value.getCreationType();
             Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
             flowPaneButtons.getChildren().add(buttonCreation);
 
@@ -105,7 +113,7 @@ public class StatementPopUp extends PopOver {
                 });
                 hide();
             });
-            value.getOperationTypes().forEach(ot -> {
+            value.getOperatorTypes().forEach(ot -> {
                 Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
                 buttonOperation.setOnAction((event) -> {
                     if (statementConsumer != null) {
@@ -128,36 +136,24 @@ public class StatementPopUp extends PopOver {
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setHgrow(Priority.ALWAYS);
         gp.getColumnConstraints().addAll(col0, col1);
-        vBoxRoot.getChildren().add(gp);
+        gridPaneRoot.add(gp, 0, 1, 1, 2);
     }
 
     private void addNewValueSparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_VALUES);
         Node separator = getSeparator(text);
-        vBoxRoot.getChildren().add(separator);
+        gridPaneRoot.add(separator, 0, 0);
     }
 
     private void addExistingValueSelectors() {
         addExistingValueSeparator();
-        addContentListener();
         addValueSourceSegmentedButtons();
     }
 
     private void addExistingValueSeparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES);
         Node separator = getSeparator(text);
-        vBoxRoot.getChildren().add(separator);
-    }
-
-    private final ObjectProperty<Node> content = new SimpleObjectProperty<>();
-
-    private void addContentListener() {
-        content.addListener((observable, oldValue, newValue) -> {
-            if (oldValue != null) {
-                vBoxRoot.getChildren().remove(oldValue);
-            }
-            vBoxRoot.getChildren().add(newValue);
-        });
+        gridPaneRoot.add(separator, 1, 0);
     }
 
     private void addValueSourceSegmentedButtons() {
@@ -171,34 +167,46 @@ public class StatementPopUp extends PopOver {
         ToggleButton toggleButtonThisClass = new ToggleButton(textThisClass);
         ToggleButton toggleButtonThisFunction = new ToggleButton(textThisFunction);
 
+        toggleButtonStatic.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
+        toggleButtonThisClass.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
+        toggleButtonThisFunction.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
+
         toggleButtonStatic.setOnAction((event) -> {
-            content.set(getStaticContent());
+            setStaticContent();
         });
         toggleButtonThisClass.setOnAction((event) -> {
-            content.set(getThisClassContent());
+            setThisClassContent();
         });
         toggleButtonThisFunction.setOnAction((event) -> {
-            content.set(getThisFunctionContent());
+            setThisFunctionContent();
         });
 
         segmentedButtonValueSource.getButtons().addAll(toggleButtonStatic, toggleButtonThisClass, toggleButtonThisFunction);
-        vBoxRoot.getChildren().add(segmentedButtonValueSource);
+        gridPaneRoot.add(segmentedButtonValueSource, 1, 1);
+        GridPane.setHgrow(segmentedButtonValueSource, Priority.ALWAYS);
+        //GridPane.setFillWidth(segmentedButtonValueSource, true);
         toggleButtonStatic.fire();
     }
 
-    private Node getStaticContent() {
-        GridPane gridPaneStaticContent = new GridPane();
-        gridPaneStaticContent.setAlignment(Pos.CENTER_LEFT);
-        gridPaneStaticContent.setMaxWidth(Double.MAX_VALUE);
-        gridPaneStaticContent.setVgap(20);
-        gridPaneStaticContent.setHgap(20);
+    private Node previousContent = null;
+
+    private void setStaticContent() {
+        GridPane gridPanePackagesAndVariables = new GridPane();
+        gridPanePackagesAndVariables.setHgap(10);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(50);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(50);
+        gridPanePackagesAndVariables.getColumnConstraints().addAll(col1, col2);
 
         BreadCrumbBar<Item> breadCrumbBarNavigation = new BreadCrumbBar<>();
-        gridPaneStaticContent.add(breadCrumbBarNavigation, 0, 0, 2, 1);
+        ScrollPane scrollPaneBreadCrumbBar = new ScrollPane(breadCrumbBarNavigation);
+        scrollPaneBreadCrumbBar.setMinHeight(45);
+        gridPanePackagesAndVariables.add(scrollPaneBreadCrumbBar, 0, 0, 2, 1);
 
         ScrollPane scrollPanePackages = new ScrollPane();
-        scrollPanePackages.setFitToHeight(true);
-        scrollPanePackages.setFitToWidth(true);
+        //scrollPanePackages.setFitToHeight(true);
+        //scrollPanePackages.setFitToWidth(true);
         VBox vBoxSubPackages = new VBox(10);
         breadCrumbBarNavigation.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             vBoxSubPackages.getChildren().clear();
@@ -208,8 +216,7 @@ public class StatementPopUp extends PopOver {
                         .stream()
                         .filter(ti -> ti.getValue() instanceof Package)
                         .forEach((ti) -> {
-                            HBox hBoxPackage = new HBox(20);
-                            hBoxPackage.setAlignment(Pos.CENTER);
+                            HBox hBoxPackage = new HBox(10);
                             Item item = ti.getValue();
                             Node icon = Icons.get(item.getSite().getTabIcon());
                             Label name = new Label(item.getName());
@@ -218,12 +225,13 @@ public class StatementPopUp extends PopOver {
                                 breadCrumbBarNavigation.requestFocus();
                             });
                             hBoxPackage.getChildren().addAll(icon, name);
+                            hBoxPackage.setAlignment(Pos.CENTER_LEFT);
                             vBoxSubPackages.getChildren().add(hBoxPackage);
                         });
             }
         });
         scrollPanePackages.setContent(vBoxSubPackages);
-        gridPaneStaticContent.add(scrollPanePackages, 0, 1);
+        gridPanePackagesAndVariables.add(scrollPanePackages, 0, 1);
 
         ScrollPane scrollPaneFunctionsAndVariables = new ScrollPane();
         scrollPaneFunctionsAndVariables.setFitToHeight(true);
@@ -236,25 +244,31 @@ public class StatementPopUp extends PopOver {
                         .getChildren()
                         .stream()
                         .map(ti -> ti.getValue())
-                        .filter(i -> i instanceof Function || i instanceof Variable)
+                        .filter(i -> i instanceof Returnable)
+                        .filter(i -> {
+                            ((Returnable) i).getReturnType();
+                            return true;
+                        })
                         .forEach((t) -> {
                             HBox hBoxFunctionOrVariable = new HBox(10);
-                            hBoxFunctionOrVariable.setAlignment(Pos.CENTER);
                             Node icon = Icons.get(t.getSite().getTabIcon());
                             Label name = new Label(t.getName());
                             hBoxFunctionOrVariable.setOnMouseClicked((event) -> {
                                 //TODO
                             });
                             hBoxFunctionOrVariable.getChildren().addAll(icon, name);
+                            hBoxFunctionOrVariable.setAlignment(Pos.CENTER_LEFT);
                             vBoxFunctionsAndVariables.getChildren().add(hBoxFunctionOrVariable);
                         });
             }
         });
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
-        gridPaneStaticContent.add(scrollPaneFunctionsAndVariables, 1, 1);
+        gridPanePackagesAndVariables.add(scrollPaneFunctionsAndVariables, 1, 1);
+        gridPaneRoot.getChildren().remove(previousContent);
+        previousContent = gridPanePackagesAndVariables;
+        gridPaneRoot.add(gridPanePackagesAndVariables, 1, 2);
 
-        TreeView<Item> tree = MainController.getTreeView();
-        TreeItem<Item> selectedItem = tree.getSelectionModel().getSelectedItem();
+        TreeItem selectedItem = Site.currentSelectedProperty().get().getSite().getTreeItem();
         if (selectedItem != null) {
             while ((selectedItem.getValue() instanceof Function)
                     || (selectedItem.getValue() instanceof Variable)
@@ -263,15 +277,20 @@ public class StatementPopUp extends PopOver {
             }
             breadCrumbBarNavigation.setSelectedCrumb(selectedItem);
         }
-        return gridPaneStaticContent;
     }
 
-    private Node getThisClassContent() {
-        return new Label("This Class TODO");
+    private void setThisClassContent() {
+        Label label = new Label("This Class TODO");
+        gridPaneRoot.getChildren().remove(previousContent);
+        previousContent = label;
+        gridPaneRoot.add(label, 1, 2);
     }
 
-    private Node getThisFunctionContent() {
-        return new Label("This Function TODO");
+    private void setThisFunctionContent() {
+        Label label = new Label("This Function TODO");
+        gridPaneRoot.getChildren().remove(previousContent);
+        previousContent = label;
+        gridPaneRoot.add(label, 1, 2);
     }
 
     private Label createLabel(String stringText) {

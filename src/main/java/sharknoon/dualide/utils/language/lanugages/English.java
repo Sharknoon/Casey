@@ -206,6 +206,7 @@ public class English extends Language {
         add(Word.OR, "Or");
         add(Word.NOT, "Not");
         add(Word.CONCAT, "Concat");
+        add(Word.LENGTH, "Length");
     }
 
 }

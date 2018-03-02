@@ -94,8 +94,9 @@ public class Database implements Exitable {
 
     /**
      * Need to have an ID!!!!
+     *
      * @param <T>
-     * @param objects 
+     * @param objects
      */
     public static <T> void delete(T... objects) {
         if (objects.length > 0) {

@@ -65,9 +65,9 @@ public class Collections {
 
     /**
      * Makes a Set to a unmodifiable Set, which prohibites any changes.
-     * Otherwise the {@link Collections#unmodifiableSet(Set)} method, this
-     * Set will <b>not</b> throw any errors if you want to change something, it
-     * just does nothing.
+     * Otherwise the {@link Collections#unmodifiableSet(Set)} method, this Set
+     * will <b>not</b> throw any errors if you want to change something, it just
+     * does nothing.
      *
      * @param <T> The Type of the List
      * @param set The Set to be converted

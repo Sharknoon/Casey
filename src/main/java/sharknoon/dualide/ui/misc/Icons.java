@@ -20,11 +20,13 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Ressources;
 
@@ -34,52 +36,62 @@ import sharknoon.dualide.utils.settings.Ressources;
  */
 public class Icons {
 
-    private static final double DEFAULT_HEIGHT = 30;
+    private static final double DEFAULT_SIZE = 30;
+    private static final double DEFAULT_PADDING = 3;
+    private static final Insets DEFAULT_PADDING_INSETS = new Insets(DEFAULT_PADDING);
 
     public static Node get(Icon icon) {
-        return get(icon, DEFAULT_HEIGHT);
+        return get(icon, DEFAULT_SIZE);
     }
 
-    public static Node get(Icon icon, double height) {
-        return create(icon, height);
+    public static Node get(Icon icon, double size) {
+        return create(icon, size);
     }
-    
+
     public static void set(Labeled labeled, Icon icon) {
-        labeled.setGraphic(create(icon, DEFAULT_HEIGHT));
+        labeled.setGraphic(create(icon, DEFAULT_SIZE));
     }
 
-    public static void set(Labeled labeled, Icon icon, double height) {
-        labeled.setGraphic(create(icon, height));
+    public static void set(Labeled labeled, Icon icon, double size) {
+        labeled.setGraphic(create(icon, size));
     }
 
     public static void setCustom(ValueSetter<Node> valueSetter, Icon icon) {
-        valueSetter.setValue(create(icon, DEFAULT_HEIGHT));
+        valueSetter.setValue(create(icon, DEFAULT_SIZE));
     }
 
-    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon, double height) {
-        valueSetter.setValue(create(icon, height));
+    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon, double size) {
+        valueSetter.setValue(create(icon, size));
     }
-    
+
     private static final Map<Icon, Image> IMAGE_CACHE = new HashMap<>();
     private static final Map<Icon, Group> SVG_CACHE = new HashMap<>();
 
-    private static Node create(Icon icon, double desiredHeight) {
-        Optional<Group> svg = getSVG(icon);
-        if (svg.isPresent()) {
-            
-            Group group = svg.get();
-            double originalHeight = group.prefHeight(0.0);
-            double scale = desiredHeight / originalHeight;
-            group.setScaleX(scale);
-            group.setScaleY(scale);
-            //return new Group(group);
-        }
+    private static Node create(Icon icon, double desiredSize) {
+//        Optional<Group> svg = getSVG(icon);
+//        if (svg.isPresent()) {
+//            Group group = svg.get();
+//            double originalHeight = group.prefHeight(0.0);
+//            double originalWidth = group.prefWidth(0.0);
+//            double scale = (desiredSize -0) / (originalHeight > originalWidth ? originalHeight : originalWidth);
+//            group.setScaleX(scale);
+//            group.setScaleY(scale);
+//            StackPane result = new StackPane(new Group(group));
+////            result.setPrefSize(desiredSize, desiredSize);
+////            result.setPadding(DEFAULT_PADDING_INSETS);
+//            return result;
+//        }
         ImageView view = new ImageView();
-        Optional<Image> image = getImage(icon);
-        if (image.isPresent()) {
+        Optional<Image> imageOpt = getImage(icon);
+        if (imageOpt.isPresent()) {
             view.setPreserveRatio(true);
-            view.setFitHeight(desiredHeight);
-            view.setImage(image.get());
+            Image image = imageOpt.get();
+            if (image.getWidth() > image.getHeight()) {
+                view.setFitWidth(desiredSize);
+            } else {
+                view.setFitHeight(desiredSize);
+            }
+            view.setImage(image);
         } else {
             Logger.warning("Icon " + icon.toString() + " not found!");
         }
@@ -96,7 +108,6 @@ public class Icons {
                     return Optional.of(image);
                 } else {
                     IMAGE_CACHE.put(icon, null);
-                    //Logger.warning("Icon " + icon.toString() + " not found!");
                     return Optional.empty();
                 }
             }
@@ -117,7 +128,6 @@ public class Icons {
                     return Optional.of(group);
                 } else {
                     SVG_CACHE.put(icon, null);
-                    //Logger.warning("Icon " + icon.toString() + " not found!");
                     return Optional.empty();
                 }
             }

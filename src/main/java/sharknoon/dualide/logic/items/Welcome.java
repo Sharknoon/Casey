@@ -37,6 +37,5 @@ public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, 
         }
         return welcome;
     }
- 
 
 }

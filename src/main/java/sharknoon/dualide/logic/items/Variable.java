@@ -24,17 +24,17 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.Returnable;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.Type;
 
 /**
  *
  * @author Josua Frank
  */
-public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> {
+public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> implements Returnable {
 
-    private final ObjectProperty<Class> objectType = new SimpleObjectProperty<>();
-    private final ObjectProperty<ValueType> valueType = new SimpleObjectProperty<>(ValueType.TEXT);//Default is a empty text
-    private final BooleanProperty isPrimitive = new SimpleBooleanProperty(true);
+    private final ObjectProperty<Type> type = new SimpleObjectProperty<>(PrimitiveType.TEXT);
     private static final String TYPE = "type";
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
     private static final String MODIFIABLE = "modifiable";
@@ -46,9 +46,10 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();
-        String typeString = isPrimitive.get()
-                ? valueType.get() != null ? valueType.get().name() : ""
-                : objectTypeProperty().get() != null ? objectTypeProperty().get().getFullName() : "";
+        String typeString = "";
+        if (type.get() != null) {
+            typeString = type.get().getFullName().get();
+        }
         map.put(TYPE, TextNode.valueOf(typeString));
         map.put(MODIFIABLE, BooleanNode.valueOf(modifiable.get()));
         return map;
@@ -62,32 +63,23 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
                     modifiable.set(value.asBoolean(true));
                     break;
                 case TYPE:
-                    try {
-                        ValueType vt = ValueType.valueOf(value.asText());
-                        valueType.set(vt);
-                        isPrimitive.set(true);
-                    } catch (Exception e) {
-                        Optional<Class> clazz = Class.forName(value.asText());
-                        clazz.ifPresent(c -> {
-                            objectType.set(c);
-                            isPrimitive.set(false);
-                        });
-                    }
+                    Type.valueOf(value.asText()).ifPresent(type::set);
                     break;
             }
         });
     }
 
-    public ObjectProperty<Class> objectTypeProperty() {
-        return objectType;
-    }
-    
-    public ObjectProperty<ValueType> ValueTypeProperty(){
-        return valueType;
+    public ObjectProperty<Type> typeProperty() {
+        return type;
     }
 
     public BooleanProperty modifiableProperty() {
         return modifiable;
+    }
+
+    @Override
+    public Type getReturnType() {
+        return type.get();
     }
 
 }

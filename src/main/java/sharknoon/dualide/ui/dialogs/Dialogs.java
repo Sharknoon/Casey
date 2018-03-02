@@ -19,13 +19,19 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -395,6 +401,33 @@ public class Dialogs {
         alert.showAndWait();
     }
 
+    public static <T, N extends Node> Optional<T> showCustomInputDialog(Word title, Word headerText, Word contentText, Icon icon, N content, Function<N, T> converter, String... variables) {
+        Dialog<T> dialog = new Dialog<>();
+        dialog.setTitle(fill(Language.get(title), variables));
+        dialog.setHeaderText(fill(Language.get(headerText), variables));
+        dialog.setContentText(fill(Language.get(contentText), variables));
+
+        DialogPane dp = dialog.getDialogPane();
+
+        dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dp.setContent(content);
+
+        Platform.runLater(() -> content.requestFocus());
+
+        dialog.setResultConverter((dialogButton) -> {
+            ButtonData data
+                    = dialogButton == null ? null : dialogButton.getButtonData();
+            return data == ButtonData.OK_DONE
+                    ? converter.apply(content)
+                    : null;
+        });
+
+        setIcon(icon, dialog);
+        setStyle(dialog);
+        return dialog.showAndWait();
+    }
+
     private static final String EMPTY = "";
 
     private static String fill(String toInsert, String... variables) {
@@ -419,4 +452,5 @@ public class Dialogs {
         Scene scene = dialog.getDialogPane().getScene();
         scene.getStylesheets().add(CSSPATH);
     }
+
 }

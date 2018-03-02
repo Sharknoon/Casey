@@ -15,19 +15,9 @@
  */
 package sharknoon.dualide.ui;
 
-import javafx.event.EventHandler;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.cell.TextFieldTreeCell;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 
 /**
@@ -49,27 +39,13 @@ public class ItemTreeView {
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue.getType() == ItemType.WELCOME || newValue.getType() == ItemType.PROJECT) {
                         treeView.setRoot(newValue.getSite().getTreeItem());
-                    } else {
-                        treeView
-                                .getSelectionModel()
-                                .select(newValue.getSite().getTreeItem());
                     }
+                    treeView
+                            .getSelectionModel()
+                            .select(newValue.getSite().getTreeItem());
+
                 });
         treeView.setFocusTraversable(false);
-
-        //Works, but its very buggy, probably a javafx bug
-//        treeView.setCellFactory((param) -> {
-//            return new TreeCell<Item>() {
-//                @Override
-//                protected void updateItem(Item item, boolean empty) {
-//                    super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
-//                    if (item != null) {
-//                        setText(item.getName());//textProperty().bind(item.nameProperty());
-//                        setGraphic(Icons.get(item.getSite().getTabIcon()));
-//                    }
-//                }
-//            };
-//        });
     }
 
 }

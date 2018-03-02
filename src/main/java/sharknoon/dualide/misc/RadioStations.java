@@ -32,6 +32,7 @@ public enum RadioStations {
 
     /**
      * Returns the URL if this radio
+     *
      * @return The URL of this radio
      */
     public String getURL() {

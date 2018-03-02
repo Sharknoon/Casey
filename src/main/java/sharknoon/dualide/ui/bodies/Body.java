@@ -30,10 +30,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operators.Operator;
-import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.operators.Operator;
+import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
+import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
+import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -50,11 +54,10 @@ public abstract class Body<S extends Statement> extends Group {
     private final Shape backgroundShape;
 
     public static final Body createBody(Statement statement) {
-        switch (statement.getStatementType()) {
-            case OPERATOR:
-                return new OperatorBody((Operator) statement);
-            case VALUE:
-                return new ValueBody((Value) statement);
+        if (statement instanceof Operator) {
+            return new OperatorBody((Operator) statement);
+        } else if (statement instanceof Value) {
+            return new ValueBody((Value) statement);
         }
         return null;
     }
@@ -67,10 +70,10 @@ public abstract class Body<S extends Statement> extends Group {
         super.getChildren().addAll(backgroundShape, contentPane);
     }
 
-    public Body(Set<ValueType> valueTypes) {
+    public Body(Set<Type> types) {
         super();
         this.statement = null;
-        this.backgroundShape = createOuterShape(valueTypes);
+        this.backgroundShape = createOuterShape(types);
         init();
         super.getChildren().addAll(backgroundShape, contentPane);
     }
@@ -215,20 +218,21 @@ public abstract class Body<S extends Statement> extends Group {
         }
     }
 
-    private Shape createOuterShape(ValueType valueType) {
+    private Shape createOuterShape(Type type) {
         //To be replaced by Set.of(...); TODO
-        Set<ValueType> valueTypes = new HashSet<>();
-        valueTypes.add(valueType);
-        return createOuterShape(valueTypes);
+        Set<Type> types = new HashSet<>();
+        types.add(type);
+        return createOuterShape(types);
     }
 
-    private Shape createOuterShape(Set<ValueType> valueTypes) {
+    private Shape createOuterShape(Set<Type> types) {
         final Shape shape;
         double height = contentPane.getHeight();
         double width = contentPane.getWidth();
-        if (valueTypes.size() == 1) {
-            switch (valueTypes.iterator().next()) {
-                case BOOLEAN:
+        if (types != null && types.size() == 1) {
+            Type type = types.iterator().next();
+            if (type.isPrimitive()) {
+                if (type instanceof BooleanType) {
                     Polygon poly = new Polygon();
                     redrawPolygon(poly, false, height, width);
                     contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -238,37 +242,34 @@ public abstract class Body<S extends Statement> extends Group {
                         redrawPolygon(poly, false, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                     });
                     shape = poly;
-                    break;
-                case NUMBER:
+                } else if (type instanceof NumberType) {
                     Rectangle rect = new Rectangle();
                     rect.arcHeightProperty().bind(rect.heightProperty());
                     rect.arcWidthProperty().bind(rect.heightProperty());
                     rect.heightProperty().bind(contentPane.heightProperty());
                     rect.widthProperty().bind(contentPane.widthProperty());
                     shape = rect;
-                    break;
-                case OBJECT:
-                    Polygon poly2 = new Polygon();
-                    redrawPolygon(poly2, true, height, width);
-                    contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
-                    });
-                    contentPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                        redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
-                    });
-                    shape = poly2;
-                    break;
-                case TEXT:
+                } else if (type instanceof TextType) {
                     Rectangle rect2 = new Rectangle();
                     rect2.arcHeightProperty().bind(rect2.heightProperty().divide(2));
                     rect2.arcWidthProperty().bind(rect2.heightProperty().divide(2));
                     rect2.heightProperty().bind(contentPane.heightProperty());
                     rect2.widthProperty().bind(contentPane.widthProperty());
                     shape = rect2;
-                    break;
-                default:
+                } else {
                     //Should never occur
                     shape = new Rectangle();
+                }
+            } else {
+                Polygon poly2 = new Polygon();
+                redrawPolygon(poly2, true, height, width);
+                contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                    redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
+                });
+                contentPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                    redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
+                });
+                shape = poly2;
             }
         } else {
             Rectangle rect = new Rectangle();

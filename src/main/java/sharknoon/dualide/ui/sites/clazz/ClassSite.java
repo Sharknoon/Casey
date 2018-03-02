@@ -18,7 +18,6 @@ package sharknoon.dualide.ui.sites.clazz;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,17 +33,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.reactfx.EventStreams;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.dialogs.Dialogs;
+import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.language.Word;
 
 /**
@@ -147,7 +145,7 @@ public class ClassSite extends Site<Class> {
     int rowCounter = 0;
 
     public void setContent() {
-        EventStreams.valuesOf(getItem().childrenProperty()).subscribe(childs -> {
+        BindUtils.listen(getItem().childrenProperty(), childs -> {
             gridPaneChildren.getChildren().clear();
             rowCounter = 0;
             childs.forEach(c -> {

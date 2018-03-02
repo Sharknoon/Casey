@@ -206,5 +206,6 @@ public class German extends Language {
         add(Word.OR, "Oder");
         add(Word.NOT, "Nicht");
         add(Word.CONCAT, "Zusammenfügen");
+        add(Word.LENGTH, "Länge");
     }
 }

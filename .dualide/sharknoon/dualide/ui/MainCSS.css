@@ -8,7 +8,7 @@
 
 .root {
     -fx-base: #3c3f41;
-    -fx-font-size: 1.5em;
+    -fx-font-size: 1.2em;
     -fx-default-button: derive(-fx-accent,-55%);
     -fx-focus-color: #d30000;
     -fx-faint-focus-color: #d3000022;
@@ -33,11 +33,14 @@
 }
 
 .scroll-pane {
-    -fx-background-color: transparent;
+    -fx-background-color: -fx-box-border,-fx-background;
+    -fx-background-insets: 0, 1;
+    -fx-padding: 1.0;
+    /*-fx-background-color: transparent;*/
 }
 
 .scroll-pane > .viewport {
-    -fx-background-color: transparent;
+    /*-fx-background-color: transparent;*/
 }
 
 .split-pane {

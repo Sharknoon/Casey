@@ -100,6 +100,4 @@ public final class BlockGroup implements Moveable {
         return null;
     }
 
-    
-
 }

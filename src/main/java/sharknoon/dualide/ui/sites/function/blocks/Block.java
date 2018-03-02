@@ -316,8 +316,6 @@ public abstract class Block implements Moveable, MouseConsumable {
         return null;
     }
 
-    
-    
     /**
      * Checks, if this block can move to the desired destination
      *
@@ -340,9 +338,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      * @return
      */
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
-        
-        
-        
+
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
         boolean noBlock = Blocks
                 .getAllBlocks(functionSite)

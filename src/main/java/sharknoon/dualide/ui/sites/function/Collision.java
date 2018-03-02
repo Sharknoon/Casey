@@ -36,8 +36,8 @@ public class Collision {
             OCCUPIED_POINTS.put(functionSite, map);
         }
     }
-    
-    public static boolean isSpaceFree(FunctionSite functionSite, double x, double y){
+
+    public static boolean isSpaceFree(FunctionSite functionSite, double x, double y) {
         return false;
     }
 }

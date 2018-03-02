@@ -22,7 +22,7 @@ import javafx.scene.Scene;
  * @author Josua Frank
  */
 public interface Initializable {
-    
+
     public void init(Scene scene);
-    
+
 }

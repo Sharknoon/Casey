@@ -19,8 +19,9 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 
@@ -29,13 +30,15 @@ import sharknoon.dualide.ui.misc.Icons;
  * @author Josua Frank
  */
 public class PlaceholderBody extends Body {
-    
+
+    public static PlaceholderBody DISABLED = new PlaceholderBody();
+
     private Consumer<Statement> statementConsumer;
 
-    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent) {
+    public static PlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent) {
         return createValuePlaceholderBody(types, parent, null);
     }
-    
+
     /**
      * all types
      *
@@ -44,20 +47,20 @@ public class PlaceholderBody extends Body {
      * @return
      */
     public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return new PlaceholderBody(EnumSet.allOf(ValueType.class), parent, statementConsumer);
+        return new PlaceholderBody(null, parent, statementConsumer);
     }
 
-    public static PlaceholderBody createValuePlaceholderBody(ValueType type, Statement parent, Consumer<Statement> statementConsumer) {
-        Set<ValueType> types = new HashSet<>();
+    public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
+        Set<Type> types = new HashSet<>();
         types.add(type);
         return new PlaceholderBody(types, parent, statementConsumer);
     }
 
-    public static PlaceholderBody createValuePlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Statement> statementConsumer) {
+    public static PlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         return new PlaceholderBody(types, parent, statementConsumer);
     }
 
-    public PlaceholderBody(Set<ValueType> types, Statement parent, Consumer<Statement> statementConsumer) {
+    public PlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
@@ -71,15 +74,23 @@ public class PlaceholderBody extends Body {
         });
     }
 
-    public void setStatementConsumer(Consumer<Statement> consumer){
+    private PlaceholderBody() {
+        super((Set<Type>) null);
+        setOnMouseEntered((event) -> {
+            setContent(Icons.get(Icon.BANNED, 50));
+        });
+        setOnMouseExited((event) -> {
+            setContent();
+        });
+    }
+
+    public void setStatementConsumer(Consumer<Statement> consumer) {
         this.statementConsumer = consumer;
     }
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName();
     }
 
-    
-    
 }

@@ -34,8 +34,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
-import org.reactfx.EventStreams;
-import org.reactfx.collection.LiveList;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
@@ -52,10 +50,11 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.ItemTreeView;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
+import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.settings.Logger;
 
 /**
@@ -94,11 +93,14 @@ public abstract class Site<I extends Item> {
         this.item = item;
         //treeitem setup
         treeItem.setValue(item);
-        ReadOnlyListProperty<Item> childrenProperty = item.childrenProperty();
-        ObservableList<TreeItem<Item>> treeItems = LiveList.map(childrenProperty, (i) -> {
+        ObservableList<TreeItem<Item>> treeItems = BindUtils.map((ObservableList<Item>) item.childrenProperty(), (i) -> {
             return i.getSite().getTreeItem();
         });
         Bindings.bindContentBidirectional(treeItem.getChildren(), treeItems);
+        item.nameProperty().addListener((observable, oldValue, newValue) -> {
+            treeItem.setValue(null);
+            treeItem.setValue(item);
+        });
         //tab setup
         tab.textProperty().bind(item.nameProperty());
         Icons.setCustom(g -> tab.setGraphic(g), getTabIcon());
@@ -183,7 +185,7 @@ public abstract class Site<I extends Item> {
                 .map(i -> ((Item) i).getName())
                 .filter(n -> ignoreMe == null || !n.equals(ignoreMe))
                 .collect(Collectors.toSet());
-        set.addAll(ValueType.getForbiddenNames());
+        set.addAll(PrimitiveType.getForbiddenNames());
         return set;
     }
 

@@ -29,17 +29,22 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operators.Operator;
-import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.logic.statements.values.ValueType;
+import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.operators.Operator;
+import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
+import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
+import sharknoon.dualide.logic.types.PrimitiveType.TextType;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 
 /**
  *
  * @author Josua Frank
  */
-public class OperatorBody extends Body<Operator<Value, Value>> {
+public class OperatorBody extends Body<Operator<Type, Type>> {
 
     public static OperatorBody createOperatorBody(Operator operator) {
         return new OperatorBody(operator);
@@ -55,7 +60,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     private ObservableList<Node> content;
 
     private Node createContentNode() {
-        Operator<Value, Value> operator = getStatement().get();
+        Operator<?, ?> operator = getStatement().get();
 
         HBox hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
@@ -84,8 +89,8 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     }
 
     private PlaceholderBody createPlaceholder() {
-        Operator<Value, Value> operator = getStatement().get();
-        Set<ValueType> parameterTypes = operator.getParameterTypes();
+        Operator<?, ?> operator = getStatement().get();
+        Set<Type> parameterTypes = operator.getParameterTypes();
         PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
 
         Consumer<Statement> statementConsumer = s -> {
@@ -104,7 +109,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     }
 
     public void extend() {
-        Operator<Value, Value> operator = getStatement().get();
+        Operator<?, ?> operator = getStatement().get();
         if (operator.isExtensible()) {
             List<Node> extension = getStatement().get().extend(() -> Icons.get(operator.getOperatorType().getIcon(), 50));
             for (int i = 0; i < extension.size(); i++) {
@@ -119,14 +124,14 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
     }
 
     public void reduce() {
-        Operator<Value, Value> operator = getStatement().get();
+        Operator<?, ?> operator = getStatement().get();
         if (operator.isExtensible() && operator.getParameterAmount() > operator.getMinimumParameterAmount()) {
             int toReduce = getStatement().get().reduce();
             content.remove(content.size() - toReduce, content.size());
         }
     }
 
-    private ObservableList<Body> statementsToBody(Operator<Value, Value> o) {
+    private ObservableList<Body> statementsToBody(Operator<?, ?> o) {
         ObservableList<Body> listBody = FXCollections.observableArrayList();
         o.getParameters().stream()
                 .map((parameter) -> parameter == null ? null : parameter.getBody())
@@ -136,7 +141,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
         return listBody;
     }
 
-    private void onChildChange(Operator<Value, Value> operator, HBox hBoxContent) {
+    private void onChildChange(Operator<?, ?> operator, HBox hBoxContent) {
         DoubleBinding defaultHeight = Bindings.createDoubleBinding(() -> 57.0);
         ObjectProperty<Insets> padding = getPadding(
                 operator.startsWithParameter(),
@@ -162,7 +167,7 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
         });
     }
 
-    private ObjectProperty<Insets> getPadding(boolean leftParameter, boolean rightParameter, ValueType parent, Set<ValueType> leftType, Set<ValueType> rightType, DoubleBinding leftHeight, DoubleBinding rightHeight) {
+    private ObjectProperty<Insets> getPadding(boolean leftParameter, boolean rightParameter, Type parent, Set<Type> leftType, Set<Type> rightType, DoubleBinding leftHeight, DoubleBinding rightHeight) {
         DoubleBinding leftPadding = Bindings.createDoubleBinding(() -> 0.0);
         DoubleBinding rightPadding = Bindings.createDoubleBinding(() -> 0.0);
         if (leftParameter) {
@@ -196,58 +201,67 @@ public class OperatorBody extends Body<Operator<Value, Value>> {
      * @param parent
      * @param childs
      */
-    private DoubleBinding calculateDistance(ValueType parent, Set<ValueType> childs, DoubleBinding childheight) {
-        int childvalue = childs.size() > 1 ? 4 : childs.iterator().next().ordinal();
-        int parentvalue = parent.ordinal();
+    private DoubleBinding calculateDistance(Type parent, Set<Type> childs, DoubleBinding childheight) {
+        int childvalue = childs.size() > 1 ? 4 : getWeight(childs.iterator().next());
+        int parentvalue = getWeight(parent);
         if (parentvalue >= childvalue) {
             return childheight.multiply(0);
         }
         //Parent is a boolean
-        switch (parent) {
-            case BOOLEAN:
-                switch (childvalue) {
-                    //Child is a number
-                    case 1:
-                        return childheight.multiply(1.0 / 4.0);
-                    //Child is a object
-                    case 2:
-                        return childheight.multiply(1.0 / 6.0);
-                    //Child is a text
-                    case 3:
-                        return childheight.multiply(3.0 / 8.0);
-                    //Child can be everything
-                    case 4:
-                        return childheight.multiply(1.0 / 2.0);
-                }
-                break;
-            case NUMBER:
-                switch (childvalue) {
-                    //Child is a object
-                    case 2:
-                        return childheight.multiply(3.0 / 20.0);
-                    //Child is a text
-                    case 3:
-                        return childheight.multiply(1.0 / 4.0);
-                    //Child can be everything
-                    case 4:
-                        return childheight.multiply(1.0 / 2.0);
-                }
-                break;
-            case OBJECT:
-                switch (childvalue) {
-                    //Child is a text
-                    case 3:
-                        return childheight.multiply(2.0 / 9.0);
-                    //Child can be everything
-                    case 4:
-                        return childheight.multiply(1.0 / 3.0);
-                }
-                break;
-            case TEXT:
+        if (parent instanceof BooleanType) {
+            switch (childvalue) {
+                //Child is a number
+                case 1:
+                    return childheight.multiply(1.0 / 4.0);
+                //Child is a object
+                case 2:
+                    return childheight.multiply(1.0 / 6.0);
+                //Child is a text
+                case 3:
+                    return childheight.multiply(3.0 / 8.0);
                 //Child can be everything
-                return childheight.multiply(1.0 / 4.0);
+                case 4:
+                    return childheight.multiply(1.0 / 2.0);
+            }
+        } else if (parent instanceof NumberType) {
+            switch (childvalue) {
+                //Child is a object
+                case 2:
+                    return childheight.multiply(3.0 / 20.0);
+                //Child is a text
+                case 3:
+                    return childheight.multiply(1.0 / 4.0);
+                //Child can be everything
+                case 4:
+                    return childheight.multiply(1.0 / 2.0);
+            }
+        } else if (parent instanceof ObjectType) {
+            switch (childvalue) {
+                //Child is a text
+                case 3:
+                    return childheight.multiply(2.0 / 9.0);
+                //Child can be everything
+                case 4:
+                    return childheight.multiply(1.0 / 3.0);
+            }
+        } else if (parent instanceof TextType) {
+            //Child can be everything
+            return childheight.multiply(1.0 / 4.0);
         }
         return childheight.multiply(0);
+    }
+
+    private static int getWeight(Type type) {
+        if (type instanceof BooleanType) {
+            return 0;
+        } else if (type instanceof NumberType) {
+            return 1;
+        } else if (type instanceof ObjectType) {
+            return 2;
+        } else if (type instanceof PrimitiveType.TextType) {
+            return 3;
+        }
+        return 4;
     }
 
 }

@@ -177,7 +177,10 @@ public class AdvancedNumberInputDialog extends Dialog<Double> {
         grid.add(spinner, 1, 0);
         getDialogPane().setContent(grid);
 
-        Platform.runLater(() -> {spinner.requestFocus();spinner.getEditor().selectAll();});
+        Platform.runLater(() -> {
+            spinner.requestFocus();
+            spinner.getEditor().selectAll();
+        });
     }
 
 }

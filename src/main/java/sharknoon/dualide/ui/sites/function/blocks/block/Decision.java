@@ -52,7 +52,7 @@ public class Decision extends Block {
     public Shape initBlockShape() {
         Polygon polygon = new Polygon(
                 getWidth() / 2, 0,//oben mitte
-getWidth(), getHeight() / 2,
+                getWidth(), getHeight() / 2,
                 getWidth() / 2, getHeight(),
                 0, getHeight() / 2);
         polygon.setFill(Color.rgb(0, 0, 0, 0.5));

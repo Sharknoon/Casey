@@ -54,10 +54,10 @@ public class Project extends Item<Project, Item, Package> {
         MainApplication.registerExitable(this::save);
     }
 
-    public void setID(String id){
+    public void setID(String id) {
         this.id = id;
     }
-    
+
     public final String getID() {
         return id;
     }

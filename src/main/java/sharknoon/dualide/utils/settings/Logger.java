@@ -58,23 +58,25 @@ public class Logger {
 
     /**
      * Sets the LogLevel of the logger, default is WARNING
+     *
      * @param logLevel The new LogLevel
      * @return The old LogLevel
      */
-    public static LogLevel setLogLevel(LogLevel logLevel){
+    public static LogLevel setLogLevel(LogLevel logLevel) {
         LogLevel oldLogLevel = Logger.logLevel;
         Logger.logLevel = logLevel;
         return oldLogLevel;
     }
-    
+
     /**
      * Returns the current LogLevel, default is WARNING
+     *
      * @return The current LogLevel
      */
-    public static LogLevel getLogLevel(){
+    public static LogLevel getLogLevel() {
         return Logger.logLevel;
     }
-    
+
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.

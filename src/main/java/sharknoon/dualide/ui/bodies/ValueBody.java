@@ -16,22 +16,42 @@
 package sharknoon.dualide.ui.bodies;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import sharknoon.dualide.logic.statements.values.BooleanValue;
-import sharknoon.dualide.logic.statements.values.NumberValue;
-import sharknoon.dualide.logic.statements.values.TextValue;
-import sharknoon.dualide.logic.statements.values.Value;
+import org.fxmisc.easybind.EasyBind;
+import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.ItemType;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
+import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
+import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
+import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.javafx.BindUtils;
+import sharknoon.dualide.logic.values.ObjectValue;
 
 /**
  *
@@ -45,73 +65,110 @@ public class ValueBody extends Body<Value> {
 
     public ValueBody(Value value) {
         super(value);
-        Control content = createContentNode(value);
+        Node content = createContentNode(value);
         setContent(content);
     }
 
-    private static Control createContentNode(Value value) {
-        switch (value.getValueType()) {
-            case BOOLEAN:
-                BooleanValue val = (BooleanValue) value;
-                CheckBox checkBoxValue = new CheckBox();
-                int margin = 10;
-                StackPane.setMargin(checkBoxValue, new Insets(margin));
-                checkBoxValue.setPadding(new Insets(5, 0, 5, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
-                checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
-                return checkBoxValue;
-            case NUMBER:
-                NumberValue val2 = (NumberValue) value;
-                Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
-                int margin2 = 10;
-                StackPane.setMargin(spinnerValue, new Insets(margin2));
-                spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
-                    @Override
-                    public String toString(Double value) {
-                        // If the specified value is null, return a zero-length String
+    private static Node createContentNode(Value value) {
+        Type returnType = value.getReturnType();
+        if (returnType == PrimitiveType.BOOLEAN) {
+            BooleanValue val = (BooleanValue) value;
+            CheckBox checkBoxValue = new CheckBox();
+            int margin = 10;
+            StackPane.setMargin(checkBoxValue, new Insets(margin));
+            checkBoxValue.setPadding(new Insets(5, 0, 5, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
+            checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
+            return checkBoxValue;
+        } else if (returnType == PrimitiveType.NUMBER) {
+            NumberValue val2 = (NumberValue) value;
+            Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
+            int margin2 = 10;
+            StackPane.setMargin(spinnerValue, new Insets(margin2));
+            spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
+                @Override
+                public String toString(Double value) {
+                    // If the specified value is null, return a zero-length String
+                    if (value == null) {
+                        return "";
+                    }
+
+                    return value.toString();
+                }
+
+                @Override
+                public Double fromString(String value) {
+                    try {
+                        // If the specified value is null or zero-length, return null
                         if (value == null) {
-                            return "";
+                            return null;
                         }
 
-                        return value.toString();
-                    }
+                        value = value.trim();
 
+                        if (value.length() < 1) {
+                            return null;
+                        }
+
+                        // Perform the requested parsing
+                        return Double.parseDouble(value);
+                    } catch (NumberFormatException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            spinnerValue.prefWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
+            spinnerValue.getEditor().setMinWidth(14);
+            spinnerValue.setEditable(true);
+            spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
+            return spinnerValue;
+        } else if (returnType == PrimitiveType.TEXT) {
+            TextValue val4 = (TextValue) value;
+            TextField textFieldValue = new TextField();
+            int margin4 = 10;
+            StackPane.setMargin(textFieldValue, new Insets(margin4));
+            textFieldValue.prefWidthProperty().bind(minTextFieldWidthProperty(textFieldValue));
+            textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
+            return textFieldValue;
+        } else if (returnType instanceof ObjectType) {
+            ObjectValue val3 = (ObjectValue) value;
+            ComboBox<Class> comboBoxTypes = new ComboBox<>();
+            comboBoxTypes.setCellFactory((param) -> {
+                return new ListCell<Class>() {
                     @Override
-                    public Double fromString(String value) {
-                        try {
-                            // If the specified value is null or zero-length, return null
-                            if (value == null) {
-                                return null;
-                            }
-
-                            value = value.trim();
-
-                            if (value.length() < 1) {
-                                return null;
-                            }
-
-                            // Perform the requested parsing
-                            return Double.parseDouble(value);
-                        } catch (NumberFormatException ex) {
-                            throw new RuntimeException(ex);
+                    protected void updateItem(Class item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            textProperty().bind(item.nameProperty());
+                            Tooltip tooltip = new Tooltip();
+                            tooltip.textProperty().bind(item.fullNameProperty());
+                            tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
                         }
                     }
-                });
-                spinnerValue.prefWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
-                spinnerValue.getEditor().setMinWidth(14);
-                spinnerValue.setEditable(true);
-                spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
-                return spinnerValue;
-            case OBJECT:
-                break;//TODO
-            case TEXT:
-                TextValue val4 = (TextValue) value;
-                TextField textFieldValue = new TextField();
-                int margin4 = 10;
-                StackPane.setMargin(textFieldValue, new Insets(margin4));
-                textFieldValue.prefWidthProperty().bind(minTextFieldWidthProperty(textFieldValue));
-                textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
-                return textFieldValue;
+                };
+            });
+            comboBoxTypes.setButtonCell(new ListCell<Class>() {
+                @Override
+                protected void updateItem(Class item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null) {
+                        textProperty().bind(item.nameProperty());
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.textProperty().bind(item.fullNameProperty());
+                        tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
+                    }
+                }
+
+            });
+            int margin3 = 10;
+            StackPane.setMargin(comboBoxTypes, new Insets(margin3));
+            Bindings.bindContentBidirectional(comboBoxTypes.getItems(), Class.classesProperty());
+            Class clazz = val3.getValue();
+            if (clazz != null) {
+                comboBoxTypes.getSelectionModel().select(clazz);
+            }
+            val3.valueProperty().bind(comboBoxTypes.getSelectionModel().selectedItemProperty());
+            return comboBoxTypes;
         }
         return new Label("Error");
     }

@@ -8,7 +8,7 @@
 
 .root {
     -fx-base: #3c3f41;
-    -fx-font-size: 1.5em;
+    -fx-font-size: 1.2em;
     -fx-default-button: derive(-fx-accent,-55%);
     -fx-focus-color: #d30000;
     -fx-faint-focus-color: #d3000022;

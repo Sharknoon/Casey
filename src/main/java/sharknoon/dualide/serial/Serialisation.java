@@ -17,10 +17,12 @@ package sharknoon.dualide.serial;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -133,14 +135,7 @@ public class Serialisation {
 
     public static Optional<Project> loadProject(Path path) {
         try {
-            String json = new String(Files.readAllBytes(path));
-            if (json.isEmpty()) {
-                Exception e = new FileEmptyException("The Project file seems to be empty");
-                Dialogs.showErrorDialog(Dialogs.Errors.PROJECT_CORRUPT_DIALOG, e);
-                Logger.warning("Could not load Project", e);
-                return Optional.empty();
-            }
-            Optional<Item> item = deserializeItem((ObjectNode) new ObjectMapper().readTree(json));
+            Optional<Item> item = deserializeItem((ObjectNode) MAPPER.readTree(path.toFile()));
             Optional<Project> project = item.map(i -> (Project) i);
             project.ifPresent(p -> {
                 p.setSaveFile(path);
@@ -158,9 +153,7 @@ public class Serialisation {
             if (saveFile.isPresent()) {
                 Optional<ObjectNode> jsonNode = serializeItem(project);
                 if (jsonNode.isPresent()) {
-                    String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode.get());
-                    List<String> lines = Arrays.asList(json.split("\\r?\\n"));
-                    Files.write(saveFile.get(), lines);
+                    MAPPER.writerWithDefaultPrettyPrinter().writeValue(saveFile.get().toFile(), jsonNode.get());
                 } else {
                     Logger.error("Could not save project " + project.getName());
                 }

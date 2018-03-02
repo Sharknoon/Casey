@@ -34,7 +34,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.reactfx.EventStreams;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Package;
@@ -49,6 +48,7 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
@@ -168,7 +168,7 @@ public class PackageSite extends Site<Package> {
     int rowCounter = 0;
 
     public void setContent() {
-        EventStreams.valuesOf(getItem().childrenProperty()).subscribe(childs -> {
+        BindUtils.listen(getItem().childrenProperty(), childs -> {
             gridPaneChildren.getChildren().clear();
             rowCounter = 0;
             childs.forEach(c -> {

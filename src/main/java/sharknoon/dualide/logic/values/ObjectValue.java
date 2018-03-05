@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 
@@ -42,5 +43,29 @@ public class ObjectValue<Void> extends Value<ObjectType> {
     public String toString() {
         return getReturnType().getSimpleName().get();
     }
+
+    @Override
+    public int hashCode() {
+        return getReturnType().hashCode();
+        //TODO implement methods and paramteres
+    }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ObjectValue<?> other = (ObjectValue<?>) obj;
+            return Objects.equals(this.getReturnType(), other.getReturnType());
+            //TODO implement methods and paramteres
+        }
+
+    
 
 }

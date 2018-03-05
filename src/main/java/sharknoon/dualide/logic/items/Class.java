@@ -17,6 +17,7 @@ package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javafx.beans.binding.Bindings;
@@ -213,6 +214,30 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return getSimpleName().get();
         }
 
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 59 * hash + Objects.hashCode(this.clazz);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ObjectType other = (ObjectType) obj;
+            return Objects.equals(this.clazz, other.clazz);
+        }
+
+        
+        
     }
 
 }

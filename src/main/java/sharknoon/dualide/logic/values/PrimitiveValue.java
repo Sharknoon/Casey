@@ -15,21 +15,14 @@
  */
 package sharknoon.dualide.logic.values;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
+import java.util.Objects;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
-import sharknoon.dualide.logic.types.Type;
 
 /**
  *
@@ -57,13 +50,16 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
     public static class NumberValue<Void> extends PrimitiveValue<NumberType, Double> {
 
-        private final DoubleProperty number = new SimpleDoubleProperty(0.0);
+        private final ObjectProperty<Double> number = new SimpleObjectProperty<>(0.0);
 
         public NumberValue(Double number, Statement parent) {
             super(PrimitiveType.NUMBER, parent);
             if (number != null) {
                 this.number.set(number);
             }
+            this.number.addListener((observable, oldValue, newValue) -> {
+                onChange();
+            });
         }
 
         public NumberValue(Statement parent) {
@@ -82,8 +78,30 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
         @Override
         public ObjectProperty<Double> valueProperty() {
-            return number.asObject();
+            return number;
         }
+
+        @Override
+        public int hashCode() {
+            return number.get().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final NumberValue<?> other = (NumberValue<?>) obj;
+            return Objects.equals(this.number.get(), other.number.get());
+        }
+
+        
 
     }
 
@@ -100,6 +118,9 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
             if (text != null) {
                 this.text.set(text);
             }
+            this.text.addListener((observable, oldValue, newValue) -> {
+                onChange();
+            });
         }
 
         public TextValue(Statement parent) {
@@ -120,7 +141,25 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
         public ObjectProperty<String> valueProperty() {
             return text;
         }
+        @Override
+        public int hashCode() {
+            return text.get().hashCode();
+        }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final TextValue<?> other = (TextValue<?>) obj;
+            return Objects.equals(this.text.get(), other.text.get());
+        }
     }
 
     public static BooleanValue createNewBooleanValue(Boolean value, Statement parent) {
@@ -129,13 +168,16 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
     public static class BooleanValue<Void> extends PrimitiveValue<BooleanType, Boolean> {
 
-        private final BooleanProperty bool = new SimpleBooleanProperty(false);
+        private final ObjectProperty<Boolean> bool = new SimpleObjectProperty<>(false);
 
         public BooleanValue(Boolean bool, Statement parent) {
             super(PrimitiveType.BOOLEAN, parent);
             if (bool != null) {
                 this.bool.set(bool);
             }
+            this.bool.addListener((observable, oldValue, newValue) -> {
+                onChange();
+            });
         }
 
         public BooleanValue(Statement parent) {
@@ -154,9 +196,27 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
         @Override
         public ObjectProperty<Boolean> valueProperty() {
-            return bool.asObject();
+            return bool;
+        }
+        @Override
+        public int hashCode() {
+            return bool.get().hashCode();
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final BooleanValue<?> other = (BooleanValue<?>) obj;
+            return Objects.equals(this.bool.get(), other.bool.get());
+        }
     }
 
 }

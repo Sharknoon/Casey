@@ -47,6 +47,8 @@ public class ValueBody extends Body<Value> {
         return new ValueBody(value);
     }
 
+    private static final Insets MARGIN = new Insets(10);
+
     public ValueBody(Value value) {
         super(value);
         Node content = createContentNode(value);
@@ -58,8 +60,7 @@ public class ValueBody extends Body<Value> {
         if (returnType == PrimitiveType.BOOLEAN) {
             BooleanValue val = (BooleanValue) value;
             CheckBox checkBoxValue = new CheckBox();
-            int margin = 10;
-            StackPane.setMargin(checkBoxValue, new Insets(margin));
+            StackPane.setMargin(checkBoxValue, MARGIN);
             checkBoxValue.setPadding(new Insets(5, 0, 5, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
             checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
@@ -67,8 +68,7 @@ public class ValueBody extends Body<Value> {
         } else if (returnType == PrimitiveType.NUMBER) {
             NumberValue val2 = (NumberValue) value;
             Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
-            int margin2 = 10;
-            StackPane.setMargin(spinnerValue, new Insets(margin2));
+            StackPane.setMargin(spinnerValue, MARGIN);
             spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
                 @Override
                 public String toString(Double value) {
@@ -76,8 +76,11 @@ public class ValueBody extends Body<Value> {
                     if (value == null) {
                         return "";
                     }
-
-                    return value.toString();
+                    String stringValue = value.toString();
+                    if (stringValue.endsWith(".0")) {
+                        stringValue = stringValue.substring(0, stringValue.length() - 2);
+                    }
+                    return stringValue;
                 }
 
                 @Override
@@ -91,36 +94,36 @@ public class ValueBody extends Body<Value> {
                         value = value.trim();
 
                         if (value.length() < 1) {
-                            return null;
+                            return 0.0;
                         }
 
+                        value = value.replaceAll("[^0-9\\.-]", "");
+                        
                         // Perform the requested parsing
                         return Double.parseDouble(value);
                     } catch (NumberFormatException ex) {
-                        throw new RuntimeException(ex);
+                        return 0.0;
                     }
                 }
             });
-            spinnerValue.prefWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
-            spinnerValue.getEditor().setMinWidth(14);
+            spinnerValue.getEditor().setPrefWidth(14);
+            spinnerValue.minWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
             spinnerValue.setEditable(true);
             spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
             return spinnerValue;
         } else if (returnType == PrimitiveType.TEXT) {
-            TextValue val4 = (TextValue) value;
+            TextValue val3 = (TextValue) value;
             TextField textFieldValue = new TextField();
-            int margin4 = 10;
-            StackPane.setMargin(textFieldValue, new Insets(margin4));
+            StackPane.setMargin(textFieldValue, MARGIN);
             textFieldValue.prefWidthProperty().bind(minTextFieldWidthProperty(textFieldValue));
-            textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
+            textFieldValue.textProperty().bindBidirectional(val3.valueProperty());
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {
-            ObjectValue<?> val3 = (ObjectValue) value;
+            ObjectValue<?> val4 = (ObjectValue) value;
             Text textType = new Text();
-            textType.textProperty().bind(val3.getReturnType().getSimpleName());
+            StackPane.setMargin(textType, MARGIN);
+            textType.textProperty().bind(val4.getReturnType().getSimpleName());
             textType.setFill(Color.BLACK);
-            
-            StackPane.setMargin(textType, Insets.EMPTY);
             return textType;
         }
         Text errorText = new Text("Error");

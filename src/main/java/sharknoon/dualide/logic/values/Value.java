@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.values;
 
+import java.util.Objects;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
@@ -43,15 +44,21 @@ public abstract class Value<T extends Type> extends Statement<Type, T, Type> {
         return type;
     }
 
-    public static NumberValue toNumberValue(Value<NumberType> value) {
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public abstract boolean equals(Object obj);
+
+    public static NumberValue<Void> toNumberValue(Value<NumberType> value) {
         return (NumberValue) value;
     }
 
-    public static TextValue toTextValue(Value<TextType> value) {
+    public static TextValue<Void> toTextValue(Value<TextType> value) {
         return (TextValue) value;
     }
 
-    public static BooleanValue toBooleanValue(Value<BooleanType> value) {
+    public static BooleanValue<Void> toBooleanValue(Value<BooleanType> value) {
         return (BooleanValue) value;
     }
 

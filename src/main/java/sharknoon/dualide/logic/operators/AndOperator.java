@@ -34,21 +34,14 @@ public class AndOperator extends Operator<BooleanType, BooleanType> {
 
     @Override
     public BooleanValue calculateResult() {
-        Statement<BooleanType, BooleanType, Type> previous = null;
         int iterations = 0;
         for (Statement<BooleanType, BooleanType, Type> next : getParameters()) {
             if (next != null) {
                 iterations++;
-                if (previous != null) {
-                    //specific code
-                    Value previousValue = previous.calculateResult();
-                    Value nextValue = next.calculateResult();
-                    if (!(previousValue.equals(nextValue))) {
-                        return new BooleanValue(null);
-                    }
-                    //end specific code
+                Value<BooleanType> value = next.calculateResult();
+                if (!Value.toBooleanValue(value).valueProperty().get()) {
+                    return new BooleanValue(null);
                 }
-                previous = next;
             }
         }
         if (iterations < getMinimumParameterAmount()) {

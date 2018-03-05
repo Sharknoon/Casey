@@ -17,10 +17,12 @@ package sharknoon.dualide.logic.operators;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Language;
@@ -31,42 +33,54 @@ import sharknoon.dualide.utils.language.Word;
  * @author Josua Frank
  */
 public enum OperatorType {
-    ADD(AddOperator::new, AddOperator.class, Word.ADD, Icon.PLUS, "+"),
-    SUBTRACT(SubtractOperator::new, SubtractOperator.class, Word.SUBTRACT, Icon.MINUS, "-"),
-    MULTIPLY(MultiplyOperator::new, MultiplyOperator.class, Word.MULTIPLY, Icon.MULTIPLY, "×"),
-    DIVIDE(DivideOperator::new, DivideOperator.class, Word.DIVIDE, Icon.DIVIDE, "÷"),
-    MODULO(ModuloOperator::new, ModuloOperator.class, Word.MODULO, Icon.MODULO, "mod"),
-    EQUALS(EqualsOperator::new, EqualsOperator.class, Word.EQUALS, Icon.EQUAL, "="),
-    NOT_EQUALS(NotEqualsOperator::new, NotEqualsOperator.class, Word.NOT_EQUALS, Icon.NOTEQUAL, "≠"),
-    GREATER_THAN(GreaterThanOperator::new, GreaterThanOperator.class, Word.GREATER_THAN, Icon.GREATERTHAN, ">"),
-    LESS_THAN(LessThanOperator::new, LessThanOperator.class, Word.LESS_THAN, Icon.LESSTHAN, "<"),
-    GREATER_OR_EQUAL_THAN(GreaterOrEqualThanOperator::new, GreaterOrEqualThanOperator.class, Word.GREATER_OR_EQUAL_THAN, Icon.GREATEROREQUALTHAN, "≥"),
-    LESS_OR_EQUAL_THAN(LessOrEqualThanOperator::new, LessOrEqualThanOperator.class, Word.LESS_OR_EQUAL_THAN, Icon.LESSOREQUALTHAN, "≤"),
-    AND(AndOperator::new, AndOperator.class, Word.AND, Icon.AND, "∧"),
-    OR(OrOperator::new, OrOperator.class, Word.OR, Icon.OR, "∨"),
-    NOT(NotOperator::new, NotOperator.class, Word.NOT, Icon.NOT, "¬"),
-    CONCAT(ConcatOperator::new, ConcatOperator.class, Word.CONCAT, Icon.CONCAT, "∪"),
-    LENGTH(LengthOperator::new, LengthOperator.class, Word.LENGTH, Icon.LENGTH, "↔");
+    ADD(AddOperator::new, AddOperator.class, PrimitiveType.NUMBER, Word.ADD, Icon.PLUS, "+"),
+    SUBTRACT(SubtractOperator::new, SubtractOperator.class, PrimitiveType.NUMBER, Word.SUBTRACT, Icon.MINUS, "-"),
+    MULTIPLY(MultiplyOperator::new, MultiplyOperator.class, PrimitiveType.NUMBER, Word.MULTIPLY, Icon.MULTIPLY, "×"),
+    DIVIDE(DivideOperator::new, DivideOperator.class, PrimitiveType.NUMBER, Word.DIVIDE, Icon.DIVIDE, "÷"),
+    MODULO(ModuloOperator::new, ModuloOperator.class, PrimitiveType.NUMBER, Word.MODULO, Icon.MODULO, "mod"),
+    EQUALS(EqualsOperator::new, EqualsOperator.class, PrimitiveType.BOOLEAN, Word.EQUALS, Icon.EQUAL, "="),
+    NOT_EQUALS(NotEqualsOperator::new, NotEqualsOperator.class, PrimitiveType.BOOLEAN, Word.NOT_EQUALS, Icon.NOTEQUAL, "≠"),
+    GREATER_THAN(GreaterThanOperator::new, GreaterThanOperator.class, PrimitiveType.BOOLEAN, Word.GREATER_THAN, Icon.GREATERTHAN, ">"),
+    LESS_THAN(LessThanOperator::new, LessThanOperator.class, PrimitiveType.BOOLEAN, Word.LESS_THAN, Icon.LESSTHAN, "<"),
+    GREATER_OR_EQUAL_THAN(GreaterOrEqualThanOperator::new, GreaterOrEqualThanOperator.class, PrimitiveType.BOOLEAN, Word.GREATER_OR_EQUAL_THAN, Icon.GREATEROREQUALTHAN, "≥"),
+    LESS_OR_EQUAL_THAN(LessOrEqualThanOperator::new, LessOrEqualThanOperator.class, PrimitiveType.BOOLEAN, Word.LESS_OR_EQUAL_THAN, Icon.LESSOREQUALTHAN, "≤"),
+    AND(AndOperator::new, AndOperator.class, PrimitiveType.BOOLEAN, Word.AND, Icon.AND, "∧"),
+    OR(OrOperator::new, OrOperator.class, PrimitiveType.BOOLEAN, Word.OR, Icon.OR, "∨"),
+    NOT(NotOperator::new, NotOperator.class, PrimitiveType.BOOLEAN, Word.NOT, Icon.NOT, "¬"),
+    CONCAT(ConcatOperator::new, ConcatOperator.class, PrimitiveType.TEXT, Word.CONCAT, Icon.CONCAT, "∪"),
+    LENGTH(LengthOperator::new, LengthOperator.class, PrimitiveType.NUMBER, Word.LENGTH, Icon.LENGTH, "↔");
 
-    private static Map<Class<? extends Operator>, OperatorType> OPERATOR_TYPES;
+    private static Map<Class<? extends Operator>, OperatorType> OPERATOR_TYPES_BY_CLASS;
+    private static Map<PrimitiveType, Set<OperatorType>> OPERATOR_TYPES_BY_RETURN_TYPE;
+
     private final Function<Statement, Operator> creator;
     private final Word name;
     private final Icon icon;
     private final String stringRep;
 
-    private OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, Word name, Icon icon, String stringRep) {
-        init(type);
+    private OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, PrimitiveType returnType, Word name, Icon icon, String stringRep) {
+        init(type, returnType);
         this.creator = creator;
         this.name = name;
         this.icon = icon;
         this.stringRep = stringRep;
     }
 
-    private void init(Class<? extends Operator> type) {
-        if (OPERATOR_TYPES == null) {
-            OPERATOR_TYPES = new HashMap<>();
+    private void init(Class<? extends Operator> type, PrimitiveType returnType) {
+        if (OPERATOR_TYPES_BY_CLASS == null) {
+            OPERATOR_TYPES_BY_CLASS = new HashMap<>();
         }
-        OPERATOR_TYPES.put(type, this);
+        OPERATOR_TYPES_BY_CLASS.put(type, this);
+        if (OPERATOR_TYPES_BY_RETURN_TYPE == null) {
+            OPERATOR_TYPES_BY_RETURN_TYPE = new HashMap<>();
+        }
+        if (OPERATOR_TYPES_BY_RETURN_TYPE.containsKey(returnType)) {
+            OPERATOR_TYPES_BY_RETURN_TYPE.get(returnType).add(this);
+        } else {
+            HashSet<OperatorType> OPERATORTYPES_FOR_RETURN_TYPE = new HashSet<>();
+            OPERATORTYPES_FOR_RETURN_TYPE.add(this);
+            OPERATOR_TYPES_BY_RETURN_TYPE.put(returnType, OPERATORTYPES_FOR_RETURN_TYPE);
+        }
     }
 
     public String getName() {
@@ -91,7 +105,14 @@ public enum OperatorType {
     }
 
     public static OperatorType valueOf(Operator operator) {
-        return OPERATOR_TYPES.get(operator.getClass());
+        return OPERATOR_TYPES_BY_CLASS.get(operator.getClass());
+    }
+
+    public static Set<OperatorType> forType(Type type) {
+        if (type instanceof PrimitiveType) {
+            return OPERATOR_TYPES_BY_RETURN_TYPE.get((PrimitiveType) type);
+        }
+        return new HashSet<>();
     }
 
 }

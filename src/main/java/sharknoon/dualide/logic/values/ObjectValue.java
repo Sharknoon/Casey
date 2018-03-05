@@ -40,7 +40,7 @@ public class ObjectValue<Void> extends Value<ObjectType> {
 
     @Override
     public String toString() {
-        return "Value:" + getReturnType().getSimpleName();
+        return getReturnType().getSimpleName().get();
     }
 
 }

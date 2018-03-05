@@ -17,25 +17,41 @@ package sharknoon.dualide.logic.types;
 
 import java.util.Collection;
 import java.util.Optional;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.MapProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.values.PrimitiveValue;
+import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
+import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
+import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
+import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.ui.dialogs.Dialogs;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
  * @author Josua Frank
+ * @param <T>
+ * @param <V>
  */
-public abstract class PrimitiveType implements Type<PrimitiveType> {
+public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue> implements Type<T, V> {
 
     public static Optional<PrimitiveType> forName(String asText) {
         return Optional.ofNullable(TYPESMAP.get(asText.toUpperCase()));
     }
 
-    private static final ObservableList<PrimitiveType> TYPESLIST = FXCollections.observableArrayList();
-    private static final ObservableMap<String, PrimitiveType> TYPESMAP = FXCollections.observableHashMap();
+    private static final ListProperty<PrimitiveType> TYPESLIST = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private static final MapProperty<String, PrimitiveType> TYPESMAP = new SimpleMapProperty<>(FXCollections.observableHashMap());
 
     public static Collection<? extends String> getForbiddenNames() {
         return TYPESMAP.keySet();
@@ -65,7 +81,7 @@ public abstract class PrimitiveType implements Type<PrimitiveType> {
         return null;
     }
 
-    public static ObservableList<PrimitiveType> getAll() {
+    public static ListProperty<PrimitiveType> getAll() {
         return TYPESLIST;
     }
 
@@ -81,27 +97,143 @@ public abstract class PrimitiveType implements Type<PrimitiveType> {
 
     public static BooleanType BOOLEAN = new BooleanType();
 
-    public static class BooleanType extends PrimitiveType {
+    public static class BooleanType extends PrimitiveType<BooleanType, BooleanValue> {
 
         private BooleanType() {
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.BOOLEAN;
+        }
+
+        @Override
+        public Optional<BooleanValue> createValue(Statement parent) {
+            return Dialogs
+                    .showBooleanInputDialog(Dialogs.BooleanInputs.NEW_BOOLEAN_VALUE)
+                    .map(b -> new BooleanValue(b, parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSBOOLEAN;
+        }
+        private StringProperty creationText;
+
+        @Override
+        public StringProperty getCreationText() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.BOOLEAN_CREATION, creationText::set);
+
+            }
+            return creationText;
+        }
+        private StringProperty name;
+
+        @Override
+        public StringProperty getName() {
+            if (name == null) {
+                name = new SimpleStringProperty();
+                Language.setCustom(Word.BOOLEAN, name::set);
+            }
+            return name;
         }
 
     }
 
     public static NumberType NUMBER = new NumberType();
 
-    public static class NumberType extends PrimitiveType {
+    public static class NumberType extends PrimitiveType<NumberType, NumberValue> {
 
         private NumberType() {
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.NUMBER;
+        }
+
+        @Override
+        public Optional<NumberValue> createValue(Statement parent) {
+            return Dialogs
+                    .showNumberInputDialog(Dialogs.NumberInputs.NEW_NUMBER_VALUE)
+                    .map(d -> new NumberValue(d, parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSNUMBER;
+        }
+
+        private StringProperty creationText;
+
+        @Override
+        public StringProperty getCreationText() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.NUMBER_CREATION, creationText::set);
+
+            }
+            return creationText;
+        }
+        private StringProperty name;
+
+        @Override
+        public StringProperty getName() {
+            if (name == null) {
+                name = new SimpleStringProperty();
+                Language.setCustom(Word.NUMBER, name::set);
+            }
+            return name;
         }
 
     }
 
     public static TextType TEXT = new TextType();
 
-    public static class TextType extends PrimitiveType {
+    public static class TextType extends PrimitiveType<TextType, TextValue> {
 
         private TextType() {
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.TEXT;
+        }
+
+        @Override
+        public Optional<TextValue> createValue(Statement parent) {
+            return Dialogs
+                    .showTextInputDialog(Dialogs.TextInputs.NEW_TEXT_VALUE)
+                    .map(t -> new TextValue(t, parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSTEXT;
+        }
+
+        private StringProperty creationText;
+
+        @Override
+        public StringProperty getCreationText() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.TEXT_CREATION, creationText::set);
+
+            }
+            return creationText;
+        }
+        private StringProperty name;
+
+        @Override
+        public StringProperty getName() {
+            if (name == null) {
+                name = new SimpleStringProperty();
+                Language.setCustom(Word.TEXT, name::set);
+            }
+            return name;
         }
 
     }

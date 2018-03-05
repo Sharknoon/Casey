@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -26,11 +27,24 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.values.ObjectValue;
+import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;
+import sharknoon.dualide.utils.javafx.FXUtils;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -83,9 +97,10 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         return super.getAdditionalProperties();
     }
 
-    public static class ObjectType implements Type<ObjectType> {
+    public static class ObjectType implements Type<ObjectType, ObjectValue> {
 
         private final Class clazz;
+        private static final ListProperty<ObjectType> TYPES = new SimpleListProperty<>(BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type));
 
         public ObjectType(Class clazz) {
             this.clazz = clazz;
@@ -106,8 +121,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return this;
         }
 
-        public static ObservableList<ObjectType> getAll() {
-            return BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type);
+        public static ListProperty<ObjectType> getAll() {
+            return TYPES;
         }
 
         @Override
@@ -129,6 +144,65 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
         public static Optional<ObjectType> forName(String name) {
             return Class.forName(name).map(c -> c.type);
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.CLASS;
+        }
+
+        @Override
+        public Optional<ObjectValue> createValue(Statement parent) {
+            ComboBox<ObjectType> types = new ComboBox<>();
+            types.itemsProperty().bindBidirectional(ObjectType.getAll());
+            FXUtils.fixComboBoxText(types, ObjectType::getSimpleName, ObjectType::getFullName);
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setMaxWidth(Double.MAX_VALUE);
+            grid.setAlignment(Pos.CENTER_LEFT);
+            grid.add(types, 0, 0);
+            return Dialogs
+                    .showCustomInputDialog(
+                            Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
+                            Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
+                            Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
+                            Icon.CLASS,
+                            grid,
+                            p -> ((ComboBox<ObjectType>) p.getChildren().get(0)).getSelectionModel().getSelectedItem()
+                    )
+                    .map(o -> new ObjectValue(o, parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSCLASS;
+        }
+
+        private StringProperty creationText;
+
+        @Override
+        public StringProperty getCreationText() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.OBJECT_CREATION, creationText::set);
+
+            }
+            return creationText;
+        }
+        private StringProperty name;
+
+        @Override
+        public StringProperty getName() {
+            if (name == null) {
+                name = new SimpleStringProperty();
+                Language.setCustom(Word.OBJECT, name::set);
+            }
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return getSimpleName().get();
         }
 
     }

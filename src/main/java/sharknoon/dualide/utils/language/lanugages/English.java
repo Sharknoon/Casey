@@ -168,6 +168,10 @@ public class English extends Language {
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_TITLE, "New Boolean");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Please select a boolean");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
+        ///New Object value
+        add(Word.NEW_OBJECT_VALUE_DIALOG_TITLE, "New Object");
+        add(Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT, "Please select a type");
+        add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Type");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "New values");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-values");

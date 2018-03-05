@@ -23,6 +23,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -39,6 +40,7 @@ import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
@@ -52,14 +54,15 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
 
     public OperatorBody(Operator operator) {
         super(operator);
-        Node contentNode = createContentNode();
+        HBox contentNode = createContentNode();
+        onChildChange(operator, contentNode);
         setContent(contentNode);
     }
 
     private static final int DEFAULT_MARGIN = 5;
     private ObservableList<Node> content;
 
-    private Node createContentNode() {
+    private HBox createContentNode() {
         Operator<?, ?> operator = getStatement().get();
 
         HBox hBoxContent = new HBox();
@@ -82,7 +85,6 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
             }
         }
         hBoxContent.setSpacing(DEFAULT_MARGIN);
-        hBoxContent.setPadding(new Insets(DEFAULT_MARGIN));
         Bindings.bindContentBidirectional(hBoxContent.getChildren(), content);
 
         return hBoxContent;
@@ -147,24 +149,13 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
                 operator.startsWithParameter(),
                 operator.endsWithParameter(),
                 operator.getReturnType(),
-                operator.getFirstParameter().map(p -> (Set) new HashSet() {
-            {
-                add(p.getReturnType());
-            }
-        }).orElse(operator.getParameterTypes()),
-                operator.getLastParameter().map(p -> (Set) new HashSet() {
-            {
-                add(p.getReturnType());
-            }
-        }).orElse(operator.getParameterTypes()),
+                operator.getFirstParameter().map(p -> Set.of(p.getReturnType())).orElse(operator.getParameterTypes()),
+                operator.getLastParameter().map(p -> Set.of(p.getReturnType())).orElse(operator.getParameterTypes()),
                 operator.getFirstParameter().map(s -> s.getBody().heightProperty().add(0)).orElse(defaultHeight),
-                operator.getFirstParameter().map(s -> s.getBody().heightProperty().add(0)).orElse(defaultHeight)
+                operator.getLastParameter().map(s -> s.getBody().heightProperty().add(0)).orElse(defaultHeight)
         );
-        hBoxContent.setPadding(padding.get());
-        padding.addListener((observable, oldValue, newValue) -> {
-            System.out.println("padding changed to: " + newValue);
-            hBoxContent.setPadding(newValue);
-        });
+        ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
+        hBoxContent.paddingProperty().bind(ov);
     }
 
     private ObjectProperty<Insets> getPadding(boolean leftParameter, boolean rightParameter, Type parent, Set<Type> leftType, Set<Type> rightType, DoubleBinding leftHeight, DoubleBinding rightHeight) {
@@ -202,7 +193,10 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
      * @param childs
      */
     private DoubleBinding calculateDistance(Type parent, Set<Type> childs, DoubleBinding childheight) {
-        int childvalue = childs.size() > 1 ? 4 : getWeight(childs.iterator().next());
+        int childvalue = 4;
+        if (childs.size() == 1) {
+            childvalue = getWeight(childs.iterator().next());
+        }
         int parentvalue = getWeight(parent);
         if (parentvalue >= childvalue) {
             return childheight.multiply(0);
@@ -258,9 +252,10 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
             return 1;
         } else if (type instanceof ObjectType) {
             return 2;
-        } else if (type instanceof PrimitiveType.TextType) {
+        } else if (type instanceof TextType) {
             return 3;
         }
+        //placeholder rectangle
         return 4;
     }
 

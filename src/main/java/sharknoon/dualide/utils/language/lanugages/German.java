@@ -168,6 +168,10 @@ public class German extends Language {
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_TITLE, "Neuer Boolean");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Bitte Boolean auswählen");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
+                ///New Object value
+        add(Word.NEW_OBJECT_VALUE_DIALOG_TITLE, "Neues Objekt");
+        add(Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT, "Bitte Typ auswählen");
+        add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Typ");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neue Werte");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-Werte");

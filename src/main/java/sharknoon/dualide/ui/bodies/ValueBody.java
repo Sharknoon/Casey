@@ -16,41 +16,25 @@
 package sharknoon.dualide.ui.bodies;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.values.Value;
-import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
 import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
 import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
-import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.logic.values.ObjectValue;
 
 /**
@@ -131,46 +115,15 @@ public class ValueBody extends Body<Value> {
             textFieldValue.textProperty().bindBidirectional(val4.valueProperty());
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {
-            ObjectValue val3 = (ObjectValue) value;
-            ComboBox<Class> comboBoxTypes = new ComboBox<>();
-            comboBoxTypes.setCellFactory((param) -> {
-                return new ListCell<Class>() {
-                    @Override
-                    protected void updateItem(Class item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            textProperty().bind(item.nameProperty());
-                            Tooltip tooltip = new Tooltip();
-                            tooltip.textProperty().bind(item.fullNameProperty());
-                            tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
-                        }
-                    }
-                };
-            });
-            comboBoxTypes.setButtonCell(new ListCell<Class>() {
-                @Override
-                protected void updateItem(Class item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item != null) {
-                        textProperty().bind(item.nameProperty());
-                        Tooltip tooltip = new Tooltip();
-                        tooltip.textProperty().bind(item.fullNameProperty());
-                        tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
-                    }
-                }
-
-            });
-            int margin3 = 10;
-            StackPane.setMargin(comboBoxTypes, new Insets(margin3));
-            Bindings.bindContentBidirectional(comboBoxTypes.getItems(), Class.classesProperty());
-            Class clazz = val3.getValue();
-            if (clazz != null) {
-                comboBoxTypes.getSelectionModel().select(clazz);
-            }
-            val3.valueProperty().bind(comboBoxTypes.getSelectionModel().selectedItemProperty());
-            return comboBoxTypes;
+            ObjectValue<?> val3 = (ObjectValue) value;
+            Text textType = new Text();
+            textType.textProperty().bind(val3.getReturnType().getSimpleName());
+            textType.setFill(Color.BLACK);
+            return textType;
         }
-        return new Label("Error");
+        Text errorText = new Text("Error");
+        errorText.setFill(Color.RED);
+        return errorText;
     }
 
     private static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {

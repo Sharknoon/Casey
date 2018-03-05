@@ -25,10 +25,7 @@ import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.beans.binding.IntegerBinding;
-import javafx.beans.value.ChangeListener;
 import org.fxmisc.easybind.EasyBind;
-import sharknoon.dualide.logic.items.Class;
-import sharknoon.dualide.logic.types.PrimitiveType;
 
 /**
  *

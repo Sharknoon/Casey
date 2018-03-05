@@ -20,15 +20,19 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
  * @author Josua Frank
  * @param <T>
+ * @param <V>
  */
-public interface Type<T extends Type> {
+public interface Type<T extends Type, V extends Value> {
 
     public default Type getReturnType() {
         return this;
@@ -52,5 +56,19 @@ public interface Type<T extends Type> {
     public StringProperty getSimpleName();
 
     public StringProperty getFullName();
+    
+    public Icon getIcon();
+    
+    public Icon getCreationIcon();
+    
+    public StringProperty getCreationText();
+    
+    /**
+     * Language dependent name, e.g. Nummer in german for Number
+     * @return 
+     */
+    public StringProperty getName();
+    
+    public Optional<V> createValue(Statement parent);
 
 }

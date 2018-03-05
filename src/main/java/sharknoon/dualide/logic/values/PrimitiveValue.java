@@ -72,7 +72,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
         @Override
         public String toString() {
-            return String.valueOf(number);
+            return String.valueOf(number.get());
         }
 
         @Override
@@ -108,7 +108,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
         @Override
         public String toString() {
-            return String.valueOf(text);
+            return String.valueOf(text.get());
         }
 
         @Override
@@ -144,7 +144,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
         @Override
         public String toString() {
-            return String.valueOf(bool);
+            return String.valueOf(bool.get());
         }
 
         @Override

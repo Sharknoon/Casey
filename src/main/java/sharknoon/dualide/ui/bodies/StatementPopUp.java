@@ -1,5 +1,6 @@
 package sharknoon.dualide.ui.bodies;
 
+import java.util.HashSet;
 import java.util.Optional;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import java.util.Set;
@@ -31,6 +32,7 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.operators.OperatorType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
@@ -53,7 +55,7 @@ public class StatementPopUp extends PopOver {
     private final Consumer<Statement> statementConsumer;
 
     private StatementPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
-        this.allowedValues = allowedValues;
+        this.allowedValues = allowedValues != null ? allowedValues : new HashSet<>(Type.getAllTypes());
         this.parent = parent;
         this.statementConsumer = statementConsumer;
         init();
@@ -87,25 +89,21 @@ public class StatementPopUp extends PopOver {
         gp.setVgap(10);
         gp.setAlignment(Pos.TOP_LEFT);
         int row = 0;
-        if (allowedValues == null) {
-            allowedValues.addAll(PrimitiveType.getAll());
-        }
-        for (Type value : allowedValues) {
+        for (Type type : allowedValues) {
             String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
 
-            Node icon = Icons.get(value.getIcon());
-            Label text = createLabel(value.getSimpleName() + stringValues);
+            Node icon = Icons.get(type.getIcon());
+            Label text = createLabel(type.getName().get() + stringValues);
             gp.add(new HBox(10, icon, text), 0, row);
 
             FlowPane flowPaneButtons = new FlowPane();
             flowPaneButtons.setHgap(10);
             flowPaneButtons.setVgap(10);
-//            CreationType ct = value.getCreationType();
-            Button buttonCreation = new Button(ct.getName(), Icons.get(ct.getIcon()));
+            Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
             flowPaneButtons.getChildren().add(buttonCreation);
 
             buttonCreation.setOnAction((event) -> {
-                Optional<Value> createdValue = ct.create().create(parent);
+                Optional<Value> createdValue = type.createValue(parent);
                 createdValue.ifPresent(cv -> {
                     if (statementConsumer != null) {
                         statementConsumer.accept(cv);
@@ -113,7 +111,8 @@ public class StatementPopUp extends PopOver {
                 });
                 hide();
             });
-            value.getOperatorTypes().forEach(ot -> {
+            Set<OperatorType> ots = OperatorType.forType(type);
+            ots.forEach(ot -> {
                 Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
                 buttonOperation.setOnAction((event) -> {
                     if (statementConsumer != null) {

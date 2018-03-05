@@ -18,6 +18,7 @@ package sharknoon.dualide.logic.operators;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -77,7 +78,7 @@ public enum OperatorType {
         if (OPERATOR_TYPES_BY_RETURN_TYPE.containsKey(returnType)) {
             OPERATOR_TYPES_BY_RETURN_TYPE.get(returnType).add(this);
         } else {
-            HashSet<OperatorType> OPERATORTYPES_FOR_RETURN_TYPE = new HashSet<>();
+            Set<OperatorType> OPERATORTYPES_FOR_RETURN_TYPE = new LinkedHashSet<>();
             OPERATORTYPES_FOR_RETURN_TYPE.add(this);
             OPERATOR_TYPES_BY_RETURN_TYPE.put(returnType, OPERATORTYPES_FOR_RETURN_TYPE);
         }

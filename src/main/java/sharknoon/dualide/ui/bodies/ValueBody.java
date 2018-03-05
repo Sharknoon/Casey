@@ -119,6 +119,8 @@ public class ValueBody extends Body<Value> {
             Text textType = new Text();
             textType.textProperty().bind(val3.getReturnType().getSimpleName());
             textType.setFill(Color.BLACK);
+            
+            StackPane.setMargin(textType, Insets.EMPTY);
             return textType;
         }
         Text errorText = new Text("Error");

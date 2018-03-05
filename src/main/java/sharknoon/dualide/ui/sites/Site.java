@@ -29,10 +29,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.skin.TabPaneSkin;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
@@ -52,6 +56,7 @@ import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
 import sharknoon.dualide.utils.javafx.BindUtils;
@@ -93,10 +98,8 @@ public abstract class Site<I extends Item> {
         this.item = item;
         //treeitem setup
         treeItem.setValue(item);
-        ObservableList<TreeItem<Item>> treeItems = BindUtils.map((ObservableList<Item>) item.childrenProperty(), (i) -> {
-            return i.getSite().getTreeItem();
-        });
-        Bindings.bindContentBidirectional(treeItem.getChildren(), treeItems);
+        ObservableList<TreeItem<Item>> treeItems = BindUtils.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
+        Bindings.bindContent(treeItem.getChildren(), treeItems);
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
             treeItem.setValue(null);
             treeItem.setValue(item);
@@ -123,6 +126,16 @@ public abstract class Site<I extends Item> {
                 });
             }
         });
+    }
+    
+    public void destroy(){
+        //Stupid javafx implementation, just need a method tab.close() or tabPane.closeTab(tab)
+        TabPane tabPane = MainController.getTabPane();
+        EventHandler<Event> onClosed = tab.getOnClosed();
+        if (onClosed != null) {
+            onClosed.handle(null);
+        }
+        tabPane.getTabs().remove(tab);
     }
 
     public I getItem() {

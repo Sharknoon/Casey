@@ -26,7 +26,6 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -65,7 +64,6 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
      * @param <ITEM>
      * @param itemType
      * @param parent
-     * @param id
      * @param name
      * @param select
      * @return
@@ -154,8 +152,16 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     public void destroy() {
         childrenProperty().forEach(c -> c.destroy());
+        if (parentProperty().get() != null) {
+            parentProperty().get().removeChild(this);
+        }
+        siteProperty().get().destroy();
         parentProperty().set(null);
         childrenProperty().clear();
+    }
+    
+    protected void removeChild(C child){
+        childrenProperty().get().remove(child);
     }
 
     public StringExpression fullNameProperty() {

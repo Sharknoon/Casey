@@ -1,8 +1,7 @@
 package sharknoon.dualide.ui.bodies;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
-import sharknoon.dualide.logic.types.PrimitiveType;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
@@ -55,7 +54,7 @@ public class StatementPopUp extends PopOver {
     private final Consumer<Statement> statementConsumer;
 
     private StatementPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
-        this.allowedValues = allowedValues != null ? allowedValues : new HashSet<>(Type.getAllTypes());
+        this.allowedValues = allowedValues != null && !allowedValues.isEmpty() ? allowedValues : new LinkedHashSet<>(Type.getAllTypes());
         this.parent = parent;
         this.statementConsumer = statementConsumer;
         init();

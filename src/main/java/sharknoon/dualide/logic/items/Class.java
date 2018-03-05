@@ -63,6 +63,14 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         CLASSES.add(this);
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        CLASSES.remove(this);
+    }
+
+    
+    
     public static ListProperty<Class> classesProperty() {
         return CLASSES;
     }

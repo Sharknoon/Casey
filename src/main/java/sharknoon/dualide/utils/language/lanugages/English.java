@@ -156,6 +156,10 @@ public class English extends Language {
         add(Word.PROJECT_CORRUPT_DIALOG_TITLE, "Corrupt project");
         add(Word.PROJECT_CORRUPT_DIALOG_HEADER_TEXT, "The project is corrupt");
         add(Word.PROJECT_CORRUPT_DIALOG_CONTENT_TEXT, "The porject couldn't be opened due to a fault in the projectfile. For details look at the stacktrace.");
+        ///Class in Use
+        add(Word.CLASS_IN_USE_DIALOG_TITLE, "Class in use");
+        add(Word.CLASS_IN_USE_DIALOG_HEADER_TEXT, "The class is still in use");
+        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "The class could not be deleted due to the folowing dependencies:\n#LIST");
         ///New Text value
         add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "New text");
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Please enter a text");
@@ -180,6 +184,12 @@ public class English extends Language {
         add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Values of this class");
         add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Values of this function");
         add(Word.VALUE_SELECTION_POPUP_TITLE, "Valueselection");
+        //TypeSelectionField
+        add(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, "Select type...");
+        //TypeSelectionPopup
+        add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive types");
+        add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objecttypes");
+        add(Word.TYPE_SELECTION_POPUP_TITLE, "Typeselection");
         //General
         add(Word.FUNCTION, "Function");
         add(Word.CLASS, "Class");

@@ -156,6 +156,10 @@ public class German extends Language {
         add(Word.PROJECT_CORRUPT_DIALOG_TITLE, "Fehlerhaftes Projekt");
         add(Word.PROJECT_CORRUPT_DIALOG_HEADER_TEXT, "Projekt ist fehlerhaft");
         add(Word.PROJECT_CORRUPT_DIALOG_CONTENT_TEXT, "Das Projekt konnte aufgrund eines Fehlers in der Projektdatei nicht geöffnet werden. Siehe den Stacktrace für Details.");
+        ///Class in Use
+        add(Word.CLASS_IN_USE_DIALOG_TITLE, "Klasse noch in Benutzung");
+        add(Word.CLASS_IN_USE_DIALOG_HEADER_TEXT, "Die Klasse ist noch in Benutzung");
+        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "Die Klasse konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:\n#LIST");
         ///New Text value
         add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "Neuer Text");
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Bitte Text eingeben");
@@ -168,7 +172,7 @@ public class German extends Language {
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_TITLE, "Neuer Boolean");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_HEADER_TEXT, "Bitte Boolean auswählen");
         add(Word.NEW_BOOLEAN_VALUE_DIALOG_CONTENT_TEXT, "Boolean");
-                ///New Object value
+        ///New Object value
         add(Word.NEW_OBJECT_VALUE_DIALOG_TITLE, "Neues Objekt");
         add(Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT, "Bitte Typ auswählen");
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Typ");
@@ -180,6 +184,12 @@ public class German extends Language {
         add(Word.VALUE_SELECTION_POPUP_CLASS_VALUES, "Werte dieser Klasse");
         add(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES, "Werte dieser Funktion");
         add(Word.VALUE_SELECTION_POPUP_TITLE, "Werteauswahl");
+        //TypeSelectionField
+        add(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, "Typ auswählen...");
+        //TypeSelectionPopup
+        add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive Typen");
+        add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objekttypen");
+        add(Word.TYPE_SELECTION_POPUP_TITLE, "Typauswahl");
         //General
         add(Word.FUNCTION, "Funktion");
         add(Word.CLASS, "Klasse");

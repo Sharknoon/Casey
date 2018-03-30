@@ -84,7 +84,8 @@ public class Dialogs {
     }
 
     public enum Errors implements DialogTypes {
-        PROJECT_CORRUPT_DIALOG
+        PROJECT_CORRUPT_DIALOG,
+        TYPE_IN_USE_DIALOG
     }
 
     public static Optional<String> showTextInputDialog(TextInputs type, String... variables) {
@@ -314,6 +315,15 @@ public class Dialogs {
                         PROJECT_CORRUPT_DIALOG_CONTENT_TEXT,
                         Icon.ERROR,
                         exception,
+                        variables);
+                break;
+            case TYPE_IN_USE_DIALOG:
+                showErrorDialog(
+                        CLASS_IN_USE_DIALOG_TITLE, 
+                        CLASS_IN_USE_DIALOG_HEADER_TEXT, 
+                        TCLASS_IN_USE_DIALOG_CONTENT_TEXT, 
+                        Icon.CLASS, 
+                        null, 
                         variables);
         }
     }

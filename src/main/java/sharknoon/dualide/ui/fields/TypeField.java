@@ -51,11 +51,6 @@ public class TypeField extends Button {
             Language.unset(this);
             textProperty().bind(t.getSimpleName());
             setGraphic(Icons.get(t.getIcon()));
-            t.onDelete(() -> {
-                textProperty().unbind();
-                Language.set(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, this);
-                setGraphic(null);
-            });
         });
     }
 

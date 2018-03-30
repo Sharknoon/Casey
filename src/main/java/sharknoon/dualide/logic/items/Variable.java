@@ -18,12 +18,19 @@ package sharknoon.dualide.logic.items;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
@@ -39,8 +46,31 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
     private static final String MODIFIABLE = "modifiable";
 
+    private static final ObservableMap<Type, List<Variable>> VARIABLES = FXCollections.observableHashMap();
+
+    static {
+        VARIABLES.addListener((MapChangeListener.Change<? extends Type, ? extends List<Variable>> change) -> {
+            if (change.wasAdded()) {
+                change.getKey().onDelete(() -> VARIABLES.remove(change.getKey()));
+            }
+        });
+    }
+
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         super(parent, name);
+        typeProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null && VARIABLES.containsKey(oldValue)) {
+                VARIABLES.get(oldValue).remove(this);
+            }
+            if (!VARIABLES.containsKey(newValue)) {
+                VARIABLES.put(newValue, new ArrayList<>());
+            }
+            VARIABLES.get(newValue).add(this);
+        });
+    }
+
+    public static Map<Type, List<Variable>> getAllVariables() {
+        return VARIABLES;
     }
 
     @Override

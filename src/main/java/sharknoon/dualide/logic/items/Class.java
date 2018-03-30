@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -68,9 +69,18 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
     @Override
     public void destroy() {
-        super.destroy();
-        CLASSES.remove(this);
-        type.onDelete.forEach(Runnable::run);
+        List<String> usagesList = new ArrayList<>();
+        if (Variable.getAllVariables().containsKey(type) && !Variable.getAllVariables().get(type).isEmpty()) {
+            usagesList.add(Language.get(Word.VARIABLE) + ":");
+            Variable.getAllVariables().get(type).stream().map(v -> v.getFullName()).forEachOrdered(usagesList::add);
+        }
+        if (usagesList.isEmpty()) {
+            super.destroy();
+            CLASSES.remove(this);
+            type.onDelete.forEach(Runnable::run);
+        } else {
+            Dialogs.showErrorDialog(Dialogs.Errors.TYPE_IN_USE_DIALOG, null, "#LIST", usagesList.stream().collect(Collectors.joining("\n")));
+        }
     }
 
     public static ListProperty<Class> classesProperty() {

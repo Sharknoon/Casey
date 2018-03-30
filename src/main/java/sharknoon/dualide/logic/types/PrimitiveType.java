@@ -95,6 +95,13 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         return getSimpleName();
     }
 
+    @Override
+    public void onDelete(Runnable runnable) {
+        //Do nothing, primitive types cant be deleted
+    }
+
+    
+    
     public static BooleanType BOOLEAN = new BooleanType();
 
     public static class BooleanType extends PrimitiveType<BooleanType, BooleanValue> {

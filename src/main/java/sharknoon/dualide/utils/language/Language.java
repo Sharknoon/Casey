@@ -134,7 +134,7 @@ public abstract class Language {
     private static final Set<Custom> CUSTOMS = new HashSet<>();
 
     /**
-     * Automatically sets the value of the Vaadin Component, this is useful, if
+     * Automatically sets the value of the labeled Control, this is useful, if
      * the user changes the language, all components are changed
      *
      * @param word the word to be returned
@@ -143,6 +143,16 @@ public abstract class Language {
     public static final void set(Word word, Labeled labeledControl) {
         CONTROLS.put(labeledControl, word);
         refreshControl(labeledControl, word);
+    }
+
+    /**
+     * Removes the automatic chanceing of the labeled Control, this is useful,
+     * if you want to bind another value to the labeled Control
+     *
+     * @param labeledControl
+     */
+    public static final void unset(Labeled labeledControl) {
+        CONTROLS.remove(labeledControl);
     }
 
     /**

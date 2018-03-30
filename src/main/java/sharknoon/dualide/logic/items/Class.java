@@ -16,6 +16,8 @@
 package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,10 +70,9 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     public void destroy() {
         super.destroy();
         CLASSES.remove(this);
+        type.onDelete.forEach(Runnable::run);
     }
 
-    
-    
     public static ListProperty<Class> classesProperty() {
         return CLASSES;
     }
@@ -104,6 +105,10 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         return super.getAdditionalProperties();
+    }
+
+    public ObjectType toType() {
+        return type;
     }
 
     public static class ObjectType implements Type<ObjectType, ObjectValue> {
@@ -236,8 +241,13 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return Objects.equals(this.clazz, other.clazz);
         }
 
-        
-        
+        List<Runnable> onDelete = new ArrayList();
+
+        @Override
+        public void onDelete(Runnable runnable) {
+            onDelete.add(runnable);
+        }
+
     }
 
 }

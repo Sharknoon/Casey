@@ -278,7 +278,7 @@ public abstract class Body<S extends Statement> extends Group {
             shape = rect;
         }
         shape.setFill(Color.WHITE);
-        if (this instanceof PlaceholderBody) {
+        if (this instanceof StatementPlaceholderBody) {
             shape.setStroke(Color.GREY);
         } else {
             shape.setStroke(Color.BLACK);

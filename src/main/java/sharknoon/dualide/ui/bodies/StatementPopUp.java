@@ -243,10 +243,6 @@ public class StatementPopUp extends PopOver {
                         .stream()
                         .map(ti -> ti.getValue())
                         .filter(i -> i instanceof Returnable)
-                        .filter(i -> {
-                            ((Returnable) i).getReturnType();
-                            return true;
-                        })
                         .forEach((t) -> {
                             HBox hBoxFunctionOrVariable = new HBox(10);
                             Node icon = Icons.get(t.getSite().getTabIcon());

@@ -29,13 +29,13 @@ import sharknoon.dualide.ui.misc.Icons;
  *
  * @author Josua Frank
  */
-public class PlaceholderBody extends Body {
+public class StatementPlaceholderBody extends Body {
 
-    public static PlaceholderBody DISABLED = new PlaceholderBody();
+    public static StatementPlaceholderBody DISABLED = new StatementPlaceholderBody();
 
     private Consumer<Statement> statementConsumer;
 
-    public static PlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent) {
+    public static StatementPlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent) {
         return createValuePlaceholderBody(types, parent, null);
     }
 
@@ -46,21 +46,21 @@ public class PlaceholderBody extends Body {
      * @param statementConsumer
      * @return
      */
-    public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return new PlaceholderBody(null, parent, statementConsumer);
+    public static StatementPlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
+        return new StatementPlaceholderBody(null, parent, statementConsumer);
     }
 
-    public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
+    public static StatementPlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
         Set<Type> types = new HashSet<>();
         types.add(type);
-        return new PlaceholderBody(types, parent, statementConsumer);
+        return new StatementPlaceholderBody(types, parent, statementConsumer);
     }
 
-    public static PlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
-        return new PlaceholderBody(types, parent, statementConsumer);
+    public static StatementPlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
+        return new StatementPlaceholderBody(types, parent, statementConsumer);
     }
 
-    public PlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
+    public StatementPlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
@@ -74,7 +74,7 @@ public class PlaceholderBody extends Body {
         });
     }
 
-    private PlaceholderBody() {
+    private StatementPlaceholderBody() {
         super((Set<Type>) null);
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.BANNED, 50));

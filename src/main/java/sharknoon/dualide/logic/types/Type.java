@@ -70,5 +70,7 @@ public interface Type<T extends Type, V extends Value> {
     public StringProperty getName();
     
     public Optional<V> createValue(Statement parent);
+    
+    public void onDelete(Runnable runnable);
 
 }

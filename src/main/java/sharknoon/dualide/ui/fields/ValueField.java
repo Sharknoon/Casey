@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.bodies;
+package sharknoon.dualide.ui.fields;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,27 +23,26 @@ import java.util.function.Consumer;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.bodies.PlaceholderBody;
+import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
 
 /**
  *
  * @author Josua Frank
  */
-public class StatementField extends Pane {
+public class ValueField extends Pane {
 
-    public static StatementField DISABLED = new StatementField(true);
+    public static ValueField DISABLED = new ValueField(true);
 
     private Statement statement;
     private Consumer<Statement> onStatementSet;
     private Runnable onStatementDestroyed;
 
-    public StatementField() {
+    public ValueField() {
         this(null);
     }
 
-    public StatementField(Set<Type> allowedTypes) {
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
+    public ValueField(Set<Type> allowedTypes) {
+        StatementPlaceholderBody body = StatementPlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
 
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());
@@ -66,8 +64,8 @@ public class StatementField extends Pane {
         getChildren().add(body);
     }
 
-    private StatementField(boolean disabled) {
-        getChildren().add(PlaceholderBody.DISABLED);
+    private ValueField(boolean disabled) {
+        getChildren().add(StatementPlaceholderBody.DISABLED);
     }
 
     public Optional<Statement> getStatement() {

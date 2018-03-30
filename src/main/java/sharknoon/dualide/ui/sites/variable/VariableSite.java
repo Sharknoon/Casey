@@ -38,6 +38,7 @@ import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.dialogs.Dialogs;
+import sharknoon.dualide.ui.fields.TypeField;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -128,43 +129,14 @@ public class VariableSite extends Site<Variable> {
 
         gridPaneContent.addRow(0, labelClass);
 
-        ComboBox<Type> comboBoxTypes = new ComboBox<>();
-        comboBoxTypes.itemsProperty().bindBidirectional(Type.getAllTypes());
-
-        comboBoxTypes.setCellFactory((param) -> {
-            return new ListCell<Type>() {
-                @Override
-                protected void updateItem(Type item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item != null) {
-                        textProperty().bind(item.getSimpleName());
-                        Tooltip tooltip = new Tooltip();
-                        tooltip.textProperty().bindBidirectional(item.getFullName());
-                        tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
-                    }
-                }
-            };
-        });
-        comboBoxTypes.setButtonCell(new ListCell<Type>() {
-            @Override
-            protected void updateItem(Type item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null) {
-                    textProperty().bind(item.getSimpleName());
-                    Tooltip tooltip = new Tooltip();
-                    tooltip.textProperty().bindBidirectional(item.getFullName());
-                    tooltipProperty().bind(Bindings.createObjectBinding(() -> tooltip));
-                }
-            }
-
-        });
-        comboBoxTypes.valueProperty().bindBidirectional(getItem().typeProperty());
-
+        TypeField typeField = new TypeField();
+        typeField.typeProperty().bindBidirectional(getItem().typeProperty());
+        
         CheckBox checkBoxFinal = new CheckBox();
         checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());
         Language.set(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, checkBoxFinal);
 
-        gridPaneContent.addRow(1, comboBoxTypes, checkBoxFinal);
+        gridPaneContent.addRow(1, typeField, checkBoxFinal);
 
     }
 

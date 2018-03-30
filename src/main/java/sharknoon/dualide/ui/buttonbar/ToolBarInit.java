@@ -26,11 +26,12 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.ui.bodies.StatementField;
+import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.bodies.PlaceholderBody;
+import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
+import sharknoon.dualide.ui.fields.TypeField;
 
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -71,7 +72,7 @@ public class ToolBarInit {
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
         Label result = new Label();
-        StatementField field = new StatementField();
+        ValueField field = new ValueField();
         field.setOnStatementSet(s -> {
             result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });
@@ -80,7 +81,9 @@ public class ToolBarInit {
             result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });
 
-        center.getChildren().addAll(field, result);
+        TypeField typeField = new TypeField();
+        
+        center.getChildren().addAll(field, result, typeField);
 
         Stage stage = new Stage();
         stage.setScene(scene);

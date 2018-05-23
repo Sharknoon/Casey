@@ -228,6 +228,27 @@ public class Resources {
         return false;
     }
 
+    public static boolean deleteDirectory(String path, boolean privateDirectory) {
+        Optional<Path> dir = lookup(path, privateDirectory);
+        if (dir.isPresent()) {
+            try {
+                Files.walk(dir.get())
+                        .sorted(Comparator.reverseOrder())
+                        .forEachOrdered(file -> {
+                            try {
+                                Files.deleteIfExists(file);
+                            } catch (IOException ex) {
+                                Logger.error("Could not delete file " + file + " while deleting directory " + path, ex);
+                            }
+                        });
+                return true;
+            } catch (IOException ex) {
+                Logger.error("Could not delete directory: " + path, ex);
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns a list of all Files in the specific Directory
      *

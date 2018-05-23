@@ -69,7 +69,8 @@ public abstract class Type<T extends Type, V extends Value> {
      */
     public abstract StringProperty getName();
     
-    public Optional<V> createValue(Statement parent);
+    public abstract Optional<V> createValue(Statement parent);
     
-    public void onDelete(Runnable runnable);
+    public abstract void onDelete(Runnable runnable);
 
+}

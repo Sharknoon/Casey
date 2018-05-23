@@ -129,7 +129,13 @@ public abstract class Site<I extends Item> {
     }
 
     public void destroy() {
-        MainController.getTabPane().getTabs().remove(tab);
+        //Stupid javafx implementation, just need a method tab.close() or tabPane.closeTab(tab)
+        var tabPane = MainController.getTabPane();
+        var onClosed = tab.getOnClosed();
+        if (onClosed != null) {
+            onClosed.handle(null);
+        }
+        tabPane.getTabs().remove(tab);
     }
 
     public I getItem() {

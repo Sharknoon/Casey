@@ -18,7 +18,7 @@ package sharknoon.dualide.ui.misc;
 import java.nio.file.Path;
 import java.util.Optional;
 import sharknoon.dualide.utils.settings.Logger;
-import sharknoon.dualide.utils.settings.Ressources;
+import sharknoon.dualide.utils.settings.Resources;
 
 /**
  *
@@ -90,7 +90,7 @@ public enum Icon {
 
     public String getPath(boolean asSVG) {
         if (!isSearched) {
-            Optional<Path> fullPath = Ressources.search(path, true, false, true);
+            Optional<Path> fullPath = Resources.search(path, true, false, true);
             if (fullPath.isPresent()) {
                 path = fullPath.get().toString();
                 int index = path.lastIndexOf(".");

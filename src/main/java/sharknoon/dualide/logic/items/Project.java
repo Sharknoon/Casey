@@ -27,7 +27,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sharknoon.dualide.serial.Serialisation;
-import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.welcome.RecentProject;
 import sharknoon.dualide.utils.language.Language;

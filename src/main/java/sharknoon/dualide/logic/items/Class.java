@@ -121,7 +121,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         return type;
     }
 
-    public static class ObjectType implements Type<ObjectType, ObjectValue> {
+    public static class ObjectType extends Type<ObjectType, ObjectValue> {
 
         private final Class clazz;
         private static final ListProperty<ObjectType> TYPES = new SimpleListProperty<>(BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type));

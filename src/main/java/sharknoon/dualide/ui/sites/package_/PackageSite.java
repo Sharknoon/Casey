@@ -37,7 +37,7 @@ import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.dialogs.Dialogs;

@@ -99,17 +99,16 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     }
 
     protected Item(P parent, String name) {
-        this.parent.set(parent);
+        parentProperty().set(parent);
         if (name != null) {
-            this.name.set(name);
+            nameProperty().set(name);
         }
-        if (this.parent.get() != null) {
-            this.parent.get().childrenProperty().add(this);
+        if (parentProperty().get() != null) {
+            parentProperty().get().childrenProperty().add(this);
         }
     }
 
     public void move(P newParent) {
-        //parentProperty().set(null);
         if (parentProperty().get() != null) {
             parentProperty().get().childrenProperty().remove(this);
         }
@@ -159,8 +158,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         parentProperty().set(null);
         childrenProperty().clear();
     }
-    
-    protected void removeChild(C child){
+
+    protected void removeChild(C child) {
         childrenProperty().get().remove(child);
     }
 
@@ -185,6 +184,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return new HashMap<>();
     }
 
+    //to be overridden
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
 
     }

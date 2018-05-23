@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui;
+package sharknoon.dualide.ui.navigation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ import javafx.scene.control.TabPane;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Welcome;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.Site;
 
 /**

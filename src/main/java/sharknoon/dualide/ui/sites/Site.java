@@ -55,7 +55,7 @@ import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.ItemTreeView;
+import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
@@ -127,15 +127,9 @@ public abstract class Site<I extends Item> {
             }
         });
     }
-    
-    public void destroy(){
-        //Stupid javafx implementation, just need a method tab.close() or tabPane.closeTab(tab)
-        TabPane tabPane = MainController.getTabPane();
-        EventHandler<Event> onClosed = tab.getOnClosed();
-        if (onClosed != null) {
-            onClosed.handle(null);
-        }
-        tabPane.getTabs().remove(tab);
+
+    public void destroy() {
+        MainController.getTabPane().getTabs().remove(tab);
     }
 
     public I getItem() {
@@ -152,6 +146,10 @@ public abstract class Site<I extends Item> {
 
     public void select() {
         CURRENT_SELECTED_ITEM.set(item);
+    }
+
+    public boolean isSelected() {
+        return CURRENT_SELECTED_ITEM.get() == getItem();
     }
 
     public static ObjectProperty<Item> currentSelectedProperty() {

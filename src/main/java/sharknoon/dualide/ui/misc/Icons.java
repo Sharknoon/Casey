@@ -28,7 +28,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import sharknoon.dualide.utils.settings.Logger;
-import sharknoon.dualide.utils.settings.Ressources;
+import sharknoon.dualide.utils.settings.Resources;
 
 /**
  *
@@ -101,7 +101,7 @@ public class Icons {
     public static Optional<Image> getImage(Icon icon) {
         if (!IMAGE_CACHE.containsKey(icon)) {
             synchronized (Icons.class) {
-                Optional<InputStream> stream = Ressources.getFileAsStream(icon.getPath(false), true);
+                Optional<InputStream> stream = Resources.getFileAsStream(icon.getPath(false), true);
                 if (stream.isPresent()) {
                     Image image = new Image(stream.get());
                     IMAGE_CACHE.put(icon, image);
@@ -121,7 +121,7 @@ public class Icons {
     public static Optional<Group> getSVG(Icon icon) {
         if (!SVG_CACHE.containsKey(icon)) {
             synchronized (Icons.class) {
-                Optional<InputStream> stream = Ressources.getFileAsStream(icon.getPath(true), true);
+                Optional<InputStream> stream = Resources.getFileAsStream(icon.getPath(true), true);
                 if (stream.isPresent()) {
                     Group group = SVG_LOADER.loadSvg(stream.get());
                     SVG_CACHE.put(icon, group);

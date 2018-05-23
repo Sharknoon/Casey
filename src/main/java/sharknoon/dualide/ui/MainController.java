@@ -15,6 +15,9 @@
  */
 package sharknoon.dualide.ui;
 
+import sharknoon.dualide.ui.background.Background;
+import sharknoon.dualide.ui.navigation.ItemTreeView;
+import sharknoon.dualide.ui.navigation.ItemTabPane;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;

@@ -32,17 +32,17 @@ import sharknoon.dualide.utils.javafx.BindUtils;
  * @param <T>
  * @param <V>
  */
-public interface Type<T extends Type, V extends Value> {
+public abstract class Type<T extends Type, V extends Value> {
 
-    public default Type getReturnType() {
+    public Type getReturnType() {
         return this;
     }
 
-    public boolean isPrimitive();
+    public abstract boolean isPrimitive();
 
-    public PrimitiveType getPrimitiveType();
+    public abstract PrimitiveType getPrimitiveType();
 
-    public ObjectType getClassType();
+    public abstract ObjectType getClassType();
 
     public static ListProperty<Type> getAllTypes() {
         return new SimpleListProperty<>(BindUtils.concat(PrimitiveType.getAll(), ObjectType.getAll()));
@@ -53,24 +53,23 @@ public interface Type<T extends Type, V extends Value> {
                 .or(() -> ObjectType.forName(name));
     }
 
-    public StringProperty getSimpleName();
+    public abstract StringProperty getSimpleName();
 
-    public StringProperty getFullName();
+    public abstract StringProperty getFullName();
     
-    public Icon getIcon();
+    public abstract Icon getIcon();
     
-    public Icon getCreationIcon();
+    public abstract Icon getCreationIcon();
     
-    public StringProperty getCreationText();
+    public abstract StringProperty getCreationText();
     
     /**
      * Language dependent name, e.g. Nummer in german for Number
      * @return 
      */
-    public StringProperty getName();
+    public abstract StringProperty getName();
     
     public Optional<V> createValue(Statement parent);
     
     public void onDelete(Runnable runnable);
 
-}

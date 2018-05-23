@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import javafx.scene.input.KeyEvent;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.ui.ItemTabPane;
+import sharknoon.dualide.ui.navigation.ItemTabPane;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;

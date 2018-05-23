@@ -23,7 +23,7 @@ public class Database implements Exitable {
 
     private static final Nitrite DB = Nitrite
             .builder()
-            .filePath(Ressources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
+            .filePath(Resources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
             .openOrCreate();
 
     {

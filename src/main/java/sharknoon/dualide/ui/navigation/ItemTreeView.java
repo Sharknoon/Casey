@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui;
+package sharknoon.dualide.ui.navigation;
 
 import javafx.scene.control.TreeView;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
+import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.Site;
 
 /**
@@ -33,6 +34,7 @@ public class ItemTreeView {
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null && newValue.getValue() != null) {
                         newValue.getValue().getSite().select();
+                        System.out.println("selecting " + newValue.getValue().toString() + " with children " + newValue.getValue().getChildren().toString());
                     }
                 });
         Site.currentSelectedProperty()

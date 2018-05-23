@@ -60,7 +60,7 @@ public class German extends Language {
         add(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
-        add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzugügen");
+        add(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, "Paket hinzufügen");
         add(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, "Klasse hinzufügen");
         add(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzufügen");
         add(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
@@ -71,7 +71,7 @@ public class German extends Language {
         add(Word.CLASS_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.CLASS_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.CLASS_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
-        add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzugügen");
+        add(Word.CLASS_SITE_ADD_FUNCTION_BUTTON_TEXT, "Funktion hinzufügen");
         add(Word.CLASS_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
         add(Word.CLASS_SITE_COMMENT_BUTTON_TEXT, "Klasse kommentieren");
         add(Word.CLASS_SITE_RENAME_BUTTON_TEXT, "Klasse umbenennen");

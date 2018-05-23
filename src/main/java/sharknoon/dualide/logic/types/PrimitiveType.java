@@ -44,7 +44,7 @@ import sharknoon.dualide.utils.language.Word;
  * @param <T>
  * @param <V>
  */
-public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue> implements Type<T, V> {
+public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue> extends Type<T, V> {
 
     public static Optional<PrimitiveType> forName(String asText) {
         return Optional.ofNullable(TYPESMAP.get(asText.toUpperCase()));

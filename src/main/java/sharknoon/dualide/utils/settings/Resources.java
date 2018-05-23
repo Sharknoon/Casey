@@ -41,7 +41,7 @@ import java.util.stream.Stream;
  *
  * @author Josua Frank frank.josua@gmail.com
  */
-public class Ressources {
+public class Resources {
 
     //used to store e.g. IDE settings
     private static final Path PRIVATE_PATH;
@@ -228,27 +228,6 @@ public class Ressources {
         return false;
     }
 
-    public static boolean deleteDirectory(String path, boolean privateDirectory) {
-        Optional<Path> dir = lookup(path, privateDirectory);
-        if (dir.isPresent()) {
-            try {
-                Files.walk(dir.get())
-                        .sorted(Comparator.reverseOrder())
-                        .forEachOrdered(file -> {
-                            try {
-                                Files.deleteIfExists(file);
-                            } catch (IOException ex) {
-                                Logger.error("Could not delete file " + file + " while deleting directory " + path, ex);
-                            }
-                        });
-                return true;
-            } catch (IOException ex) {
-                Logger.error("Could not delete directory: " + path, ex);
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns a list of all Files in the specific Directory
      *
@@ -348,7 +327,7 @@ public class Ressources {
      *
      * @param privateRes
      */
-    public static void resetRessources(boolean privateRes) {
+    public static void resetResources(boolean privateRes) {
         deleteRessourcesDir(privateRes);
         if (privateRes) {
             initPrivateDir();
@@ -378,8 +357,8 @@ public class Ressources {
      */
     private static void initPrivateDir() {
         try {
-            URL classesPath = Ressources.class.getProtectionDomain().getCodeSource().getLocation();
-            final String rootPackage = Ressources.class.getPackage().getName().substring(0, Ressources.class.getName().indexOf("."));
+            URL classesPath = Resources.class.getProtectionDomain().getCodeSource().getLocation();
+            final String rootPackage = Resources.class.getPackage().getName().substring(0, Resources.class.getName().indexOf("."));
             if (classesPath.getPath().endsWith("jar")) {//Compiled in a jar
                 JarFile jar = new JarFile(new File(classesPath.toURI()));
                 jar.stream()
@@ -467,7 +446,7 @@ public class Ressources {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement elem : stack) {
             try {
-                if (!Ressources.class.isAssignableFrom(Class.forName(elem.getClassName()))) {
+                if (!Resources.class.isAssignableFrom(Class.forName(elem.getClassName()))) {
                     return elem.getClassName().substring(0, elem.getClassName().lastIndexOf("."));
                 }
             } catch (ClassNotFoundException ex) {

@@ -26,7 +26,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.misc.Initializable;
-import sharknoon.dualide.utils.settings.Ressources;
+import sharknoon.dualide.utils.settings.Resources;
 
 /**
  *
@@ -37,7 +37,7 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        InputStream fxmlStream = Ressources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
+        InputStream fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
         Parent root = loader.load(fxmlStream);
 
         Scene scene = new Scene(root);

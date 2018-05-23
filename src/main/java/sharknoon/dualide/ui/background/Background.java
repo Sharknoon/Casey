@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui;
+package sharknoon.dualide.ui.background;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -33,9 +33,10 @@ import javafx.animation.Timeline;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.utils.settings.Logger;
-import sharknoon.dualide.utils.settings.Ressources;
+import sharknoon.dualide.utils.settings.Resources;
 
 /**
  *
@@ -90,7 +91,7 @@ public class Background implements Exitable {
     }
 
     public void reloadImages() {
-        Ressources.getDirectory("Backgroundimages", false).ifPresent((path) -> {
+        Resources.getDirectory("Backgroundimages", false).ifPresent((path) -> {
             try {
                 images.clear();
                 images.addAll(Files.list(path)
@@ -153,7 +154,7 @@ public class Background implements Exitable {
     }
 
     public static void openImagesFolder() {
-        Optional<Path> imagesPath = Ressources.getDirectory("Backgroundimages", false);
+        Optional<Path> imagesPath = Resources.getDirectory("Backgroundimages", false);
         if (imagesPath.isPresent()) {
             try {
                 Desktop.getDesktop().open(imagesPath.get().toFile());

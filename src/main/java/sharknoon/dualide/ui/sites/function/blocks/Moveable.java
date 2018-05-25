@@ -15,10 +15,9 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.scene.shape.Shape;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
  * This is a interface for all things, that can be moved around and need to
@@ -30,19 +29,35 @@ public interface Moveable {
 
     public double getMinX();
 
+    public DoubleExpression minXExpression();
+
     public double getMinY();
+
+    public DoubleExpression minYExpression();
 
     public default double getWidth() {
         return getMaxX() - getMinX();
+    }
+
+    public default DoubleExpression widthExpression() {
+        return maxXExpression().subtract(minXExpression());
     }
 
     public default double getHeight() {
         return getMaxY() - getMinY();
     }
 
+    public default DoubleExpression heightExpression() {
+        return maxYExpression().subtract(minYExpression());
+    }
+
     public double getMaxX();
 
+    public DoubleExpression maxXExpression();
+
     public double getMaxY();
+
+    public DoubleExpression maxYExpression();
 
     public void setMinX(double x);
 
@@ -53,7 +68,5 @@ public interface Moveable {
     public default Bounds getBounds() {
         return new BoundingBox(getMinX(), getMinY(), getWidth(), getHeight());
     }
-
-    public double[] getPoints();
 
 }

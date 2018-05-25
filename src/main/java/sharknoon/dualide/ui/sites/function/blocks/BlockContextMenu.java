@@ -49,9 +49,9 @@ public class BlockContextMenu {
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(e -> {
                 if (block.isSelected()) {
-                    Collection<Block> allBlocks = Blocks.getAllBlocks(block.getfunctionSite());
+                    Collection<Block> allBlocks = Blocks.getAllBlocks(block.getFunctionSite());
                     List<Block> toRemove = Blocks
-                            .getAllBlocks(block.getfunctionSite())
+                            .getAllBlocks(block.getFunctionSite())
                             .stream()
                             .filter(Block::isSelected)
                             .filter(b -> !b.getClass().equals(Start.class))

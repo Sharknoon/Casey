@@ -54,18 +54,18 @@ public class Keyboard {
     }
 
     private static void onDELETE() {
-        Item currentItem = Site.currentSelectedProperty().get();
+        var currentItem = Site.currentSelectedProperty().get();
         if (currentItem != null) {
             if (currentItem.getType().equals(ItemType.FUNCTION)) {
-                FunctionSite functionSite = (FunctionSite) currentItem.getSite();
-                List<Block> blocksToDelete = Blocks
+                var functionSite = (FunctionSite) currentItem.getSite();
+                var blocksToDelete = Blocks
                         .getAllBlocks(functionSite)
                         .stream()
                         .filter(Block::isSelected)
                         .filter(b -> b.getClass() != Start.class)
                         .collect(Collectors.toList());
                 blocksToDelete.forEach(Block::remove);
-                List<Line> linesToDelete = Lines.getAllLines(functionSite)
+                var linesToDelete = Lines.getAllLines(functionSite)
                         .stream()
                         .filter(Line::isSelected)
                         .collect(Collectors.toList());
@@ -75,8 +75,14 @@ public class Keyboard {
     }
 
     private static void onESCAPE() {
-        if (Lines.isLineDrawing()) {
-            Lines.getDrawingLine().remove();
+        var currentItem = Site.currentSelectedProperty().get();
+        if (currentItem != null) {
+            if (currentItem.getType().equals(ItemType.FUNCTION)) {
+                var functionSite = (FunctionSite) currentItem.getSite();
+                if (Lines.isLineDrawing(functionSite)) {
+                    Lines.getDrawingLine(functionSite).remove();
+                }
+            }
         }
     }
 }

@@ -50,8 +50,8 @@ public class Selection {
     }
 
     public void onMousePressed(Point2D localCoordinates) {
-        if (localCoordinates.getX() < 0 || localCoordinates.getX() > UISettings.maxWorkSpaceX
-                || localCoordinates.getY() < 0 || localCoordinates.getY() > UISettings.maxWorkSpaceY) {
+        if (localCoordinates.getX() < 0 || localCoordinates.getX() > UISettings.WORKSPACE_MAX_X
+                || localCoordinates.getY() < 0 || localCoordinates.getY() > UISettings.WORKSPACE_MAX_Y) {
             return;
         }
         selectionRectangle.setVisible(true);
@@ -67,13 +67,13 @@ public class Selection {
         double currentY = localCoordinates.getY();
         double width = currentX - startX;
         double hight = currentY - startY;
-        if (startX + width > UISettings.maxWorkSpaceX) {
-            width = UISettings.maxWorkSpaceX - startX;
+        if (startX + width > UISettings.WORKSPACE_MAX_X) {
+            width = UISettings.WORKSPACE_MAX_X - startX;
         } else if (startX + width < 0) {
             width = -startX;
         }
-        if (startY + hight > UISettings.maxWorkSpaceY) {
-            hight = UISettings.maxWorkSpaceY - startY;
+        if (startY + hight > UISettings.WORKSPACE_MAX_Y) {
+            hight = UISettings.WORKSPACE_MAX_Y - startY;
         } else if (startY + hight < 0) {
             hight = -startY;
         }

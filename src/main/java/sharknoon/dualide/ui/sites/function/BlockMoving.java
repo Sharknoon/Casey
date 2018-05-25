@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.geometry.Point2D;
-import javafx.scene.shape.Shape;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
@@ -65,13 +64,13 @@ public class BlockMoving {
         }
         startX = localMouse.getX();
         startY = localMouse.getY();
-        startGridX = (int) ((localMouse.getX() - UISettings.paddingInsideWorkSpace) / UISettings.blockGridSnappingX);
-        startGridY = (int) ((localMouse.getY() - UISettings.paddingInsideWorkSpace) / UISettings.blockGridSnappingY);
+        startGridX = (int) ((localMouse.getX() - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_X);
+        startGridY = (int) ((localMouse.getY() - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_Y);
     }
 
     public void onMouseDragged(Point2D localMouse) {
         Block block = Blocks.getMovingBlock(functionSite);
-        if (block == null || Lines.isLineDrawing()) {
+        if (block == null || Lines.isLineDrawing(functionSite)) {
             return;
         }
 
@@ -93,11 +92,11 @@ public class BlockMoving {
         }
 
         //shadow part
-        double currentXWithoutPadding = currentX - UISettings.paddingInsideWorkSpace;
-        double currentYWithoutPadding = currentY - UISettings.paddingInsideWorkSpace;
+        double currentXWithoutPadding = currentX - UISettings.WORKSPACE_PADDING;
+        double currentYWithoutPadding = currentY - UISettings.WORKSPACE_PADDING;
 
-        int currentGridX = (int) (currentXWithoutPadding / UISettings.blockGridSnappingX);
-        int currentGridY = (int) (currentYWithoutPadding / UISettings.blockGridSnappingY);
+        int currentGridX = (int) (currentXWithoutPadding / UISettings.BLOCK_GRID_SNAPPING_X);
+        int currentGridY = (int) (currentYWithoutPadding / UISettings.BLOCK_GRID_SNAPPING_Y);
 
         if (currentDragSwitch != lastDragSwitch || !lastGridX.containsKey(block)) {
             lastGridX.put(block, currentGridX);
@@ -123,8 +122,8 @@ public class BlockMoving {
             boolean canMoveInX = true;
             boolean canMoveInY = true;
             for (Block b : blocks) {
-                double newX = b.startX + ((currentGridX - startGridX) * UISettings.blockGridSnappingX);
-                double newY = b.startY + ((currentGridY - startGridY) * UISettings.blockGridSnappingY);
+                double newX = b.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
+                double newY = b.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
                 canMoveInX = canMoveInX ? isXInsideWorkspace(b, newX) : false;
                 canMoveInY = canMoveInY ? isYInsideWorkspace(b, newY) : false;
                 if (!b.canMoveTo(newX, newY, false)) {
@@ -143,10 +142,10 @@ public class BlockMoving {
                 }
             });
         } else {
-            Shape shadow = block.getShadow();
-            double newX = block.startX + ((currentGridX - startGridX) * UISettings.blockGridSnappingX);
-            double newY = block.startY + ((currentGridY - startGridY) * UISettings.blockGridSnappingY);
-            boolean isSpaceFree = block.canMoveTo(newX, newY);
+            var shadow = block.getShadow();
+            var newX = block.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
+            var newY = block.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
+            var isSpaceFree = block.canMoveTo(newX, newY);
             if (isSpaceFree && isXInsideWorkspace(block, newX)) {
                 shadow.setTranslateX(newX);
             }
@@ -157,7 +156,7 @@ public class BlockMoving {
     }
 
     public void onMouseReleased() {
-        Block block = Blocks.getMovingBlock(functionSite);
+        var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }
@@ -173,18 +172,18 @@ public class BlockMoving {
     }
 
     private boolean isXInsideWorkspace(Block b, double x) {
-        if (x < 0 + UISettings.paddingInsideWorkSpace) {
+        if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return false;
-        } else if (x + b.getWidth() > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace) {
+        } else if (x + b.getWidth() > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING) {
             return false;
         }
         return true;
     }
 
     private boolean isYInsideWorkspace(Block b, double y) {
-        if (y < 0 + UISettings.paddingInsideWorkSpace) {
+        if (y < 0 + UISettings.WORKSPACE_PADDING) {
             return false;
-        } else if (y + b.getHeight() > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace) {
+        } else if (y + b.getHeight() > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING) {
             return false;
         }
         return true;

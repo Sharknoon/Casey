@@ -76,13 +76,13 @@ public class Background implements Exitable {
             });
         });
         fadeToView1 = new Timeline(
-                new KeyFrame(UISettings.workspaceBackgroundFadingDuration,
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
                         new KeyValue(view1.opacityProperty(), 1),
                         new KeyValue(view2.opacityProperty(), 0)
                 )
         );
         fadeToView2 = new Timeline(
-                new KeyFrame(UISettings.workspaceBackgroundFadingDuration,
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
                         new KeyValue(view1.opacityProperty(), 0),
                         new KeyValue(view2.opacityProperty(), 1)
                 )

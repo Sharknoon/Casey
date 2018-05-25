@@ -17,7 +17,8 @@ package sharknoon.dualide.ui.sites.function.blocks;
 
 import java.util.Collection;
 import java.util.List;
-import javafx.scene.shape.Shape;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleExpression;
 
 /**
  * A Group of blocks which can be moved around in the workspace
@@ -42,12 +43,30 @@ public final class BlockGroup implements Moveable {
     }
 
     @Override
+    public DoubleExpression minXExpression() {
+        DoubleExpression idendity = Bindings.createDoubleBinding(() -> 0.0);
+        return blocks
+                .stream()
+                .map(Block::minXExpression)
+                .reduce(idendity, (t, u) -> (DoubleExpression) Bindings.min(t, u));
+    }
+
+    @Override
     public double getMinY() {
         return blocks
                 .stream()
                 .mapToDouble(Block::getMinY)
                 .min()
                 .orElse(0);
+    }
+
+    @Override
+    public DoubleExpression minYExpression() {
+        DoubleExpression idendity = Bindings.createDoubleBinding(() -> 0.0);
+        return blocks
+                .stream()
+                .map(Block::minYExpression)
+                .reduce(idendity, (t, u) -> (DoubleExpression) Bindings.min(t, u));
     }
 
     @Override
@@ -60,12 +79,30 @@ public final class BlockGroup implements Moveable {
     }
 
     @Override
+    public DoubleExpression maxXExpression() {
+        DoubleExpression idendity = Bindings.createDoubleBinding(() -> 0.0);
+        return blocks
+                .stream()
+                .map(Block::maxXExpression)
+                .reduce(idendity, (t, u) -> (DoubleExpression) Bindings.min(t, u));
+    }
+
+    @Override
     public double getMaxY() {
         return blocks
                 .stream()
                 .mapToDouble(Block::getMaxY)
                 .max()
                 .orElse(0);
+    }
+
+    @Override
+    public DoubleExpression maxYExpression() {
+        DoubleExpression idendity = Bindings.createDoubleBinding(() -> 0.0);
+        return blocks
+                .stream()
+                .map(Block::maxYExpression)
+                .reduce(idendity, (t, u) -> (DoubleExpression) Bindings.min(t, u));
     }
 
     @Override
@@ -93,11 +130,6 @@ public final class BlockGroup implements Moveable {
 
     public Collection<Block> getBlocks() {
         return blocks;
-    }
-
-    @Override
-    public double[] getPoints() {
-        return null;
     }
 
 }

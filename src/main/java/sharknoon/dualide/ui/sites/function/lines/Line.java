@@ -18,23 +18,23 @@ package sharknoon.dualide.ui.sites.function.lines;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.scene.shape.Polyline;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 import javafx.geometry.Point2D;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Path;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
-import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.blocks.Moveable;
 import sharknoon.dualide.ui.sites.function.dots.Dots;
@@ -45,145 +45,101 @@ import sharknoon.dualide.ui.sites.function.dots.Dots;
  */
 public class Line implements Moveable {
 
-    private final Polyline line;
+    private final CubicCurve line;
     private final Dot startDot;
     private final FunctionSite functionSite;
-    private final List<Point2D> points = new ArrayList<>();
     private final Timeline shadowShowTimeline = new Timeline();
     private final Timeline shadowRemoveTimeline = new Timeline();
-    private Point2D lastCorner;
     private Dot endDot;
     private boolean selected;
-    private Bounds lineBounds = new BoundingBox(0, 0, 0, 0);
+    private Bounds lineBounds;
 
     public Line(Dot startDot, FunctionSite functionSite) {
         this.startDot = startDot;
         this.functionSite = functionSite;
         line = initLine();
         addDropShadowEffect();
-        addPoint(startDot.getCenterX(), startDot.getCenterY());
-        addCorner();
         line.setOnMouseClicked(this::onMouseClicked);
         this.functionSite.add(line);
     }
 
-    private static Polyline initLine() {
-        Polyline line = new Polyline();
-        line.setStroke(UISettings.lineColor);
-        line.setStrokeWidth(UISettings.lineWidth);
+    private CubicCurve initLine() {
+          var line = new CubicCurve();
+        line.setStroke(UISettings.LINE_COLOR);
+        line.setStrokeWidth(UISettings.LINE_WIDTH);
+        line.startXProperty().bind(startDot.centerXExpression());
+        line.startYProperty().bind(startDot.centerYExpression());
+        line.setFill(Color.TRANSPARENT);
+        switch (startDot.getSide()) {
+            case BOTTOM:
+                line.controlX1Property().bind(line.startXProperty());
+                line.controlY1Property().bind(line.startYProperty().add(UISettings.LINE_CONTROL_OFFSET));
+                break;
+            case LEFT:
+                line.controlX1Property().bind(line.startXProperty().subtract(UISettings.LINE_CONTROL_OFFSET));
+                line.controlY1Property().bind(line.startYProperty());
+                break;
+            case RIGHT:
+                line.controlX1Property().bind(line.startXProperty().add(UISettings.LINE_CONTROL_OFFSET));
+                line.controlY1Property().bind(line.startYProperty());
+                break;
+            case TOP:
+                line.controlX1Property().bind(line.startXProperty());
+                line.controlY1Property().bind(line.startYProperty().subtract(UISettings.LINE_CONTROL_OFFSET));
+                break;
+        }
+        line.controlX2Property().bind(line.endXProperty());
+        line.controlY2Property().bind(line.endYProperty());
+        line.setEndX(startDot.getCenterX());
+        line.setEndY(startDot.getCenterY());
         return line;
     }
 
     public void setEndDot(Dot dot) {
         endDot = dot;
         lineBounds = line.getBoundsInParent();
+        line.endXProperty().bind(endDot.centerXExpression());
+        line.endYProperty().bind(endDot.centerYExpression());
+        switch (endDot.getSide()) {
+            case BOTTOM:
+                line.controlX2Property().bind(line.endXProperty());
+                line.controlY2Property().bind(line.endYProperty().add(UISettings.LINE_CONTROL_OFFSET));
+                break;
+            case LEFT:
+                line.controlX2Property().bind(line.endXProperty().subtract(UISettings.LINE_CONTROL_OFFSET));
+                line.controlY2Property().bind(line.endYProperty());
+                break;
+            case RIGHT:
+                line.controlX2Property().bind(line.endXProperty().add(UISettings.LINE_CONTROL_OFFSET));
+                line.controlY2Property().bind(line.endYProperty());
+                break;
+            case TOP:
+                line.controlX2Property().bind(line.endXProperty());
+                line.controlY2Property().bind(line.endYProperty().subtract(UISettings.LINE_CONTROL_OFFSET));
+                break;
+        }
     }
 
     public void remove() {
         functionSite.remove(line);
-        startDot.removeLine();
+        startDot.removeLine(this);
         if (endDot != null) {
-            endDot.removeLine();
+            endDot.removeLine(this);
         }
-        Lines.removeLineDrawing();
+        Lines.removeLineDrawing(functionSite);
         Lines.unregisterLine(functionSite, this);
     }
 
-    public double getLastCornerX() {
-        return lastCorner.getX();
-    }
-
-    public double getLastCornerY() {
-        return lastCorner.getY();
-    }
-
-    public void addPoint(double x, double y) {
-        line.getPoints().addAll(x, y);
-        Point2D point = new Point2D(x, y);
-        points.add(point);
-    }
-
-    /**
-     * can also be a corner
-     *
-     * @return
-     */
-    public Point2D getLastPoint() {
-        return points.get(points.size() - 1);
-    }
-
-    public void removePointsSinceLastCorner() {
-        int lastPoints = getPointsSinceLastCorner().size();
-        int pointsSize = points.size();
-        for (int i = 0; i < lastPoints; i++) {
-            points.remove(pointsSize - 1 - i);
-        }
-        line.getPoints().remove((pointsSize * 2) - (lastPoints * 2), pointsSize * 2);
-    }
-
-    public Point2D getLastCorner() {
-        return lastCorner;
-    }
-
-    public List<Point2D> getPointsSinceLastCorner() {
-        List<Point2D> pointsSinceLastCorner = new ArrayList<>();
-        for (int i = points.size() - 1; i >= 0; i--) {
-            if (!lastCorner.equals(points.get(i))) {
-                pointsSinceLastCorner.add(points.get(i));
-            } else {
-                return pointsSinceLastCorner;
-            }
-        }
-        return pointsSinceLastCorner;
-    }
-
-    private Dot overDot;
-
-    public boolean canExtendTo(double x, double y) {
-        boolean noBlock = Blocks
-                .getAllBlocks(functionSite)
-                .stream()
-                .noneMatch(block -> block.getBounds().contains(x, y));
-
-        if (!noBlock) {
-            Optional<Dot> dot = Dots.isOverDot(functionSite, x, y);
-            if (dot.isPresent() && !dot.get().hasLine()) {
-                noBlock = true;
-                overDot = dot.get();
-                overDot.getBlock().showDots();
-            }
-        } else {
-            if (overDot != null) {
-                overDot.getBlock().hideDots();
-            }
-            overDot = null;
-        }
-
-        boolean insideWorkspace = !(x < 0 + UISettings.paddingInsideWorkSpace
-                || x > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace
-                || y < 0 + UISettings.paddingInsideWorkSpace
-                || y > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
-
-        boolean notMyLine = points
-                .stream()
-                .noneMatch(p -> p.getX() == x && p.getY() == y);
-        return noBlock && insideWorkspace && notMyLine;
-    }
-
-    public void addCorner() {
-        lastCorner = getLastPoint();
-    }
-
     private void addDropShadowEffect() {
-        DropShadow dropShadow = new DropShadow();
+          var dropShadow = new DropShadow();
         dropShadow.setSpread(0.9);
         dropShadow.setRadius(0.0);
-        dropShadow.setColor(UISettings.lineSelectionShadowColor);
+        dropShadow.setColor(UISettings.LINE_SELECTION_SHADOW_COLOR);
         line.setEffect(dropShadow);
     }
 
     public void onMouseClicked(MouseEvent event) {
-        if (!Lines.isLineDrawing()) {
+        if (!Lines.isLineDrawing(functionSite)) {
             if (selected) {
                 unselect();
             } else {
@@ -191,20 +147,27 @@ public class Line implements Moveable {
             }
         }
     }
+    
+    public void onMouseMoved(Point2D mousePosition){
+        if(Lines.isLineDrawing(functionSite)){
+            line.setEndX(mousePosition.getX());
+            line.setEndY(mousePosition.getY());
+        }
+    }
 
     public void select() {
         if (!selected) {
             selected = true;
             shadowShowTimeline.getKeyFrames().clear();
-            DropShadow dropShadow = (DropShadow) line.getEffect();
+              var dropShadow = (DropShadow) line.getEffect();
             shadowShowTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(UISettings.lineSelectionShadowDuration,
-                            new KeyValue(dropShadow.radiusProperty(), UISettings.lineSelectionShadowRadius),
-                            new KeyValue(dropShadow.colorProperty(), UISettings.lineSelectionShadowColor)
+                    new KeyFrame(UISettings.LINE_SELECTION_SHADOW_DURATION,
+                            new KeyValue(dropShadow.radiusProperty(), UISettings.LINE_SELECTION_SHADOW_RADIUS),
+                            new KeyValue(dropShadow.colorProperty(), UISettings.LINE_SELECTION_SHADOW_COLOR)
                     ));
             shadowRemoveTimeline.stop();
             shadowShowTimeline.stop();
@@ -215,16 +178,16 @@ public class Line implements Moveable {
     public void unselect() {
         if (selected) {
             selected = false;
-            DropShadow dropShadow = (DropShadow) line.getEffect();
+              var dropShadow = (DropShadow) line.getEffect();
             shadowRemoveTimeline.getKeyFrames().clear();
             shadowRemoveTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(UISettings.lineSelectionShadowDuration,
+                    new KeyFrame(UISettings.LINE_SELECTION_SHADOW_DURATION,
                             new KeyValue(dropShadow.radiusProperty(), 0),
-                            new KeyValue(dropShadow.colorProperty(), UISettings.lineSelectionShadowColor)
+                            new KeyValue(dropShadow.colorProperty(), UISettings.LINE_SELECTION_SHADOW_COLOR)
                     )
             );
             shadowShowTimeline.stop();
@@ -237,42 +200,56 @@ public class Line implements Moveable {
         return selected;
     }
 
-    public boolean isOverDot() {
-        return overDot != null;
+    public Shape getShape() {
+        return line;
     }
 
-    public Dot getOverDot() {
-        return overDot;
+    public Dot getStartDot() {
+        return startDot;
+    }
+
+    public Dot getEndDot() {
+        return endDot;
     }
 
     @Override
     public double getMinX() {
-        return lineBounds.getMinX();
+        return line.getBoundsInParent().getMinX();
+    }
+
+    @Override
+    public DoubleExpression minXExpression() {
+        return Bindings.createDoubleBinding(() -> getMinX(), line.boundsInParentProperty());
     }
 
     @Override
     public double getMinY() {
-        return lineBounds.getMinY();
+        return line.getBoundsInParent().getMinY();
     }
 
     @Override
-    public double getWidth() {
-        return lineBounds.getWidth();
-    }
-
-    @Override
-    public double getHeight() {
-        return lineBounds.getHeight();
+    public DoubleExpression minYExpression() {
+        return Bindings.createDoubleBinding(() -> getMinY(), line.boundsInParentProperty());
     }
 
     @Override
     public double getMaxX() {
-        return lineBounds.getMaxX();
+        return line.getBoundsInParent().getMaxX();
+    }
+
+    @Override
+    public DoubleExpression maxXExpression() {
+        return Bindings.createDoubleBinding(() -> getMaxX(), line.boundsInParentProperty());
     }
 
     @Override
     public double getMaxY() {
-        return lineBounds.getMaxY();
+        return line.getBoundsInParent().getMaxY();
+    }
+
+    @Override
+    public DoubleExpression maxYExpression() {
+        return Bindings.createDoubleBinding(() -> getMaxY(), line.boundsInParentProperty());
     }
 
     @Override
@@ -287,32 +264,7 @@ public class Line implements Moveable {
 
     @Override
     public boolean canMoveTo(double x, double y) {
-        return canMoveTo(x, y, true);
-    }
-
-    public Shape getShape() {
-        return line;
-    }
-
-    /**
-     * Checks, if this block can move to the desired destination
-     *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param ignoreSelection true = ignores selection (default), false = has to
-     * be unselected, because selected ones are dragged all together
-     * @return
-     */
-    public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
-        Stream<Line> lines = Lines.getAllLines(functionSite).stream();
-        Stream<Block> blocks = Blocks.getAllBlocks(functionSite).stream();
-        Stream<Moveable> moveables = Stream.concat(lines, blocks);
-        return false;
-    }
-
-    @Override
-    public double[] getPoints() {
-        return null;
+        return true;
     }
 
 }

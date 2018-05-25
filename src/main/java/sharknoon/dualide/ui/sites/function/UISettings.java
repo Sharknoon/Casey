@@ -28,83 +28,79 @@ public class UISettings {
     //***Workspace***
     //
     //Zoomfactor of the main zoom of the workspace
-    public static double zoomFactor = 1.5;
+    public static final double WORKSPACE_ZOOM_FACTOR = 1.5;
     //The duration of the zoom mentioned above
-    public static Duration zoomDuration = Duration.millis(100);
+    public static final Duration WORKSPACE_ZOOM_DURATION = Duration.millis(100);
     //The max width of the workspace
-    public static double maxWorkSpaceX = 5000;
+    public static final double WORKSPACE_MAX_X = 5000;
     //The max height of the workspace
-    public static double maxWorkSpaceY = 3000;
+    public static final double WORKSPACE_MAX_Y = 3000;
     //The padding inside the workspace, just for optics
-    public static double paddingInsideWorkSpace = 50;
+    public static final double WORKSPACE_PADDING = 50;
     //The line width of the workspace, just for optics
-    public static double workspaceLineWidth = 3;
+    public static final double WORKSPACE_LINE_WIDTH = 3;
     //The color of the line around the workspace, just for optics
-    public static Color workspaceLineColor = Color.BLACK;
+    public static final Color WORKSPACE_LINE_COLOR = Color.BLACK;
     //The color of the background of the workspace
-    public static Color workspaceBackgroundColor = Color.rgb(0, 0, 0, 0.50);
-//    //The threshold in which a moving mouse is counted as a movement or a click for the context menue
-//    public static double contextMenuThreshold = 2;
+    public static final Color WORKSPACE_BACKGROUND_COLOR = Color.rgb(0, 0, 0, 0.50);
     //The fading Duration between the background images
-    public static Duration workspaceBackgroundFadingDuration = Duration.seconds(1);
+    public static final Duration WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION = Duration.seconds(1);
     //The period of a image being in the background before being changed
-    public static Duration workspaceBackgroundImageDuration = Duration.seconds(60);
+    public static final Duration WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION = Duration.seconds(60);
     //
     //***Block***
     //
     //The width of the stroke of the border
-    public static double blockBorderStrokeWidth = 1;
+    public static final double BLOCK_BORDER_STROKE_WIDTH = 1;
     //The color of the stroke of the border
-    public static Color blockBorderStrokeColor = Color.WHITE;
+    public static final Color BLOCK_BORDER_STROKE_COLOR = Color.WHITE;
     //The grid snapping of the x axis of a block, typically the same as the y axis
-    public static double blockGridSnappingX = 100;
+    public static final double BLOCK_GRID_SNAPPING_X = 100;
     //The grid spapping of the y axis of a block
-    public static double blockGridSnappingY = 100;
+    public static final double BLOCK_GRID_SNAPPING_Y = 100;
     //The duration of the selection shadow to appear
-    public static Duration selectionShadowDuration = Duration.millis(50);
+    public static final Duration BLOCK_SELECTION_SHADOW_DURATION = Duration.millis(50);
     //The radius of the selection shadow
-    public static double selectionShadowRadius = 50;
+    public static final double BLOCK_SELECTION_SHADOW_RADIUS = 50;
     //The color of the selection shadow
-    public static Color selectionShadowColor = Color.CORNFLOWERBLUE;
+    public static final Color BLOCK_SELECTION_SHADOW_COLOR = Color.CORNFLOWERBLUE;
     //The duration of the moving shadow to appear
-    public static Duration movingShadowDuration = Duration.millis(150);
+    public static final Duration BLOCK_MOVING_SHADOW_DURATION = Duration.millis(150);
     //The radius of the moving shadow
-    public static double movingShadowRadius = 100;
+    public static final double BLOCK_MOVING_SHADOW_RADIUS = 100;
     //The color of the moving shadow
-    public static Color movingShadowColor = Color.valueOf("0095ed");
+    public static final Color BLOCK_MOVING_SHADOW_COLOR = Color.valueOf("0095ed");
     //The duration of the block snap to its correct position
-    public static Duration blockMovingDuration = Duration.millis(50);
+    public static final Duration BLOCK_MOVING_DURATION = Duration.millis(50);
     //The color of the shadow stroke of the block
-    public static Color predictionShadowStrokeColor = Color.GREY;
+    public static final Color BLOCK_PREDICTION_SHADOW_STROKE_COLOR = Color.GREY;
     //The width of the shadow stroke of the block
-    public static double predictionShadowStrokeWidth = blockBorderStrokeWidth;
-//    //The threshold in which a moving mouse is counted as a movement or a click for the selection of a block
-//    public static double blockSelectionThreshold = 2;
+    public static final double BLOCK_PREDICTION_SHADOW_STROKE_WIDTH = BLOCK_BORDER_STROKE_WIDTH;
     //
     //***Dot***
     //
     //The duration of the dots of a block to fade in and out
-    public static Duration dotsMovingDuration = Duration.millis(50);
-    //The Color of the dots around the block
-    public static Color dotColor = Color.BLACK;
+    public static final Duration DOTS_MOVING_DURATION = Duration.millis(50);
+    //The Color of the input dots around the block
+    public static final Color DOT_INPUT_COLOR = Color.ORANGE;
+    //The Color of the output dots around the block
+    public static final Color DOT_OUTPUT_COLOR = Color.BLUE;
     //The radius of the dots around the block
-    public static double dotRadius = 10;
+    public static final double DOT_RADIUS = 10;
     //
     //***Line***
     //
-    //The grid snapping of the x axis of a line, typically the same as the y axis and half of the blocks snapping
-    public static double lineGridSnappingX = 50;
-    //The grid snapping of the y axis of a line
-    public static double lineGridSnappingY = 50;
     //The color of the Line
-    public static Color lineColor = Color.WHITE;
+    public static final Color LINE_COLOR = Color.WHITE;
     //The width of the line
-    public static double lineWidth = 5;
+    public static final double LINE_WIDTH = 5;
     //The duration of the selection shadow to appear
-    public static Duration lineSelectionShadowDuration = Duration.millis(50);
+    public static final Duration LINE_SELECTION_SHADOW_DURATION = Duration.millis(50);
     //The radius of the selection shadow
-    public static double lineSelectionShadowRadius = 50;
+    public static final double LINE_SELECTION_SHADOW_RADIUS = 50;
     //The color of the selection shadow
-    public static Color lineSelectionShadowColor = Color.CORNFLOWERBLUE;
+    public static final Color LINE_SELECTION_SHADOW_COLOR = Color.CORNFLOWERBLUE;
+    //The value how sharp the curves should be
+    public static final double LINE_CONTROL_OFFSET = 150;
 
 }

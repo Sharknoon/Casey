@@ -15,8 +15,11 @@
  */
 package sharknoon.dualide.ui.sites.function.dots;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -39,21 +42,27 @@ public class Dot {
 
     private final Circle circle;
     private final Block block;
-    private Line line;
+    private final List<Line> lines = new ArrayList<>();
+    private final Side side;
+    private final boolean isInput;
+    private final FunctionSite functionSite;
 
-    public static Dot createDot(Block block, Side side) {
-        return new Dot(side, block);
+    public static Dot createDot(Block block, Side side, boolean isInput) {
+        return new Dot(side, block, isInput);
     }
 
-    private Dot(Side side, Block block) {
+    private Dot(Side side, Block block, boolean isInput) {
+        this.side = side;
         this.block = block;
+        this.isInput = isInput;
+        this.functionSite = block.getFunctionSite();
 
-        circle = new Circle(UISettings.dotRadius, UISettings.dotColor);
+        circle = new Circle(UISettings.DOT_RADIUS, isInput ? UISettings.DOT_INPUT_COLOR : UISettings.DOT_OUTPUT_COLOR);
         circle.setOpacity(0);
         circle.setOnMouseEntered(this::onMouseEntered);
         circle.setOnMouseExited(this::onMouseExited);
         circle.setOnMouseClicked(this::onMouseClicked);
-        DropShadow shadow = new DropShadow(25, Color.WHITE);
+          var shadow = new DropShadow(25, Color.WHITE);
         shadow.setSpread(0.5);
         circle.setEffect(shadow);
         switch (side) {
@@ -74,7 +83,7 @@ public class Dot {
                 circle.setCenterY(0);
                 break;
         }
-        Dots.registerDot(block.getfunctionSite(), this);
+        Dots.registerDot(block.getFunctionSite(), this);
     }
 
     public void addTo(Pane pane) {
@@ -87,19 +96,19 @@ public class Dot {
         KeyValue opacityEnd = new KeyValue(circle.opacityProperty(), 1);
         return new KeyFrame[]{
             new KeyFrame(Duration.ZERO, opacityStart),
-            new KeyFrame(UISettings.dotsMovingDuration, opacityEnd)
+            new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
         };
     }
 
     public KeyFrame[] hide() {
-        if (line != null) {
+        if (!lines.isEmpty()) {
             return new KeyFrame[]{};//If there is alreay a line from this dot, dont hide it
         }
         KeyValue opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
         KeyValue opacityEnd = new KeyValue(circle.opacityProperty(), 0);
         return new KeyFrame[]{
             new KeyFrame(Duration.ZERO, opacityStart),
-            new KeyFrame(UISettings.dotsMovingDuration, opacityEnd)
+            new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
         };
     }
 
@@ -112,6 +121,10 @@ public class Dot {
         return block.getMinX() + circle.getCenterX();
     }
 
+    public DoubleExpression centerXExpression() {
+        return block.minXExpression().add(circle.centerXProperty());
+    }
+
     /**
      * relative to the scene
      *
@@ -119,6 +132,10 @@ public class Dot {
      */
     public double getCenterY() {
         return block.getMinY() + circle.getCenterY();
+    }
+
+    public DoubleExpression centerYExpression() {
+        return block.minYExpression().add(circle.centerYProperty());
     }
 
     private void onMouseEntered(MouseEvent event) {
@@ -134,12 +151,18 @@ public class Dot {
     }
 
     public void onMouseClicked(MouseEvent event) {
-        if (!Lines.isLineDrawing()) {
-            line = Lines.createLine(block.getfunctionSite(), this);
+        if (!Lines.isLineDrawing(functionSite)) {
+              var line = Lines.createLine(functionSite, this);
+            lines.add(line);
         } else {
-            line = Lines.getDrawingLine();
-            Lines.removeLineDrawing();
-            line.setEndDot(this);
+              var line = Lines.getDrawingLine(functionSite);
+            if (!Lines.isDuplicate(functionSite, line, this)) {
+                lines.add(line);
+                line.setEndDot(this);
+                Lines.removeLineDrawing(functionSite);
+            } else {
+                line.remove();
+            }
         }
         block.toFront();
     }
@@ -148,17 +171,29 @@ public class Dot {
         return block;
     }
 
-    public void removeLine() {
-        line = null;
+    public void removeLine(Line line) {
+        lines.remove(line);
         block.hideDots();
     }
 
-    public boolean hasLine() {
-        return line != null;
+    public boolean hasLines() {
+        return !lines.isEmpty();
     }
 
-    public void setLine(Line line) {
-        this.line = line;
+    public List<Line> getLines() {
+        return lines;
+    }
+
+    public void addLine(Line line) {
+        lines.add(line);
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
+    public boolean isInputDot() {
+        return isInput;
     }
 
 }

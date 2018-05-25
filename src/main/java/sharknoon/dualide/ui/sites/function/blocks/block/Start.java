@@ -44,8 +44,13 @@ public class Start extends Block {
     }
 
     @Override
-    public Side[] initDotSides() {
+    public Side[] initDotOutputSides() {
         return new Side[]{Side.BOTTOM};
+    }
+
+    @Override
+    public Side[] initDotInputSides() {
+        return new Side[]{};
     }
 
     @Override

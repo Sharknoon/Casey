@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import sharknoon.dualide.utils.settings.Keyboard;
 import java.util.concurrent.CompletableFuture;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -23,11 +22,9 @@ import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
@@ -42,7 +39,6 @@ import javafx.stage.Screen;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
@@ -113,15 +109,12 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMouseMoved(MouseEvent event) {
-        if (Lines.isLineDrawing()) {
+        if (Lines.isLineDrawing(this)) {
             ld.onMouseMoved(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
         }
     }
 
     public void onMouseClicked(MouseEvent event) {
-        if (Lines.isLineDrawing()) {
-            ld.onMouseClicked(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
-        }
     }
 
     public void onContextMenuRequested(ContextMenuEvent event) {
@@ -132,7 +125,7 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onScroll(ScrollEvent event) {
-        zoom(root, event.getDeltaY() < 0 ? 1 / UISettings.zoomFactor : UISettings.zoomFactor, event.getSceneX(), event.getSceneY());
+        zoom(root, event.getDeltaY() < 0 ? 1 / UISettings.WORKSPACE_ZOOM_FACTOR : UISettings.WORKSPACE_ZOOM_FACTOR, event.getSceneX(), event.getSceneY());
     }
 
     public void onZoom(ZoomEvent event) {
@@ -159,7 +152,7 @@ public class FunctionSite extends Site<Function> {
 
         zoomTimeline.getKeyFrames().clear();
         zoomTimeline.getKeyFrames().addAll(
-                new KeyFrame(UISettings.zoomDuration,
+                new KeyFrame(UISettings.WORKSPACE_ZOOM_DURATION,
                         new KeyValue(node.scaleXProperty(), newAbsoluteScale),
                         new KeyValue(node.scaleYProperty(), newAbsoluteScale),
                         new KeyValue(node.translateXProperty(), deltaX),
@@ -184,8 +177,8 @@ public class FunctionSite extends Site<Function> {
     private void addStartBlock() {
         Block startBlock = Blocks.createStartBlock(this);
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-        double minX = (UISettings.maxWorkSpaceX / 2) - (startBlock.getWidth() / 2);
-        double minY = (UISettings.maxWorkSpaceY / 2) - (screenHeight / 2) + UISettings.blockGridSnappingY;
+        double minX = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
+        double minY = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
         addBlock(startBlock, new Point2D(minX, minY));
     }
 
@@ -205,12 +198,12 @@ public class FunctionSite extends Site<Function> {
     }
 
     private void addBlock(Block block, Point2D origin) {
-        double minX = origin.getX() - UISettings.paddingInsideWorkSpace;
-        minX -= (minX % UISettings.blockGridSnappingX);
-        minX += UISettings.paddingInsideWorkSpace;
-        double minY = origin.getY() - UISettings.paddingInsideWorkSpace;
-        minY -= (minY % UISettings.blockGridSnappingY);
-        minY += UISettings.paddingInsideWorkSpace;
+        double minX = origin.getX() - UISettings.WORKSPACE_PADDING;
+        minX -= (minX % UISettings.BLOCK_GRID_SNAPPING_X);
+        minX += UISettings.WORKSPACE_PADDING;
+        double minY = origin.getY() - UISettings.WORKSPACE_PADDING;
+        minY -= (minY % UISettings.BLOCK_GRID_SNAPPING_Y);
+        minY += UISettings.WORKSPACE_PADDING;
 
         int counter = 1;
         byte amountMoved = 0;
@@ -222,16 +215,16 @@ public class FunctionSite extends Site<Function> {
         while (!Blocks.isSpaceFree(block, newX, newY)) {
             switch (side) {
                 case 0://Upwards
-                    newY = newY - UISettings.blockGridSnappingY;
+                    newY = newY - UISettings.BLOCK_GRID_SNAPPING_Y;
                     break;
                 case 1://Right
-                    newX = newX + UISettings.blockGridSnappingX;
+                    newX = newX + UISettings.BLOCK_GRID_SNAPPING_X;
                     break;
                 case 2://Downwards
-                    newY = newY + UISettings.blockGridSnappingY;
+                    newY = newY + UISettings.BLOCK_GRID_SNAPPING_Y;
                     break;
                 case 3://Left
-                    newX = newX - UISettings.blockGridSnappingX;
+                    newX = newX - UISettings.BLOCK_GRID_SNAPPING_X;
                     break;
             }
             amountMoved++;
@@ -254,23 +247,23 @@ public class FunctionSite extends Site<Function> {
         TabPane tabPane = MainController.getTabPane();
         double maxWidth = tabPane.getWidth();
         double maxHeight = tabPane.getHeight();
-        root.setTranslateX(-((UISettings.maxWorkSpaceX / 2) - (maxWidth / 2)));
-        root.setTranslateY(-((UISettings.maxWorkSpaceY / 2) - (maxHeight / 2)) + 100);
+        root.setTranslateX(-((UISettings.WORKSPACE_MAX_X / 2) - (maxWidth / 2)));
+        root.setTranslateY(-((UISettings.WORKSPACE_MAX_Y / 2) - (maxHeight / 2)) + 100);
     }
 
     private void drawLineAroundWorkspace() {
-        Line left = createStroke(0, 0, 0, UISettings.maxWorkSpaceY);
-        Line right = createStroke(UISettings.maxWorkSpaceX, 0, UISettings.maxWorkSpaceX, UISettings.maxWorkSpaceY);
-        Line top = createStroke(0, 0, UISettings.maxWorkSpaceX, 0);
-        Line bottom = createStroke(0, UISettings.maxWorkSpaceY, UISettings.maxWorkSpaceX, UISettings.maxWorkSpaceY);
+        Line left = createStroke(0, 0, 0, UISettings.WORKSPACE_MAX_Y);
+        Line right = createStroke(UISettings.WORKSPACE_MAX_X, 0, UISettings.WORKSPACE_MAX_X, UISettings.WORKSPACE_MAX_Y);
+        Line top = createStroke(0, 0, UISettings.WORKSPACE_MAX_X, 0);
+        Line bottom = createStroke(0, UISettings.WORKSPACE_MAX_Y, UISettings.WORKSPACE_MAX_X, UISettings.WORKSPACE_MAX_Y);
         root.getChildren().addAll(left, right, top, bottom);
-        root.setBackground(new Background(new BackgroundFill(UISettings.workspaceBackgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setBackground(new Background(new BackgroundFill(UISettings.WORKSPACE_BACKGROUND_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     private static Line createStroke(double startX, double startY, double endX, double endY) {
         Line s = new Line(startX, startY, endX, endY);
-        s.setStrokeWidth(UISettings.workspaceLineWidth);
-        s.setStroke(UISettings.workspaceLineColor);
+        s.setStrokeWidth(UISettings.WORKSPACE_LINE_WIDTH);
+        s.setStroke(UISettings.WORKSPACE_LINE_COLOR);
         s.setStrokeType(StrokeType.OUTSIDE);
         return s;
     }

@@ -21,6 +21,8 @@ import java.util.List;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
@@ -45,13 +47,15 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
 public abstract class Block implements Moveable, MouseConsumable {
 
     //The root pane for this block
-    private final AnchorPane pane = new AnchorPane();
+    private final AnchorPane root = new AnchorPane();
     //The height of the block
     private final double shapeHeight;
     //The width of the block
     private final double shapeWidth;
-    //The sides, of where there are dots
-    private final Side[] dotSides;
+    //The sides, of where there are output dots
+    private final Side[] dotOutputSides;
+    //The sides, of where there are input dots
+    private final Side[] dotInputSides;
     //The blockshape itself
     private final Shape blockShape;
     //The shape of the shadow of the vlock
@@ -82,9 +86,10 @@ public abstract class Block implements Moveable, MouseConsumable {
         this.functionSite = functionSite;
         shapeHeight = initShapeHeight();
         shapeWidth = initShapeWidth();
-        dotSides = initDotSides();
+        dotOutputSides = initDotOutputSides();
+        dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
-        pane.getChildren().add(blockShape);
+        root.getChildren().add(blockShape);
         this.predictionShadowShape = createPredictionShadow(blockShape);
         registerListeners(blockShape, this);
         setStrokeProperties(blockShape);
@@ -108,24 +113,31 @@ public abstract class Block implements Moveable, MouseConsumable {
     public abstract double initShapeWidth();
 
     /**
-     * Gets the sides of this blocktype, where there are dots
+     * Gets the sides of this blocktype, where there are output dots
      *
-     * @return The sides of this blocktype, where there are dots
+     * @return The sides of this blocktype, where there are output dots
      */
-    public abstract Side[] initDotSides();
+    public abstract Side[] initDotOutputSides();
 
     /**
-     * Gets the shape od this block
+     * Gets the sides of this blocktype, where there are input dots
+     *
+     * @return The sides of this blocktype, where there are input dots
+     */
+    public abstract Side[] initDotInputSides();
+
+    /**
+     * Gets the shape of this block
      *
      * @return The shape of this block
      */
     public abstract Shape initBlockShape();
 
     private static Shape createPredictionShadow(Shape original) {
-        Shape shadow = Shape.union(original, original);
+          var shadow = Shape.union(original, original);
         shadow.setFill(Color.rgb(0, 0, 0, 0));
-        shadow.setStroke(UISettings.predictionShadowStrokeColor);
-        shadow.setStrokeWidth(UISettings.predictionShadowStrokeWidth);
+        shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
+        shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
         shadow.setStrokeType(StrokeType.INSIDE);
         shadow.setEffect(null);
         return shadow;
@@ -141,23 +153,28 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     private static void setStrokeProperties(Shape shape) {
-        shape.setStroke(UISettings.blockBorderStrokeColor);
-        shape.setStrokeWidth(UISettings.blockBorderStrokeWidth);
+        shape.setStroke(UISettings.BLOCK_BORDER_STROKE_COLOR);
+        shape.setStrokeWidth(UISettings.BLOCK_BORDER_STROKE_WIDTH);
         shape.setStrokeType(StrokeType.CENTERED);
     }
 
     private static void addDropShadowEffect(Shape shape) {
-        DropShadow dropShadow = new DropShadow();
+          var dropShadow = new DropShadow();
         dropShadow.setSpread(0.5);
         dropShadow.setRadius(0.0);
-        dropShadow.setColor(UISettings.selectionShadowColor);
+        dropShadow.setColor(UISettings.BLOCK_SELECTION_SHADOW_COLOR);
         shape.setEffect(dropShadow);
     }
 
     private void createDots() {
-        for (Side dotSide : dotSides) {
-            Dot dot = Dot.createDot(this, dotSide);
-            dot.addTo(pane);
+        for (var dotOutputSide : dotOutputSides) {
+              var dot = Dot.createDot(this, dotOutputSide,false);
+            dot.addTo(root);
+            dots.add(dot);
+        }
+        for (var dotInputSide : dotInputSides) {
+              var dot = Dot.createDot(this, dotInputSide, true);
+            dot.addTo(root);
             dots.add(dot);
         }
     }
@@ -177,7 +194,7 @@ public abstract class Block implements Moveable, MouseConsumable {
                 highlight();
             }
         }
-        this.pane.toFront();
+        this.root.toFront();
     }
 
     @Override
@@ -214,7 +231,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     @Override
     public void onMouseEntered(MouseEvent event) {
         Blocks.setMouseOverBlock(this);
-        if (!event.isPrimaryButtonDown() || Lines.isLineDrawing()) {
+        if (!event.isPrimaryButtonDown() || Lines.isLineDrawing(functionSite)) {
             showDots();
         }
     }
@@ -224,7 +241,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         if (!event.isPrimaryButtonDown()) {
             Blocks.removeMouseOverBlock();
         }
-        if (!Lines.isLineDrawing() && !Dots.isMouseOverDot()) {
+        if (!Lines.isLineDrawing(functionSite) && !Dots.isMouseOverDot()) {
             hideDots();
         }
     }
@@ -247,17 +264,17 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public void setMinX(double x) {
-        pane.setTranslateX(x);
+        root.setTranslateX(x);
     }
 
     public void setMinXAnimated(double x) {
         movingXTimeline.getKeyFrames().clear();
         movingXTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
-                        new KeyValue(pane.translateXProperty(), pane.getTranslateX())
+                        new KeyValue(root.translateXProperty(), root.getTranslateX())
                 ),
-                new KeyFrame(UISettings.blockMovingDuration,
-                        new KeyValue(pane.translateXProperty(), x)
+                new KeyFrame(UISettings.BLOCK_MOVING_DURATION,
+                        new KeyValue(root.translateXProperty(), x)
                 ));
         movingXTimeline.stop();
         movingXTimeline.play();
@@ -265,17 +282,17 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public void setMinY(double y) {
-        pane.setTranslateY(y);
+        root.setTranslateY(y);
     }
 
     public void setMinYAnimated(double y) {
         movingYTimeline.getKeyFrames().clear();
         movingYTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
-                        new KeyValue(pane.translateYProperty(), pane.getTranslateY())
+                        new KeyValue(root.translateYProperty(), root.getTranslateY())
                 ),
-                new KeyFrame(UISettings.blockMovingDuration,
-                        new KeyValue(pane.translateYProperty(), y)
+                new KeyFrame(UISettings.BLOCK_MOVING_DURATION,
+                        new KeyValue(root.translateYProperty(), y)
                 ));
         movingYTimeline.stop();
         movingYTimeline.play();
@@ -283,12 +300,22 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public double getMinX() {
-        return pane.getTranslateX();
+        return root.getTranslateX();
+    }
+
+    @Override
+    public DoubleExpression minXExpression() {
+        return root.translateXProperty();
     }
 
     @Override
     public double getMinY() {
-        return pane.getTranslateY();
+        return root.getTranslateY();
+    }
+
+    @Override
+    public DoubleExpression minYExpression() {
+        return root.translateYProperty();
     }
 
     @Override
@@ -297,8 +324,18 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     @Override
+    public DoubleExpression widthExpression() {
+        return Bindings.createDoubleBinding(() -> shapeWidth);
+    }
+
+    @Override
     public double getHeight() {
         return shapeHeight;
+    }
+
+    @Override
+    public DoubleExpression heightExpression() {
+        return Bindings.createDoubleBinding(() -> shapeHeight);
     }
 
     @Override
@@ -307,13 +344,18 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     @Override
+    public DoubleExpression maxXExpression() {
+        return minXExpression().add(widthExpression());
+    }
+
+    @Override
     public double getMaxY() {
         return getMinY() + getHeight();
     }
 
     @Override
-    public double[] getPoints() {
-        return null;
+    public DoubleExpression maxYExpression() {
+        return minYExpression().add(heightExpression());
     }
 
     /**
@@ -340,7 +382,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
 
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
-        boolean noBlock = Blocks
+          var noBlock = Blocks
                 .getAllBlocks(functionSite)
                 .stream()
                 .filter(b -> ignoreSelection || !b.isSelected())
@@ -360,7 +402,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      *
      * @return The functionSite, in which this block is in
      */
-    public FunctionSite getfunctionSite() {
+    public FunctionSite getFunctionSite() {
         return functionSite;
     }
 
@@ -371,15 +413,15 @@ public abstract class Block implements Moveable, MouseConsumable {
         if (!selected) {
             selected = true;
             shadowShowTimeline.getKeyFrames().clear();
-            DropShadow dropShadow = (DropShadow) blockShape.getEffect();
+              var dropShadow = (DropShadow) blockShape.getEffect();
             shadowShowTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(UISettings.selectionShadowDuration,
-                            new KeyValue(dropShadow.radiusProperty(), UISettings.selectionShadowRadius),
-                            new KeyValue(dropShadow.colorProperty(), UISettings.selectionShadowColor)
+                    new KeyFrame(UISettings.BLOCK_SELECTION_SHADOW_DURATION,
+                            new KeyValue(dropShadow.radiusProperty(), UISettings.BLOCK_SELECTION_SHADOW_RADIUS),
+                            new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SELECTION_SHADOW_COLOR)
                     ));
             shadowRemoveTimeline.stop();
             shadowShowTimeline.stop();
@@ -393,16 +435,16 @@ public abstract class Block implements Moveable, MouseConsumable {
     public void unselect() {
         if (selected) {
             selected = false;
-            DropShadow dropShadow = (DropShadow) blockShape.getEffect();
+              var dropShadow = (DropShadow) blockShape.getEffect();
             shadowRemoveTimeline.getKeyFrames().clear();
             shadowRemoveTimeline.getKeyFrames().addAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                     ),
-                    new KeyFrame(UISettings.selectionShadowDuration,
+                    new KeyFrame(UISettings.BLOCK_SELECTION_SHADOW_DURATION,
                             new KeyValue(dropShadow.radiusProperty(), 0),
-                            new KeyValue(dropShadow.colorProperty(), UISettings.selectionShadowColor)
+                            new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SELECTION_SHADOW_COLOR)
                     )
             );
             shadowShowTimeline.stop();
@@ -416,15 +458,15 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public void highlight() {
         shadowShowTimeline.getKeyFrames().clear();
-        DropShadow dropShadow = (DropShadow) blockShape.getEffect();
+          var dropShadow = (DropShadow) blockShape.getEffect();
         shadowShowTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                         new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                 ),
-                new KeyFrame(UISettings.movingShadowDuration,
-                        new KeyValue(dropShadow.radiusProperty(), UISettings.movingShadowRadius),
-                        new KeyValue(dropShadow.colorProperty(), UISettings.movingShadowColor)
+                new KeyFrame(UISettings.BLOCK_MOVING_SHADOW_DURATION,
+                        new KeyValue(dropShadow.radiusProperty(), UISettings.BLOCK_MOVING_SHADOW_RADIUS),
+                        new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_MOVING_SHADOW_COLOR)
                 ));
         shadowRemoveTimeline.stop();
         shadowShowTimeline.stop();
@@ -435,16 +477,16 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Removes the bigger shadow, e.g. for the movement of the block
      */
     public void unhighlight() {
-        DropShadow dropShadow = (DropShadow) blockShape.getEffect();
+          var dropShadow = (DropShadow) blockShape.getEffect();
         shadowRemoveTimeline.getKeyFrames().clear();
         shadowRemoveTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                         new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
                 ),
-                new KeyFrame(UISettings.movingShadowDuration,
-                        new KeyValue(dropShadow.radiusProperty(), selected ? UISettings.selectionShadowRadius : 0),
-                        new KeyValue(dropShadow.colorProperty(), UISettings.selectionShadowColor)
+                new KeyFrame(UISettings.BLOCK_MOVING_SHADOW_DURATION,
+                        new KeyValue(dropShadow.radiusProperty(), selected ? UISettings.BLOCK_SELECTION_SHADOW_RADIUS : 0),
+                        new KeyValue(dropShadow.colorProperty(), UISettings.BLOCK_SELECTION_SHADOW_COLOR)
                 )
         );
         shadowShowTimeline.stop();
@@ -487,7 +529,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         dotsHideTimeline.getKeyFrames().clear();
         dots.stream()
                 .forEach(dot -> {
-                    if (dot.hasLine()) {
+                    if (dot.hasLines()) {
                         dotsShowTimeline.getKeyFrames().addAll(dot.show());
                     } else {
                         dotsHideTimeline.getKeyFrames().addAll(dot.hide());
@@ -505,9 +547,9 @@ public abstract class Block implements Moveable, MouseConsumable {
      * @param pane The pane to receive this block
      */
     public void addTo(Pane pane) {
-        predictionShadowShape.setTranslateX(this.pane.getTranslateX());
-        predictionShadowShape.setTranslateY(this.pane.getTranslateY());
-        pane.getChildren().addAll(predictionShadowShape, this.pane);
+        predictionShadowShape.setTranslateX(this.root.getTranslateX());
+        predictionShadowShape.setTranslateY(this.root.getTranslateY());
+        pane.getChildren().addAll(predictionShadowShape, this.root);
     }
 
     /**
@@ -515,14 +557,14 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public void remove() {
         Blocks.unregisterBlock(functionSite, this);
-        ((Pane) pane.getParent()).getChildren().removeAll(predictionShadowShape, pane);
+        ((Pane) root.getParent()).getChildren().removeAll(predictionShadowShape, root);
     }
 
     /**
      * Brings this block all the way to the front, covering some lines
      */
     public void toFront() {
-        pane.toFront();
+        root.toFront();
     }
 
 }

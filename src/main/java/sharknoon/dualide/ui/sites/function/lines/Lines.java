@@ -30,7 +30,7 @@ import sharknoon.dualide.ui.sites.function.dots.Dot;
 public class Lines {
 
     public static Line createLine(FunctionSite functionSite, Dot dot) {
-        Line line = new Line(dot, functionSite);
+          var line = new Line(dot, functionSite);
         if (LINES.containsKey(functionSite)) {
             LINES.get(functionSite).add(line);
         } else {
@@ -38,39 +38,52 @@ public class Lines {
             lines.add(line);
             LINES.put(functionSite, lines);
         }
-        setLineDrawing(line);
+        setLineDrawing(functionSite, line);
         return line;
     }
 
     private static final Map<FunctionSite, List<Line>> LINES = new HashMap<>();
-    private static final List<Line> EMPTY = new ArrayList<>();
 
-    private static Line lineDrawing = null;
+    private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();
 
-    public static void setLineDrawing(Line line) {
-        lineDrawing = line;
+    public static void setLineDrawing(FunctionSite functionSite, Line line) {
+        CURRENT_DRAWING_LINE.put(functionSite, line);
     }
 
-    public static boolean isLineDrawing() {
-        return lineDrawing != null;
+    public static boolean isLineDrawing(FunctionSite functionSite) {
+        return CURRENT_DRAWING_LINE.containsKey(functionSite);
     }
 
-    public static void removeLineDrawing() {
-        lineDrawing = null;
+    public static void removeLineDrawing(FunctionSite functionSite) {
+        CURRENT_DRAWING_LINE.remove(functionSite);
     }
 
-    public static Line getDrawingLine() {
-        return lineDrawing;
+    public static Line getDrawingLine(FunctionSite functionSite) {
+        return CURRENT_DRAWING_LINE.get(functionSite);
     }
 
     public static Collection<Line> getAllLines(FunctionSite functionSite) {
-        return LINES.getOrDefault(functionSite, EMPTY);
+        return LINES.getOrDefault(functionSite, List.of());
     }
 
     public static void unregisterLine(FunctionSite functionSite, Line line) {
         if (LINES.containsKey(functionSite)) {
             LINES.get(functionSite).remove(line);
         }
+    }
+
+    public static boolean isDuplicate(FunctionSite functionSite, Line line, Dot endDot) {
+          var dot1 = line.getStartDot();
+          var dot2 = endDot;
+        return getAllLines(functionSite)
+                .stream()
+                .filter(l -> l != line)
+                .anyMatch(l -> {
+                      var dot1l = l.getStartDot();
+                      var dot2l = l.getEndDot();
+                    return (dot1 == dot1l && dot2 == dot2l)
+                            || (dot1 == dot2l && dot2 == dot1l);
+                });
     }
 
 }

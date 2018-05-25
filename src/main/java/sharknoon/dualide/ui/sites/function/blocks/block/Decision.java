@@ -44,8 +44,13 @@ public class Decision extends Block {
     }
 
     @Override
-    public Side[] initDotSides() {
-        return new Side[]{Side.TOP, Side.BOTTOM, Side.RIGHT};
+    public Side[] initDotOutputSides() {
+        return new Side[]{Side.RIGHT, Side.LEFT};
+    }
+
+    @Override
+    public Side[] initDotInputSides() {
+        return new Side[]{Side.TOP};
     }
 
     @Override

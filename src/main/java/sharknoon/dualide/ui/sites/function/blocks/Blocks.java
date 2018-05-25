@@ -112,10 +112,10 @@ public class Blocks {
     }
 
     public static boolean isInsideWorkspace(Block b, double x, double y) {
-        return !(x < 0 + UISettings.paddingInsideWorkSpace
-                || y < 0 + UISettings.paddingInsideWorkSpace
-                || x + b.getWidth() > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace
-                || y + b.getHeight() > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace);
+        return !(x < 0 + UISettings.WORKSPACE_PADDING
+                || y < 0 + UISettings.WORKSPACE_PADDING
+                || x + b.getWidth() > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING
+                || y + b.getHeight() > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING);
     }
 
     private static Block mouseOverBlock = null;

@@ -19,7 +19,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 
 /**
- * This interface is used to mark a type as eventconsuable
+ * This interface is used to mark a type as eventconsumable
  *
  * @author Josua Frank
  */

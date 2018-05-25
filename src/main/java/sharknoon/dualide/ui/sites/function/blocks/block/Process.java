@@ -44,8 +44,13 @@ public class Process extends Block {
     }
 
     @Override
-    public Side[] initDotSides() {
-        return new Side[]{Side.TOP, Side.BOTTOM};
+    public Side[] initDotOutputSides() {
+        return new Side[]{Side.BOTTOM};
+    }
+
+    @Override
+    public Side[] initDotInputSides() {
+        return new Side[]{Side.TOP};
     }
 
     @Override

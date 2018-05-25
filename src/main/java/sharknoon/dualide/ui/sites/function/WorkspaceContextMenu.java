@@ -49,13 +49,13 @@ public class WorkspaceContextMenu {
     public void onContextMenuRequested(Point2D workspaceOrigin, Point2D screenOrigin, Node originNode) {
         double x = workspaceOrigin.getX();
         double y = workspaceOrigin.getY();
-        if (x < 0 + UISettings.paddingInsideWorkSpace) {
+        if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return;
-        } else if (x > UISettings.maxWorkSpaceX - UISettings.paddingInsideWorkSpace) {
+        } else if (x > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING) {
             return;
-        } else if (y < 0 + UISettings.paddingInsideWorkSpace) {
+        } else if (y < 0 + UISettings.WORKSPACE_PADDING) {
             return;
-        } else if (y > UISettings.maxWorkSpaceY - UISettings.paddingInsideWorkSpace) {
+        } else if (y > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING) {
             return;
         }
 

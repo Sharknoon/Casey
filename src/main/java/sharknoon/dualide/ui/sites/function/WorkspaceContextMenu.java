@@ -21,6 +21,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
 
 /**
  *
@@ -66,10 +68,13 @@ public class WorkspaceContextMenu {
         } else {
             menu.hide();
         }
-        if (!Blocks.isMouseOverBlock() && ! Lines.isMouseOverLine()) {
-            MenuItem addNewDecisionBlockItem = new MenuItem("Add Decision Block");
-            MenuItem addNewProgressBlockItem = new MenuItem("Add Progress Block");
-            MenuItem addNewEndBlockItem = new MenuItem("Add End Block");
+        if (!Blocks.isMouseOverBlock() && !Lines.isMouseOverLine()) {
+            MenuItem addNewDecisionBlockItem = new MenuItem();
+            MenuItem addNewProgressBlockItem = new MenuItem();
+            MenuItem addNewEndBlockItem = new MenuItem();
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, addNewDecisionBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_PROCESS_BLOCK, addNewProgressBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, addNewEndBlockItem::setText);
             addNewDecisionBlockItem.setOnAction(e -> {
                 functionSite.addDecisionBlock(workspaceOrigin);
             });

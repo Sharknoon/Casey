@@ -165,6 +165,8 @@ public class FunctionSite extends Site<Function> {
         zoomTimeline.play();
     }
 
+    private boolean initialized = false;
+
     private void init() {
         bs.init();
 //        bm.init();
@@ -173,30 +175,45 @@ public class FunctionSite extends Site<Function> {
 //        kb.init();
         drawLineAroundWorkspace();
         centerWorkspaceView();
-        addStartBlock();
+        if (!startBlockAlreadyAdded) {
+            addStartBlock(-1, -1);
+        }
+        initialized = true;
     }
 
-    private void addStartBlock() {
-        Block startBlock = Blocks.createStartBlock(this);
-        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-        double minX = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
-        double minY = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
-        addBlock(startBlock, new Point2D(minX, minY));
+    private boolean startBlockAlreadyAdded = false;
+
+    public Block addStartBlock(double x, double y) {
+        if (startBlockAlreadyAdded) {
+            return null;
+        }
+          var startBlock = Blocks.createStartBlock(this);
+        if (x < 0 || y < 0) {
+              var screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+            x = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
+            y = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
+        }
+        addBlock(startBlock, new Point2D(x, y));
+        startBlockAlreadyAdded = true;
+        return startBlock;
     }
 
-    public void addEndBlock(Point2D origin) {
-        Block endBlock = Blocks.createEndBlock(this);
+    public Block addEndBlock(Point2D origin) {
+          var endBlock = Blocks.createEndBlock(this);
         addBlock(endBlock, origin);
+        return endBlock;
     }
 
-    public void addDecisionBlock(Point2D origin) {
-        Block decisionBlock = Blocks.createDecisionBlock(this);
+    public Block addDecisionBlock(Point2D origin) {
+          var decisionBlock = Blocks.createDecisionBlock(this);
         addBlock(decisionBlock, origin);
+        return decisionBlock;
     }
 
-    public void addProcessBlock(Point2D origin) {
-        Block processBlock = Blocks.createProcessBlock(this);
+    public Block addProcessBlock(Point2D origin) {
+          var processBlock = Blocks.createProcessBlock(this);
         addBlock(processBlock, origin);
+        return processBlock;
     }
 
     private void addBlock(Block block, Point2D origin) {
@@ -273,7 +290,7 @@ public class FunctionSite extends Site<Function> {
     @Override
     public CompletableFuture<Pane> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
-            if (root == null || root.getChildren().size() < 1) {
+            if (!initialized) {
                 init();
             }
             return root;

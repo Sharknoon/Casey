@@ -70,8 +70,10 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final Timeline dotsHideTimeline = new Timeline();
     private final Timeline movingXTimeline = new Timeline();
     private final Timeline movingYTimeline = new Timeline();
-    //The 1-4 dots of a block
-    private final List<Dot> dots = new ArrayList<>();
+    //The 1-4 output dots of a block
+    private final List<Dot> outputDots = new ArrayList<>();
+    //The 1-4 input dots of a block
+    private final List<Dot> inputDots = new ArrayList<>();
     //The current functionSite of this block
     private final FunctionSite functionSite;
     //The current state of the block
@@ -173,12 +175,12 @@ public abstract class Block implements Moveable, MouseConsumable {
         for (  var dotOutputSide : dotOutputSides) {
               var dot = Dot.createDot(this, dotOutputSide, false);
             dot.addTo(root);
-            dots.add(dot);
+            outputDots.add(dot);
         }
         for (  var dotInputSide : dotInputSides) {
               var dot = Dot.createDot(this, dotInputSide, true);
             dot.addTo(root);
-            dots.add(dot);
+            inputDots.add(dot);
         }
     }
 
@@ -505,7 +507,10 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public void showDots() {
         dotsShowTimeline.getKeyFrames().clear();
-        dots.forEach(dot -> {
+        inputDots.forEach(dot -> {
+            dotsShowTimeline.getKeyFrames().addAll(dot.show());
+        });
+        outputDots.forEach(dot -> {
             dotsShowTimeline.getKeyFrames().addAll(dot.show());
         });
         dotsHideTimeline.stop();
@@ -518,7 +523,10 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public void hideDots() {
         dotsHideTimeline.getKeyFrames().clear();
-        dots.forEach(dot -> {
+        inputDots.forEach(dot -> {
+            dotsHideTimeline.getKeyFrames().addAll(dot.hide());
+        });
+        outputDots.forEach(dot -> {
             dotsHideTimeline.getKeyFrames().addAll(dot.hide());
         });
         dotsShowTimeline.stop();
@@ -533,7 +541,15 @@ public abstract class Block implements Moveable, MouseConsumable {
     public void reloadDots() {
         dotsShowTimeline.getKeyFrames().clear();
         dotsHideTimeline.getKeyFrames().clear();
-        dots.stream()
+        inputDots.stream()
+                .forEach(dot -> {
+                    if (dot.hasLines()) {
+                        dotsShowTimeline.getKeyFrames().addAll(dot.show());
+                    } else {
+                        dotsHideTimeline.getKeyFrames().addAll(dot.hide());
+                    }
+                });
+        outputDots.stream()
                 .forEach(dot -> {
                     if (dot.hasLines()) {
                         dotsShowTimeline.getKeyFrames().addAll(dot.show());
@@ -562,7 +578,9 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Destroyes this block completely
      */
     public void remove() {
-          var lines = dots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
+          var lines = inputDots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
+        lines.forEach(Line::remove);
+        lines = outputDots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
         lines.forEach(Line::remove);
         Blocks.unregisterBlock(functionSite, this);
         ((Pane) root.getParent()).getChildren().removeAll(predictionShadowShape, root);
@@ -575,4 +593,8 @@ public abstract class Block implements Moveable, MouseConsumable {
         root.toFront();
     }
 
+    public List<Dot> getOutputDots(){
+        return outputDots;
+    }
+    
 }

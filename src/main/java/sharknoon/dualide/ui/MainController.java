@@ -28,7 +28,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Welcome;
@@ -107,14 +106,10 @@ public class MainController implements Initializable {
         Background.init(imageView1, imageView2);
         MenuBarInit.init(menubar);
         ToolBarInit.init(toolbar);
-        ItemTreeView.init();
-        ItemTabPane.init();
+        ItemTreeView.init(treeView);
+        ItemTabPane.init(tabPane);
         Keyboard.init();
         Welcome.getWelcome().getSite().select();
-    }
-
-    public static TreeView<Item> getTreeView() {
-        return controller.treeView;
     }
 
     public static TabPane getTabPane() {

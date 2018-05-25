@@ -33,21 +33,19 @@ public class ItemTabPane {
 
     private static final Map<Tab, Item> ITEMS = new HashMap<>();
 
-    public static void init() {
-        MainController
-                .getTabPane()
+    public static void init(TabPane tabPane) {
+        tabPane
                 .getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    Item item = ITEMS.get(newValue);
+                    var item = ITEMS.get(newValue);
                     if (item != null) {
                         item.getSite().select();
                     }
                 });
         Site.currentSelectedProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    TabPane tabPane = MainController.getTabPane();
-                    Tab tab = newValue.getSite().getTab();
+                    var tab = newValue.getSite().getTab();
                     if (newValue.getType() == ItemType.WELCOME) {
                         tabPane.getTabs().clear();
                         tabPane.getTabs().add(tab);
@@ -63,9 +61,7 @@ public class ItemTabPane {
                     }
                 });
 
-        MainController
-                .getTabPane()
-                .setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
     }
 
 }

@@ -27,8 +27,7 @@ import sharknoon.dualide.ui.sites.Site;
  */
 public class ItemTreeView {
 
-    public static void init() {
-        TreeView<Item> treeView = MainController.getTreeView();
+    public static void init(TreeView<Item> treeView) {
         treeView.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {

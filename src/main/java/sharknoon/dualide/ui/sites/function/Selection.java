@@ -19,6 +19,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -63,10 +64,10 @@ public class Selection {
     }
 
     public void onMouseDragged(Point2D localCoordinates) {
-        double currentX = localCoordinates.getX();
-        double currentY = localCoordinates.getY();
-        double width = currentX - startX;
-        double hight = currentY - startY;
+        var currentX = localCoordinates.getX();
+        var currentY = localCoordinates.getY();
+        var width = currentX - startX;
+        var hight = currentY - startY;
         if (startX + width > UISettings.WORKSPACE_MAX_X) {
             width = UISettings.WORKSPACE_MAX_X - startX;
         } else if (startX + width < 0) {
@@ -104,8 +105,8 @@ public class Selection {
         selectionRectangle.setWidth(width);
         selectionRectangle.setHeight(hight);
 
-        final double finalWidth = width;
-        final double finalHight = hight;
+        final var finalWidth = width;
+        final var finalHight = hight;
 
         Blocks.getAllBlocks(functionSite).stream().forEach(b -> {
             if (b.getMinX() > translateX
@@ -134,8 +135,10 @@ public class Selection {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        if (!Blocks.isMouseOverBlock() && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
+        if (!Blocks.isMouseOverBlock() && !Lines.isMouseOverLine()
+                && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
             Blocks.unselectAll(functionSite);
+            Lines.getAllLines(functionSite).forEach(Line::unselect);
         }
     }
 

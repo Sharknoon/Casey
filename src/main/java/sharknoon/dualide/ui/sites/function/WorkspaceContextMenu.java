@@ -20,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
  *
@@ -65,7 +66,7 @@ public class WorkspaceContextMenu {
         } else {
             menu.hide();
         }
-        if (!Blocks.isMouseOverBlock()) {
+        if (!Blocks.isMouseOverBlock() && ! Lines.isMouseOverLine()) {
             MenuItem addNewDecisionBlockItem = new MenuItem("Add Decision Block");
             MenuItem addNewProgressBlockItem = new MenuItem("Add Progress Block");
             MenuItem addNewEndBlockItem = new MenuItem("Add End Block");

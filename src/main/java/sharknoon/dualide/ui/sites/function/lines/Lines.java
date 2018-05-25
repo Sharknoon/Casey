@@ -86,4 +86,22 @@ public class Lines {
                 });
     }
 
+    public static boolean isConnectionAllowed(Dot dot1, Dot dot2) {
+        return dot1.isInputDot() != dot2.isInputDot();
+    }
+
+    private static Line mouseOverLine = null;
+
+    public static void setMouseOverLine(Line line) {
+        mouseOverLine = line;
+    }
+
+    public static boolean isMouseOverLine() {
+        return mouseOverLine != null;
+    }
+
+    public static void removeMouseOverLine() {
+        mouseOverLine = null;
+    }
+
 }

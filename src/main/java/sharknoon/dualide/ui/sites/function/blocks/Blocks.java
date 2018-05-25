@@ -74,7 +74,7 @@ public class Blocks {
 
     public static void unselectAll(FunctionSite functionSite) {
         if (BLOCKS.containsKey(functionSite)) {
-            BLOCKS.get(functionSite).forEach(b -> b.unselect());
+            BLOCKS.get(functionSite).forEach(Block::unselect);
         }
     }
 

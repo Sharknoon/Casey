@@ -15,35 +15,33 @@
  */
 package sharknoon.dualide.ui.sites.function.lines;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 import javafx.geometry.Point2D;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
+import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.sites.function.blocks.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.blocks.Moveable;
-import sharknoon.dualide.ui.sites.function.dots.Dots;
 
 /**
  *
  * @author Josua Frank
  */
-public class Line implements Moveable {
+public class Line implements Moveable, MouseConsumable {
 
     private final CubicCurve line;
     private final Dot startDot;
@@ -52,14 +50,15 @@ public class Line implements Moveable {
     private final Timeline shadowRemoveTimeline = new Timeline();
     private Dot endDot;
     private boolean selected;
-    private Bounds lineBounds;
+    //The contextmenu for a line
+    private final LineContextMenu menu = new LineContextMenu(this);
 
     public Line(Dot startDot, FunctionSite functionSite) {
         this.startDot = startDot;
         this.functionSite = functionSite;
         line = initLine();
+        registerListeners(line, this);
         addDropShadowEffect();
-        line.setOnMouseClicked(this::onMouseClicked);
         this.functionSite.add(line);
     }
 
@@ -97,7 +96,6 @@ public class Line implements Moveable {
 
     public void setEndDot(Dot dot) {
         endDot = dot;
-        lineBounds = line.getBoundsInParent();
         line.endXProperty().bind(endDot.centerXExpression());
         line.endYProperty().bind(endDot.centerYExpression());
         switch (endDot.getSide()) {
@@ -138,21 +136,60 @@ public class Line implements Moveable {
         line.setEffect(dropShadow);
     }
 
+    @Override
+    public void onMousePressed(MouseEvent event) {
+        menu.hide();
+        Lines.setMouseOverLine(this);
+    }
+
+    @Override
     public void onMouseClicked(MouseEvent event) {
-        if (!Lines.isLineDrawing(functionSite)) {
-            if (selected) {
-                unselect();
-            } else {
-                select();
+        if (!Lines.isLineDrawing(functionSite) && event.getButton() == MouseButton.PRIMARY) {
+            if (!event.isControlDown()) {
+                Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
+                Lines.getAllLines(functionSite).forEach(Line::unselect);
             }
+            select();
         }
     }
-    
-    public void onMouseMoved(Point2D mousePosition){
-        if(Lines.isLineDrawing(functionSite)){
+
+    public void onMouseMoved(Point2D mousePosition) {
+        if (Lines.isLineDrawing(functionSite)) {
             line.setEndX(mousePosition.getX());
             line.setEndY(mousePosition.getY());
         }
+    }
+
+    @Override
+    public void onMouseDragged(MouseEvent event) {
+    }
+
+    @Override
+    public void onMouseReleased(MouseEvent event) {
+    }
+
+    @Override
+    public void onMouseEntered(MouseEvent event) {
+        Lines.setMouseOverLine(this);
+    }
+
+    @Override
+    public void onMouseExited(MouseEvent event) {
+        Lines.removeMouseOverLine();
+    }
+
+    private static void registerListeners(Shape shape, MouseConsumable consumable) {
+        shape.setOnMousePressed(consumable::onMousePressed);
+        shape.setOnMouseReleased(consumable::onMouseReleased);
+        shape.setOnMouseClicked(consumable::onMouseClicked);
+        shape.setOnContextMenuRequested(consumable::onContextMenuRequested);
+        shape.setOnMouseEntered(consumable::onMouseEntered);
+        shape.setOnMouseExited(consumable::onMouseExited);
+    }
+
+    @Override
+    public void onContextMenuRequested(ContextMenuEvent event) {
+        menu.onContextMenuRequested(event);
     }
 
     public void select() {

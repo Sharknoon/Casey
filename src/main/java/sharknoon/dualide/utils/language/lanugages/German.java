@@ -221,5 +221,6 @@ public class German extends Language {
         add(Word.NOT, "Nicht");
         add(Word.CONCAT, "Zusammenfügen");
         add(Word.LENGTH, "Länge");
+        add(Word.DELETE, "Löschen");
     }
 }

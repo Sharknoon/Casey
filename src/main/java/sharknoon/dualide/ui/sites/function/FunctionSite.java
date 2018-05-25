@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
+import sharknoon.dualide.ui.sites.function.lines.LineDrawing;
+import sharknoon.dualide.ui.sites.function.blocks.BlockMoving;
 import java.util.concurrent.CompletableFuture;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

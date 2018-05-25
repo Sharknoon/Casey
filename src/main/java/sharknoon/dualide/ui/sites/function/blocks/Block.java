@@ -18,6 +18,7 @@ package sharknoon.dualide.ui.sites.function.blocks;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -28,6 +29,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -38,6 +40,7 @@ import javafx.util.Duration;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.dots.Dots;
+import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -167,12 +170,12 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     private void createDots() {
-        for (var dotOutputSide : dotOutputSides) {
-              var dot = Dot.createDot(this, dotOutputSide,false);
+        for (  var dotOutputSide : dotOutputSides) {
+              var dot = Dot.createDot(this, dotOutputSide, false);
             dot.addTo(root);
             dots.add(dot);
         }
-        for (var dotInputSide : dotInputSides) {
+        for (  var dotInputSide : dotInputSides) {
               var dot = Dot.createDot(this, dotInputSide, true);
             dot.addTo(root);
             dots.add(dot);
@@ -217,10 +220,13 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public void onMouseClicked(MouseEvent event) {
-        if (!event.isControlDown()) {
-            Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
+        if (event.getButton() == MouseButton.PRIMARY) {
+            if (!event.isControlDown()) {
+                Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
+                Lines.getAllLines(functionSite).forEach(Line::unselect);
+            }
+            select();
         }
-        select();
     }
 
     @Override
@@ -556,6 +562,8 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Destroyes this block completely
      */
     public void remove() {
+          var lines = dots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
+        lines.forEach(Line::remove);
         Blocks.unregisterBlock(functionSite, this);
         ((Pane) root.getParent()).getChildren().removeAll(predictionShadowShape, root);
     }

@@ -212,5 +212,6 @@ public enum Word {
     NOT,
     CONCAT,
     LENGTH,
+    DELETE
 
 }

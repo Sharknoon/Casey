@@ -13,28 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.blocks;
+package sharknoon.dualide.ui.sites.function.lines;
 
 import java.util.stream.Collectors;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
-import sharknoon.dualide.ui.sites.function.blocks.block.Start;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 /**
- * This type represents the context menu of a block
  *
  * @author Josua Frank
  */
-public class BlockContextMenu {
+public class LineContextMenu {
 
-    private final Block block;
+    private final Line line;
     private final ContextMenu menu = new ContextMenu();
 
-    public BlockContextMenu(Block block) {
-        this.block = block;
+    public LineContextMenu(Line line) {
+        this.line = line;
     }
 
     /**
@@ -45,29 +43,24 @@ public class BlockContextMenu {
      */
     public void onContextMenuRequested(ContextMenuEvent event) {
         menu.getItems().clear();
-        if (!block.getClass().equals(Start.class)) {
-              var deleteItem = new MenuItem();
-            Language.setCustom(Word.DELETE, deleteItem::setText);
-            deleteItem.setOnAction(e -> {
-                if (block.isSelected()) {
-                      var allBlocks = Blocks.getAllBlocks(block.getFunctionSite());
-                      var toRemove = Blocks
-                            .getAllBlocks(block.getFunctionSite())
-                            .stream()
-                            .filter(Block::isSelected)
-                            .filter(b -> !b.getClass().equals(Start.class))
-                            .collect(Collectors.toList());
-                    toRemove.forEach(Block::remove);
-                } else {
-                    block.remove();
-                }
-            });
-            menu.getItems().add(deleteItem);
-        }
+          var deleteItem = new MenuItem();
+        Language.setCustom(Word.DELETE, deleteItem::setText);
+        deleteItem.setOnAction(e -> {
+            if (line.isSelected()) {
+                  var linesToDelete = Lines.getAllLines(line.getStartDot().getBlock().getFunctionSite())
+                        .stream()
+                        .filter(Line::isSelected)
+                        .collect(Collectors.toList());
+                linesToDelete.forEach(Line::remove);
+            } else {
+                line.remove();
+            }
+        });
+        menu.getItems().add(deleteItem);
         //...
 
         menu.setAutoHide(true);
-        menu.show(block.getShape(), event.getScreenX(), event.getScreenY());
+        menu.show(line.getShape(), event.getScreenX(), event.getScreenY());
 
     }
 

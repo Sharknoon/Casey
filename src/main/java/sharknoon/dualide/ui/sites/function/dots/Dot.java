@@ -156,7 +156,8 @@ public class Dot {
             lines.add(line);
         } else {
               var line = Lines.getDrawingLine(functionSite);
-            if (!Lines.isDuplicate(functionSite, line, this)) {
+            if (!Lines.isDuplicate(functionSite, line, this)
+                    && Lines.isConnectionAllowed(line.getStartDot(), this)) {
                 lines.add(line);
                 line.setEndDot(this);
                 Lines.removeLineDrawing(functionSite);

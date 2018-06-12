@@ -63,7 +63,7 @@ public class Logger {
      * @return The old LogLevel
      */
     public static LogLevel setLogLevel(LogLevel logLevel) {
-        LogLevel oldLogLevel = Logger.logLevel;
+        var oldLogLevel = Logger.logLevel;
         Logger.logLevel = logLevel;
         return oldLogLevel;
     }

@@ -60,13 +60,11 @@ public class Keyboard {
                 var functionSite = (FunctionSite) currentItem.getSite();
                 var blocksToDelete = Blocks
                         .getAllBlocks(functionSite)
-                        .stream()
                         .filter(Block::isSelected)
                         .filter(b -> b.getClass() != Start.class)
                         .collect(Collectors.toList());
                 blocksToDelete.forEach(Block::remove);
                 var linesToDelete = Lines.getAllLines(functionSite)
-                        .stream()
                         .filter(Line::isSelected)
                         .collect(Collectors.toList());
                 linesToDelete.forEach(Line::remove);

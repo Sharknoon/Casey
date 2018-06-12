@@ -17,9 +17,19 @@ package sharknoon.dualide.ui.sites.function.dots;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -33,6 +43,7 @@ import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
+import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -42,25 +53,30 @@ public class Dot {
 
     private final Circle circle;
     private final Block block;
-    private final List<Line> lines = new ArrayList<>();
+    private final ObservableSet<Line> lines = FXCollections.observableSet();
     private final Side side;
     private final boolean isInput;
     private final FunctionSite functionSite;
+    private final BooleanBinding showingBinding;
+    private final Timeline showTimeline = new Timeline();
+    private final Timeline hideTimeline = new Timeline();
 
-    public static Dot createDot(Block block, Side side, boolean isInput) {
-        return new Dot(side, block, isInput);
-    }
-
-    private Dot(Side side, Block block, boolean isInput) {
+    public Dot(Side side, Block block, boolean isInput) {
         this.side = side;
         this.block = block;
         this.isInput = isInput;
         this.functionSite = block.getFunctionSite();
 
         circle = new Circle(UISettings.DOT_RADIUS, isInput ? UISettings.DOT_INPUT_COLOR : UISettings.DOT_OUTPUT_COLOR);
+        showingBinding = Bindings.isNotEmpty(lines).or(circle.hoverProperty()).or(block.getShape().hoverProperty());
+        showingBinding.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                show();
+            } else {
+                hide();
+            }
+        });
         circle.setOpacity(0);
-        circle.setOnMouseEntered(this::onMouseEntered);
-        circle.setOnMouseExited(this::onMouseExited);
         circle.setOnMouseClicked(this::onMouseClicked);
           var shadow = new DropShadow(25, Color.WHITE);
         shadow.setSpread(0.5);
@@ -83,33 +99,38 @@ public class Dot {
                 circle.setCenterY(0);
                 break;
         }
-        Dots.registerDot(block.getFunctionSite(), this);
     }
 
     public void addTo(Pane pane) {
         pane.getChildren().add(circle);
     }
 
-    public KeyFrame[] show() {
-        block.toFront();
-        KeyValue opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-        KeyValue opacityEnd = new KeyValue(circle.opacityProperty(), 1);
-        return new KeyFrame[]{
-            new KeyFrame(Duration.ZERO, opacityStart),
-            new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
-        };
+    public void show() {
+        var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
+        var opacityEnd = new KeyValue(circle.opacityProperty(), 1);
+
+        showTimeline.getKeyFrames().clear();
+        showTimeline.getKeyFrames().addAll(
+                new KeyFrame(Duration.ZERO, opacityStart),
+                new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
+        );
+        hideTimeline.stop();
+        showTimeline.stop();
+        showTimeline.play();
     }
 
-    public KeyFrame[] hide() {
-        if (!lines.isEmpty()) {
-            return new KeyFrame[]{};//If there is alreay a line from this dot, dont hide it
-        }
-        KeyValue opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-        KeyValue opacityEnd = new KeyValue(circle.opacityProperty(), 0);
-        return new KeyFrame[]{
+    public void hide() {
+        var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
+        var opacityEnd = new KeyValue(circle.opacityProperty(), 0);
+        
+        hideTimeline.getKeyFrames().clear();
+        hideTimeline.getKeyFrames().addAll(
             new KeyFrame(Duration.ZERO, opacityStart),
             new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
-        };
+        );
+        showTimeline.stop();
+        hideTimeline.stop();
+        hideTimeline.play();
     }
 
     /**
@@ -138,34 +159,22 @@ public class Dot {
         return block.minYExpression().add(circle.centerYProperty());
     }
 
-    private void onMouseEntered(MouseEvent event) {
-        Dots.setMouseOverDot(this);
-        block.showDots();
-        Blocks.setMouseOverBlock(block);
-    }
-
-    private void onMouseExited(MouseEvent event) {
-        Dots.removeMouseOverDot();
-        block.hideDots();
-        Blocks.removeMouseOverBlock();
-    }
-
     public void onMouseClicked(MouseEvent event) {
         if (!Lines.isLineDrawing(functionSite)) {
               var line = Lines.createLine(functionSite, this);
             lines.add(line);
+            Lines.setLineDrawing(functionSite, line);
         } else {
               var line = Lines.getDrawingLine(functionSite);
             if (!Lines.isDuplicate(functionSite, line, this)
                     && Lines.isConnectionAllowed(line.getStartDot(), this)) {
-                lines.add(line);
                 line.setEndDot(this);
+                lines.add(line);
                 Lines.removeLineDrawing(functionSite);
             } else {
                 line.remove();
             }
         }
-        block.toFront();
     }
 
     public Block getBlock() {
@@ -174,19 +183,18 @@ public class Dot {
 
     public void removeLine(Line line) {
         lines.remove(line);
-        block.hideDots();
     }
 
     public boolean hasLines() {
         return !lines.isEmpty();
     }
 
-    public List<Line> getLines() {
-        return lines;
+    public boolean hasNoLines() {
+        return !hasLines();
     }
 
-    public void addLine(Line line) {
-        lines.add(line);
+    public Set<Line> getLines() {
+        return lines;
     }
 
     public Side getSide() {
@@ -197,4 +205,8 @@ public class Dot {
         return isInput;
     }
 
+    public void addLine(Line line){
+        lines.add(line);
+    }
+    
 }

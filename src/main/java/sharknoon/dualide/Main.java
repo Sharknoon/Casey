@@ -18,7 +18,6 @@ package sharknoon.dualide;
 import javafx.application.Application;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.utils.settings.Logger;
-import sharknoon.dualide.utils.settings.Resources;
 
 /**
  *
@@ -28,6 +27,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.setProperty("javafx.animation.framerate", "144");
+        System.setProperty("javafx.preloader", "sharknoon.dualide.ui.splashscreen.SplashScreen");
         Logger.setLogLevel(Logger.LogLevel.DEBUG);
         //Resources.resetResources(true);
         Application.launch(MainApplication.class);

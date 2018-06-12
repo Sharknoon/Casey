@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 /**
- *
+ * TODO move to an css file in the future
  * @author Josua Frank
  */
 public class UISettings {

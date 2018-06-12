@@ -32,21 +32,36 @@
         </repository>
     </repositories>
     <dependencies>
+        <!-- To enable proper logging for some dependencies-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <!-- To run lua during runtime -->
         <dependency>
             <groupId>org.luaj</groupId>
             <artifactId>luaj-jse</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <!-- To play webradio streams -->
         <dependency>
             <groupId>net.sourceforge.jaadec</groupId>
             <artifactId>jaad</artifactId>
             <version>0.8.5</version>
         </dependency>
+        <!-- database -->
         <dependency>
             <groupId>org.dizitart</groupId>
             <artifactId>nitrite</artifactId>
             <version>2.1.1</version>
         </dependency>
+        <!-- JUnit test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -59,17 +74,20 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+        <!-- Additional JavaFX controls like Popup -->
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>9.0.0</version>
             <type>jar</type>
         </dependency>
+        <!-- Additional JavaFX components like SVG-Reader -->
         <dependency>
             <groupId>com.github.afester.javafx</groupId>
             <artifactId>FranzXaver</artifactId>
             <version>0.1</version>
         </dependency>
+        <!-- More advanced Binding tools e.g. to bind two lists to one or map a list -->
         <dependency>
             <groupId>org.fxmisc.easybind</groupId>
             <artifactId>easybind</artifactId>

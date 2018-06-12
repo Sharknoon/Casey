@@ -68,24 +68,46 @@ public class WorkspaceContextMenu {
         } else {
             menu.hide();
         }
-        if (!Blocks.isMouseOverBlock() && !Lines.isMouseOverLine()) {
+        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine()) {
             MenuItem addNewDecisionBlockItem = new MenuItem();
-            MenuItem addNewProgressBlockItem = new MenuItem();
+            MenuItem addNewAssignmentBlockItem = new MenuItem();
             MenuItem addNewEndBlockItem = new MenuItem();
+            MenuItem addNewCallBlockItem = new MenuItem();
+            MenuItem addNewInputBlockItem = new MenuItem();
+            MenuItem addNewOutputBlockItem = new MenuItem();
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, addNewDecisionBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_PROCESS_BLOCK, addNewProgressBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, addNewAssignmentBlockItem::setText);
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, addNewEndBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, addNewCallBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, addNewInputBlockItem::setText);
+            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, addNewOutputBlockItem::setText);
             addNewDecisionBlockItem.setOnAction(e -> {
                 functionSite.addDecisionBlock(workspaceOrigin);
             });
-            addNewProgressBlockItem.setOnAction(e -> {
-                functionSite.addProcessBlock(workspaceOrigin);
+            addNewAssignmentBlockItem.setOnAction(e -> {
+                functionSite.addAssignmentBlock(workspaceOrigin);
             });
             addNewEndBlockItem.setOnAction(e -> {
                 functionSite.addEndBlock(workspaceOrigin);
             });
+            addNewCallBlockItem.setOnAction(e -> {
+                functionSite.addCallBlock(workspaceOrigin);
+            });
+            addNewInputBlockItem.setOnAction(e -> {
+                functionSite.addInputBlock(workspaceOrigin);
+            });
+            addNewOutputBlockItem.setOnAction(e -> {
+                functionSite.addOutputBlock(workspaceOrigin);
+            });
             menu.getItems().clear();
-            menu.getItems().addAll(addNewDecisionBlockItem, addNewProgressBlockItem, addNewEndBlockItem);
+            menu.getItems().addAll(
+                    addNewDecisionBlockItem, 
+                    addNewAssignmentBlockItem, 
+                    addNewEndBlockItem,
+                    addNewCallBlockItem,
+                    addNewInputBlockItem,
+                    addNewOutputBlockItem
+            );
             menu.show(originNode, screenOrigin.getX(), screenOrigin.getY());
         }
     }

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
+import javafx.geometry.Side;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.sites.Site;
@@ -36,6 +39,10 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
+import sharknoon.dualide.ui.sites.function.lines.Line;
+import sharknoon.dualide.ui.sites.function.lines.Lines;
+import sharknoon.dualide.utils.math.Pairing;
+import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -50,6 +57,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     private static final String PARAMETERS = "parameters";
 
     private static final String BLOCKS = "blocks";
+    private static final String BLOCK_ID = "blockid";
     private static final String BLOCK_X = "blockX";
     private static final String BLOCK_Y = "blockY";
     private static final String BLOCK_TYPE = "blocktype";
@@ -76,12 +84,27 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
           var blocksNode = new ArrayNode(JsonNodeFactory.instance);
         Blocks.getAllBlocks((FunctionSite) getSite()).forEach(b -> {
               var block = new ObjectNode(JsonNodeFactory.instance);
+            block.put(BLOCK_ID, Pairing.pair(b.getMinX(), b.getMinY()));
             block.put(BLOCK_X, b.getMinX());
             block.put(BLOCK_Y, b.getMinY());
             block.put(BLOCK_TYPE, b.getClass().getSimpleName().toUpperCase());
-            List<Dot> dots = b.getOutputDots();
-            
-            //TODO outputside: [block y:side, block x:side,...]
+
+              var dots = new ObjectNode(JsonNodeFactory.instance);
+            b.getOutputDots().forEach(d -> {
+                  var lines = new ObjectNode(JsonNodeFactory.instance);
+                d.getLines().forEach(l -> {
+                      var inputDot = l.getInputDot();
+                    if (inputDot != null) {//Is the case when during the creation of a line the window is being closed
+                          var side = inputDot.getSide();
+                          var endblock = inputDot.getBlock();
+                        lines.put(Pairing.pair(endblock.getMinX(), endblock.getMinY()) + "", side.name());
+                    }
+                });
+                if (lines.size() > 0) {
+                    dots.set(d.getSide().name(), lines);
+                }
+            });
+            block.set(BLOCK_CONNECTIONS, dots);
             blocksNode.add(block);
         });
         map.put(BLOCKS, blocksNode);
@@ -91,6 +114,8 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
 
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
+        final Map<Double, Block> blockIDs = new HashMap<>();
+        final Map<Double, Map<Side, Map<Double, Side>>> blockConections = new HashMap<>();
         properties.forEach((key, value) -> {
             switch (key) {
                 case RETURNTYPE:
@@ -107,29 +132,72 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                     ArrayNode blocks = (ArrayNode) value;
                     for (JsonNode b : blocks) {
                           var blockNode = (ObjectNode) b;
-                          var blocktype = blockNode.get(BLOCK_TYPE).asText();
+
+                          var id = blockNode.get(BLOCK_ID).asDouble(0);
                           var x = blockNode.get(BLOCK_X).asInt(0);
                           var y = blockNode.get(BLOCK_Y).asInt(0);
+                          var blocktype = blockNode.get(BLOCK_TYPE).asText();
+                          var connections = (ObjectNode) blockNode.get(BLOCK_CONNECTIONS);
+
                           var fs = (FunctionSite) getSite();
                           var block = (Block) null;
                         switch (blocktype) {
                             case "DECISION":
                                 block = fs.addDecisionBlock(new Point2D(x, y));
                                 break;
-                            case "PROCESS":
-                                block = fs.addProcessBlock(new Point2D(x, y));
+                            case "ASSIGNMENT":
+                                block = fs.addAssignmentBlock(new Point2D(x, y));
                                 break;
                             case "END":
                                 block = fs.addEndBlock(new Point2D(x, y));
                                 break;
                             case "START":
-                                block = fs.addStartBlock(x, y);
+                                block = fs.addStartBlock(new Point2D(x, y));
+                                break;
+                            default:
+                                block = fs.addAssignmentBlock(new Point2D(x, y));
                                 break;
                         }
-                        
+                        blockIDs.put(id, block);
+                        connections.fields().forEachRemaining(e -> {
+                            String side = e.getKey();
+                            ObjectNode lines = (ObjectNode) e.getValue();
+                            if (!blockConections.containsKey(id)) {
+                                blockConections.put(id, new HashMap<>());
+                            }
+                            Map<Side, Map<Double, Side>> sidesMap = blockConections.get(id);
+                            Side s = Side.valueOf(side);
+                            if (!sidesMap.containsKey(s)) {
+                                sidesMap.put(s, new HashMap<>());
+                            }
+                            Map<Double, Side> linesMap = sidesMap.get(s);
+                            lines.fields().forEachRemaining(e2 -> {
+                                linesMap.put(Double.parseDouble(e2.getKey()), Side.valueOf(e2.getValue().asText("")));
+                            });
+                        });
                     }
                     break;
             }
+        });
+        blockConections.forEach((originBlockId, originSides) -> {
+            originSides.forEach((originSide, lines) -> {
+                lines.forEach((destinationBlockId, destinationSide) -> {
+                    try {
+                        blockIDs
+                                .get(originBlockId)
+                                .getOutputDot(originSide)
+                                .ifPresent(originDot -> {
+                                      var destinationBlock = blockIDs.get(destinationBlockId);
+                                    destinationBlock.getInputDot(destinationSide).ifPresent(destinationDot -> {
+                                          var line = Lines.createLine((FunctionSite) getSite(), originDot);
+                                        line.setEndDot(destinationDot);
+                                    });
+                                });
+                    } catch (Exception e) {
+                        Logger.error("Could not load line", e);
+                    }
+                });
+            });
         });
     }
 

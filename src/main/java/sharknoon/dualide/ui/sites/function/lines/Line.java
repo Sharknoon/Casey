@@ -20,6 +20,10 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
@@ -44,32 +48,42 @@ import sharknoon.dualide.ui.sites.function.blocks.Moveable;
 public class Line implements Moveable, MouseConsumable {
 
     private final CubicCurve line;
-    private final Dot startDot;
+    private final ObjectProperty<Dot> startDot = new SimpleObjectProperty<>();
     private final FunctionSite functionSite;
     private final Timeline shadowShowTimeline = new Timeline();
     private final Timeline shadowRemoveTimeline = new Timeline();
-    private Dot endDot;
+    private final ObjectProperty<Dot> endDot = new SimpleObjectProperty<>();
     private boolean selected;
     //The contextmenu for a line
     private final LineContextMenu menu = new LineContextMenu(this);
+    private final ChangeListener<Dot> onDotChange = (ObservableValue<? extends Dot> o, Dot od, Dot nd) -> {
+        if (od != null) {
+            od.removeLine(this);
+        }
+        if (nd != null) {
+            nd.addLine(this);
+        }
+    };
 
-    public Line(Dot startDot, FunctionSite functionSite) {
-        this.startDot = startDot;
+    Line(Dot dot, FunctionSite functionSite) {
+        startDot.addListener(onDotChange);
+        endDot.addListener(onDotChange);
         this.functionSite = functionSite;
+        startDot.set(dot);
         line = initLine();
         registerListeners(line, this);
         addDropShadowEffect();
-        this.functionSite.add(line);
+        this.functionSite.addInBack(line);
     }
 
     private CubicCurve initLine() {
           var line = new CubicCurve();
         line.setStroke(UISettings.LINE_COLOR);
         line.setStrokeWidth(UISettings.LINE_WIDTH);
-        line.startXProperty().bind(startDot.centerXExpression());
-        line.startYProperty().bind(startDot.centerYExpression());
+        line.startXProperty().bind(getStartDot().centerXExpression());
+        line.startYProperty().bind(getStartDot().centerYExpression());
         line.setFill(Color.TRANSPARENT);
-        switch (startDot.getSide()) {
+        switch (getStartDot().getSide()) {
             case BOTTOM:
                 line.controlX1Property().bind(line.startXProperty());
                 line.controlY1Property().bind(line.startYProperty().add(UISettings.LINE_CONTROL_OFFSET));
@@ -89,16 +103,20 @@ public class Line implements Moveable, MouseConsumable {
         }
         line.controlX2Property().bind(line.endXProperty());
         line.controlY2Property().bind(line.endYProperty());
-        line.setEndX(startDot.getCenterX());
-        line.setEndY(startDot.getCenterY());
+        line.setEndX(getStartDot().getCenterX());
+        line.setEndY(getStartDot().getCenterY());
         return line;
     }
 
     public void setEndDot(Dot dot) {
-        endDot = dot;
-        line.endXProperty().bind(endDot.centerXExpression());
-        line.endYProperty().bind(endDot.centerYExpression());
-        switch (endDot.getSide()) {
+        endDot.set(dot);
+        bindLine();
+    }
+
+    private void bindLine() {
+        line.endXProperty().bind(getEndDot().centerXExpression());
+        line.endYProperty().bind(getEndDot().centerYExpression());
+        switch (getEndDot().getSide()) {
             case BOTTOM:
                 line.controlX2Property().bind(line.endXProperty());
                 line.controlY2Property().bind(line.endYProperty().add(UISettings.LINE_CONTROL_OFFSET));
@@ -120,12 +138,9 @@ public class Line implements Moveable, MouseConsumable {
 
     public void remove() {
         functionSite.remove(line);
-        startDot.removeLine(this);
-        if (endDot != null) {
-            endDot.removeLine(this);
-        }
+        startDot.set(null);
+        endDot.set(null);
         Lines.removeLineDrawing(functionSite);
-        Lines.unregisterLine(functionSite, this);
     }
 
     private void addDropShadowEffect() {
@@ -138,30 +153,36 @@ public class Line implements Moveable, MouseConsumable {
 
     @Override
     public void onMousePressed(MouseEvent event) {
-        menu.hide();
         Lines.setMouseOverLine(this);
     }
 
     @Override
+    public void onMouseDragged(MouseEvent event) {
+        menu.hide();
+    }
+
+    @Override
     public void onMouseClicked(MouseEvent event) {
-        if (!Lines.isLineDrawing(functionSite) && event.getButton() == MouseButton.PRIMARY) {
+        System.out.println("line clicked");
+        System.out.println("is line drawing: " + Lines.isLineDrawing(functionSite));
+        if (!Lines.isLineDrawing(functionSite) && event.getButton() == MouseButton.PRIMARY && event.isStillSincePress()) {
             if (!event.isControlDown()) {
                 Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
                 Lines.getAllLines(functionSite).forEach(Line::unselect);
+                select();
+            } else {
+                toggleSelection();
             }
-            select();
         }
     }
 
     public void onMouseMoved(Point2D mousePosition) {
         if (Lines.isLineDrawing(functionSite)) {
+            line.endXProperty().unbind();
+            line.endYProperty().unbind();
             line.setEndX(mousePosition.getX());
             line.setEndY(mousePosition.getY());
         }
-    }
-
-    @Override
-    public void onMouseDragged(MouseEvent event) {
     }
 
     @Override
@@ -185,6 +206,7 @@ public class Line implements Moveable, MouseConsumable {
         shape.setOnContextMenuRequested(consumable::onContextMenuRequested);
         shape.setOnMouseEntered(consumable::onMouseEntered);
         shape.setOnMouseExited(consumable::onMouseExited);
+        shape.setOnMouseDragged(consumable::onMouseDragged);
     }
 
     @Override
@@ -237,16 +259,44 @@ public class Line implements Moveable, MouseConsumable {
         return selected;
     }
 
+    public void toggleSelection() {
+        if (isSelected()) {
+            unselect();
+        } else {
+            select();
+        }
+    }
+
     public Shape getShape() {
         return line;
     }
 
     public Dot getStartDot() {
-        return startDot;
+        return startDot.get();
     }
 
     public Dot getEndDot() {
-        return endDot;
+        return endDot.get();
+    }
+
+    public Dot getOutputDot() {
+        if (getStartDot() != null && !getStartDot().isInputDot()) {
+            return getStartDot();
+        }
+        if (getEndDot() != null && !getEndDot().isInputDot()) {
+            return getEndDot();
+        }
+        return null;
+    }
+
+    public Dot getInputDot() {
+        if (getEndDot() != null && getEndDot().isInputDot()) {
+            return getEndDot();
+        }
+        if (getStartDot() != null && getStartDot().isInputDot()) {
+            return getStartDot();
+        }
+        return null;
     }
 
     @Override

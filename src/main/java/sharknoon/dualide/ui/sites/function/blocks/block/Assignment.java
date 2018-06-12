@@ -17,19 +17,19 @@ package sharknoon.dualide.ui.sites.function.blocks.block;
 
 import javafx.geometry.Side;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
 /**
- * This is a Decision block, similar like a if clausel
+ * Creates a Assignment block, which executes commands
  *
  * @author Josua Frank
  */
-public class Decision extends Block {
+public class Assignment extends Block {
 
-    public Decision(FunctionSite functionSite) {
+    public Assignment(FunctionSite functionSite) {
         super(functionSite);
     }
 
@@ -45,7 +45,7 @@ public class Decision extends Block {
 
     @Override
     public Side[] initDotOutputSides() {
-        return new Side[]{Side.RIGHT, Side.LEFT};
+        return new Side[]{Side.BOTTOM};
     }
 
     @Override
@@ -55,13 +55,9 @@ public class Decision extends Block {
 
     @Override
     public Shape initBlockShape() {
-        Polygon polygon = new Polygon(
-                getWidth() / 2, 0,//oben mitte
-                getWidth(), getHeight() / 2,
-                getWidth() / 2, getHeight(),
-                0, getHeight() / 2);
-        polygon.setFill(Color.YELLOW);
-        return polygon;
+        Rectangle rectangle = new Rectangle(getWidth(), getHeight());
+        rectangle.setFill(Color.WHITE);
+        return rectangle;
     }
 
 }

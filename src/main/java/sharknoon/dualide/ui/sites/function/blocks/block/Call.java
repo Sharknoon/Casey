@@ -23,13 +23,12 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
 /**
- * Creates a Process block, which executes commands
  *
  * @author Josua Frank
  */
-public class Process extends Block {
+public class Call extends Block {
 
-    public Process(FunctionSite functionSite) {
+    public Call(FunctionSite functionSite) {
         super(functionSite);
     }
 
@@ -56,7 +55,9 @@ public class Process extends Block {
     @Override
     public Shape initBlockShape() {
         Rectangle rectangle = new Rectangle(getWidth(), getHeight());
-        rectangle.setFill(Color.WHITE);
+        rectangle.setFill(Color.PURPLE);
+        rectangle.setArcHeight(25);
+        rectangle.arcWidthProperty().bind(rectangle.arcHeightProperty());
         return rectangle;
     }
 

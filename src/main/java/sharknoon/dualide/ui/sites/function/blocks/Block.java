@@ -15,10 +15,19 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -66,15 +75,10 @@ public abstract class Block implements Moveable, MouseConsumable {
     //Timelines for the animation of the shadown, the dots and the moving of the block
     private final Timeline shadowShowTimeline = new Timeline();
     private final Timeline shadowRemoveTimeline = new Timeline();
-    private final Timeline dotsShowTimeline = new Timeline();
-    private final Timeline dotsHideTimeline = new Timeline();
     private final Timeline movingXTimeline = new Timeline();
     private final Timeline movingYTimeline = new Timeline();
-    //The 1-4 output dots of a block
-    private final List<Dot> outputDots = new ArrayList<>();
-    //The 1-4 input dots of a block
-    private final List<Dot> inputDots = new ArrayList<>();
-    //The current functionSite of this block
+    //The 1-4 output and 1-4 input dots of a block, unmodifiable, true for output
+    private Map<Dot, Boolean> dots = new HashMap<>();
     private final FunctionSite functionSite;
     //The current state of the block
     private boolean selected;
@@ -95,6 +99,9 @@ public abstract class Block implements Moveable, MouseConsumable {
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
         root.getChildren().add(blockShape);
+        blockShape.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            Blocks.hoverOverBlockProperty(functionSite).set(newValue);
+        });
         this.predictionShadowShape = createPredictionShadow(blockShape);
         registerListeners(blockShape, this);
         setStrokeProperties(blockShape);
@@ -155,6 +162,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         shape.setOnContextMenuRequested(consumable::onContextMenuRequested);
         shape.setOnMouseEntered(consumable::onMouseEntered);
         shape.setOnMouseExited(consumable::onMouseExited);
+        shape.setOnMouseDragged(consumable::onMouseDragged);
     }
 
     private static void setStrokeProperties(Shape shape) {
@@ -173,26 +181,29 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     private void createDots() {
         for (  var dotOutputSide : dotOutputSides) {
-              var dot = Dot.createDot(this, dotOutputSide, false);
+              var dot = new Dot(dotOutputSide, this, false);
             dot.addTo(root);
-            outputDots.add(dot);
+            dots.put(dot, true);
         }
         for (  var dotInputSide : dotInputSides) {
-              var dot = Dot.createDot(this, dotInputSide, true);
+              var dot = new Dot(dotInputSide, this, true);
             dot.addTo(root);
-            inputDots.add(dot);
+            dots.put(dot, false);
         }
+        dots = Collections.unmodifiableMap(dots);
     }
 
     @Override
     public void onMousePressed(MouseEvent event) {
-        Blocks.setMouseOverBlock(this);
         Blocks.setMovingBlock(functionSite, this);
-        hideDots();
+    }
+
+    @Override
+    public void onMouseDragged(MouseEvent event) {
         menu.hide();
         if (event.isPrimaryButtonDown()) {//moving
             if (selected) {
-                Blocks.getAllBlocks(functionSite).stream()
+                Blocks.getAllBlocks(functionSite)
                         .filter(Block::isSelected)
                         .forEach(Block::highlight);
             } else {
@@ -203,16 +214,9 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     @Override
-    public void onMouseDragged(MouseEvent event) {
-    }
-
-    @Override
     public void onMouseReleased(MouseEvent event) {
-        if (blockShape.contains(event.getX(), event.getY())) {
-            showDots();
-        }
         if (isSelected()) {
-            Blocks.getAllBlocks(functionSite).stream()
+            Blocks.getAllBlocks(functionSite)
                     .filter(Block::isSelected)
                     .forEach(Block::unhighlight);
         } else {
@@ -222,12 +226,14 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public void onMouseClicked(MouseEvent event) {
-        if (event.getButton() == MouseButton.PRIMARY) {
+        if (event.getButton() == MouseButton.PRIMARY && event.isStillSincePress()) {
             if (!event.isControlDown()) {
                 Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
                 Lines.getAllLines(functionSite).forEach(Line::unselect);
+                select();
+            } else {
+                toggleSelection();
             }
-            select();
         }
     }
 
@@ -238,20 +244,12 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public void onMouseEntered(MouseEvent event) {
-        Blocks.setMouseOverBlock(this);
-        if (!event.isPrimaryButtonDown() || Lines.isLineDrawing(functionSite)) {
-            showDots();
-        }
+
     }
 
     @Override
     public void onMouseExited(MouseEvent event) {
-        if (!event.isPrimaryButtonDown()) {
-            Blocks.removeMouseOverBlock();
-        }
-        if (!Lines.isLineDrawing(functionSite) && !Dots.isMouseOverDot()) {
-            hideDots();
-        }
+
     }
 
     /**
@@ -392,7 +390,6 @@ public abstract class Block implements Moveable, MouseConsumable {
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
           var noBlock = Blocks
                 .getAllBlocks(functionSite)
-                .stream()
                 .filter(b -> ignoreSelection || !b.isSelected())
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
         return noBlock;
@@ -461,6 +458,14 @@ public abstract class Block implements Moveable, MouseConsumable {
         }
     }
 
+    public void toggleSelection() {
+        if (isSelected()) {
+            unselect();
+        } else {
+            select();
+        }
+    }
+
     /**
      * Shows the bigger shadow, e.g. for the movement of the block
      */
@@ -503,67 +508,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     /**
-     * Shows the connection dots around the block
-     */
-    public void showDots() {
-        dotsShowTimeline.getKeyFrames().clear();
-        inputDots.forEach(dot -> {
-            dotsShowTimeline.getKeyFrames().addAll(dot.show());
-        });
-        outputDots.forEach(dot -> {
-            dotsShowTimeline.getKeyFrames().addAll(dot.show());
-        });
-        dotsHideTimeline.stop();
-        dotsShowTimeline.stop();
-        dotsShowTimeline.play();
-    }
-
-    /**
-     * Hides the conection dots around the block
-     */
-    public void hideDots() {
-        dotsHideTimeline.getKeyFrames().clear();
-        inputDots.forEach(dot -> {
-            dotsHideTimeline.getKeyFrames().addAll(dot.hide());
-        });
-        outputDots.forEach(dot -> {
-            dotsHideTimeline.getKeyFrames().addAll(dot.hide());
-        });
-        dotsShowTimeline.stop();
-        dotsHideTimeline.stop();
-        dotsHideTimeline.play();
-    }
-
-    /**
-     * Reloads the connection dots around the block, e.g. when a line is
-     * connected, this dot stays as long as a line is connected open
-     */
-    public void reloadDots() {
-        dotsShowTimeline.getKeyFrames().clear();
-        dotsHideTimeline.getKeyFrames().clear();
-        inputDots.stream()
-                .forEach(dot -> {
-                    if (dot.hasLines()) {
-                        dotsShowTimeline.getKeyFrames().addAll(dot.show());
-                    } else {
-                        dotsHideTimeline.getKeyFrames().addAll(dot.hide());
-                    }
-                });
-        outputDots.stream()
-                .forEach(dot -> {
-                    if (dot.hasLines()) {
-                        dotsShowTimeline.getKeyFrames().addAll(dot.show());
-                    } else {
-                        dotsHideTimeline.getKeyFrames().addAll(dot.hide());
-                    }
-                });
-        dotsShowTimeline.stop();
-        dotsHideTimeline.stop();
-        dotsShowTimeline.play();
-        dotsHideTimeline.play();
-    }
-
-    /**
      * Adds this block to a pane
      *
      * @param pane The pane to receive this block
@@ -578,23 +522,34 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Destroyes this block completely
      */
     public void remove() {
-          var lines = inputDots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
-        lines.forEach(Line::remove);
-        lines = outputDots.stream().flatMap(d -> d.getLines().stream()).collect(Collectors.toList());
+          var lines = dots.keySet()
+                .stream()
+                .map(Dot::getLines)
+                .flatMap(Set::stream)
+                .collect(Collectors.toList());
         lines.forEach(Line::remove);
         Blocks.unregisterBlock(functionSite, this);
         ((Pane) root.getParent()).getChildren().removeAll(predictionShadowShape, root);
     }
 
-    /**
-     * Brings this block all the way to the front, covering some lines
-     */
-    public void toFront() {
-        root.toFront();
+    public Set<Dot> getAllDots() {
+        return dots.keySet();
     }
 
-    public List<Dot> getOutputDots(){
-        return outputDots;
+    public Stream<Dot> getInputDots() {
+        return dots.entrySet().stream().filter(e -> !e.getValue()).map(Entry::getKey);
     }
-    
+
+    public Optional<Dot> getInputDot(Side side) {
+        return getInputDots().filter(d -> d.getSide() == side).findAny();
+    }
+
+    public Stream<Dot> getOutputDots() {
+        return dots.entrySet().stream().filter(Entry::getValue).map(Entry::getKey);
+    }
+
+    public Optional<Dot> getOutputDot(Side side) {
+        return getOutputDots().filter(d -> d.getSide() == side).findAny();
+    }
+
 }

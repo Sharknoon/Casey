@@ -17,7 +17,9 @@ package sharknoon.dualide.ui.sites.function.blocks;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 import javafx.geometry.Point2D;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
@@ -40,16 +42,14 @@ public class BlockMoving {
     Map<Block, Integer> lastGridY = new HashMap<>();
     boolean lastDragSwitch = false;
     boolean currentDragSwitch = true;
+    public boolean isDragging = false;
 
     public BlockMoving(FunctionSite functionSite) {
         this.functionSite = functionSite;
     }
 
-    public void init() {
-
-    }
-
     public void onMousePressed(Point2D localMouse) {
+        isDragging = true;
         lastDragSwitch = !lastDragSwitch;
         Block block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
@@ -71,6 +71,9 @@ public class BlockMoving {
     }
 
     public void onMouseDragged(Point2D localMouse) {
+        if (!isDragging) {
+            return;
+        }
         Block block = Blocks.getMovingBlock(functionSite);
         if (block == null || Lines.isLineDrawing(functionSite)) {
             return;
@@ -84,7 +87,7 @@ public class BlockMoving {
         double deltaY = currentY - startY;
 
         if (block.isSelected()) {
-            Blocks.getSelectedBlocksGroup(functionSite).getBlocks().forEach(b -> {
+            Blocks.getSelectedBlocks(functionSite).forEach(b -> {
                 b.setMinX(b.startX + deltaX);
                 b.setMinY(b.startY + deltaY);
             });
@@ -119,11 +122,12 @@ public class BlockMoving {
         lastGridY.put(block, currentGridY);
 
         if (block.isSelected()) {
-            Collection<Block> blocks = Blocks.getSelectedBlocks(functionSite);
+            Stream<Block> blocks = Blocks.getSelectedBlocks(functionSite);
             Map<Block, Double[]> futureShadows = new HashMap<>();
             boolean canMoveInX = true;
             boolean canMoveInY = true;
-            for (Block b : blocks) {
+            for (Iterator<Block> it = blocks.iterator(); it.hasNext();) {
+                Block b = it.next();
                 double newX = b.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
                 double newY = b.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
                 canMoveInX = canMoveInX ? isXInsideWorkspace(b, newX) : false;
@@ -144,10 +148,10 @@ public class BlockMoving {
                 }
             });
         } else {
-            var shadow = block.getShadow();
-            var newX = block.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
-            var newY = block.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
-            var isSpaceFree = block.canMoveTo(newX, newY);
+              var shadow = block.getShadow();
+              var newX = block.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
+              var newY = block.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
+              var isSpaceFree = block.canMoveTo(newX, newY);
             if (isSpaceFree && isXInsideWorkspace(block, newX)) {
                 shadow.setTranslateX(newX);
             }
@@ -158,7 +162,8 @@ public class BlockMoving {
     }
 
     public void onMouseReleased() {
-        var block = Blocks.getMovingBlock(functionSite);
+        isDragging = false;
+          var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }

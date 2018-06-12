@@ -47,8 +47,7 @@ public class LineContextMenu {
         Language.setCustom(Word.DELETE, deleteItem::setText);
         deleteItem.setOnAction(e -> {
             if (line.isSelected()) {
-                  var linesToDelete = Lines.getAllLines(line.getStartDot().getBlock().getFunctionSite())
-                        .stream()
+                  var linesToDelete = Lines.getAllLines(line.getOutputDot().getBlock().getFunctionSite())
                         .filter(Line::isSelected)
                         .collect(Collectors.toList());
                 linesToDelete.forEach(Line::remove);

@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.utils.javafx;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
@@ -24,7 +25,11 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.function.Consumer;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
+import javafx.beans.value.ObservableBooleanValue;
 import org.fxmisc.easybind.EasyBind;
 
 /**
@@ -73,6 +78,63 @@ public class BindUtils {
     public static <T> void listen(ObservableValue<T> observable, Consumer<? super T> subscriber) {
         subscriber.accept(observable.getValue());
         observable.addListener((obs, oldValue, newValue) -> subscriber.accept(newValue));
+    }
+
+    /**
+     * Creates a {@link BooleanBinding} that calculates the conditional-AND
+     * operation on the value of two instance of
+     * {@link javafx.beans.value.ObservableBooleanValue}.
+     *
+     * @param op1 first {@code ObservableBooleanValue}
+     * @param op2 second {@code ObservableBooleanValue}
+     * @return the new {@code BooleanBinding}
+     * @throws NullPointerException if one of the operands is {@code null}
+     */
+    public static BooleanBinding and(final ObservableBooleanValue op1, final ObservableBooleanValue op2, final ObservableBooleanValue... ops) {
+        if ((op1 == null) || (op2 == null) || (ops == null)) {
+            throw new NullPointerException("Operands cannot be null.");
+        }
+
+        return new BooleanAndBinding(op1, op2, ops);
+    }
+
+    private static class BooleanAndBinding extends BooleanBinding {
+
+        private final ObservableBooleanValue op1;
+        private final ObservableBooleanValue op2;
+        private final ObservableBooleanValue[] ops;
+
+        public BooleanAndBinding(final ObservableBooleanValue op1, final ObservableBooleanValue op2, final ObservableBooleanValue... ops) {
+            this.op1 = op1;
+            this.op2 = op2;
+            this.ops = ops;
+        }
+
+        @Override
+        protected boolean computeValue() {
+              var result = op1.get() && op2.get();
+            if (!result) {
+                return result;
+            }
+            for (ObservableBooleanValue op : ops) {
+                result = result == op.get();
+                if (!result) {
+                    return result;
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public ObservableList<?> getDependencies() {
+            ObservableList deps = FXCollections.observableArrayList();
+            deps.add(op1);
+            deps.add(op2);
+            for (ObservableBooleanValue op : ops) {
+                deps.add(op);
+            }
+            return FXCollections.unmodifiableObservableList(deps);
+        }
     }
 
 }

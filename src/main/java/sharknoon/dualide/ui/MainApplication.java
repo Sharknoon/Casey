@@ -16,10 +16,10 @@
 package sharknoon.dualide.ui;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
+import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -34,22 +34,29 @@ import sharknoon.dualide.utils.settings.Resources;
  */
 public class MainApplication extends Application {
 
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        InputStream fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
-        Parent root = loader.load(fxmlStream);
+    private Scene scene;
 
-        Scene scene = new Scene(root);
+    @Override
+    public void init() throws Exception {
+          var loader = new FXMLLoader();
+          var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
+
+        Parent root = loader.load(fxmlStream);
+        scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         INITIALIZABLES.forEach(i -> i.init(scene));
+    }
 
-        stage.setTitle("DualIDE");
+    @Override
+    public void start(Stage stage) throws IOException {
         stage.setScene(scene);
+        stage.setTitle("DualIDE");
         stage.setMaximized(true);
+        notifyPreloader(new Preloader.ProgressNotification(1.0));
         stage.show();
     }
 
+    //Initlialisables and Exitables
     private static final List<Initializable> INITIALIZABLES = new ArrayList<>();
     private static final List<Exitable> EXITABLES = new ArrayList<>();
 
@@ -67,7 +74,8 @@ public class MainApplication extends Application {
     }
 
     /**
-     * @param args the command line arguments
+     * Fallback for launching this JavaFX Application, please use
+     * MainApplication.java instead!
      */
     public static void main(String[] args) {
         launch(args);

@@ -54,7 +54,7 @@ public class FunctionSite extends Site<Function> {
 
     private final AnchorPane root = new AnchorPane();
     private final Timeline zoomTimeline = new Timeline();
-    private final Selection bs = new Selection(this);
+    private final Selection s = new Selection(this);
     private final BlockMoving bm = new BlockMoving(this);
     private final WorkspaceMoving wm = new WorkspaceMoving(root);
     private final WorkspaceContextMenu wc = new WorkspaceContextMenu(this);
@@ -64,8 +64,12 @@ public class FunctionSite extends Site<Function> {
         super(item);
     }
 
-    public void add(Node node) {
+    public void addInFront(Node node) {
         root.getChildren().add(node);
+    }
+
+    public void addInBack(Node node) {
+        root.getChildren().add(0, node);
     }
 
     public void remove(Node node) {
@@ -73,9 +77,9 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMousePressed(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock()) {
+        if (!Blocks.isMouseOverBlock(this) && !Lines.isMouseOverLine()) {
             if (event.isPrimaryButtonDown()) {
-                bs.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                s.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isMiddleButtonDown()) {
                 wm.onMousePressed(event.getSceneX(), event.getSceneY());
             }
@@ -88,9 +92,9 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMouseDragged(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock()) {
+        if (!bm.isDragging) {
             if (event.isPrimaryButtonDown()) {
-                bs.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                s.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isMiddleButtonDown()) {
                 wm.onMouseDragged(event.getSceneX(), event.getSceneY());
             }
@@ -102,8 +106,8 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMouseReleased(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock()) {
-            bs.onMouseReleased(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+        if (!Blocks.isMouseOverBlock(this)) {
+            s.onMouseReleased(event);
 
         } else {
             bm.onMouseReleased();
@@ -168,7 +172,7 @@ public class FunctionSite extends Site<Function> {
     private boolean initialized = false;
 
     private void init() {
-        bs.init();
+        s.init();
 //        bm.init();
 //        wm.init();
 //        wc.init();
@@ -176,24 +180,25 @@ public class FunctionSite extends Site<Function> {
         drawLineAroundWorkspace();
         centerWorkspaceView();
         if (!startBlockAlreadyAdded) {
-            addStartBlock(-1, -1);
+            addStartBlock(new Point2D(-1, -1));
         }
         initialized = true;
     }
 
     private boolean startBlockAlreadyAdded = false;
 
-    public Block addStartBlock(double x, double y) {
+    public Block addStartBlock(Point2D origin) {
         if (startBlockAlreadyAdded) {
             return null;
         }
           var startBlock = Blocks.createStartBlock(this);
-        if (x < 0 || y < 0) {
+        if (origin.getX() < 0 || origin.getY() < 0) {
               var screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            x = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
-            y = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
+            double x = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
+            double y = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
+            origin = new Point2D(x, y);
         }
-        addBlock(startBlock, new Point2D(x, y));
+        addBlock(startBlock, origin);
         startBlockAlreadyAdded = true;
         return startBlock;
     }
@@ -210,10 +215,28 @@ public class FunctionSite extends Site<Function> {
         return decisionBlock;
     }
 
-    public Block addProcessBlock(Point2D origin) {
-          var processBlock = Blocks.createProcessBlock(this);
-        addBlock(processBlock, origin);
-        return processBlock;
+    public Block addAssignmentBlock(Point2D origin) {
+          var assignmentBlock = Blocks.createAssignmentBlock(this);
+        addBlock(assignmentBlock, origin);
+        return assignmentBlock;
+    }
+
+    public Block addCallBlock(Point2D origin) {
+          var assignmentBlock = Blocks.createCallBlock(this);
+        addBlock(assignmentBlock, origin);
+        return assignmentBlock;
+    }
+
+    public Block addInputBlock(Point2D origin) {
+          var assignmentBlock = Blocks.createInputBlock(this);
+        addBlock(assignmentBlock, origin);
+        return assignmentBlock;
+    }
+
+    public Block addOutputBlock(Point2D origin) {
+          var assignmentBlock = Blocks.createOutputBlock(this);
+        addBlock(assignmentBlock, origin);
+        return assignmentBlock;
     }
 
     private void addBlock(Block block, Point2D origin) {

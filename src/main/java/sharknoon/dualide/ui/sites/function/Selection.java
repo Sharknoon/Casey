@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites.function;
 
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
@@ -47,7 +48,7 @@ public class Selection {
         selectionRectangle.setStrokeWidth(1);
         selectionRectangle.setStroke(Color.BLUE);
         selectionRectangle.setVisible(false);
-        functionSite.add(selectionRectangle);
+        functionSite.addInFront(selectionRectangle);
     }
 
     public void onMousePressed(Point2D localCoordinates) {
@@ -64,10 +65,10 @@ public class Selection {
     }
 
     public void onMouseDragged(Point2D localCoordinates) {
-        var currentX = localCoordinates.getX();
-        var currentY = localCoordinates.getY();
-        var width = currentX - startX;
-        var hight = currentY - startY;
+          var currentX = localCoordinates.getX();
+          var currentY = localCoordinates.getY();
+          var width = currentX - startX;
+          var hight = currentY - startY;
         if (startX + width > UISettings.WORKSPACE_MAX_X) {
             width = UISettings.WORKSPACE_MAX_X - startX;
         } else if (startX + width < 0) {
@@ -105,10 +106,10 @@ public class Selection {
         selectionRectangle.setWidth(width);
         selectionRectangle.setHeight(hight);
 
-        final var finalWidth = width;
-        final var finalHight = hight;
+        final   var finalWidth = width;
+        final   var finalHight = hight;
 
-        Blocks.getAllBlocks(functionSite).stream().forEach(b -> {
+        Blocks.getAllBlocks(functionSite).forEach(b -> {
             if (b.getMinX() > translateX
                     && b.getMinY() > translateY
                     && b.getMinX() + b.getWidth() < translateX + finalWidth
@@ -119,7 +120,7 @@ public class Selection {
             }
         });
 
-        Lines.getAllLines(functionSite).stream().forEach(l -> {
+        Lines.getAllLines(functionSite).forEach(l -> {
             if (l.getMinX() > translateX
                     && l.getMinY() > translateY
                     && l.getMinX() + l.getWidth() < translateX + finalWidth
@@ -131,12 +132,12 @@ public class Selection {
         });
     }
 
-    public void onMouseReleased(Point2D localCoordinates) {
+    public void onMouseReleased(MouseEvent event) {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        if (!Blocks.isMouseOverBlock() && !Lines.isMouseOverLine()
-                && startX == localCoordinates.getX() && startY == localCoordinates.getY()) {
+        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine()
+                && event.isStillSincePress()) {
             Blocks.unselectAll(functionSite);
             Lines.getAllLines(functionSite).forEach(Line::unselect);
         }

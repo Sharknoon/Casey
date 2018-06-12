@@ -33,14 +33,11 @@
 }
 
 .scroll-pane {
-    -fx-background-color: -fx-box-border,-fx-background;
-    -fx-background-insets: 0, 1;
-    -fx-padding: 1.0;
-    /*-fx-background-color: transparent;*/
+    -fx-background-color: transparent;
 }
 
 .scroll-pane > .viewport {
-    /*-fx-background-color: transparent;*/
+    -fx-background-color: transparent;
 }
 
 .split-pane {

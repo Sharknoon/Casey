@@ -53,7 +53,6 @@ public class BlockContextMenu {
                       var allBlocks = Blocks.getAllBlocks(block.getFunctionSite());
                       var toRemove = Blocks
                             .getAllBlocks(block.getFunctionSite())
-                            .stream()
                             .filter(Block::isSelected)
                             .filter(b -> !b.getClass().equals(Start.class))
                             .collect(Collectors.toList());

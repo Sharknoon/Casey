@@ -16,17 +16,22 @@
 package sharknoon.dualide.ui.sites.function.blocks;
 
 import sharknoon.dualide.ui.sites.function.blocks.block.Start;
-import sharknoon.dualide.ui.sites.function.blocks.block.Process;
+import sharknoon.dualide.ui.sites.function.blocks.block.Assignment;
 import sharknoon.dualide.ui.sites.function.blocks.block.End;
 import sharknoon.dualide.ui.sites.function.blocks.block.Decision;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
+import sharknoon.dualide.ui.sites.function.blocks.block.Call;
+import sharknoon.dualide.ui.sites.function.blocks.block.Input;
+import sharknoon.dualide.ui.sites.function.blocks.block.Output;
 
 /**
  * This is the general class for all blocks, it has handy funtions to create new
@@ -48,19 +53,32 @@ public class Blocks {
         return new Decision(functionSite);
     }
 
-    public static Block createProcessBlock(FunctionSite functionSite) {
-        return new Process(functionSite);
+    public static Block createAssignmentBlock(FunctionSite functionSite) {
+        return new Assignment(functionSite);
+    }
+    
+    public static Block createCallBlock(FunctionSite functionSite) {
+        return new Call(functionSite);
+    }
+    
+    public static Block createInputBlock(FunctionSite functionSite) {
+        return new Input(functionSite);
+    }
+    
+    public static Block createOutputBlock(FunctionSite functionSite) {
+        return new Output(functionSite);
     }
 
-    private static final Map<FunctionSite, Set<Block>> BLOCKS = new HashMap<>();
-    private static final Map<FunctionSite, Block> MOVING_BLOCK = new HashMap<>();
-    private static final Set<Block> EMPTY = new HashSet<>();
+    private static final ObservableMap<FunctionSite, ObservableSet<Block>> BLOCKS = FXCollections.observableHashMap();
+    private static final ObservableMap<FunctionSite, BooleanProperty> MOUSE_OVER_BLOCK_PROPERTY = FXCollections.observableHashMap();
+    private static final ObservableMap<FunctionSite, ObjectProperty<Block>> MOVING_BLOCK = FXCollections.observableHashMap();
+    private static final ObservableSet<Block> EMPTY = FXCollections.observableSet();
 
     static void registerBlock(FunctionSite functionSite, Block block) {
         if (BLOCKS.containsKey(functionSite)) {
             BLOCKS.get(functionSite).add(block);
         } else {
-            Set<Block> list = new HashSet<>();
+            ObservableSet<Block> list = FXCollections.observableSet();
             list.add(block);
             BLOCKS.put(functionSite, list);
         }
@@ -79,31 +97,34 @@ public class Blocks {
     }
 
     public static Block getMovingBlock(FunctionSite functionSite) {
-        return MOVING_BLOCK.get(functionSite);
+        if (!MOVING_BLOCK.containsKey(functionSite)) {
+            return null;
+        }
+        return MOVING_BLOCK.get(functionSite).get();
     }
 
     public static void setMovingBlock(FunctionSite functionSite, Block block) {
-        MOVING_BLOCK.put(functionSite, block);
+        if (MOVING_BLOCK.containsKey(functionSite)) {
+            MOVING_BLOCK.get(functionSite).set(block);
+        } else {
+            MOVING_BLOCK.put(functionSite, new SimpleObjectProperty<>(block));
+        }
     }
 
-    public static Collection<Block> getAllBlocks(FunctionSite functionSite) {
+    public static ObjectProperty<Block> movingBlockBinding(FunctionSite functionSite) {
+        return MOVING_BLOCK.get(functionSite);
+    }
+
+    public static Stream<Block> getAllBlocks(FunctionSite functionSite) {
+        return allBlocksObsevable(functionSite).parallelStream();
+    }
+
+    public static Stream<Block> getSelectedBlocks(FunctionSite functionSite) {
+        return getAllBlocks(functionSite).filter(Block::isSelected);
+    }
+
+    public static ObservableSet<Block> allBlocksObsevable(FunctionSite functionSite) {
         return BLOCKS.getOrDefault(functionSite, EMPTY);
-    }
-
-    public static Collection<Block> getSelectedBlocks(FunctionSite functionSite) {
-        return BLOCKS
-                .getOrDefault(functionSite, EMPTY)
-                .stream()
-                .filter(Block::isSelected)
-                .collect(Collectors.toList());
-    }
-
-    public static BlockGroup getSelectedBlocksGroup(FunctionSite functionSite) {
-        return new BlockGroup(BLOCKS
-                .getOrDefault(functionSite, EMPTY)
-                .stream()
-                .filter(Block::isSelected)
-                .collect(Collectors.toList()));
     }
 
     public static boolean isSpaceFree(Block block, double x, double y) {
@@ -118,18 +139,19 @@ public class Blocks {
                 || y + b.getHeight() > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING);
     }
 
-    private static Block mouseOverBlock = null;
-
-    public static void setMouseOverBlock(Block block) {
-        mouseOverBlock = block;
+    public static boolean isMouseOverBlock(FunctionSite functionSite) {
+        return hoverOverBlockProperty(functionSite).get();
     }
 
-    public static boolean isMouseOverBlock() {
-        return mouseOverBlock != null;
+    public static BooleanProperty hoverOverBlockProperty(FunctionSite functionSite) {
+        if (!MOUSE_OVER_BLOCK_PROPERTY.containsKey(functionSite)) {
+            MOUSE_OVER_BLOCK_PROPERTY.put(functionSite, new SimpleBooleanProperty());
+        }
+        return MOUSE_OVER_BLOCK_PROPERTY.get(functionSite);
     }
 
-    public static void removeMouseOverBlock() {
-        mouseOverBlock = null;
+    public static boolean isDraggingBlock(FunctionSite aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

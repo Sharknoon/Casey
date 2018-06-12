@@ -23,13 +23,12 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
 /**
- * This is a Decision block, similar like a if clausel
  *
  * @author Josua Frank
  */
-public class Decision extends Block {
+public class Output extends Block {
 
-    public Decision(FunctionSite functionSite) {
+    public Output(FunctionSite functionSite) {
         super(functionSite);
     }
 
@@ -45,7 +44,7 @@ public class Decision extends Block {
 
     @Override
     public Side[] initDotOutputSides() {
-        return new Side[]{Side.RIGHT, Side.LEFT};
+        return new Side[]{Side.BOTTOM};
     }
 
     @Override
@@ -56,11 +55,12 @@ public class Decision extends Block {
     @Override
     public Shape initBlockShape() {
         Polygon polygon = new Polygon(
-                getWidth() / 2, 0,//oben mitte
+                0, 0,
+                getWidth() - (getHeight() / 2), 0,
                 getWidth(), getHeight() / 2,
-                getWidth() / 2, getHeight(),
-                0, getHeight() / 2);
-        polygon.setFill(Color.YELLOW);
+                getWidth() - (getHeight() / 2), getHeight(),
+                0, getHeight());
+        polygon.setFill(Color.BLUE);
         return polygon;
     }
 

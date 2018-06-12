@@ -19,8 +19,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.MapProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 
 /**
@@ -30,21 +39,10 @@ import sharknoon.dualide.ui.sites.function.dots.Dot;
 public class Lines {
 
     public static Line createLine(FunctionSite functionSite, Dot dot) {
-          var line = new Line(dot, functionSite);
-        if (LINES.containsKey(functionSite)) {
-            LINES.get(functionSite).add(line);
-        } else {
-            List<Line> lines = new ArrayList<>();
-            lines.add(line);
-            LINES.put(functionSite, lines);
-        }
-        setLineDrawing(functionSite, line);
-        return line;
+        return new Line(dot, functionSite);
     }
 
-    private static final Map<FunctionSite, List<Line>> LINES = new HashMap<>();
-
-    private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();
+    private static final ObservableMap<FunctionSite, Line> CURRENT_DRAWING_LINE = FXCollections.observableHashMap();
 
     public static void setLineDrawing(FunctionSite functionSite, Line line) {
         CURRENT_DRAWING_LINE.put(functionSite, line);
@@ -52,6 +50,10 @@ public class Lines {
 
     public static boolean isLineDrawing(FunctionSite functionSite) {
         return CURRENT_DRAWING_LINE.containsKey(functionSite);
+    }
+
+    public static BooleanBinding isLineDrawingBinding(FunctionSite functionSite) {
+        return Bindings.createBooleanBinding(() -> isLineDrawing(functionSite), CURRENT_DRAWING_LINE);
     }
 
     public static void removeLineDrawing(FunctionSite functionSite) {
@@ -62,25 +64,23 @@ public class Lines {
         return CURRENT_DRAWING_LINE.get(functionSite);
     }
 
-    public static Collection<Line> getAllLines(FunctionSite functionSite) {
-        return LINES.getOrDefault(functionSite, List.of());
-    }
-
-    public static void unregisterLine(FunctionSite functionSite, Line line) {
-        if (LINES.containsKey(functionSite)) {
-            LINES.get(functionSite).remove(line);
-        }
+    public static Stream<Line> getAllLines(FunctionSite functionSite) {
+        return Blocks
+                .getAllBlocks(functionSite)
+                .map(Block::getOutputDots)
+                .flatMap(s -> s)
+                .map(Dot::getLines)
+                .flatMap(Set::stream);
     }
 
     public static boolean isDuplicate(FunctionSite functionSite, Line line, Dot endDot) {
-          var dot1 = line.getStartDot();
+          var dot1 = line.getOutputDot();
           var dot2 = endDot;
         return getAllLines(functionSite)
-                .stream()
                 .filter(l -> l != line)
                 .anyMatch(l -> {
-                      var dot1l = l.getStartDot();
-                      var dot2l = l.getEndDot();
+                      var dot1l = l.getOutputDot();
+                      var dot2l = l.getInputDot();
                     return (dot1 == dot1l && dot2 == dot2l)
                             || (dot1 == dot2l && dot2 == dot1l);
                 });

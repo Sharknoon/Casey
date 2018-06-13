@@ -178,6 +178,8 @@ public class German extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Typ");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neue Werte");
+        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "Neue Objektwerte");
+        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "Neue Primitivwerte");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-Werte");
         add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Bestehende Werte");
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "Allgemeine Werte");

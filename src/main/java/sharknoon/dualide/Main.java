@@ -27,7 +27,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.setProperty("javafx.animation.framerate", "144");
-        System.setProperty("javafx.preloader", "sharknoon.dualide.ui.splashscreen.SplashScreen");
+        //System.setProperty("javafx.preloader", SplashScreen.class.getName());
         Logger.setLogLevel(Logger.LogLevel.DEBUG);
         //Resources.resetResources(true);
         Application.launch(MainApplication.class);

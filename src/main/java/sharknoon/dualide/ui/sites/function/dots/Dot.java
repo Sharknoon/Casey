@@ -15,35 +15,28 @@
  */
 package sharknoon.dualide.ui.sites.function.dots;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
-import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -101,13 +94,9 @@ public class Dot {
         }
     }
 
-    public void addTo(Pane pane) {
-        pane.getChildren().add(circle);
-    }
-
     public void show() {
-        var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-        var opacityEnd = new KeyValue(circle.opacityProperty(), 1);
+          var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
+          var opacityEnd = new KeyValue(circle.opacityProperty(), 1);
 
         showTimeline.getKeyFrames().clear();
         showTimeline.getKeyFrames().addAll(
@@ -120,13 +109,13 @@ public class Dot {
     }
 
     public void hide() {
-        var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-        var opacityEnd = new KeyValue(circle.opacityProperty(), 0);
-        
+          var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
+          var opacityEnd = new KeyValue(circle.opacityProperty(), 0);
+
         hideTimeline.getKeyFrames().clear();
         hideTimeline.getKeyFrames().addAll(
-            new KeyFrame(Duration.ZERO, opacityStart),
-            new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
+                new KeyFrame(Duration.ZERO, opacityStart),
+                new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
         );
         showTimeline.stop();
         hideTimeline.stop();
@@ -205,8 +194,12 @@ public class Dot {
         return isInput;
     }
 
-    public void addLine(Line line){
+    public void addLine(Line line) {
         lines.add(line);
     }
-    
+
+    public Shape getShape() {
+        return circle;
+    }
+
 }

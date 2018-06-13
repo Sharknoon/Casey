@@ -15,12 +15,17 @@
  */
 package sharknoon.dualide.utils.javafx;
 
+import java.lang.reflect.Field;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.skin.ScrollPaneSkin;
+import javafx.scene.layout.StackPane;
 
 /**
  *
@@ -28,7 +33,7 @@ import javafx.scene.control.Tooltip;
  */
 public class FXUtils {
 
-    public static <T> void fixComboBoxText(ComboBox<T> comboBox, Function<T,StringProperty> listText, Function<T,StringProperty> tooltipText) {
+    public static <T> void fixComboBoxText(ComboBox<T> comboBox, Function<T, StringProperty> listText, Function<T, StringProperty> tooltipText) {
         comboBox.setCellFactory((param) -> {
             return new ListCell<T>() {
                 @Override

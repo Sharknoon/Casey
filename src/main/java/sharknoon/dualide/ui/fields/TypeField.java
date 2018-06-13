@@ -15,15 +15,11 @@
  */
 package sharknoon.dualide.ui.fields;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.TypePopUp;
 import sharknoon.dualide.ui.misc.Icons;
@@ -39,12 +35,14 @@ public class TypeField extends Button {
     private ObjectProperty<Type> type = new SimpleObjectProperty<>();
 
     public TypeField() {
+        this(null);
+    }
+
+    public TypeField(Collection<? extends Type> types) {
         Language.set(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, this);
 
         setOnAction((event) -> {
-            TypePopUp.showTypeSelectionPopUp(this, (t) -> {
-                type.set(t);
-            });
+            TypePopUp.showTypeSelectionPopUp(this, type::set, types);
         });
 
         typeProperty().addListener((o, old, t) -> {

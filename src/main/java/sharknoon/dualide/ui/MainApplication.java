@@ -16,16 +16,22 @@
 package sharknoon.dualide.ui;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.misc.Initializable;
+import sharknoon.dualide.ui.dialogs.ExceptionDialog;
 import sharknoon.dualide.utils.settings.Resources;
 
 /**
@@ -38,6 +44,8 @@ public class MainApplication extends Application {
 
     @Override
     public void init() throws Exception {
+        Thread.setDefaultUncaughtExceptionHandler(this::showError);
+
           var loader = new FXMLLoader();
           var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
 
@@ -71,6 +79,24 @@ public class MainApplication extends Application {
     @Override
     public void stop() throws Exception {
         EXITABLES.forEach(Exitable::exit);
+    }
+
+    private boolean isshowing = false;
+    
+    //Error handling
+    private void showError(Thread t, Throwable e) {
+        if (isshowing) {
+            return;
+        }
+        if (Platform.isFxApplicationThread()) {
+            e.printStackTrace();
+            isshowing = true;
+            ExceptionDialog.show("Random error occured", e);
+            isshowing = false;
+        } else {
+            System.err.println("An unexpected error occurred in " + t);
+
+        }
     }
 
     /**

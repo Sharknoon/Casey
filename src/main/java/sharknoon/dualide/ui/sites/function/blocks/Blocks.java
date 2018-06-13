@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import java.util.Set;
 import sharknoon.dualide.ui.sites.function.blocks.block.Start;
 import sharknoon.dualide.ui.sites.function.blocks.block.Assignment;
 import sharknoon.dualide.ui.sites.function.blocks.block.End;
@@ -27,11 +28,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.blocks.block.Call;
 import sharknoon.dualide.ui.sites.function.blocks.block.Input;
 import sharknoon.dualide.ui.sites.function.blocks.block.Output;
+import sharknoon.dualide.utils.settings.Logger;
 
 /**
  * This is the general class for all blocks, it has handy funtions to create new
@@ -56,15 +59,15 @@ public class Blocks {
     public static Block createAssignmentBlock(FunctionSite functionSite) {
         return new Assignment(functionSite);
     }
-    
+
     public static Block createCallBlock(FunctionSite functionSite) {
         return new Call(functionSite);
     }
-    
+
     public static Block createInputBlock(FunctionSite functionSite) {
         return new Input(functionSite);
     }
-    
+
     public static Block createOutputBlock(FunctionSite functionSite) {
         return new Output(functionSite);
     }
@@ -72,13 +75,20 @@ public class Blocks {
     private static final ObservableMap<FunctionSite, ObservableSet<Block>> BLOCKS = FXCollections.observableHashMap();
     private static final ObservableMap<FunctionSite, BooleanProperty> MOUSE_OVER_BLOCK_PROPERTY = FXCollections.observableHashMap();
     private static final ObservableMap<FunctionSite, ObjectProperty<Block>> MOVING_BLOCK = FXCollections.observableHashMap();
-    private static final ObservableSet<Block> EMPTY = FXCollections.observableSet();
+    private static final ObservableSet<Block> EMPTY = FXCollections.observableSet(Set.of());
 
     static void registerBlock(FunctionSite functionSite, Block block) {
         if (BLOCKS.containsKey(functionSite)) {
             BLOCKS.get(functionSite).add(block);
         } else {
             ObservableSet<Block> list = FXCollections.observableSet();
+            list.addListener((SetChangeListener.Change<? extends Block> change) -> {
+                if (change.wasAdded()) {
+                    Logger.debug("added Block" + block.toString());
+                } else {
+                    Logger.debug("removed Block" + block.toString());
+                }
+            });
             list.add(block);
             BLOCKS.put(functionSite, list);
         }
@@ -148,10 +158,6 @@ public class Blocks {
             MOUSE_OVER_BLOCK_PROPERTY.put(functionSite, new SimpleBooleanProperty());
         }
         return MOUSE_OVER_BLOCK_PROPERTY.get(functionSite);
-    }
-
-    public static boolean isDraggingBlock(FunctionSite aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

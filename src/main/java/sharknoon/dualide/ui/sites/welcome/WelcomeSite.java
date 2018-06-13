@@ -165,6 +165,11 @@ public class WelcomeSite extends Site<Welcome> {
                                 vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
 
                                 vBoxLastProject.setOnMouseClicked((event) -> {
+                                    String pathString = lastProject.getPath();
+                                    if (pathString.isEmpty()) {
+                                        RecentProject.removeProject(lastProject);
+                                        return;
+                                    }
                                     Path pathToFile = Paths.get(lastProject.getPath());
                                     if (Files.exists(pathToFile)) {
                                         loadProject(pathToFile);

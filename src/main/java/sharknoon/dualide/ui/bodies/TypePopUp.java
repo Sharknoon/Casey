@@ -15,8 +15,9 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
@@ -25,30 +26,20 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
-import org.controlsfx.control.SegmentedButton;
-import sharknoon.dualide.logic.Returnable;
-import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.values.Value;
-import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
@@ -61,14 +52,20 @@ import sharknoon.dualide.utils.language.Word;
 public class TypePopUp extends PopOver {
 
     public static void showTypeSelectionPopUp(Node ownerNode, Consumer<Type> typeConsumer) {
-        TypePopUp popUp = new TypePopUp(ownerNode, typeConsumer);
+        showTypeSelectionPopUp(ownerNode, typeConsumer, null);
     }
 
-    private final GridPane gridPaneRoot = new GridPane();
-    private final Consumer<Type> typeConsumer;
+    public static void showTypeSelectionPopUp(Node ownerNode, Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes) {
+        TypePopUp popUp = new TypePopUp(ownerNode, typeConsumer, allowedTypes);
+    }
 
-    private TypePopUp(Node ownerNode, Consumer<Type> typeConsumer) {
+    private final VBox VBoxRoot = new VBox();
+    private final Consumer<Type> typeConsumer;
+    private final Collection<? extends Type> allowedTypes;
+
+    private TypePopUp(Node ownerNode, Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes) {
         this.typeConsumer = typeConsumer;
+        this.allowedTypes = allowedTypes;
         init();
         addPrimitiveTypeSelectors();
         addObjectTypeSelectors();
@@ -76,80 +73,93 @@ public class TypePopUp extends PopOver {
     }
 
     private void init() {
-        gridPaneRoot.setVgap(10);
-        gridPaneRoot.setHgap(10);
-        gridPaneRoot.setPadding(new Insets(25));
-        gridPaneRoot.setPrefWidth(520);
-        gridPaneRoot.setMaxSize(800, 800);
-        gridPaneRoot.setAlignment(Pos.CENTER);
+        VBoxRoot.setSpacing(10);
+        VBoxRoot.setPadding(new Insets(25));
+        VBoxRoot.setPrefWidth(520);
+        VBoxRoot.setMaxSize(800, 800);
+        VBoxRoot.setAlignment(Pos.CENTER);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
-        setContentNode(gridPaneRoot);
+        setContentNode(VBoxRoot);
         setArrowLocation(ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.TYPE_SELECTION_POPUP_TITLE));
     }
 
     private void addPrimitiveTypeSelectors() {
-        addPrimitiveTypeSeparator();
-        addPrimitiveTypeSegmentedButtons();
+        Collection<? extends Type> types
+                = allowedTypes == null
+                        ? PrimitiveType.getAll()
+                        : allowedTypes;
+        boolean hasPrimitiveType = false;
+        for (Type type : types) {
+            if (type.isPrimitive()) {
+                if (!hasPrimitiveType) {
+                    addPrimitiveTypeSeparator();
+                    hasPrimitiveType = true;
+                }
+                addPrimitiveTypeSegmentedButtons(type.getPrimitiveType());
+            }
+        }
     }
 
     private void addPrimitiveTypeSeparator() {
         String text = Language.get(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES);
-        Node separator = getSeparator(text);
-        gridPaneRoot.add(separator, 0, 0, 3, 1);
+        Node separator = PopUpUtils.getSeparator(text);
+        VBoxRoot.getChildren().add(separator);
     }
 
-    private void addPrimitiveTypeSegmentedButtons() {
-        String textBoolean = PrimitiveType.BOOLEAN.getName().get();
-        String textNumber = PrimitiveType.NUMBER.getName().get();
-        String textText = PrimitiveType.TEXT.getName().get();
+    private HBox hBoxSegmentedButtons = new HBox(10);
 
-        Button buttonBoolean = new Button(textBoolean, Icons.get(Icon.BOOLEAN));
-        Button buttonNumber = new Button(textNumber, Icons.get(Icon.NUMBER));
-        Button buttonText = new Button(textText, Icons.get(Icon.TEXT));
+    private void addPrimitiveTypeSegmentedButtons(PrimitiveType type) {
+        String text = type.getName().get();
 
-        buttonBoolean.prefWidthProperty().bind(gridPaneRoot.widthProperty().divide(4));
-        buttonNumber.prefWidthProperty().bind(gridPaneRoot.widthProperty().divide(4));
-        buttonText.prefWidthProperty().bind(gridPaneRoot.widthProperty().divide(4));
+        Button button = new Button(text, Icons.get(type.getIcon()));
+        button.setMinWidth(Double.MAX_VALUE);
+        HBox.setHgrow(button, Priority.ALWAYS);
 
-        buttonBoolean.setOnAction((event) -> {
+        button.setOnAction((event) -> {
             if (typeConsumer != null) {
-                typeConsumer.accept(PrimitiveType.BOOLEAN);
-            }
-            hide();
-        });
-        buttonNumber.setOnAction((event) -> {
-            if (typeConsumer != null) {
-                typeConsumer.accept(PrimitiveType.NUMBER);
-            }
-            hide();
-        });
-        buttonText.setOnAction((event) -> {
-            if (typeConsumer != null) {
-                typeConsumer.accept(PrimitiveType.TEXT);
+                typeConsumer.accept(type);
             }
             hide();
         });
 
-        gridPaneRoot.add(buttonBoolean, 0, 1);
-        gridPaneRoot.add(buttonNumber, 1, 1);
-        gridPaneRoot.add(buttonText, 2, 1);
+        hBoxSegmentedButtons.getChildren().add(button);
+        if (!VBoxRoot.getChildren().contains(hBoxSegmentedButtons)) {
+            VBoxRoot.getChildren().add(hBoxSegmentedButtons);
+        }
     }
 
     private void addObjectTypeSelectors() {
-        addObjectTypeSeparator();
-        addTypeBrowser();
+        if (allowedTypes == null) {
+            addObjectTypeSeparator();
+            addTypeBrowser(null);
+            return;
+        }
+        boolean hasObjectType = false;
+        List<ObjectType> objectTypes = new ArrayList<>();
+        for (Type type : allowedTypes) {
+            if (!type.isPrimitive()) {
+                if (!hasObjectType) {
+                    addObjectTypeSeparator();
+                    hasObjectType = true;
+                }
+                objectTypes.add(type.getClassType());
+            }
+        }
+        if (!objectTypes.isEmpty()) {
+            addTypeBrowser(objectTypes);
+        }
     }
 
     private void addObjectTypeSeparator() {
         String text = Language.get(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES);
-        Node separator = getSeparator(text);
-        gridPaneRoot.add(separator, 0, 2, 3, 1);
+        Node separator = PopUpUtils.getSeparator(text);
+        VBoxRoot.getChildren().add(separator);
     }
 
     private Node previousContent = null;
 
-    private void addTypeBrowser() {
+    private void addTypeBrowser(Collection<ObjectType> types) {
         GridPane gridPanePackagesAndClasses = new GridPane();
         gridPanePackagesAndClasses.setHgap(10);
         ColumnConstraints col1 = new ColumnConstraints();
@@ -160,12 +170,13 @@ public class TypePopUp extends PopOver {
 
         BreadCrumbBar<Item> breadCrumbBarNavigation = new BreadCrumbBar<>();
         ScrollPane scrollPaneBreadCrumbBar = new ScrollPane(breadCrumbBarNavigation);
-        scrollPaneBreadCrumbBar.setMinHeight(45);
+        scrollPaneBreadCrumbBar.setMinHeight(50);
+        scrollPaneBreadCrumbBar.maxWidthProperty().bind(gridPanePackagesAndClasses.widthProperty().subtract(gridPanePackagesAndClasses.hgapProperty()));
         gridPanePackagesAndClasses.add(scrollPaneBreadCrumbBar, 0, 0, 2, 1);
 
         ScrollPane scrollPanePackages = new ScrollPane();
-        //scrollPanePackages.setFitToHeight(true);
-        //scrollPanePackages.setFitToWidth(true);
+        scrollPanePackages.setFitToHeight(true);
+        scrollPanePackages.setFitToWidth(true);
         VBox vBoxSubPackages = new VBox(10);
         breadCrumbBarNavigation.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             vBoxSubPackages.getChildren().clear();
@@ -204,6 +215,11 @@ public class TypePopUp extends PopOver {
                         .stream()
                         .map(ti -> ti.getValue())
                         .filter(i -> i instanceof sharknoon.dualide.logic.items.Class)
+                        .filter(i -> {
+                            return types == null
+                                    ? true
+                                    : types.contains(((sharknoon.dualide.logic.items.Class) i).toType());
+                        })
                         .forEach((t) -> {
                             HBox hBoxclass = new HBox(10);
                             Node icon = Icons.get(t.getSite().getTabIcon());
@@ -222,9 +238,9 @@ public class TypePopUp extends PopOver {
         });
         scrollPaneClasses.setContent(vBoxClasses);
         gridPanePackagesAndClasses.add(scrollPaneClasses, 1, 1);
-        gridPaneRoot.getChildren().remove(previousContent);
+        VBoxRoot.getChildren().remove(previousContent);
         previousContent = gridPanePackagesAndClasses;
-        gridPaneRoot.add(gridPanePackagesAndClasses, 0, 3, 3, 1);
+        VBoxRoot.getChildren().add(gridPanePackagesAndClasses);
 
         TreeItem selectedItem = Site.currentSelectedProperty().get().getSite().getTreeItem();
         if (selectedItem != null) {
@@ -237,21 +253,4 @@ public class TypePopUp extends PopOver {
         }
     }
 
-    private Node getSeparator(String name) {
-        HBox hBowSeparator = new HBox();
-        hBowSeparator.setAlignment(Pos.CENTER);
-        hBowSeparator.setSpacing(15);
-
-        Separator separatorLeft = new Separator();
-        separatorLeft.setMaxWidth(100);
-
-        Label labelText = new Label(name);
-        labelText.setFont(Font.font(20));
-
-        Separator separatorRight = new Separator();
-
-        hBowSeparator.getChildren().addAll(separatorLeft, labelText, separatorRight);
-        HBox.setHgrow(separatorRight, Priority.ALWAYS);
-        return hBowSeparator;
-    }
 }

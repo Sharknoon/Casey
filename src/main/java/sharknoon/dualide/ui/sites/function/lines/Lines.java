@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +43,7 @@ public class Lines {
         return new Line(dot, functionSite);
     }
 
-    private static final ObservableMap<FunctionSite, Line> CURRENT_DRAWING_LINE = FXCollections.observableHashMap();
+    private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();
 
     public static void setLineDrawing(FunctionSite functionSite, Line line) {
         CURRENT_DRAWING_LINE.put(functionSite, line);
@@ -50,10 +51,6 @@ public class Lines {
 
     public static boolean isLineDrawing(FunctionSite functionSite) {
         return CURRENT_DRAWING_LINE.containsKey(functionSite);
-    }
-
-    public static BooleanBinding isLineDrawingBinding(FunctionSite functionSite) {
-        return Bindings.createBooleanBinding(() -> isLineDrawing(functionSite), CURRENT_DRAWING_LINE);
     }
 
     public static void removeLineDrawing(FunctionSite functionSite) {
@@ -90,18 +87,18 @@ public class Lines {
         return dot1.isInputDot() != dot2.isInputDot();
     }
 
-    private static Line mouseOverLine = null;
+    private static final Map<FunctionSite, Line> MOUSE_OVER_LINE = new HashMap<>();
 
-    public static void setMouseOverLine(Line line) {
-        mouseOverLine = line;
+    public static void setMouseOverLine(FunctionSite fs, Line line) {
+        MOUSE_OVER_LINE.put(fs, line);
     }
 
-    public static boolean isMouseOverLine() {
-        return mouseOverLine != null;
+    public static boolean isMouseOverLine(FunctionSite fs) {
+        return MOUSE_OVER_LINE.containsKey(fs);
     }
 
-    public static void removeMouseOverLine() {
-        mouseOverLine = null;
+    public static void removeMouseOverLine(FunctionSite fs) {
+        MOUSE_OVER_LINE.remove(fs);
     }
 
 }

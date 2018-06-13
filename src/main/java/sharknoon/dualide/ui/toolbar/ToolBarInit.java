@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.buttonbar;
+package sharknoon.dualide.ui.toolbar;
 
 import java.util.EnumSet;
+import java.util.List;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.misc.Icon;
@@ -42,10 +44,10 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class ToolBarInit {
 
-    private static ToolBar buttonbar;
+    private static ToolBar toolBar;
 
     public static void init(ToolBar buttonBar) {
-        buttonbar = buttonBar;
+        toolBar = buttonBar;
         initSaveButton();
         initDebugButton();
     }
@@ -55,13 +57,13 @@ public class ToolBarInit {
         Icons.set(buttonSave, Icon.SAVE);
         Language.set(Word.TOOLBAR_BUTTON_SAVE_TEXT, buttonSave);
         buttonSave.setOnAction(e -> Project.getCurrentProject().ifPresent(Project::save));
-        buttonbar.getItems().add(buttonSave);
+        toolBar.getItems().add(buttonSave);
     }
 
     private static void initDebugButton() {
         Button buttonDebug = new Button("ValuesCheck");
         buttonDebug.setOnAction(e -> TMP());
-        buttonbar.getItems().add(buttonDebug);
+        toolBar.getItems().add(buttonDebug);
     }
 
     private static void TMP() {
@@ -81,9 +83,11 @@ public class ToolBarInit {
             result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });
 
-        TypeField typeField = new TypeField();
+        TypeField typeField = new TypeField(List.of(PrimitiveType.BOOLEAN, PrimitiveType.TEXT));
+
+        TypeField typeField2 = new TypeField(List.of());
         
-        center.getChildren().addAll(field, result, typeField);
+        center.getChildren().addAll(field, result, typeField, typeField2);
 
         Stage stage = new Stage();
         stage.setScene(scene);

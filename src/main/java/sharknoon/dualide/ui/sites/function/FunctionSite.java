@@ -44,6 +44,7 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.sites.function.dots.Dots;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -77,7 +78,7 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMousePressed(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock(this) && !Lines.isMouseOverLine()) {
+        if (!Blocks.isMouseOverBlock(this) && !Lines.isMouseOverLine(this) ) {
             if (event.isPrimaryButtonDown()) {
                 s.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isMiddleButtonDown()) {
@@ -92,7 +93,7 @@ public class FunctionSite extends Site<Function> {
     }
 
     public void onMouseDragged(MouseEvent event) {
-        if (!bm.isDragging) {
+        if (!BlockMoving.isDragging(this)) {
             if (event.isPrimaryButtonDown()) {
                 s.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
             } else if (event.isMiddleButtonDown()) {

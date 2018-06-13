@@ -68,7 +68,7 @@ public class WorkspaceContextMenu {
         } else {
             menu.hide();
         }
-        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine()) {
+        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)) {
             MenuItem addNewDecisionBlockItem = new MenuItem();
             MenuItem addNewAssignmentBlockItem = new MenuItem();
             MenuItem addNewEndBlockItem = new MenuItem();

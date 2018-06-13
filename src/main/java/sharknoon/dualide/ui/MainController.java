@@ -31,7 +31,7 @@ import javafx.scene.image.ImageView;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.ui.buttonbar.ToolBarInit;
+import sharknoon.dualide.ui.toolbar.ToolBarInit;
 import sharknoon.dualide.ui.menubar.MenuBarInit;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;

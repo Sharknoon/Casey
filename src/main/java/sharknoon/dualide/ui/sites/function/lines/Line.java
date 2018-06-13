@@ -153,7 +153,7 @@ public class Line implements Moveable, MouseConsumable {
 
     @Override
     public void onMousePressed(MouseEvent event) {
-        Lines.setMouseOverLine(this);
+        Lines.setMouseOverLine(functionSite, this);
     }
 
     @Override
@@ -163,8 +163,6 @@ public class Line implements Moveable, MouseConsumable {
 
     @Override
     public void onMouseClicked(MouseEvent event) {
-        System.out.println("line clicked");
-        System.out.println("is line drawing: " + Lines.isLineDrawing(functionSite));
         if (!Lines.isLineDrawing(functionSite) && event.getButton() == MouseButton.PRIMARY && event.isStillSincePress()) {
             if (!event.isControlDown()) {
                 Blocks.getAllBlocks(functionSite).forEach(Block::unselect);
@@ -191,12 +189,12 @@ public class Line implements Moveable, MouseConsumable {
 
     @Override
     public void onMouseEntered(MouseEvent event) {
-        Lines.setMouseOverLine(this);
+        Lines.setMouseOverLine(functionSite, this);
     }
 
     @Override
     public void onMouseExited(MouseEvent event) {
-        Lines.removeMouseOverLine();
+        Lines.removeMouseOverLine(functionSite);
     }
 
     private static void registerListeners(Shape shape, MouseConsumable consumable) {

@@ -15,24 +15,27 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
@@ -46,11 +49,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
-import sharknoon.dualide.ui.sites.function.dots.Dots;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
+import sharknoon.dualide.utils.math.Pairing;
 
 /**
  *
@@ -78,12 +82,14 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final Timeline movingXTimeline = new Timeline();
     private final Timeline movingYTimeline = new Timeline();
     //The 1-4 output and 1-4 input dots of a block, unmodifiable, true for output
-    private Map<Dot, Boolean> dots = new HashMap<>();
+    private final Map<Dot, Boolean> dots;
     private final FunctionSite functionSite;
     //The current state of the block
     private boolean selected;
     //The contextmenu for a block
     private final BlockContextMenu menu = new BlockContextMenu(this);
+    //The hoverListener for the blockshape and the dotShapes
+    private final Binding<Boolean> hoverBinding;
     public double startX;
     public double startY;
 
@@ -99,14 +105,16 @@ public abstract class Block implements Moveable, MouseConsumable {
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
         root.getChildren().add(blockShape);
-        blockShape.hoverProperty().addListener((observable, oldValue, newValue) -> {
+        dots = initDots(this, dotOutputSides, dotInputSides);
+        dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
+        hoverBinding = initHoverListeners(blockShape, dots.keySet());
+        hoverBinding.addListener((observable, oldValue, newValue) -> {
             Blocks.hoverOverBlockProperty(functionSite).set(newValue);
         });
         this.predictionShadowShape = createPredictionShadow(blockShape);
         registerListeners(blockShape, this);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
-        createDots();
         Blocks.registerBlock(functionSite, this);
     }
 
@@ -145,6 +153,18 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public abstract Shape initBlockShape();
 
+    private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
+        ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
+        list.add(shape.hoverProperty());
+        dots.forEach((dot) -> {
+            list.add(dot.getShape().hoverProperty());
+        });
+        return EasyBind.combine(
+                list,
+                stream -> stream.reduce((a, b) -> a || b).orElse(false)
+        );
+    }
+
     private static Shape createPredictionShadow(Shape original) {
           var shadow = Shape.union(original, original);
         shadow.setFill(Color.rgb(0, 0, 0, 0));
@@ -179,18 +199,17 @@ public abstract class Block implements Moveable, MouseConsumable {
         shape.setEffect(dropShadow);
     }
 
-    private void createDots() {
-        for (  var dotOutputSide : dotOutputSides) {
-              var dot = new Dot(dotOutputSide, this, false);
-            dot.addTo(root);
-            dots.put(dot, true);
+    private static Map<Dot, Boolean> initDots(Block block, Side[] outputSides, Side[] inputSides) {
+        Map<Dot, Boolean> result = new HashMap<>();
+        for (  var outputSide : outputSides) {
+              var dot = new Dot(outputSide, block, false);
+            result.put(dot, true);
         }
-        for (  var dotInputSide : dotInputSides) {
-              var dot = new Dot(dotInputSide, this, true);
-            dot.addTo(root);
-            dots.put(dot, false);
+        for (  var dotInputSide : inputSides) {
+              var dot = new Dot(dotInputSide, block, true);
+            result.put(dot, false);
         }
-        dots = Collections.unmodifiableMap(dots);
+        return Collections.unmodifiableMap(result);
     }
 
     @Override
@@ -386,7 +405,6 @@ public abstract class Block implements Moveable, MouseConsumable {
      * @return
      */
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
-
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
           var noBlock = Blocks
                 .getAllBlocks(functionSite)
@@ -528,6 +546,7 @@ public abstract class Block implements Moveable, MouseConsumable {
                 .flatMap(Set::stream)
                 .collect(Collectors.toList());
         lines.forEach(Line::remove);
+        hoverBinding.dispose();
         Blocks.unregisterBlock(functionSite, this);
         ((Pane) root.getParent()).getChildren().removeAll(predictionShadowShape, root);
     }
@@ -550,6 +569,11 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     public Optional<Dot> getOutputDot(Side side) {
         return getOutputDots().filter(d -> d.getSide() == side).findAny();
+    }
+
+    @Override
+    public String toString() {
+        return "Block{" + "id=" + Pairing.pair(getMinX(), getMinY()) + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
     }
 
 }

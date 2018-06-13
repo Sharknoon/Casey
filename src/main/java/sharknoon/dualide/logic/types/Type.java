@@ -18,6 +18,7 @@ package sharknoon.dualide.logic.types;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.Statement;
@@ -56,21 +57,81 @@ public abstract class Type<T extends Type, V extends Value> {
     public abstract StringProperty getSimpleName();
 
     public abstract StringProperty getFullName();
-    
+
     public abstract Icon getIcon();
-    
+
     public abstract Icon getCreationIcon();
-    
+
     public abstract StringProperty getCreationText();
-    
+
     /**
      * Language dependent name, e.g. Nummer in german for Number
-     * @return 
+     *
+     * @return
      */
     public abstract StringProperty getName();
-    
+
     public abstract Optional<V> createValue(Statement parent);
-    
+
     public abstract void onDelete(Runnable runnable);
+
+//    public static Type AllType = new Type() {
+//
+//        @Override
+//        public boolean isPrimitive() {
+//            return false;
+//        }
+//
+//        @Override
+//        public PrimitiveType getPrimitiveType() {
+//            return null;
+//        }
+//
+//        @Override
+//        public ObjectType getClassType() {
+//            return null;
+//        }
+//
+//        @Override
+//        public StringProperty getSimpleName() {
+//            return new SimpleStringProperty("ALL");
+//        }
+//
+//        @Override
+//        public StringProperty getFullName() {
+//            return getSimpleName();
+//        }
+//
+//        @Override
+//        public Icon getIcon() {
+//            return Icon.CLASS;
+//        }
+//
+//        @Override
+//        public Icon getCreationIcon() {
+//            return Icon.PLUSCLASS;
+//        }
+//
+//        @Override
+//        public StringProperty getCreationText() {
+//            return new SimpleStringProperty("create me");
+//        }
+//
+//        @Override
+//        public StringProperty getName() {
+//            return getSimpleName();
+//        }
+//
+//        @Override
+//        public Optional createValue(Statement parent) {
+//            return Optional.empty();
+//        }
+//
+//        @Override
+//        public void onDelete(Runnable runnable) {
+//
+//        }
+//
+//    };
 
 }

@@ -19,12 +19,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.geometry.Point2D;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
-import sharknoon.dualide.ui.sites.function.blocks.Block;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -42,14 +41,18 @@ public class BlockMoving {
     Map<Block, Integer> lastGridY = new HashMap<>();
     boolean lastDragSwitch = false;
     boolean currentDragSwitch = true;
-    public boolean isDragging = false;
+    public static final Map<FunctionSite, Boolean> IS_DRAGGING = new HashMap<>();
+
+    public static boolean isDragging(FunctionSite fs) {
+        return IS_DRAGGING.getOrDefault(fs, false);
+    }
 
     public BlockMoving(FunctionSite functionSite) {
         this.functionSite = functionSite;
     }
 
     public void onMousePressed(Point2D localMouse) {
-        isDragging = true;
+        IS_DRAGGING.put(functionSite, true);
         lastDragSwitch = !lastDragSwitch;
         Block block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
@@ -71,7 +74,7 @@ public class BlockMoving {
     }
 
     public void onMouseDragged(Point2D localMouse) {
-        if (!isDragging) {
+        if (!IS_DRAGGING.getOrDefault(functionSite, false)) {
             return;
         }
         Block block = Blocks.getMovingBlock(functionSite);
@@ -87,7 +90,7 @@ public class BlockMoving {
         double deltaY = currentY - startY;
 
         if (block.isSelected()) {
-            Blocks.getSelectedBlocks(functionSite).forEach(b -> {
+            Blocks.getSelectedBlocks(functionSite).collect(Collectors.toList()).stream().forEach(b -> {
                 b.setMinX(b.startX + deltaX);
                 b.setMinY(b.startY + deltaY);
             });
@@ -162,7 +165,7 @@ public class BlockMoving {
     }
 
     public void onMouseReleased() {
-        isDragging = false;
+        IS_DRAGGING.put(functionSite, false);
           var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;

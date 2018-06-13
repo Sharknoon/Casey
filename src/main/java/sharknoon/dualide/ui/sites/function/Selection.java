@@ -136,7 +136,7 @@ public class Selection {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine()
+        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)
                 && event.isStillSincePress()) {
             Blocks.unselectAll(functionSite);
             Lines.getAllLines(functionSite).forEach(Line::unselect);

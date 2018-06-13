@@ -94,8 +94,11 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
      * @return
      */
     public static Optional<Class> forName(String fullName) {
+        if (fullName.isEmpty()) {
+            return Optional.empty();
+        }
         return CLASSES.stream()
-                .filter(c -> c.getFullName().equals(fullName))
+                .filter(c ->  c.getFullName().equals(fullName))
                 .findFirst();
     }
 
@@ -167,7 +170,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
 
         public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(c -> c.type);
+            return Class.forName(name).map(c -> c.toType());
         }
 
         @Override

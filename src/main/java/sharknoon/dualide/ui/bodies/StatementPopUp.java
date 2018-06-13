@@ -1,11 +1,15 @@
 package sharknoon.dualide.ui.bodies;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,6 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
@@ -31,10 +36,14 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.operators.OperatorType;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.values.ObjectValue;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.javafx.FXUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -54,7 +63,13 @@ public class StatementPopUp extends PopOver {
     private final Consumer<Statement> statementConsumer;
 
     private StatementPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
-        this.allowedValues = allowedValues != null && !allowedValues.isEmpty() ? allowedValues : new LinkedHashSet<>(Type.getAllTypes());
+        if (allowedValues == null || allowedValues.isEmpty()) {
+            this.allowedValues = new LinkedHashSet<>(PrimitiveType.getAll());
+            this.allowedValues.addAll(ObjectType.getAll());
+            //this.allowedValues.add(Type.AllType);
+        } else {
+            this.allowedValues = allowedValues;
+        }
         this.parent = parent;
         this.statementConsumer = statementConsumer;
         init();
@@ -83,64 +98,89 @@ public class StatementPopUp extends PopOver {
 
     private void addNewValueSelectors() {
         addNewValueSparator();
+        addNewPrimitiveValueSparator();
+        addNewPrimitiveValueSelectors();
+        addNewObjectValueSparator();
+        addNewObjectValueSelectors();
+    }
+
+    private void addNewValueSparator() {
+        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_VALUES);
+        Node separator = PopUpUtils.getSeparator(text, HPos.CENTER);
+        gridPaneRoot.add(separator, 0, 0);
+    }
+
+    private void addNewPrimitiveValueSparator() {
+        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES);
+        Node separator = PopUpUtils.getSeparator(text, HPos.LEFT, 12);
+        gridPaneRoot.add(separator, 0, 1);
+    }
+
+    private void addNewPrimitiveValueSelectors() {
         GridPane gp = new GridPane();
         gp.setHgap(10);
         gp.setVgap(10);
         gp.setAlignment(Pos.TOP_LEFT);
         int row = 0;
         for (Type type : allowedValues) {
-            String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
+            if (type.isPrimitive()) {
+                String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
 
-            Node icon = Icons.get(type.getIcon());
-            Label text = createLabel(type.getName().get() + stringValues);
-            gp.add(new HBox(10, icon, text), 0, row);
+                Node icon = Icons.get(type.getIcon());
+                Label text = PopUpUtils.createLabel(type.getName().get() + stringValues);
+                gp.add(new HBox(10, icon, text), 0, row);
 
-            FlowPane flowPaneButtons = new FlowPane();
-            flowPaneButtons.setHgap(10);
-            flowPaneButtons.setVgap(10);
-            Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
-            flowPaneButtons.getChildren().add(buttonCreation);
+                FlowPane flowPaneButtons = new FlowPane();
+                flowPaneButtons.setHgap(10);
+                flowPaneButtons.setVgap(10);
+                Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
+                flowPaneButtons.getChildren().add(buttonCreation);
 
-            buttonCreation.setOnAction((event) -> {
-                Optional<Value> createdValue = type.createValue(parent);
-                createdValue.ifPresent(cv -> {
-                    if (statementConsumer != null) {
-                        statementConsumer.accept(cv);
-                    }
-                });
-                hide();
-            });
-            Set<OperatorType> ots = OperatorType.forType(type);
-            ots.forEach(ot -> {
-                Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
-                buttonOperation.setOnAction((event) -> {
-                    if (statementConsumer != null) {
-                        statementConsumer.accept(ot.create(parent));
-                    }
+                buttonCreation.setOnAction((event) -> {
+                    Optional<Value> createdValue = type.createValue(parent);
+                    createdValue.ifPresent(cv -> {
+                        if (statementConsumer != null) {
+                            statementConsumer.accept(cv);
+                        }
+                    });
                     hide();
                 });
-                flowPaneButtons.getChildren().add(buttonOperation);
-            });
+                Set<OperatorType> ots = OperatorType.forType(type);
+                ots.forEach(ot -> {
+                    Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
+                    buttonOperation.setOnAction((event) -> {
+                        if (statementConsumer != null) {
+                            statementConsumer.accept(ot.create(parent));
+                        }
+                        hide();
+                    });
+                    flowPaneButtons.getChildren().add(buttonOperation);
+                });
 
-            gp.add(flowPaneButtons, 1, row);
+                gp.add(flowPaneButtons, 1, row);
 
-            if ((row / 2) + 1 < allowedValues.size()) {
-                Separator separator = new Separator();
-                gp.add(separator, 1, row + 1);
+                if ((row / 2) + 1 < allowedValues.size()) {
+                    Separator separator = new Separator();
+                    gp.add(separator, 1, row + 1);
+                }
+                row += 2;
             }
-            row += 2;
         }
         ColumnConstraints col0 = new ColumnConstraints();
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setHgrow(Priority.ALWAYS);
         gp.getColumnConstraints().addAll(col0, col1);
-        gridPaneRoot.add(gp, 0, 1, 1, 2);
+        gridPaneRoot.add(gp, 0, 2, 1, 2);
     }
 
-    private void addNewValueSparator() {
-        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_VALUES);
-        Node separator = getSeparator(text);
-        gridPaneRoot.add(separator, 0, 0);
+    private void addNewObjectValueSparator() {
+        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES);
+        Node separator = PopUpUtils.getSeparator(text, HPos.LEFT, 12);
+        gridPaneRoot.add(separator, 0, 4);
+    }
+
+    private void addNewObjectValueSelectors() {
+        gridPaneRoot.add(new Label("TODO"), 0, 5);
     }
 
     private void addExistingValueSelectors() {
@@ -150,7 +190,7 @@ public class StatementPopUp extends PopOver {
 
     private void addExistingValueSeparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES);
-        Node separator = getSeparator(text);
+        Node separator = PopUpUtils.getSeparator(text, HPos.CENTER);
         gridPaneRoot.add(separator, 1, 0);
     }
 
@@ -198,13 +238,14 @@ public class StatementPopUp extends PopOver {
         gridPanePackagesAndVariables.getColumnConstraints().addAll(col1, col2);
 
         BreadCrumbBar<Item> breadCrumbBarNavigation = new BreadCrumbBar<>();
+        breadCrumbBarNavigation.setCache(false);
         ScrollPane scrollPaneBreadCrumbBar = new ScrollPane(breadCrumbBarNavigation);
-        scrollPaneBreadCrumbBar.setMinHeight(45);
+        scrollPaneBreadCrumbBar.setMinHeight(50);
         gridPanePackagesAndVariables.add(scrollPaneBreadCrumbBar, 0, 0, 2, 1);
 
         ScrollPane scrollPanePackages = new ScrollPane();
-        //scrollPanePackages.setFitToHeight(true);
-        //scrollPanePackages.setFitToWidth(true);
+        scrollPanePackages.setFitToHeight(true);
+        scrollPanePackages.setFitToWidth(true);
         VBox vBoxSubPackages = new VBox(10);
         breadCrumbBarNavigation.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             vBoxSubPackages.getChildren().clear();
@@ -285,30 +326,6 @@ public class StatementPopUp extends PopOver {
         gridPaneRoot.getChildren().remove(previousContent);
         previousContent = label;
         gridPaneRoot.add(label, 1, 2);
-    }
-
-    private Label createLabel(String stringText) {
-        Label label = new Label(stringText);
-        label.setFont(Font.font(20));
-        return label;
-    }
-
-    private Node getSeparator(String name) {
-        HBox hBowSeparator = new HBox();
-        hBowSeparator.setAlignment(Pos.CENTER);
-        hBowSeparator.setSpacing(15);
-
-        Separator separatorLeft = new Separator();
-        separatorLeft.setMaxWidth(100);
-
-        Label labelText = new Label(name);
-        labelText.setFont(Font.font(20));
-
-        Separator separatorRight = new Separator();
-
-        hBowSeparator.getChildren().addAll(separatorLeft, labelText, separatorRight);
-        HBox.setHgrow(separatorRight, Priority.ALWAYS);
-        return hBowSeparator;
     }
 
 }

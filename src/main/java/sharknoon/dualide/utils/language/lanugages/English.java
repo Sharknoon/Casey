@@ -178,6 +178,8 @@ public class English extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Type");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "New values");
+        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "New object values");
+        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "New primitive values");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-values");
         add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Existing values");
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "General values");

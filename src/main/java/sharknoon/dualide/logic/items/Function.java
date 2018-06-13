@@ -111,7 +111,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
 
         return map;
     }
-
+    
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
         final Map<Double, Block> blockIDs = new HashMap<>();
@@ -153,6 +153,15 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                                 break;
                             case "START":
                                 block = fs.addStartBlock(new Point2D(x, y));
+                                break;
+                            case "CALL":
+                                block = fs.addCallBlock(new Point2D(x, y));
+                                break;
+                            case "INPUT":
+                                block = fs.addInputBlock(new Point2D(x, y));
+                                break;
+                            case "OUTPUT":
+                                block = fs.addOutputBlock(new Point2D(x, y));
                                 break;
                             default:
                                 block = fs.addAssignmentBlock(new Point2D(x, y));

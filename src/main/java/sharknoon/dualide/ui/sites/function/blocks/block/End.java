@@ -62,4 +62,9 @@ public class End extends Block {
         return rectangle;
     }
 
+    @Override
+    public void onOpen() {
+
+    }
+
 }

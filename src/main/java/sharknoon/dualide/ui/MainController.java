@@ -19,23 +19,19 @@ import sharknoon.dualide.ui.background.Background;
 import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.navigation.ItemTabPane;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
-import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.toolbar.ToolBarInit;
 import sharknoon.dualide.ui.menubar.MenuBarInit;
-import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.ui.sites.function.FunctionSiteLogic;
 import sharknoon.dualide.utils.settings.Keyboard;
 
 /**

@@ -64,4 +64,11 @@ public class Decision extends Block {
         return polygon;
     }
 
+    @Override
+    public void onOpen() {
+        
+    }
+
+    
+    
 }

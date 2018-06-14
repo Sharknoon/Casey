@@ -62,4 +62,9 @@ public class Start extends Block {
         return rectangle;
     }
 
+    @Override
+    public void onOpen() {
+
+    }
+
 }

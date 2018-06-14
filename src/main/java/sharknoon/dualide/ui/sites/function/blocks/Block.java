@@ -35,11 +35,14 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
@@ -50,6 +53,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
@@ -85,6 +90,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final Timeline movingYTimeline = new Timeline();
     //The 1-4 output and 1-4 input dots of a block, unmodifiable, true for output
     private final Map<Dot, Boolean> dots;
+    //The Functionsite this block counts to
     private final FunctionSite functionSite;
     //The current state of the block
     private boolean selected;
@@ -92,6 +98,9 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final BlockContextMenu menu = new BlockContextMenu(this);
     //The hoverListener for the blockshape and the dotShapes
     private final Binding<Boolean> hoverBinding;
+    //The text in the block
+    private final ObservableList<Text> text = FXCollections.observableArrayList();
+    //Just some handy variables, see BlockMoving
     public double startX;
     public double startY;
 
@@ -114,6 +123,7 @@ public abstract class Block implements Moveable, MouseConsumable {
             Blocks.hoverOverBlockProperty(functionSite).set(newValue);
         });
         this.predictionShadowShape = createPredictionShadow(blockShape);
+        root.getChildren().add(setBlockText(text));
         MouseConsumable.registerListeners(blockShape, this);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
@@ -154,6 +164,11 @@ public abstract class Block implements Moveable, MouseConsumable {
      * @return The shape of this block
      */
     public abstract Shape initBlockShape();
+    
+    /**
+     * Is being called when the user doubleclicks on the block, is intendet to open a dialog or something like that
+     */
+    public abstract void onOpen();
 
     private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
         ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
@@ -165,6 +180,12 @@ public abstract class Block implements Moveable, MouseConsumable {
                 list,
                 stream -> stream.reduce((a, b) -> a || b).orElse(false)
         );
+    }
+
+    private static Node setBlockText(ObservableList<Text> texts) {
+        TextFlow textFlow = new TextFlow();
+        Bindings.bindContent(textFlow.getChildren(), texts);
+        return textFlow;
     }
 
     private static Shape createPredictionShadow(Shape original) {
@@ -244,6 +265,9 @@ public abstract class Block implements Moveable, MouseConsumable {
                 select();
             } else {
                 toggleSelection();
+            }
+            if (event.getClickCount() == 2) {
+                onOpen();
             }
         }
     }
@@ -571,6 +595,10 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     public Optional<Dot> getOutputDot(Side side) {
         return getOutputDots().filter(d -> d.getSide() == side).findAny();
+    }
+
+    public ObservableList<Text> getText() {
+        return text;
     }
 
     @Override

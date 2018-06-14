@@ -64,4 +64,9 @@ public class Output extends Block {
         return polygon;
     }
 
+    @Override
+    public void onOpen() {
+
+    }
+
 }

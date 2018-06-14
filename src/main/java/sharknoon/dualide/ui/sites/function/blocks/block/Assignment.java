@@ -60,4 +60,9 @@ public class Assignment extends Block {
         return rectangle;
     }
 
+    @Override
+    public void onOpen() {
+        
+    }
+
 }

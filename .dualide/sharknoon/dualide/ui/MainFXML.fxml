@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sharknoon.dualide.ui.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sharknoon.dualide.ui.MainController">
     <children>
         <ImageView fx:id="imageView1" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
         <ImageView fx:id="imageView2" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
@@ -17,9 +17,9 @@
             <children>
                 <MenuBar fx:id="menubar" />
                 <ToolBar fx:id="toolbar" />
-                <SplitPane dividerPositions="0.0" VBox.vgrow="ALWAYS">
+                <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
                     <items>
-                        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" />
+                        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false" />
                         <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" />
                     </items>
                 </SplitPane>

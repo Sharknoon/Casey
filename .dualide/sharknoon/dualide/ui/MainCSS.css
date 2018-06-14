@@ -42,6 +42,8 @@
 
 .split-pane {
     -fx-background-color: transparent;
+    /*Fix for the small border around the Splitpane*/
+    -fx-padding: 0;
 }
 
 .dialog-pane:header .header-panel .label {

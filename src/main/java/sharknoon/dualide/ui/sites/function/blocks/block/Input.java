@@ -64,4 +64,9 @@ public class Input extends Block {
         return polygon;
     }
 
+    @Override
+    public void onOpen() {
+
+    }
+
 }

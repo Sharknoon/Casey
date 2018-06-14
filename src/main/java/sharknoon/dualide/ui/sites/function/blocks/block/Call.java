@@ -61,4 +61,11 @@ public class Call extends Block {
         return rectangle;
     }
 
+    @Override
+    public void onOpen() {
+        
+    }
+    
+    
+
 }

@@ -75,7 +75,7 @@ public class ToolBarInit {
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
         Label result = new Label();
-        ValueField field = new ValueField();
+        ValueField field = new ValueField(List.of(PrimitiveType.BOOLEAN));
         field.setOnStatementSet(s -> {
             result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });

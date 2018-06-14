@@ -102,5 +102,9 @@ public class UISettings {
     public static final Color LINE_SELECTION_SHADOW_COLOR = Color.CORNFLOWERBLUE;
     //The value how sharp the curves should be
     public static final double LINE_CONTROL_OFFSET = 150;
-
+    //
+    //***General
+    //
+    //The minimum amount of the left space of the Divider from the Splitpane
+    public static final int GENERAL_SPLITPANE_DIVIDER_MIN_LEFT_SPACE = 250;
 }

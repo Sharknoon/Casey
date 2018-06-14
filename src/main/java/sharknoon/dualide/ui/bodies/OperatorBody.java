@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -33,8 +32,6 @@ import javafx.scene.layout.HBox;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.operators.Operator;
-import sharknoon.dualide.logic.values.Value;
-import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
@@ -158,7 +155,13 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         hBoxContent.paddingProperty().bind(ov);
     }
 
-    private ObjectProperty<Insets> getPadding(boolean leftParameter, boolean rightParameter, Type parent, Set<Type> leftType, Set<Type> rightType, DoubleBinding leftHeight, DoubleBinding rightHeight) {
+    private ObjectProperty<Insets> getPadding(boolean leftParameter,
+            boolean rightParameter, 
+            Type parent, 
+            Set<Type> leftType, 
+            Set<Type> rightType, 
+            DoubleBinding leftHeight, 
+            DoubleBinding rightHeight) {
         DoubleBinding leftPadding = Bindings.createDoubleBinding(() -> 0.0);
         DoubleBinding rightPadding = Bindings.createDoubleBinding(() -> 0.0);
         if (leftParameter) {
@@ -186,15 +189,12 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
 
     /**
      *
-     * @param node
-     * @param currentIndex index of the children in the hbox
-     * @param lastIndex
      * @param parent
      * @param childs
      */
     private DoubleBinding calculateDistance(Type parent, Set<Type> childs, DoubleBinding childheight) {
         int childvalue = 4;
-        if (childs.size() == 1) {
+        if (childs != null && childs.size() == 1) {
             childvalue = getWeight(childs.iterator().next());
         }
         int parentvalue = getWeight(parent);

@@ -54,7 +54,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         if (parameterTypes.length > 0) {
             this.parameterTypes = new LinkedHashSet<>(Arrays.asList(parameterTypes));
         } else {
-            this.parameterTypes = new LinkedHashSet<>();
+            this.parameterTypes = null;//null beacause a empty list would say no parameters at all, null means every type allowed
         }
         this.minimumParameters = minimumParameters;
         for (int i = 0; i < minimumParameters; i++) {

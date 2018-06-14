@@ -254,7 +254,7 @@ public class TypeBrowser extends VBox {
         getChildren().add(gridPanePackagesAndClasses);
 
         TreeItem selectedItem = Site.currentSelectedProperty().get().getSite().getTreeItem();
-        if (selectedItem != null) {
+        if (selectedItem != null && selectedItem.getValue() != null) {
             while ((selectedItem.getValue() instanceof Function)
                     || (selectedItem.getValue() instanceof Variable)
                     || (selectedItem.getValue() instanceof sharknoon.dualide.logic.items.Class)) {

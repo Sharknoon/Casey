@@ -26,10 +26,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.layout.Pane;
 import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.items.Item;
@@ -94,8 +96,8 @@ public abstract class Site<I extends Item> {
         ObservableList<TreeItem<Item>> treeItems = EasyBind.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
         Bindings.bindContent(treeItem.getChildren(), treeItems);
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
-            treeItem.setValue(null);
-            treeItem.setValue(item);
+              var event = new TreeModificationEvent<>(TreeItem.valueChangedEvent(), treeItem);
+            Event.fireEvent(treeItem, event);
         });
         //tab setup
         tab.textProperty().bind(item.nameProperty());
@@ -113,7 +115,7 @@ public abstract class Site<I extends Item> {
                     if (ex instanceof Exception) {
                         Logger.error("Could not set the content pane", (Exception) ex);
                     } else {
-                        Logger.error("Coudl not set the content pane " + ex);
+                        Logger.error("Could not set the content pane " + ex);
                     }
                     return null;
                 });

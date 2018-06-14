@@ -82,22 +82,22 @@ public class WorkspaceContextMenu {
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, addNewInputBlockItem::setText);
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, addNewOutputBlockItem::setText);
             addNewDecisionBlockItem.setOnAction(e -> {
-                functionSite.addDecisionBlock(workspaceOrigin);
+                functionSite.getLogicSite().addDecisionBlock(workspaceOrigin);
             });
             addNewAssignmentBlockItem.setOnAction(e -> {
-                functionSite.addAssignmentBlock(workspaceOrigin);
+                functionSite.getLogicSite().addAssignmentBlock(workspaceOrigin);
             });
             addNewEndBlockItem.setOnAction(e -> {
-                functionSite.addEndBlock(workspaceOrigin);
+                functionSite.getLogicSite().addEndBlock(workspaceOrigin);
             });
             addNewCallBlockItem.setOnAction(e -> {
-                functionSite.addCallBlock(workspaceOrigin);
+                functionSite.getLogicSite().addCallBlock(workspaceOrigin);
             });
             addNewInputBlockItem.setOnAction(e -> {
-                functionSite.addInputBlock(workspaceOrigin);
+                functionSite.getLogicSite().addInputBlock(workspaceOrigin);
             });
             addNewOutputBlockItem.setOnAction(e -> {
-                functionSite.addOutputBlock(workspaceOrigin);
+                functionSite.getLogicSite().addOutputBlock(workspaceOrigin);
             });
             menu.getItems().clear();
             menu.getItems().addAll(

@@ -24,15 +24,12 @@ import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.values.PrimitiveValue;
 import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
 import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
 import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
-import sharknoon.dualide.logic.values.Value;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Language;
@@ -77,7 +74,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
     }
 
     @Override
-    public ObjectType getClassType() {
+    public ObjectType getObjectType() {
         return null;
     }
 

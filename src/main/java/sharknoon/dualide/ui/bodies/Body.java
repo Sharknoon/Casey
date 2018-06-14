@@ -16,6 +16,8 @@
 package sharknoon.dualide.ui.bodies;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +72,7 @@ public abstract class Body<S extends Statement> extends Group {
         super.getChildren().addAll(backgroundShape, contentPane);
     }
 
-    public Body(Set<Type> types) {
+    public Body(Collection<? extends Type> types) {
         super();
         this.statement = null;
         this.backgroundShape = createOuterShape(types);
@@ -219,13 +221,10 @@ public abstract class Body<S extends Statement> extends Group {
     }
 
     private Shape createOuterShape(Type type) {
-        //To be replaced by Set.of(...); TODO
-        Set<Type> types = new HashSet<>();
-        types.add(type);
-        return createOuterShape(types);
+        return createOuterShape(List.of(type));
     }
 
-    private Shape createOuterShape(Set<Type> types) {
+    private Shape createOuterShape(Collection<? extends Type> types) {
         final Shape shape;
         double height = contentPane.getHeight();
         double width = contentPane.getWidth();

@@ -15,12 +15,17 @@
  */
 package sharknoon.dualide.logic.types;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.values.Value;
@@ -43,7 +48,7 @@ public abstract class Type<T extends Type, V extends Value> {
 
     public abstract PrimitiveType getPrimitiveType();
 
-    public abstract ObjectType getClassType();
+    public abstract ObjectType getObjectType();
 
     public static ListProperty<Type> getAllTypes() {
         return new SimpleListProperty<>(BindUtils.concat(PrimitiveType.getAll(), ObjectType.getAll()));
@@ -74,64 +79,5 @@ public abstract class Type<T extends Type, V extends Value> {
     public abstract Optional<V> createValue(Statement parent);
 
     public abstract void onDelete(Runnable runnable);
-
-//    public static Type AllType = new Type() {
-//
-//        @Override
-//        public boolean isPrimitive() {
-//            return false;
-//        }
-//
-//        @Override
-//        public PrimitiveType getPrimitiveType() {
-//            return null;
-//        }
-//
-//        @Override
-//        public ObjectType getClassType() {
-//            return null;
-//        }
-//
-//        @Override
-//        public StringProperty getSimpleName() {
-//            return new SimpleStringProperty("ALL");
-//        }
-//
-//        @Override
-//        public StringProperty getFullName() {
-//            return getSimpleName();
-//        }
-//
-//        @Override
-//        public Icon getIcon() {
-//            return Icon.CLASS;
-//        }
-//
-//        @Override
-//        public Icon getCreationIcon() {
-//            return Icon.PLUSCLASS;
-//        }
-//
-//        @Override
-//        public StringProperty getCreationText() {
-//            return new SimpleStringProperty("create me");
-//        }
-//
-//        @Override
-//        public StringProperty getName() {
-//            return getSimpleName();
-//        }
-//
-//        @Override
-//        public Optional createValue(Statement parent) {
-//            return Optional.empty();
-//        }
-//
-//        @Override
-//        public void onDelete(Runnable runnable) {
-//
-//        }
-//
-//    };
 
 }

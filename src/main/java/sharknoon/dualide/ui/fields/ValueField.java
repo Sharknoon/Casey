@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.fields;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class ValueField extends Pane {
         this(null);
     }
 
-    public ValueField(Set<Type> allowedTypes) {
+    public ValueField(Collection<? extends Type> allowedTypes) {
         StatementPlaceholderBody body = StatementPlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
 
         body.setStatementConsumer(s -> {

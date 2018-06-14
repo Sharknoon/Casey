@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class StatementPlaceholderBody extends Body {
 
     private Consumer<Statement> statementConsumer;
 
-    public static StatementPlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent) {
+    public static StatementPlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent) {
         return createValuePlaceholderBody(types, parent, null);
     }
 
@@ -56,11 +57,11 @@ public class StatementPlaceholderBody extends Body {
         return new StatementPlaceholderBody(types, parent, statementConsumer);
     }
 
-    public static StatementPlaceholderBody createValuePlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
+    public static StatementPlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         return new StatementPlaceholderBody(types, parent, statementConsumer);
     }
 
-    public StatementPlaceholderBody(Set<Type> types, Statement parent, Consumer<Statement> statementConsumer) {
+    public StatementPlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
@@ -75,7 +76,7 @@ public class StatementPlaceholderBody extends Body {
     }
 
     private StatementPlaceholderBody() {
-        super((Set<Type>) null);
+        super((Collection<? extends Type>) null);
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.BANNED, 50));
         });

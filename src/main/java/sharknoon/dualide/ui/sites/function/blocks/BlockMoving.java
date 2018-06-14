@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
@@ -74,6 +75,9 @@ public class BlockMoving {
     }
 
     public void onMouseDragged(Point2D localMouse) {
+        if (!Platform.isFxApplicationThread()) {
+            throw new IllegalArgumentException("Wrong thread!: " + Thread.currentThread().getName());
+        }
         if (!IS_DRAGGING.getOrDefault(functionSite, false)) {
             return;
         }

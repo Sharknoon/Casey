@@ -1,6 +1,7 @@
 package sharknoon.dualide.ui.bodies;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.SegmentedButton;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
@@ -41,6 +43,7 @@ import sharknoon.dualide.logic.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.values.ObjectValue;
+import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.javafx.FXUtils;
@@ -53,34 +56,37 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class StatementPopUp extends PopOver {
 
-    public static void showValueSelectionPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+    public static void showValueSelectionPopUp(Node ownerNode, Collection<? extends Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
         StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, statementConsumer);
     }
 
     private final GridPane gridPaneRoot = new GridPane();
-    private final Set<Type> allowedValues;
+    private final VBox vBoxLeft = new VBox();
+    private final VBox vBoxRight = new VBox();
+    private final Collection<? extends Type> allowedTypes;
     private final Statement parent;
     private final Consumer<Statement> statementConsumer;
 
-    private StatementPopUp(Node ownerNode, Set<Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
-        if (allowedValues == null || allowedValues.isEmpty()) {
-            this.allowedValues = new LinkedHashSet<>(PrimitiveType.getAll());
-            this.allowedValues.addAll(ObjectType.getAll());
-            //this.allowedValues.add(Type.AllType);
-        } else {
-            this.allowedValues = allowedValues;
-        }
+    private StatementPopUp(Node ownerNode, Collection<? extends Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+        super();
         this.parent = parent;
         this.statementConsumer = statementConsumer;
+        this.allowedTypes = allowedValues;
         init();
-        addNewValueSelectors();
-        addExistingValueSelectors();
+        //null means no filter, empty means blocked all types
+        if (allowedValues != null && allowedValues.isEmpty()) {
+            addNoTypeLabel();
+        } else {
+            addNewValueSelectors();
+            addExistingValueSelectors();
+        }
         show(ownerNode);
     }
 
     private void init() {
-        gridPaneRoot.setVgap(10);
         gridPaneRoot.setHgap(10);
+        vBoxLeft.setSpacing(10);
+        vBoxRight.setSpacing(10);
         gridPaneRoot.setPadding(new Insets(25));
         gridPaneRoot.setPrefWidth(1300);
         gridPaneRoot.setMaxSize(1500, 500);
@@ -90,97 +96,131 @@ public class StatementPopUp extends PopOver {
         ColumnConstraints col2 = new ColumnConstraints();
         col2.setPercentWidth(40);
         gridPaneRoot.getColumnConstraints().addAll(col1, col2);
+        gridPaneRoot.add(vBoxLeft, 0, 0);
+        gridPaneRoot.add(vBoxRight, 1, 0);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         setContentNode(gridPaneRoot);
         setArrowLocation(ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.VALUE_SELECTION_POPUP_TITLE));
     }
 
+    private void addNoTypeLabel() {
+          var text = Language.get(Word.TYPE_SELECTION_POPUP_NO_TYPES);
+          var labelNoType = new Label(text);
+        labelNoType.setFont(Font.font(20));
+        labelNoType.setMaxWidth(Double.MAX_VALUE);
+        labelNoType.setAlignment(Pos.CENTER);
+        gridPaneRoot.add(labelNoType, 0, 0, 2, 1);
+    }
+
     private void addNewValueSelectors() {
         addNewValueSparator();
-        addNewPrimitiveValueSparator();
-        addNewPrimitiveValueSelectors();
-        addNewObjectValueSparator();
-        addNewObjectValueSelectors();
+        //primitives
+        for (Type type : allowedTypes == null ? PrimitiveType.getAll() : allowedTypes) {
+            if (type != null && type.isPrimitive()) {
+                addNewPrimitiveValueSelector(type.getPrimitiveType());
+            }
+        }
+        //objects
+        if (allowedTypes == null) {
+            addNewObjectValueSelectors();
+        } else {
+            for (Type type : allowedTypes) {
+                if (type != null && !type.isPrimitive()) {
+                    addNewObjectValueSelectors();
+                    break;
+                }
+            }
+        }
     }
 
     private void addNewValueSparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_VALUES);
         Node separator = PopUpUtils.getSeparator(text, HPos.CENTER);
-        gridPaneRoot.add(separator, 0, 0);
+        vBoxLeft.getChildren().add(separator);
     }
 
-    private void addNewPrimitiveValueSparator() {
-        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES);
-        Node separator = PopUpUtils.getSeparator(text, HPos.LEFT, 12);
-        gridPaneRoot.add(separator, 0, 1);
-    }
+    GridPane gp = new GridPane();
+    int row = 0;
+    int size = -1;
 
-    private void addNewPrimitiveValueSelectors() {
-        GridPane gp = new GridPane();
-        gp.setHgap(10);
-        gp.setVgap(10);
-        gp.setAlignment(Pos.TOP_LEFT);
-        int row = 0;
-        for (Type type : allowedValues) {
-            if (type.isPrimitive()) {
-                String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
-
-                Node icon = Icons.get(type.getIcon());
-                Label text = PopUpUtils.createLabel(type.getName().get() + stringValues);
-                gp.add(new HBox(10, icon, text), 0, row);
-
-                FlowPane flowPaneButtons = new FlowPane();
-                flowPaneButtons.setHgap(10);
-                flowPaneButtons.setVgap(10);
-                Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
-                flowPaneButtons.getChildren().add(buttonCreation);
-
-                buttonCreation.setOnAction((event) -> {
-                    Optional<Value> createdValue = type.createValue(parent);
-                    createdValue.ifPresent(cv -> {
-                        if (statementConsumer != null) {
-                            statementConsumer.accept(cv);
-                        }
-                    });
-                    hide();
-                });
-                Set<OperatorType> ots = OperatorType.forType(type);
-                ots.forEach(ot -> {
-                    Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
-                    buttonOperation.setOnAction((event) -> {
-                        if (statementConsumer != null) {
-                            statementConsumer.accept(ot.create(parent));
-                        }
-                        hide();
-                    });
-                    flowPaneButtons.getChildren().add(buttonOperation);
-                });
-
-                gp.add(flowPaneButtons, 1, row);
-
-                if ((row / 2) + 1 < allowedValues.size()) {
-                    Separator separator = new Separator();
-                    gp.add(separator, 1, row + 1);
-                }
-                row += 2;
-            }
+    private void addNewPrimitiveValueSelector(PrimitiveType type) {
+        if (!vBoxLeft.getChildren().contains(gp)) {
+            gp.setHgap(10);
+            gp.setVgap(10);
+            gp.setAlignment(Pos.TOP_LEFT);
+            ColumnConstraints col0 = new ColumnConstraints();
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setHgrow(Priority.ALWAYS);
+            gp.getColumnConstraints().addAll(col0, col1);
+            vBoxLeft.getChildren().add(gp);
         }
-        ColumnConstraints col0 = new ColumnConstraints();
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setHgrow(Priority.ALWAYS);
-        gp.getColumnConstraints().addAll(col0, col1);
-        gridPaneRoot.add(gp, 0, 2, 1, 2);
-    }
+        if (size < 0) {
+            size = allowedTypes == null ? PrimitiveType.getAll().size() : allowedTypes.size();
+        }
 
-    private void addNewObjectValueSparator() {
-        String text = Language.get(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES);
-        Node separator = PopUpUtils.getSeparator(text, HPos.LEFT, 12);
-        gridPaneRoot.add(separator, 0, 4);
+        String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
+
+        Node icon = Icons.get(type.getIcon());
+        Label text = PopUpUtils.createLabel(type.getName().get() + stringValues);
+        gp.add(new HBox(10, icon, text), 0, row);
+
+        FlowPane flowPaneButtons = new FlowPane();
+        flowPaneButtons.setHgap(10);
+        flowPaneButtons.setVgap(10);
+        Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
+        flowPaneButtons.getChildren().add(buttonCreation);
+
+        buttonCreation.setOnAction((event) -> {
+            Optional<Value> createdValue = type.createValue(parent);
+            createdValue.ifPresent(cv -> {
+                if (statementConsumer != null) {
+                    statementConsumer.accept(cv);
+                }
+            });
+            hide();
+        });
+        Set<OperatorType> ots = OperatorType.forType(type);
+        ots.forEach(ot -> {
+            Button buttonOperation = new Button(ot.getName(), Icons.get(ot.getIcon()));
+            buttonOperation.setOnAction((event) -> {
+                if (statementConsumer != null) {
+                    statementConsumer.accept(ot.create(parent));
+                }
+                hide();
+            });
+            flowPaneButtons.getChildren().add(buttonOperation);
+        });
+
+        gp.add(flowPaneButtons, 1, row);
+
+        if ((row / 2) + 1 < size) {
+            Separator separator = new Separator();
+            gp.add(separator, 1, row + 1);
+        }
+        row += 2;
     }
 
     private void addNewObjectValueSelectors() {
-        gridPaneRoot.add(new Label("TODO"), 0, 5);
+        if (row>0) {
+            Separator separator = new Separator();
+            gp.add(separator, 1, row - 1);
+        }
+
+        String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
+        Node icon = Icons.get(ObjectType.GENERAL.getIcon());
+        Label text = PopUpUtils.createLabel(ObjectType.GENERAL.getName().get() + stringValues);
+        gp.add(new HBox(10, icon, text), 0, row);
+
+        Button buttonCreation = new Button(ObjectType.GENERAL.getCreationText().get(), Icons.get(ObjectType.GENERAL.getCreationIcon()));
+        buttonCreation.setOnAction((event) -> {
+            Optional<ObjectValue> t = ObjectType.GENERAL.createValue(parent);
+            if (statementConsumer != null && t.isPresent()) {
+                statementConsumer.accept(t.get());
+            }
+            hide();
+        });
+        gp.add(buttonCreation, 1, row);
     }
 
     private void addExistingValueSelectors() {
@@ -191,7 +231,7 @@ public class StatementPopUp extends PopOver {
     private void addExistingValueSeparator() {
         String text = Language.get(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES);
         Node separator = PopUpUtils.getSeparator(text, HPos.CENTER);
-        gridPaneRoot.add(separator, 1, 0);
+        vBoxRight.getChildren().add(separator);
     }
 
     private void addValueSourceSegmentedButtons() {
@@ -205,9 +245,9 @@ public class StatementPopUp extends PopOver {
         ToggleButton toggleButtonThisClass = new ToggleButton(textThisClass);
         ToggleButton toggleButtonThisFunction = new ToggleButton(textThisFunction);
 
-        toggleButtonStatic.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
-        toggleButtonThisClass.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
-        toggleButtonThisFunction.prefWidthProperty().bind(gridPaneRoot.widthProperty().multiply(0.4).divide(3));
+        toggleButtonStatic.prefWidthProperty().bind(vBoxRight.widthProperty().divide(3));
+        toggleButtonThisClass.prefWidthProperty().bind(vBoxRight.widthProperty().divide(3));
+        toggleButtonThisFunction.prefWidthProperty().bind(vBoxRight.widthProperty().divide(3));
 
         toggleButtonStatic.setOnAction((event) -> {
             setStaticContent();
@@ -220,7 +260,7 @@ public class StatementPopUp extends PopOver {
         });
 
         segmentedButtonValueSource.getButtons().addAll(toggleButtonStatic, toggleButtonThisClass, toggleButtonThisFunction);
-        gridPaneRoot.add(segmentedButtonValueSource, 1, 1);
+        vBoxRight.getChildren().add(segmentedButtonValueSource);
         GridPane.setHgrow(segmentedButtonValueSource, Priority.ALWAYS);
         //GridPane.setFillWidth(segmentedButtonValueSource, true);
         toggleButtonStatic.fire();
@@ -299,9 +339,9 @@ public class StatementPopUp extends PopOver {
         });
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
         gridPanePackagesAndVariables.add(scrollPaneFunctionsAndVariables, 1, 1);
-        gridPaneRoot.getChildren().remove(previousContent);
+        vBoxRight.getChildren().remove(previousContent);
         previousContent = gridPanePackagesAndVariables;
-        gridPaneRoot.add(gridPanePackagesAndVariables, 1, 2);
+        vBoxRight.getChildren().add(gridPanePackagesAndVariables);
 
         TreeItem selectedItem = Site.currentSelectedProperty().get().getSite().getTreeItem();
         if (selectedItem != null) {
@@ -316,16 +356,16 @@ public class StatementPopUp extends PopOver {
 
     private void setThisClassContent() {
         Label label = new Label("This Class TODO");
-        gridPaneRoot.getChildren().remove(previousContent);
+        vBoxRight.getChildren().remove(previousContent);
         previousContent = label;
-        gridPaneRoot.add(label, 1, 2);
+        vBoxRight.getChildren().add(label);
     }
 
     private void setThisFunctionContent() {
         Label label = new Label("This Function TODO");
-        gridPaneRoot.getChildren().remove(previousContent);
+        vBoxRight.getChildren().remove(previousContent);
         previousContent = label;
-        gridPaneRoot.add(label, 1, 2);
+        vBoxRight.getChildren().add(label);
     }
 
 }

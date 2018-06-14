@@ -35,6 +35,7 @@ import sharknoon.dualide.ui.toolbar.ToolBarInit;
 import sharknoon.dualide.ui.menubar.MenuBarInit;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.function.FunctionSiteLogic;
 import sharknoon.dualide.utils.settings.Keyboard;
 
 /**
@@ -62,7 +63,6 @@ public class MainController implements Initializable {
     private ImageView imageView2;
 
     private static MainController controller;
-    private static Optional<FunctionSite> currentFunction = Optional.empty();
 
     public MainController() {
         controller = this;
@@ -70,39 +70,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //init of handlers
-        Site.currentSelectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue instanceof Function) {
-                currentFunction = Optional.ofNullable((FunctionSite) newValue.getSite());
-            } else {
-                currentFunction = Optional.empty();
-            }
-        });
-        tabPane.setOnScroll((event) -> {
-            currentFunction.ifPresent(f -> f.onScroll(event));
-        });
-        tabPane.setOnZoom((event) -> {
-            currentFunction.ifPresent(f -> f.onZoom(event));
-        });
-        tabPane.setOnMousePressed((event) -> {
-            //System.out.println("mouse pressed");
-            currentFunction.ifPresent(f -> f.onMousePressed(event));
-        });
-        tabPane.setOnMouseDragged((event) -> {
-            currentFunction.ifPresent(f -> f.onMouseDragged(event));
-        });
-        tabPane.setOnMouseReleased((event) -> {
-            currentFunction.ifPresent(f -> f.onMouseReleased(event));
-        });
-        tabPane.setOnMouseMoved((event) -> {
-            currentFunction.ifPresent(f -> f.onMouseMoved(event));
-        });
-        tabPane.setOnMouseClicked((event) -> {
-            currentFunction.ifPresent(f -> f.onMouseClicked(event));
-        });
-        tabPane.setOnContextMenuRequested((event) -> {
-            currentFunction.ifPresent(f -> f.onContextMenuRequested(event));
-        });
         Background.init(imageView1, imageView2);
         MenuBarInit.init(menubar);
         ToolBarInit.init(toolbar);

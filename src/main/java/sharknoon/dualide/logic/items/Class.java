@@ -43,6 +43,8 @@ import sharknoon.dualide.logic.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.values.ObjectValue;
+import sharknoon.dualide.ui.bodies.TypeBrowser;
+import sharknoon.dualide.ui.bodies.TypePopUp;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;
@@ -98,7 +100,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return Optional.empty();
         }
         return CLASSES.stream()
-                .filter(c ->  c.getFullName().equals(fullName))
+                .filter(c -> c.getFullName().equals(fullName))
                 .findFirst();
     }
 
@@ -144,7 +146,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
 
         @Override
-        public ObjectType getClassType() {
+        public ObjectType getObjectType() {
             return this;
         }
 
@@ -173,31 +175,29 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return Class.forName(name).map(c -> c.toType());
         }
 
+        
+        
         @Override
         public Icon getIcon() {
             return Icon.CLASS;
         }
 
+        
+        private Type selectedType;
         @Override
         public Optional<ObjectValue> createValue(Statement parent) {
-            ComboBox<ObjectType> types = new ComboBox<>();
-            types.itemsProperty().bindBidirectional(ObjectType.getAll());
-            FXUtils.fixComboBoxText(types, ObjectType::getSimpleName, ObjectType::getFullName);
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setMaxWidth(Double.MAX_VALUE);
-            grid.setAlignment(Pos.CENTER_LEFT);
-            grid.add(types, 0, 0);
+            TypeBrowser browser = new TypeBrowser(t -> selectedType = t, null, true);
+            browser.setMinHeight(200);
             return Dialogs
                     .showCustomInputDialog(
                             Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
                             Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
                             Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
                             Icon.CLASS,
-                            grid,
-                            p -> ((ComboBox<ObjectType>) p.getChildren().get(0)).getSelectionModel().getSelectedItem()
+                            browser,
+                            p -> selectedType
                     )
-                    .map(o -> new ObjectValue(o, parent));
+                    .map(o -> new ObjectValue(o.getObjectType(), parent));
         }
 
         @Override
@@ -261,6 +261,78 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             onDelete.add(runnable);
         }
 
+        public static ObjectType GENERAL = new ObjectType(null){
+            @Override
+            public void onDelete(Runnable runnable) {
+                //general cant be deleted
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return super.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return -1;
+            }
+
+            @Override
+            public String toString() {
+                return "GENERIC, DO NOT USE!";
+            }
+
+            @Override
+            public StringProperty getName() {
+                return super.getName();
+            }
+
+            @Override
+            public StringProperty getCreationText() {
+                return super.getCreationText();
+            }
+
+            @Override
+            public Icon getCreationIcon() {
+                return super.getCreationIcon();
+            }
+
+            @Override
+            public Optional<ObjectValue> createValue(Statement parent) {
+                return super.createValue(parent);
+            }
+
+            @Override
+            public Icon getIcon() {
+                return super.getIcon();
+            }
+
+            @Override
+            public StringProperty getFullName() {
+                return new SimpleStringProperty("GENERIC");
+            }
+
+            @Override
+            public StringProperty getSimpleName() {
+                return getFullName();
+            }
+
+            @Override
+            public ObjectType getObjectType() {
+                return super.getObjectType();
+            }
+
+            @Override
+            public PrimitiveType getPrimitiveType() {
+                return super.getPrimitiveType();
+            }
+
+            @Override
+            public boolean isPrimitive() {
+                return super.isPrimitive();
+            }
+            
+        };
     }
 
 }

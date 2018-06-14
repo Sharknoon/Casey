@@ -34,8 +34,6 @@
 
 .scroll-pane {
     -fx-background-color: transparent;
-    -fx-background-insets: 0, 1;
-    -fx-padding: 1.0;
 }
 
 .scroll-pane > .viewport {
@@ -56,6 +54,8 @@
 
 .popover > .border {
     -fx-fill: -fx-background;
+    /*Fix for the blurry content in a popover from controlsfx*/
+    -fx-stroke-width: 1;
 }
 
 .popover > .content > .title > .text  {

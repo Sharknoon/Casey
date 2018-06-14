@@ -143,28 +143,28 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                           var block = (Block) null;
                         switch (blocktype) {
                             case "DECISION":
-                                block = fs.addDecisionBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addDecisionBlock(new Point2D(x, y));
                                 break;
                             case "ASSIGNMENT":
-                                block = fs.addAssignmentBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addAssignmentBlock(new Point2D(x, y));
                                 break;
                             case "END":
-                                block = fs.addEndBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addEndBlock(new Point2D(x, y));
                                 break;
                             case "START":
-                                block = fs.addStartBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addStartBlock(new Point2D(x, y));
                                 break;
                             case "CALL":
-                                block = fs.addCallBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addCallBlock(new Point2D(x, y));
                                 break;
                             case "INPUT":
-                                block = fs.addInputBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addInputBlock(new Point2D(x, y));
                                 break;
                             case "OUTPUT":
-                                block = fs.addOutputBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addOutputBlock(new Point2D(x, y));
                                 break;
                             default:
-                                block = fs.addAssignmentBlock(new Point2D(x, y));
+                                block = fs.getLogicSite().addAssignmentBlock(new Point2D(x, y));
                                 break;
                         }
                         blockIDs.put(id, block);

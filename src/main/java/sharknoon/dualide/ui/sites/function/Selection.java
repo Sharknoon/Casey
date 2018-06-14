@@ -48,7 +48,7 @@ public class Selection {
         selectionRectangle.setStrokeWidth(1);
         selectionRectangle.setStroke(Color.BLUE);
         selectionRectangle.setVisible(false);
-        functionSite.addInFront(selectionRectangle);
+        functionSite.getLogicSite().addInFront(selectionRectangle);
     }
 
     public void onMousePressed(Point2D localCoordinates) {

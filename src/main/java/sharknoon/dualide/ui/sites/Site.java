@@ -15,29 +15,23 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.skin.TabPaneSkin;
 import javafx.scene.layout.Pane;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
@@ -55,7 +49,6 @@ import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
@@ -98,7 +91,7 @@ public abstract class Site<I extends Item> {
         this.item = item;
         //treeitem setup
         treeItem.setValue(item);
-        ObservableList<TreeItem<Item>> treeItems = BindUtils.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
+        ObservableList<TreeItem<Item>> treeItems = EasyBind.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
         Bindings.bindContent(treeItem.getChildren(), treeItems);
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
             treeItem.setValue(null);
@@ -106,12 +99,12 @@ public abstract class Site<I extends Item> {
         });
         //tab setup
         tab.textProperty().bind(item.nameProperty());
-        Icons.setCustom(g -> tab.setGraphic(g), getTabIcon());
+        Icons.setCustom(getTabIcon(), g -> tab.setGraphic(g));
         if (item.getType().equals(ItemType.WELCOME)) {
             tab.setClosable(false);
         }
         tab.setOnSelectionChanged((event) -> {
-            if (tab.isSelected()) {
+            if (tab.isSelected() && tab.getContent() == null) {
                 getTabContentPane().thenAccept((t) -> {
                     Platform.runLater(() -> {
                         tab.setContent((Pane) t);
@@ -130,8 +123,8 @@ public abstract class Site<I extends Item> {
 
     public void destroy() {
         //Stupid javafx implementation, just need a method tab.close() or tabPane.closeTab(tab)
-        var tabPane = MainController.getTabPane();
-        var onClosed = tab.getOnClosed();
+          var tabPane = MainController.getTabPane();
+          var onClosed = tab.getOnClosed();
         if (onClosed != null) {
             onClosed.handle(null);
         }
@@ -228,7 +221,7 @@ public abstract class Site<I extends Item> {
             }
         }
         if (icon != null) {
-            Icons.set(buttonAdd, icon);
+            Icons.set(icon, buttonAdd);
         }
         if (onAction != null) {
             buttonAdd.setOnAction(e -> onAction.accept(e));

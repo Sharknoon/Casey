@@ -82,6 +82,15 @@ public class English extends Language {
         add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Comment variable");
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Rename variable");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Delete variable");
+        //FunctionSite
+        add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK,"Add new assignment block");
+        add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK,"Add new call block");
+        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK,"Add new decision block");
+        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK,"Add new end block");
+        add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK,"Add new input block");
+        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK,"Add new output block");
+        add(Word.FUNCTION_SITE_FUNCTION_LOGIC,"Logic of the function");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES,"Variables of the funtion");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");
@@ -178,8 +187,8 @@ public class English extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Type");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "New values");
-        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "New object values");
-        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "New primitive values");
+        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "New primitive values");
+        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "New object values");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-values");
         add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Existing values");
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "General values");

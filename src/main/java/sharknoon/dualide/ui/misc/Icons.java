@@ -48,19 +48,19 @@ public class Icons {
         return create(icon, size);
     }
 
-    public static void set(Labeled labeled, Icon icon) {
+    public static void set(Icon icon, Labeled labeled) {
         labeled.setGraphic(create(icon, DEFAULT_SIZE));
     }
 
-    public static void set(Labeled labeled, Icon icon, double size) {
+    public static void set(Icon icon, Labeled labeled, double size) {
         labeled.setGraphic(create(icon, size));
     }
 
-    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon) {
+    public static void setCustom(Icon icon, ValueSetter<Node> valueSetter) {
         valueSetter.setValue(create(icon, DEFAULT_SIZE));
     }
 
-    public static void setCustom(ValueSetter<Node> valueSetter, Icon icon, double size) {
+    public static void setCustom(Icon icon, ValueSetter<Node> valueSetter, double size) {
         valueSetter.setValue(create(icon, size));
     }
 

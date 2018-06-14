@@ -52,12 +52,12 @@ public class MenuBarInit {
     private static void initOptionsMenu() {
         Menu menuOptions = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_TEXT, s -> menuOptions.setText(s));
-        Icons.setCustom(g -> menuOptions.setGraphic(g), Icon.COG);
+        Icons.setCustom(Icon.COG, g -> menuOptions.setGraphic(g));
         menubar.getMenus().add(menuOptions);
 
         Menu menuLanguage = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, s -> menuLanguage.setText(s));
-        Icons.setCustom(g -> menuLanguage.setGraphic(g), Icon.LANGUAGE);
+        Icons.setCustom(Icon.LANGUAGE, g -> menuLanguage.setGraphic(g));
         menuOptions.getItems().add(menuLanguage);
 
         Language.getAllLanguages().forEach((loc, lang) -> {
@@ -66,7 +66,7 @@ public class MenuBarInit {
                     () -> loc.getDisplayLanguage(Language.getLanguage().getLocale()),
                     s -> menuItemLanguage.setText(s));
             Icon icon = Icon.forName(loc.getDisplayLanguage(Locale.ENGLISH));
-            Icons.setCustom(g -> menuItemLanguage.setGraphic(g), icon);
+            Icons.setCustom(icon, g -> menuItemLanguage.setGraphic(g));
             menuItemLanguage.setId(loc.getLanguage());
             menuItemLanguage.setOnAction((event) -> {
                 Locale l = new Locale(menuItemLanguage.getId());
@@ -77,12 +77,12 @@ public class MenuBarInit {
 
         Menu menuBackgroundImages = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, s -> menuBackgroundImages.setText(s));
-        Icons.setCustom(g -> menuBackgroundImages.setGraphic(g), Icon.BACKGROUND);
+        Icons.setCustom(Icon.BACKGROUND, g -> menuBackgroundImages.setGraphic(g));
         menuOptions.getItems().add(menuBackgroundImages);
 
         MenuItem menuItemOpenBackgroundFolder = new MenuItem();
         Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, s -> menuItemOpenBackgroundFolder.setText(s));
-        Icons.setCustom(g -> menuItemOpenBackgroundFolder.setGraphic(g), Icon.LOAD);
+        Icons.setCustom(Icon.LOAD, g -> menuItemOpenBackgroundFolder.setGraphic(g));
         menuItemOpenBackgroundFolder.setOnAction((event) -> {
             Background.openImagesFolder();
         });
@@ -132,12 +132,12 @@ public class MenuBarInit {
     private static void initProjectMenu() {
         Menu menuProject = new Menu();
         Language.setCustom(Word.MENUBAR_PROJECT_TEXT, s -> menuProject.setText(s));
-        Icons.setCustom(g -> menuProject.setGraphic(g), Icon.PROJECT);
+        Icons.setCustom(Icon.PROJECT, g -> menuProject.setGraphic(g));
         menubar.getMenus().add(menuProject);
 
         MenuItem menuCloseProject = new MenuItem();
         Language.setCustom(Word.MENUBAR_PROJECT_CLOSE_TEXT, s -> menuCloseProject.setText(s));
-        Icons.setCustom(g -> menuCloseProject.setGraphic(g), Icon.CLOSE);
+        Icons.setCustom(Icon.CLOSE, g -> menuCloseProject.setGraphic(g));
         menuCloseProject.setOnAction((event) -> {
             Project.getCurrentProject().ifPresent(p -> {
                 p.save();

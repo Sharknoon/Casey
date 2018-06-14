@@ -17,6 +17,7 @@ package sharknoon.dualide.ui.toolbar;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -54,7 +55,7 @@ public class ToolBarInit {
 
     private static void initSaveButton() {
         Button buttonSave = new Button();
-        Icons.set(buttonSave, Icon.SAVE);
+        Icons.set(Icon.SAVE, buttonSave);
         Language.set(Word.TOOLBAR_BUTTON_SAVE_TEXT, buttonSave);
         buttonSave.setOnAction(e -> Project.getCurrentProject().ifPresent(Project::save));
         toolBar.getItems().add(buttonSave);
@@ -83,11 +84,9 @@ public class ToolBarInit {
             result.setText(s.calculateResult().toString() + "\n" + s.toString());
         });
 
-        TypeField typeField = new TypeField(List.of(PrimitiveType.BOOLEAN, PrimitiveType.TEXT));
+        TypeField tfield = new TypeField();
 
-        TypeField typeField2 = new TypeField(List.of());
-        
-        center.getChildren().addAll(field, result, typeField, typeField2);
+        center.getChildren().addAll(field, result, tfield);
 
         Stage stage = new Stage();
         stage.setScene(scene);

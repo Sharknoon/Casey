@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.misc.Exitable;
@@ -117,17 +118,19 @@ public class Background implements Exitable {
     private static Timeline fadeToView2;
 
     private static void setImage(Path path) {
-        Image image = new Image("file:///" + path.toString());
-        if (viewToggle) {
-            view1.setImage(image);
-            fadeToView2.stop();
-            fadeToView1.playFromStart();
-        } else {
-            view2.setImage(image);
-            fadeToView1.stop();
-            fadeToView2.playFromStart();
-        }
-        viewToggle = !viewToggle;
+        Platform.runLater(() -> {
+            Image image = new Image("file:///" + path.toString());
+            if (viewToggle) {
+                view1.setImage(image);
+                fadeToView2.stop();
+                fadeToView1.playFromStart();
+            } else {
+                view2.setImage(image);
+                fadeToView1.stop();
+                fadeToView2.playFromStart();
+            }
+            viewToggle = !viewToggle;
+        });
     }
 
     private static void resizeImage(ImageView view) {

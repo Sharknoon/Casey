@@ -82,6 +82,15 @@ public class German extends Language {
         add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Variable kommentieren");
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Variable umbenennen");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Variable löschen");
+        //FunctionSite
+        add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, "Neuen Zuweisungsblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, "Neuen Funktionsblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, "Neuen Entscheidungsblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, "Neuen Endblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Neuen Eingabeblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabenlock erstellen");
+        add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
@@ -178,8 +187,8 @@ public class German extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Typ");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neue Werte");
-        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "Neue Objektwerte");
-        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "Neue Primitivwerte");
+        add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "Neue Primitivwerte");
+        add(Word.VALUE_SELECTION_POPUP_NEW_OBJECT_VALUES, "Neue Objektwerte");
         add(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION, "-Werte");
         add(Word.VALUE_SELECTION_POPUP_EXISTING_VALUES, "Bestehende Werte");
         add(Word.VALUE_SELECTION_POPUP_STATIC_VALUES, "Allgemeine Werte");

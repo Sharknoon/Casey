@@ -98,28 +98,30 @@ public class Dot {
           var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
           var opacityEnd = new KeyValue(circle.opacityProperty(), 1);
 
-        showTimeline.getKeyFrames().clear();
-        showTimeline.getKeyFrames().addAll(
+        showTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
                 new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
         );
-        hideTimeline.stop();
-        showTimeline.stop();
-        showTimeline.play();
+        Platform.runLater(() -> {
+            hideTimeline.stop();
+            showTimeline.stop();
+            showTimeline.play();
+        });
     }
 
     public void hide() {
           var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
           var opacityEnd = new KeyValue(circle.opacityProperty(), 0);
 
-        hideTimeline.getKeyFrames().clear();
-        hideTimeline.getKeyFrames().addAll(
+        hideTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
                 new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
         );
-        showTimeline.stop();
-        hideTimeline.stop();
-        hideTimeline.play();
+        Platform.runLater(() -> {
+            showTimeline.stop();
+            hideTimeline.stop();
+            hideTimeline.play();
+        });
     }
 
     /**

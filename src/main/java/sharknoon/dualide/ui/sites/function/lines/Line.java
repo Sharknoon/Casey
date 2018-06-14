@@ -18,6 +18,7 @@ package sharknoon.dualide.ui.sites.function.lines;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
@@ -32,6 +33,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Shape;
@@ -71,9 +73,9 @@ public class Line implements Moveable, MouseConsumable {
         this.functionSite = functionSite;
         startDot.set(dot);
         line = initLine();
-        registerListeners(line, this);
+        MouseConsumable.registerListeners(line, this);
         addDropShadowEffect();
-        this.functionSite.addInBack(line);
+        this.functionSite.getLogicSite().addInBack(line);
     }
 
     private CubicCurve initLine() {
@@ -137,7 +139,7 @@ public class Line implements Moveable, MouseConsumable {
     }
 
     public void remove() {
-        functionSite.remove(line);
+        functionSite.getLogicSite().remove(line);
         startDot.set(null);
         endDot.set(null);
         Lines.removeLineDrawing(functionSite);
@@ -197,14 +199,12 @@ public class Line implements Moveable, MouseConsumable {
         Lines.removeMouseOverLine(functionSite);
     }
 
-    private static void registerListeners(Shape shape, MouseConsumable consumable) {
-        shape.setOnMousePressed(consumable::onMousePressed);
-        shape.setOnMouseReleased(consumable::onMouseReleased);
-        shape.setOnMouseClicked(consumable::onMouseClicked);
-        shape.setOnContextMenuRequested(consumable::onContextMenuRequested);
-        shape.setOnMouseEntered(consumable::onMouseEntered);
-        shape.setOnMouseExited(consumable::onMouseExited);
-        shape.setOnMouseDragged(consumable::onMouseDragged);
+    @Override
+    public void onMouseMoved(MouseEvent event) {
+    }
+
+    @Override
+    public void onScroll(ScrollEvent event) {
     }
 
     @Override
@@ -215,9 +215,8 @@ public class Line implements Moveable, MouseConsumable {
     public void select() {
         if (!selected) {
             selected = true;
-            shadowShowTimeline.getKeyFrames().clear();
               var dropShadow = (DropShadow) line.getEffect();
-            shadowShowTimeline.getKeyFrames().addAll(
+            shadowShowTimeline.getKeyFrames().setAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
@@ -226,9 +225,11 @@ public class Line implements Moveable, MouseConsumable {
                             new KeyValue(dropShadow.radiusProperty(), UISettings.LINE_SELECTION_SHADOW_RADIUS),
                             new KeyValue(dropShadow.colorProperty(), UISettings.LINE_SELECTION_SHADOW_COLOR)
                     ));
-            shadowRemoveTimeline.stop();
-            shadowShowTimeline.stop();
-            shadowShowTimeline.play();
+            Platform.runLater(() -> {
+                shadowRemoveTimeline.stop();
+                shadowShowTimeline.stop();
+                shadowShowTimeline.play();
+            });
         }
     }
 
@@ -236,8 +237,7 @@ public class Line implements Moveable, MouseConsumable {
         if (selected) {
             selected = false;
               var dropShadow = (DropShadow) line.getEffect();
-            shadowRemoveTimeline.getKeyFrames().clear();
-            shadowRemoveTimeline.getKeyFrames().addAll(
+            shadowRemoveTimeline.getKeyFrames().setAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
                             new KeyValue(dropShadow.colorProperty(), dropShadow.getColor())
@@ -247,9 +247,11 @@ public class Line implements Moveable, MouseConsumable {
                             new KeyValue(dropShadow.colorProperty(), UISettings.LINE_SELECTION_SHADOW_COLOR)
                     )
             );
-            shadowShowTimeline.stop();
-            shadowRemoveTimeline.stop();
-            shadowRemoveTimeline.play();
+            Platform.runLater(() -> {
+                shadowShowTimeline.stop();
+                shadowRemoveTimeline.stop();
+                shadowRemoveTimeline.play();
+            });
         }
     }
 

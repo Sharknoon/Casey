@@ -15,8 +15,10 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import javafx.scene.Node;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 /**
  * This interface is used to mark a type as eventconsumable
@@ -38,4 +40,20 @@ public interface MouseConsumable {
     public abstract void onMouseEntered(MouseEvent event);
 
     public abstract void onMouseExited(MouseEvent event);
+
+    public abstract void onMouseMoved(MouseEvent event);
+
+    public abstract void onScroll(ScrollEvent event);
+
+    public static void registerListeners(Node node, MouseConsumable consumable) {
+        node.setOnMousePressed(consumable::onMousePressed);
+        node.setOnMouseDragged(consumable::onMouseDragged);
+        node.setOnMouseReleased(consumable::onMouseReleased);
+        node.setOnMouseClicked(consumable::onMouseClicked);
+        node.setOnContextMenuRequested(consumable::onContextMenuRequested);
+        node.setOnMouseEntered(consumable::onMouseEntered);
+        node.setOnMouseExited(consumable::onMouseExited);
+        node.setOnMouseMoved(consumable::onMouseMoved);
+        node.setOnScroll(consumable::onScroll);
+    }
 }

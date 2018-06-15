@@ -36,10 +36,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -107,27 +105,21 @@ public class SiteUtils {
         }
     }
 
-    /**
-     * todo
-     *
-     * @param type
-     * @return
-     */
     public static Word getAddChildrenWord(ItemType type) {
         switch (type) {
             case CLASS:
-                return Word.CLASS_SITE_DELETE_BUTTON_TEXT;
+                return Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT;
             case FUNCTION:
-                return Word.FUNCTION_SITE_DELETE_BUTTON_TEXT;
+                return Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT;
             case PACKAGE:
-                return Word.PACKAGE_SITE_DELETE_BUTTON_TEXT;
+                return Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT;
             case PROJECT:
-                return Word.PROJECT_SITE_DELETE_BUTTON_TEXT;
+                return Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT;
             case VARIABLE:
-                return Word.VARIABLE_SITE_DELETE_BUTTON_TEXT;
+                return Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT;
             case WELCOME:
             default:
-                return Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT;
+                return Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT;
         }
     }
 
@@ -294,21 +286,15 @@ public class SiteUtils {
         for (  var i = 0; i < buttonRow.size(); i++) {
             gridPanePackageButtons.add(buttonRow.get(i), i, 0);
               var colAddChildren = new ColumnConstraints();
-            colAddChildren.setHalignment(HPos.LEFT);
-            if (i + 1 == allowedChildrenTypes.length) {
-                colAddChildren.setFillWidth(true);
+            if (i + 1 < allowedChildrenTypes.length) {
+                colAddChildren.setHalignment(HPos.LEFT);
+            } else if (i + 1 == allowedChildrenTypes.length) {
                 colAddChildren.setHgrow(Priority.ALWAYS);
+            } else {
+                colAddChildren.setHalignment(HPos.RIGHT);
             }
             gridPanePackageButtons.getColumnConstraints().add(colAddChildren);
         }
-
-          var colComment = new ColumnConstraints();
-        colComment.setHalignment(HPos.RIGHT);
-          var colRename = new ColumnConstraints();
-        colRename.setHalignment(HPos.RIGHT);
-          var colDelete = new ColumnConstraints();
-        colDelete.setHalignment(HPos.RIGHT);
-        gridPanePackageButtons.getColumnConstraints().addAll(colComment, colRename, colDelete);
 
           var scrollPaneChildren = new ScrollPane(gridPaneChildren);
         scrollPaneChildren.setFitToHeight(true);

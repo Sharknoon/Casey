@@ -16,11 +16,11 @@
 package sharknoon.dualide.ui.sites.function;
 
 import java.util.concurrent.CompletableFuture;
-import javafx.scene.Group;
-import javafx.scene.control.Label;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
+import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -41,7 +41,7 @@ public class FunctionSite extends Site<Function> {
 
     public FunctionSite(Function item) {
         super(item);
-        variableSite = new FunctionSiteVariables();
+        variableSite = new FunctionSiteVariables(this);
         logicSite = new FunctionSiteLogic(this);
     }
 
@@ -53,30 +53,32 @@ public class FunctionSite extends Site<Function> {
         return logicSite;
     }
 
-    private void init() {
-          var tabVariables = new Tab();
-        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_VARIABLES, tabVariables.textProperty()::set);
-        Icons.setCustom(Icon.FUNCTIONVARIABLE, tabVariables.graphicProperty()::set);
-        tabVariables.setContent(variableSite.getTabContentPane());
+    public TabPane getRoot() {
+        return root;
+    }
 
+    private void init() {
           var tabLogic = new Tab();
         Language.setCustom(Word.FUNCTION_SITE_FUNCTION_LOGIC, tabLogic.textProperty()::set);
         Icons.setCustom(Icon.FUNCTIONFLOWCHART, tabLogic.graphicProperty()::set);
         tabLogic.setContent(logicSite.getTabContentPane());
 
-        root = new TabPane(tabVariables, tabLogic);
+          var tabVariables = new Tab();
+        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_VARIABLES, tabVariables.textProperty()::set);
+        Icons.setCustom(Icon.FUNCTIONVARIABLE, tabVariables.graphicProperty()::set);
+        tabVariables.setContent(variableSite.getTabContentPane());
+
+        root = new TabPane(tabLogic, tabVariables);
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
-
     }
 
     @Override
-    public CompletableFuture<Pane> getTabContentPane() {
+    public CompletableFuture<Node> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
             if (root == null) {
                 init();
             }
-            return new Pane(root);
+            return root;
         });
     }
 

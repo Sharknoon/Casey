@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -40,8 +41,6 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.ui.navigation.ItemTabPane;
-import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.language.Language;
@@ -51,7 +50,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.serial.Serialisation;
-import sharknoon.dualide.ui.MainController;
+import sharknoon.dualide.ui.sites.SiteUtils;
 import sharknoon.dualide.utils.settings.Props;
 
 /**
@@ -97,7 +96,7 @@ public class WelcomeSite extends Site<Welcome> {
         VBox vBoxProjectButtons = new VBox(20);
         vBoxProjectButtons.setMinHeight(600);
 
-        Button buttonCreateNewProject = createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
+        Button buttonCreateNewProject = SiteUtils.createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
             if (name.isPresent()) {
                 createProject(name.get());
@@ -106,7 +105,7 @@ public class WelcomeSite extends Site<Welcome> {
 
         Props.get(lastDirectoryKey).thenAccept(o -> lastDirectory = o);
 
-        Button buttonLoadProject = createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
+        Button buttonLoadProject = SiteUtils.createButton(Word.WELCOME_SITE_LOAD_PROJECT_BUTTON_TEXT, Icon.LOAD, (t) -> {
             FileChooser chooser = new FileChooser();
             if (lastDirectory.isPresent() && Files.exists(Paths.get(lastDirectory.get()))) {
                 chooser.setInitialDirectory(new File(lastDirectory.get()));
@@ -206,7 +205,7 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     @Override
-    public CompletableFuture<Pane> getTabContentPane() {
+    public CompletableFuture<Node> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
             if (borderPaneRoot == null) {
                 init();

@@ -18,7 +18,6 @@ package sharknoon.dualide.ui.sites.package_;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import javafx.collections.SetChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,7 +36,6 @@ import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.dialogs.Dialogs;
@@ -48,6 +46,7 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.ui.sites.SiteUtils;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
@@ -67,7 +66,7 @@ public class PackageSite extends Site<Package> {
         gridPaneChildren.setAlignment(Pos.TOP_CENTER);
         gridPaneChildren.setPadding(new Insets(50));
 
-        setContent();
+        SiteUtils.setChildContent(getItem(), gridPaneChildren);
 
         ColumnConstraints colIcon = new ColumnConstraints();
         colIcon.setHalignment(HPos.LEFT);
@@ -87,43 +86,43 @@ public class PackageSite extends Site<Package> {
         gridPanePackageButtons.setHgap(20);
         gridPanePackageButtons.setPadding(new Insets(50));
 
-        Button buttonAddPackage = createButton(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
+        Button buttonAddPackage = SiteUtils.createButton(Word.PACKAGE_SITE_ADD_PACKAGE_BUTTON_TEXT, Icon.PLUSPACKAGE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_PACKAGE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
                 Package package_ = Item.createItem(ItemType.PACKAGE, getItem(), name.get(), true);
             }
         });
-        Button buttonAddClass = createButton(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, Icon.PLUSCLASS, (t) -> {
+        Button buttonAddClass = SiteUtils.createButton(Word.PACKAGE_SITE_ADD_CLASS_BUTTON_TEXT, Icon.PLUSCLASS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_CLASS_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
                 Class clazz = Item.createItem(ItemType.CLASS, getItem(), name.get(), true);
             }
         });
-        Button buttonAddFunction = createButton(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
+        Button buttonAddFunction = SiteUtils.createButton(Word.PACKAGE_SITE_ADD_FUNCTION_BUTTON_TEXT, Icon.PLUSFUNCTION, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_FUNCTION_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
                 Function fun = Item.createItem(ItemType.FUNCTION, getItem(), name.get(), true);
             }
         });
-        Button buttonAddVariable = createButton(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
+        Button buttonAddVariable = SiteUtils.createButton(Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT, Icon.PLUSVARIABLE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(TextInputs.NEW_VARIABLE_DIALOG, getForbittenChildNames());
             if (name.isPresent()) {
                 Variable var = Item.createItem(ItemType.VARIABLE, getItem(), name.get(), true);
             }
         });
-        Button buttonComment = createButton(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+        Button buttonComment = SiteUtils.createButton(Word.PACKAGE_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
             Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, getItem().getComments());
             if (comments.isPresent()) {
                 getItem().setComments(comments.get());
             }
         }, false, true);
-        Button buttonRename = createButton(Word.PACKAGE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
+        Button buttonRename = SiteUtils.createButton(Word.PACKAGE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, getItem().getName(), getItem().getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()));
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }
         }, false, true);
-        Button buttonDelete = createButton(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
+        Button buttonDelete = SiteUtils.createButton(Word.PACKAGE_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
@@ -165,68 +164,12 @@ public class PackageSite extends Site<Package> {
         borderPaneRoot.setBottom(gridPanePackageButtons);
     }
 
-    int rowCounter = 0;
-
-    public void setContent() {
-        BindUtils.listen(getItem().childrenProperty(), childs -> {
-            gridPaneChildren.getChildren().clear();
-            rowCounter = 0;
-            childs.forEach(c -> {
-                Node icon = Icons.get(c.getSite().getTabIcon(), 50);
-                icon.setOnMouseClicked(e -> onClicked(c));
-
-                Text textName = new Text();
-                DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-                shadowEffect.setSpread(0.5);
-                textName.setEffect(shadowEffect);
-                textName.setFont(Font.font(30));
-                textName.textProperty().bindBidirectional(c.nameProperty());
-                textName.setOnMouseClicked(e -> onClicked(c));
-
-                Button buttonComment = createButton(Word.PACKAGE_SITE_COMMENT_CHILDREN_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
-                    Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_PACKAGE_DIALOG, c.getComments());
-                    if (comments.isPresent()) {
-                        c.setComments(comments.get());
-                    }
-                }, false, true);
-
-                Button buttonRename = createButton(Word.PACKAGE_SITE_RENAME_CHILDREN_BUTTON_TEXT, Icon.RENAME, (t) -> {
-                    Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_PACKAGE_DIALOG, c.getName(), getForbittenChildNames(c.getName()));
-                    if (name.isPresent()) {
-                        c.setName(name.get());
-                    }
-                }, false, true);
-
-                Button buttonDelete = createButton(Word.PACKAGE_SITE_DELETE_CHILDREN_BUTTON_TEXT, Icon.TRASH, (t) -> {
-                    Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_PACKAGE_DIALOG, "#PACKAGE", c.getName());
-                    if (confirmed.isPresent() && confirmed.get()) {
-                        c.destroy();
-                    }
-                }, false, true);
-
-                gridPaneChildren.addRow(rowCounter,
-                        icon,
-                        textName,
-                        buttonComment,
-                        buttonRename,
-                        buttonDelete
-                );
-
-                rowCounter++;
-            });
-        });
-    }
-
-    private void onClicked(Item item) {
-        item.getSite().select();
-    }
-
     public PackageSite(Package item) {
         super(item);
     }
 
     @Override
-    public CompletableFuture<Pane> getTabContentPane() {
+    public CompletableFuture<Node> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
             if (borderPaneRoot == null) {
                 init();

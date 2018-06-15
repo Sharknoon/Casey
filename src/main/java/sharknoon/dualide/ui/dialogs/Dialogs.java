@@ -46,7 +46,7 @@ import static sharknoon.dualide.utils.language.Word.*;
 public class Dialogs {
 
     public interface DialogTypes {
-    };
+    }
 
     public enum TextInputs implements DialogTypes {
         NEW_PROJECT_DIALOG,
@@ -57,6 +57,7 @@ public class Dialogs {
         RENAME_PACKAGE_DIALOG,
         RENAME_CLASS_DIALOG,
         RENAME_PROJECT_DIALOG,
+        RENAME_FUNCTION_DIALOG,
         RENAME_VARIABLE_DIALOG,
         NEW_TEXT_VALUE
     }
@@ -73,6 +74,7 @@ public class Dialogs {
         DELETE_PACKAGE_DIALOG,
         DELETE_PROJECT_DIALOG,
         DELETE_CLASS_DIALOG,
+        DELETE_FUNCTION_DIALOG,
         DELETE_VARIABLE_DIALOG
     }
 
@@ -80,6 +82,7 @@ public class Dialogs {
         COMMENT_PACKAGE_DIALOG,
         COMMENT_PROJECT_DIALOG,
         COMMENT_CLASS_DIALOG,
+        COMMENT_FUNCTION_DIALOG,
         COMMENT_VARIABLE_DIALOG
     }
 
@@ -166,6 +169,15 @@ public class Dialogs {
                         RENAME_PROJECT_DIALOG_TITLE,
                         RENAME_PROJECT_DIALOG_HEADER_TEXT,
                         RENAME_PROJECT_DIALOG_CONTENT_TEXT,
+                        Icon.RENAME,
+                        defaultValue,
+                        forbiddenValues,
+                        variables);
+            case RENAME_FUNCTION_DIALOG:
+                return showTextInputDialog(
+                        RENAME_FUNCTION_DIALOG_TITLE,
+                        RENAME_FUNCTION_DIALOG_HEADER_TEXT,
+                        RENAME_FUNCTION_DIALOG_CONTENT_TEXT,
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
@@ -261,6 +273,13 @@ public class Dialogs {
                         DELETE_CLASS_DIALOG_CONTENT_TEXT,
                         Icon.TRASH,
                         variables);
+            case DELETE_FUNCTION_DIALOG:
+                return showConfirmationDialog(
+                        DELETE_FUNCTION_DIALOG_TITLE,
+                        DELETE_FUNCTION_DIALOG_HEADER_TEXT,
+                        DELETE_FUNCTION_DIALOG_CONTENT_TEXT,
+                        Icon.TRASH,
+                        variables);
             case DELETE_VARIABLE_DIALOG:
                 return showConfirmationDialog(
                         DELETE_VARIABLE_DIALOG_TITLE,
@@ -295,6 +314,13 @@ public class Dialogs {
                         Icon.COMMENTS,
                         defaultValue,
                         variables);
+            case COMMENT_FUNCTION_DIALOG:
+                return showTextEditorDialog(
+                        COMMENT_FUNCTION_DIALOG_TITLE,
+                        COMMENT_FUNCTION_DIALOG_HEADER_TEXT,
+                        Icon.COMMENTS,
+                        defaultValue,
+                        variables);
             case COMMENT_VARIABLE_DIALOG:
                 return showTextEditorDialog(
                         COMMENT_VARIABLE_DIALOG_TITLE,
@@ -319,11 +345,11 @@ public class Dialogs {
                 break;
             case TYPE_IN_USE_DIALOG:
                 showErrorDialog(
-                        CLASS_IN_USE_DIALOG_TITLE, 
-                        CLASS_IN_USE_DIALOG_HEADER_TEXT, 
-                        TCLASS_IN_USE_DIALOG_CONTENT_TEXT, 
-                        Icon.CLASS, 
-                        null, 
+                        CLASS_IN_USE_DIALOG_TITLE,
+                        CLASS_IN_USE_DIALOG_HEADER_TEXT,
+                        TCLASS_IN_USE_DIALOG_CONTENT_TEXT,
+                        Icon.CLASS,
+                        null,
                         variables);
         }
     }
@@ -441,25 +467,25 @@ public class Dialogs {
     private static final String EMPTY = "";
 
     private static String fill(String toInsert, String... variables) {
-        String result = toInsert;
+        var result = toInsert;
         for (int i = 0; i < variables.length; i += 2) {
-            String key = variables[i] != null ? variables[i] : EMPTY;
-            String value = variables.length > i + 1 ? variables[i + 1] : EMPTY;
+            var key = variables[i] != null ? variables[i] : EMPTY;
+            var value = variables.length > i + 1 ? variables[i + 1] : EMPTY;
             result = result.replaceAll(key, value);
         }
         return result;
     }
 
     private static void setIcon(Icon icon, Dialog dialog) {
-        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        Optional<Image> image = Icons.getImage(icon);
+        var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        var image = Icons.getImage(icon);
         image.ifPresent(i -> stage.getIcons().add(i));//TODO convert evtl svg to image
     }
 
     private static final String CSSPATH = "sharknoon/dualide/ui/MainCSS.css";
 
     private static void setStyle(Dialog dialog) {
-        Scene scene = dialog.getDialogPane().getScene();
+        var scene = dialog.getDialogPane().getScene();
         scene.getStylesheets().add(CSSPATH);
     }
 

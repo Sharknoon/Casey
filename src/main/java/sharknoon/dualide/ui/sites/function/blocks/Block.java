@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import sharknoon.dualide.ui.sites.function.Moveable;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
 import java.util.Collection;
 import java.util.Collections;
@@ -99,7 +101,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     //The hoverListener for the blockshape and the dotShapes
     private final Binding<Boolean> hoverBinding;
     //The text in the block
-    private final ObservableList<Text> text = FXCollections.observableArrayList();
+    private final ObservableList<Text> text = FXCollections.observableArrayList();    
     //Just some handy variables, see BlockMoving
     public double startX;
     public double startY;
@@ -183,7 +185,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     private static Node setBlockText(ObservableList<Text> texts) {
-        TextFlow textFlow = new TextFlow();
+        var textFlow = new TextFlow();
         Bindings.bindContent(textFlow.getChildren(), texts);
         return textFlow;
     }

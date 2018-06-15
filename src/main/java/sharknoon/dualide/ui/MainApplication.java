@@ -32,6 +32,8 @@ import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.misc.Initializable;
 import sharknoon.dualide.ui.dialogs.ExceptionDialog;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.settings.Resources;
 
 /**
@@ -57,6 +59,7 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        Icons.getImage(Icon.LOGO).ifPresent(stage.getIcons()::add);
         stage.setScene(scene);
         stage.setTitle("DualIDE");
         stage.setMaximized(true);
@@ -89,11 +92,12 @@ public class MainApplication extends Application {
             return;
         }
         if (Platform.isFxApplicationThread()) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             isshowing = true;
-            ExceptionDialog.show("Random error occured", e);
+            ExceptionDialog.show("JavaFX application thread error occured", e);
             isshowing = false;
         } else {
+            e.printStackTrace(System.err);
             System.err.println("An unexpected error occurred in " + t);
 
         }

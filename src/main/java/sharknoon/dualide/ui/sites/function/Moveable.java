@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.blocks;
+package sharknoon.dualide.ui.sites.function;
 
 import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.BoundingBox;

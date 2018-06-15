@@ -16,6 +16,7 @@
 package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     }
 
     public void destroy() {
-        childrenProperty().forEach(c -> c.destroy());
+        var childClone = new ArrayList<>(getChildren());
+        childClone.forEach(Item::destroy);
         if (parentProperty().get() != null) {
             parentProperty().get().removeChild(this);
         }

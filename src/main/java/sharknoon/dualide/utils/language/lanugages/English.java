@@ -38,7 +38,7 @@ public class English extends Language {
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Background");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Open backgroundfolder");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Background duration");
-        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "minutes");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "seconds");
         add(Word.MENUBAR_PROJECT_TEXT, "Project");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
         //ToolBar
@@ -83,14 +83,21 @@ public class English extends Language {
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Rename variable");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Delete variable");
         //FunctionSite
-        add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK,"Add new assignment block");
-        add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK,"Add new call block");
-        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK,"Add new decision block");
-        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK,"Add new end block");
-        add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK,"Add new input block");
-        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK,"Add new output block");
-        add(Word.FUNCTION_SITE_FUNCTION_LOGIC,"Logic of the function");
-        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES,"Variables of the funtion");
+        add(Word.FUNCTION_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment");
+        add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
+        add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete");
+        add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
+        add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Comment function");
+        add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Rename function");
+        add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Delete function");
+        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, "Add new end block");
+        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, "Add new decision block");
+        add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, "Add new assignment block");
+        add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, "Add new call block");
+        add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Add new input block");
+        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Add new output block");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Variables of the funtion");
+        add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Logic of the function");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");
@@ -138,7 +145,7 @@ public class English extends Language {
         ///Comment Class
         add(Word.COMMENT_CLASS_DIALOG_TITLE, "Comment class");
         add(Word.COMMENT_CLASS_DIALOG_HEADER_TEXT, "Enter comments");
-        //Delete Class
+        ///Delete Class
         add(Word.DELETE_CLASS_DIALOG_TITLE, "Delete class #CLASS");
         add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Really delete class #CLASS?");
         add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "All content of the class #CLASS will be deleted permanently!");
@@ -146,6 +153,17 @@ public class English extends Language {
         add(Word.NEW_FUNCTION_DIALOG_TITLE, "Create new function");
         add(Word.NEW_FUNCTION_DIALOG_HEADER_TEXT, "Enter new functionname");
         add(Word.NEW_FUNCTION_DIALOG_CONTENT_TEXT, "Functionname");
+        ///Rename Function
+        add(Word.RENAME_FUNCTION_DIALOG_TITLE, "Rename function");
+        add(Word.RENAME_FUNCTION_DIALOG_HEADER_TEXT, "Enter new functionname");
+        add(Word.RENAME_FUNCTION_DIALOG_CONTENT_TEXT, "Functionname");
+        ///Comment Function
+        add(Word.COMMENT_FUNCTION_DIALOG_TITLE, "Comment function");
+        add(Word.COMMENT_FUNCTION_DIALOG_HEADER_TEXT, "Enter comments");
+        ///Delete Function
+        add(Word.DELETE_FUNCTION_DIALOG_TITLE, "Delete function #FUNCTION");
+        add(Word.DELETE_FUNCTION_DIALOG_HEADER_TEXT, "Really delete function #FUNCTION?");
+        add(Word.DELETE_FUNCTION_DIALOG_CONTENT_TEXT, "All content of this function #FUNCTION will be deleted permanently!");
         ///New Variable
         add(Word.NEW_VARIABLE_DIALOG_TITLE, "Create new Variable");
         add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Enter new variablename");
@@ -197,6 +215,7 @@ public class English extends Language {
         add(Word.VALUE_SELECTION_POPUP_TITLE, "Valueselection");
         //TypeSelectionField
         add(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, "Select type...");
+        add(Word.TYPE_SELECTION_POPUP_NO_TYPES, "No types allowed");
         //TypeSelectionPopup
         add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive types");
         add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objecttypes");

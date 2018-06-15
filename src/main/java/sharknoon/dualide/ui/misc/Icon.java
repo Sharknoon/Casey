@@ -52,6 +52,7 @@ public enum Icon {
     LESSOREQUALTHAN,
     LESSTHAN,
     LOAD,
+    LOGO,
     MINUS,
     MINUSROUND,
     MODULO,

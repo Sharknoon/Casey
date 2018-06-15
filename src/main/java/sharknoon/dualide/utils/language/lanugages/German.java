@@ -38,7 +38,7 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Hintergrund");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
-        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT, "Minuten");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "Sekunden");
         add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar
@@ -83,14 +83,21 @@ public class German extends Language {
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Variable umbenennen");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Variable löschen");
         //FunctionSite
+        add(Word.FUNCTION_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
+        add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
+        add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
+        add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
+        add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Funktion kommentieren");
+        add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Funktion umbenennen");
+        add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Funktion löschen");
+        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, "Neuen Endblock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, "Neuen Entscheidungsblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, "Neuen Zuweisungsblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, "Neuen Funktionsblock erstellen");
-        add(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, "Neuen Entscheidungsblock erstellen");
-        add(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, "Neuen Endblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Neuen Eingabeblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabenlock erstellen");
-        add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
         add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
+        add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
@@ -138,7 +145,7 @@ public class German extends Language {
         ///Comment Class
         add(Word.COMMENT_CLASS_DIALOG_TITLE, "Klasse kommentieren");
         add(Word.COMMENT_CLASS_DIALOG_HEADER_TEXT, "Kommentare eingeben");
-        //Delete Class
+        ///Delete Class
         add(Word.DELETE_CLASS_DIALOG_TITLE, "Klasse #CLASS löschen");
         add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse #CLASS wirklich löschen?");
         add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "Alle Inhalte der Klasse #CLASS werden unwiederruflich gelöscht!");
@@ -146,6 +153,17 @@ public class German extends Language {
         add(Word.NEW_FUNCTION_DIALOG_TITLE, "Neue Funktion anlegen");
         add(Word.NEW_FUNCTION_DIALOG_HEADER_TEXT, "Funktionsnamen eingeben");
         add(Word.NEW_FUNCTION_DIALOG_CONTENT_TEXT, "Funktionsname");
+        ///Rename Function
+        add(Word.RENAME_FUNCTION_DIALOG_TITLE, "Funktion umbenennen");
+        add(Word.RENAME_FUNCTION_DIALOG_HEADER_TEXT, "Neuen Funktionsnamen eingeben");
+        add(Word.RENAME_FUNCTION_DIALOG_CONTENT_TEXT, "Funktionsname");
+        ///Comment Function
+        add(Word.COMMENT_FUNCTION_DIALOG_TITLE, "Funktion kommentieren");
+        add(Word.COMMENT_FUNCTION_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        ///Delete Function
+        add(Word.DELETE_FUNCTION_DIALOG_TITLE, "Funktion #FUNCTION löschen");
+        add(Word.DELETE_FUNCTION_DIALOG_HEADER_TEXT, "Funktion #FUNCTION wirklich löschen?");
+        add(Word.DELETE_FUNCTION_DIALOG_CONTENT_TEXT, "Alle Inhalte der Funktion #FUNCTION werden unwiederruflich gelöscht!");
         ///New Variable
         add(Word.NEW_VARIABLE_DIALOG_TITLE, "Neue Variable anlegen");
         add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Variablennamen eingeben");
@@ -197,6 +215,7 @@ public class German extends Language {
         add(Word.VALUE_SELECTION_POPUP_TITLE, "Werteauswahl");
         //TypeSelectionField
         add(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, "Typ auswählen...");
+        add(Word.TYPE_SELECTION_POPUP_NO_TYPES, "Keine Typen erlaubt");
         //TypeSelectionPopup
         add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive Typen");
         add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objekttypen");

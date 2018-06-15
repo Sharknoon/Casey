@@ -16,14 +16,16 @@
 package sharknoon.dualide.ui.sites.function.lines;
 
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseEvent;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
  *
  * @author Josua Frank
  */
-public class LineDrawing {
+public class LineDrawing implements MouseConsumable {
 
     private final FunctionSite functionSite;
 
@@ -31,9 +33,11 @@ public class LineDrawing {
         this.functionSite = functionSite;
     }
 
-    public void onMouseMoved(Point2D local) {
+    @Override
+    public void onMouseMoved(MouseEvent event) {
           var line = Lines.getDrawingLine(functionSite);
-          line.onMouseMoved(local);
+        Point2D local = new Point2D(event.getX(), event.getY());
+        line.onMouseMoved(local);
 
     }
 

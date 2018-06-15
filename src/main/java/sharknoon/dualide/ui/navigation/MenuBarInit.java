@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.menubar;
+package sharknoon.dualide.ui.navigation;
 
 import java.util.Locale;
 import javafx.geometry.Pos;
@@ -27,8 +27,6 @@ import javafx.scene.layout.GridPane;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.background.Background;
-import sharknoon.dualide.ui.navigation.ItemTabPane;
-import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
@@ -110,7 +108,7 @@ public class MenuBarInit {
         sliderDuration.setMinorTickCount(1);
         sliderDuration.setMajorTickUnit(10);
         sliderDuration.valueProperty().addListener((observable, oldValue, newValue) -> {
-            labelChangingValue.setText(newValue.intValue() + " " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_MINUTES_TEXT));
+            labelChangingValue.setText(newValue.intValue() + " " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT));
         });
         sliderDuration.valueChangingProperty().addListener((observable, oldValue, isChangeing) -> {
             if (!isChangeing) {

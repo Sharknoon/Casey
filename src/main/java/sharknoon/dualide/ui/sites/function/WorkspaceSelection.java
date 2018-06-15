@@ -15,11 +15,11 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
@@ -27,46 +27,52 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  *
  * @author Josua Frank
  */
-public class Selection {
+public class WorkspaceSelection implements MouseConsumable {
 
     private final FunctionSite functionSite;
-    private final Rectangle selectionRectangle = new Rectangle();
-    private double startX = 0;
-    private double startY = 0;
+    private final Rectangle selectionRectangle;
+    private double startX;
+    private double startY;
 
-    public Selection(FunctionSite controller) {
-        this.functionSite = controller;
+    public WorkspaceSelection(FunctionSite functionSite) {
+        this.functionSite = functionSite;
+        this.selectionRectangle = createSelectionRectangle();
     }
 
-    public void init() {
-        createSelectionRectangle();
-    }
-
-    private void createSelectionRectangle() {
+    private static Rectangle createSelectionRectangle() {
+          var selectionRectangle = new Rectangle();
         selectionRectangle.setFill(Color.LIGHTBLUE);
         selectionRectangle.setOpacity(0.4);
         selectionRectangle.setStrokeWidth(1);
         selectionRectangle.setStroke(Color.BLUE);
         selectionRectangle.setVisible(false);
-        functionSite.getLogicSite().addInFront(selectionRectangle);
+        return selectionRectangle;
     }
 
-    public void onMousePressed(Point2D localCoordinates) {
-        if (localCoordinates.getX() < 0 || localCoordinates.getX() > UISettings.WORKSPACE_MAX_X
-                || localCoordinates.getY() < 0 || localCoordinates.getY() > UISettings.WORKSPACE_MAX_Y) {
+    private boolean secondRun;
+
+    @Override
+    public void onMousePressed(MouseEvent event) {
+        if (!secondRun) {
+            this.functionSite.getLogicSite().addInFront(selectionRectangle);
+            secondRun = true;
+        }
+        if (event.getX() < 0 || event.getX() > UISettings.WORKSPACE_MAX_X
+                || event.getY() < 0 || event.getY() > UISettings.WORKSPACE_MAX_Y) {
             return;
         }
         selectionRectangle.setVisible(true);
-        startX = localCoordinates.getX();
-        startY = localCoordinates.getY();
+        startX = event.getX();
+        startY = event.getY();
 
         selectionRectangle.setTranslateX(startX);
         selectionRectangle.setTranslateY(startY);
     }
 
-    public void onMouseDragged(Point2D localCoordinates) {
-          var currentX = localCoordinates.getX();
-          var currentY = localCoordinates.getY();
+    @Override
+    public void onMouseDragged(MouseEvent event) {
+          var currentX = event.getX();
+          var currentY = event.getY();
           var width = currentX - startX;
           var hight = currentY - startY;
         if (startX + width > UISettings.WORKSPACE_MAX_X) {
@@ -132,6 +138,7 @@ public class Selection {
         });
     }
 
+    @Override
     public void onMouseReleased(MouseEvent event) {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);

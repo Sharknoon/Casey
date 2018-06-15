@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.ui.sites.function.blocks;
+package sharknoon.dualide.ui.misc;
 
 import javafx.scene.Node;
 import javafx.scene.input.ContextMenuEvent;
@@ -27,23 +27,32 @@ import javafx.scene.input.ScrollEvent;
  */
 public interface MouseConsumable {
 
-    public abstract void onMousePressed(MouseEvent event);
+    public default void onMousePressed(MouseEvent event) {
+    }
 
-    public abstract void onMouseDragged(MouseEvent event);
+    public default void onMouseDragged(MouseEvent event) {
+    }
 
-    public abstract void onMouseReleased(MouseEvent event);
+    public default void onMouseReleased(MouseEvent event) {
+    }
 
-    public abstract void onMouseClicked(MouseEvent event);
+    public default void onMouseClicked(MouseEvent event) {
+    }
 
-    public abstract void onContextMenuRequested(ContextMenuEvent event);
+    public default void onContextMenuRequested(ContextMenuEvent event) {
+    }
 
-    public abstract void onMouseEntered(MouseEvent event);
+    public default void onMouseEntered(MouseEvent event) {
+    }
 
-    public abstract void onMouseExited(MouseEvent event);
+    public default void onMouseExited(MouseEvent event) {
+    }
 
-    public abstract void onMouseMoved(MouseEvent event);
+    public default void onMouseMoved(MouseEvent event) {
+    }
 
-    public abstract void onScroll(ScrollEvent event);
+    public default void onScroll(ScrollEvent event) {
+    }
 
     public static void registerListeners(Node node, MouseConsumable consumable) {
         node.setOnMousePressed(consumable::onMousePressed);

@@ -17,12 +17,6 @@ package sharknoon.dualide.ui.sites.function;
 
 import sharknoon.dualide.ui.sites.function.lines.LineDrawing;
 import sharknoon.dualide.ui.sites.function.blocks.BlockMoving;
-import java.util.concurrent.CompletableFuture;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -39,14 +33,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Screen;
-import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.ui.MainController;
-import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.blocks.MouseConsumable;
-import sharknoon.dualide.ui.sites.function.dots.Dots;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -58,18 +48,19 @@ public class FunctionSiteLogic implements MouseConsumable {
     private final FunctionSite functionSite;
 
     private final AnchorPane root = new AnchorPane();
-    private final Timeline zoomTimeline = new Timeline();
-    private final Selection s;
+    private final WorkspaceSelection ws;
     private final BlockMoving bm;
     private final WorkspaceMoving wm;
+    private final WorkspaceZooming wz;
     private final WorkspaceContextMenu wc;
     private final LineDrawing ld;
 
     public FunctionSiteLogic(FunctionSite functionSite) {
         this.functionSite = functionSite;
-        this.s = new Selection(functionSite);
+        this.ws = new WorkspaceSelection(functionSite);
         this.bm = new BlockMoving(functionSite);
-        this.wm = new WorkspaceMoving(root);
+        this.wm = new WorkspaceMoving(functionSite);
+        this.wz = new WorkspaceZooming(functionSite);
         this.wc = new WorkspaceContextMenu(functionSite);
         this.ld = new LineDrawing(functionSite);
 
@@ -88,41 +79,37 @@ public class FunctionSiteLogic implements MouseConsumable {
         root.getChildren().remove(node);
     }
 
-    @Override
-    public void onMouseEntered(MouseEvent event) {
-    }
-
-    @Override
-    public void onMouseExited(MouseEvent event) {
+    Pane getRoot() {
+        return root;
     }
 
     @Override
     public void onMousePressed(MouseEvent event) {
         if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)) {
             if (event.isPrimaryButtonDown()) {
-                s.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                ws.onMousePressed(event);
             } else if (event.isMiddleButtonDown()) {
-                wm.onMousePressed(event.getSceneX(), event.getSceneY());
+                wm.onMousePressed(event);
             }
-        } else {
+        } else if (Blocks.isMouseOverBlock(functionSite)) {
             if (event.isPrimaryButtonDown()) {
-                bm.onMousePressed(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                bm.onMousePressed(event);
             }
         }
-        wc.onMousePressed(new Point2D(event.getScreenX(), event.getScreenY()));
+        wc.onMousePressed(event);
     }
 
     @Override
     public void onMouseDragged(MouseEvent event) {
         if (!BlockMoving.isDragging(functionSite)) {
             if (event.isPrimaryButtonDown()) {
-                s.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                ws.onMouseDragged(event);
             } else if (event.isMiddleButtonDown()) {
-                wm.onMouseDragged(event.getSceneX(), event.getSceneY());
+                wm.onMouseDragged(event);
             }
         } else {
             if (event.isPrimaryButtonDown()) {
-                bm.onMouseDragged(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+                bm.onMouseDragged(event);
             }
         }
     }
@@ -130,78 +117,37 @@ public class FunctionSiteLogic implements MouseConsumable {
     @Override
     public void onMouseReleased(MouseEvent event) {
         if (!Blocks.isMouseOverBlock(functionSite)) {
-            s.onMouseReleased(event);
+            ws.onMouseReleased(event);
 
         } else {
-            bm.onMouseReleased();
+            bm.onMouseReleased(event);
         }
     }
 
     @Override
     public void onMouseMoved(MouseEvent event) {
         if (Lines.isLineDrawing(functionSite)) {
-            ld.onMouseMoved(root.sceneToLocal(event.getSceneX(), event.getSceneY()));
+            ld.onMouseMoved(event);
         }
-    }
-
-    @Override
-    public void onMouseClicked(MouseEvent event) {
     }
 
     @Override
     public void onContextMenuRequested(ContextMenuEvent event) {
-        wc.onContextMenuRequested(
-                root.sceneToLocal(event.getSceneX(), event.getSceneY()),
-                new Point2D(event.getScreenX(), event.getScreenY()),
-                (Node) event.getSource());
+        wc.onContextMenuRequested(event);
     }
 
     @Override
     public void onScroll(ScrollEvent event) {
-        zoom(root, event.getDeltaY() < 0 ? 1 / UISettings.WORKSPACE_ZOOM_FACTOR : UISettings.WORKSPACE_ZOOM_FACTOR, event.getSceneX(), event.getSceneY());
+        wz.onScroll(event);
     }
 
     public void onZoom(ZoomEvent event) {
-        zoom(root, event.getZoomFactor(), event.getSceneX(), event.getSceneY());
-    }
-
-    public void zoom(Node node, double factor, double x, double y) {
-        double oldAbsoluteScale = node.getScaleX();
-        double newAbsoluteScale = oldAbsoluteScale * factor;
-        if (newAbsoluteScale < 0.25) {
-            newAbsoluteScale = 0.25;
-        } else if (newAbsoluteScale > 10) {
-            newAbsoluteScale = 10;
-        }
-
-        double newRelativeScale = (newAbsoluteScale / oldAbsoluteScale) - 1;
-        Bounds bounds = node.localToScene(node.getBoundsInLocal());
-
-        double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
-        double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
-
-        double deltaX = node.getTranslateX() - newRelativeScale * dx;
-        double deltaY = node.getTranslateY() - newRelativeScale * dy;
-
-        zoomTimeline.getKeyFrames().clear();
-        zoomTimeline.getKeyFrames().addAll(
-                new KeyFrame(UISettings.WORKSPACE_ZOOM_DURATION,
-                        new KeyValue(node.scaleXProperty(), newAbsoluteScale),
-                        new KeyValue(node.scaleYProperty(), newAbsoluteScale),
-                        new KeyValue(node.translateXProperty(), deltaX),
-                        new KeyValue(node.translateYProperty(), deltaY)
-                )
-        );
-        Platform.runLater(() -> {
-            zoomTimeline.stop();
-            zoomTimeline.play();
-        });
+        wz.onZoom(event);
     }
 
     private boolean initialized = false;
 
     private void init() {
-        s.init();
         drawLineAroundWorkspace();
         centerWorkspaceView();
         if (!startBlockAlreadyAdded) {

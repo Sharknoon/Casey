@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
@@ -31,7 +35,7 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  *
  * @author Josua Frank
  */
-public class BlockMoving {
+public class BlockMoving implements MouseConsumable {
 
     private final FunctionSite functionSite;
     private double startX;
@@ -52,10 +56,13 @@ public class BlockMoving {
         this.functionSite = functionSite;
     }
 
-    public void onMousePressed(Point2D localMouse) {
+    @Override
+    public void onMousePressed(MouseEvent event) {
+        var localMouseX = event.getX();
+        var localMouseY = event.getY();
         IS_DRAGGING.put(functionSite, true);
         lastDragSwitch = !lastDragSwitch;
-        Block block = Blocks.getMovingBlock(functionSite);
+        var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }
@@ -68,13 +75,14 @@ public class BlockMoving {
             block.startX = block.getMinX();
             block.startY = block.getMinY();
         }
-        startX = localMouse.getX();
-        startY = localMouse.getY();
-        startGridX = (int) ((localMouse.getX() - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_X);
-        startGridY = (int) ((localMouse.getY() - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_Y);
+        startX = localMouseX;
+        startY = localMouseY;
+        startGridX = (int) ((localMouseX - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_X);
+        startGridY = (int) ((localMouseY - UISettings.WORKSPACE_PADDING) / UISettings.BLOCK_GRID_SNAPPING_Y);
     }
 
-    public void onMouseDragged(Point2D localMouse) {
+    @Override
+    public void onMouseDragged(MouseEvent event) {
         if (!Platform.isFxApplicationThread()) {
             throw new IllegalArgumentException("Wrong thread!: " + Thread.currentThread().getName());
         }
@@ -86,8 +94,8 @@ public class BlockMoving {
             return;
         }
 
-        double currentX = localMouse.getX();
-        double currentY = localMouse.getY();
+        double currentX = event.getX();
+        double currentY = event.getY();
 
         //dragging part
         double deltaX = currentX - startX;
@@ -168,7 +176,8 @@ public class BlockMoving {
         }
     }
 
-    public void onMouseReleased() {
+    @Override
+    public void onMouseReleased(MouseEvent event) {
         IS_DRAGGING.put(functionSite, false);
           var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
@@ -184,7 +193,8 @@ public class BlockMoving {
             block.setMinYAnimated(block.getShadow().getTranslateY());
         }
     }
-
+    
+    
     private boolean isXInsideWorkspace(Block b, double x) {
         if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return false;

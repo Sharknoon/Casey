@@ -22,6 +22,7 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -40,6 +41,7 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.fields.TypeField;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.SiteUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -74,19 +76,19 @@ public class VariableSite extends Site<Variable> {
         gridPaneVariableButtons.setHgap(20);
         gridPaneVariableButtons.setPadding(new Insets(50));
 
-        Button buttonComment = createButton(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
+        Button buttonComment = SiteUtils.createButton(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, Icon.COMMENTS, (t) -> {
             Optional<String> comments = Dialogs.showTextEditorDialog(Dialogs.TextEditors.COMMENT_VARIABLE_DIALOG, getItem().getComments());
             if (comments.isPresent()) {
                 getItem().setComments(comments.get());
             }
         }, false, true);
-        Button buttonRename = createButton(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
+        Button buttonRename = SiteUtils.createButton(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, Icon.RENAME, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.RENAME_VARIABLE_DIALOG, getItem().getName(), getItem().getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()));
             if (name.isPresent()) {
                 getItem().setName(name.get());
             }
         }, false, true);
-        Button buttonDelete = createButton(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
+        Button buttonDelete = SiteUtils.createButton(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, Icon.TRASH, (t) -> {
             Optional<Boolean> confirmed = Dialogs.showConfirmationDialog(Dialogs.Confirmations.DELETE_VARIABLE_DIALOG, "#VARIABLE", getItem().getName());
             if (confirmed.isPresent() && confirmed.get()) {
                 getItem().destroy();
@@ -139,9 +141,9 @@ public class VariableSite extends Site<Variable> {
         gridPaneContent.addRow(1, typeField, checkBoxFinal);
 
     }
-
+    
     @Override
-    public CompletableFuture<Pane> getTabContentPane() {
+    public CompletableFuture<Node> getTabContentPane() {
         return CompletableFuture.supplyAsync(() -> {
             if (borderPaneRoot == null) {
                 init();

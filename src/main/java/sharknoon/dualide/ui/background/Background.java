@@ -47,9 +47,9 @@ public class Background implements Exitable {
 
     private static ImageView view1;
     private static ImageView view2;
-    private static final List<Path> images = new ArrayList<>();
+    private static final List<Path> IMAGES = new ArrayList<>();
     private static int counter = 0;
-    private static final ScheduledExecutorService imageChangingSchedulerService = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService IMAGE_CHANGEING_SCHEDULER_SERVICE = Executors.newScheduledThreadPool(1);
     private static ScheduledFuture imageChangingScheduler;
     private static ImageView toBeResizedAsSoonAsAImageIsInIt = null;
 
@@ -60,8 +60,18 @@ public class Background implements Exitable {
     private Background(ImageView imageView1, ImageView imageView2) {
         view1 = imageView1;
         view2 = imageView2;
-        reloadImages();
-        setDuration(1);
+        fadeToView1 = new Timeline(
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
+                        new KeyValue(view1.opacityProperty(), 1),
+                        new KeyValue(view2.opacityProperty(), 0)
+                )
+        );
+        fadeToView2 = new Timeline(
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
+                        new KeyValue(view1.opacityProperty(), 0),
+                        new KeyValue(view2.opacityProperty(), 1)
+                )
+        );
         MainApplication.registerInitializable((scene) -> {
             scene.widthProperty().addListener((observable, oldValue, newValue) -> {
                 stageWidth = newValue.doubleValue();
@@ -76,26 +86,16 @@ public class Background implements Exitable {
                 resizeImage(view2);
             });
         });
-        fadeToView1 = new Timeline(
-                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
-                        new KeyValue(view1.opacityProperty(), 1),
-                        new KeyValue(view2.opacityProperty(), 0)
-                )
-        );
-        fadeToView2 = new Timeline(
-                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
-                        new KeyValue(view1.opacityProperty(), 0),
-                        new KeyValue(view2.opacityProperty(), 1)
-                )
-        );
         MainApplication.registerExitable(this);
+        reloadImages();
+        setDuration(60);
     }
 
     public void reloadImages() {
         Resources.getDirectory("Backgroundimages", false).ifPresent((path) -> {
             try {
-                images.clear();
-                images.addAll(Files.list(path)
+                IMAGES.clear();
+                IMAGES.addAll(Files.list(path)
                         .filter(img -> {
                             String end = img.getFileName().toString().toLowerCase();
                             return end.endsWith("png")
@@ -134,26 +134,28 @@ public class Background implements Exitable {
     }
 
     private static void resizeImage(ImageView view) {
-        Image image = view.getImage();
-        if (image == null) {
-            toBeResizedAsSoonAsAImageIsInIt = view;
-            return;
-        }
-        double imageHeight = image.getHeight();
-        double imageWidth = image.getWidth();
-        double imageRatio = imageWidth / imageHeight;
-        double stageRatio = stageWidth / stageHeight;
-        if (stageRatio > imageRatio) {//Cut off some height
-            view.setFitWidth(stageWidth);
-            view.setFitHeight(9999999);
-            view.setTranslateX(0);
-            view.setTranslateY(-(((stageWidth / imageRatio) - stageHeight) / 2));
-        } else {//Cut off some width
-            view.setFitHeight(stageHeight);
-            view.setFitWidth(9999999);
-            view.setTranslateX(-(((stageHeight * imageRatio) - stageWidth) / 2));
-            view.setTranslateY(0);
-        }
+        Platform.runLater(() -> {
+            Image image = view.getImage();
+            if (image == null) {
+                toBeResizedAsSoonAsAImageIsInIt = view;
+                return;
+            }
+            double imageHeight = image.getHeight();
+            double imageWidth = image.getWidth();
+            double imageRatio = imageWidth / imageHeight;
+            double stageRatio = stageWidth / stageHeight;
+            if (stageRatio > imageRatio) {//Cut off some height
+                view.setFitWidth(stageWidth);
+                view.setFitHeight(9999999);
+                view.setTranslateX(0);
+                view.setTranslateY(-(((stageWidth / imageRatio) - stageHeight) / 2));
+            } else {//Cut off some width
+                view.setFitHeight(stageHeight);
+                view.setFitWidth(9999999);
+                view.setTranslateX(-(((stageHeight * imageRatio) - stageWidth) / 2));
+                view.setTranslateY(0);
+            }
+        });
     }
 
     public static void openImagesFolder() {
@@ -167,20 +169,20 @@ public class Background implements Exitable {
         }
     }
 
-    public static void setDuration(int durationInMinutes) {
+    public static void setDuration(int durationInSeconds) {
         if (imageChangingScheduler != null) {
             imageChangingScheduler.cancel(false);
         }
-        if (durationInMinutes > 0) {
-            imageChangingScheduler = imageChangingSchedulerService.scheduleAtFixedRate(() -> {
+        if (durationInSeconds > 0) {
+            imageChangingScheduler = IMAGE_CHANGEING_SCHEDULER_SERVICE.scheduleAtFixedRate(() -> {
                 try {
-                    if (images.size() - 1 > counter) {
+                    if (IMAGES.size() - 1 > counter) {
                         counter++;
                     } else {
                         counter = 0;
                     }
-                    if (images.size() > counter) {
-                        setImage(images.get(counter));
+                    if (IMAGES.size() > counter) {
+                        setImage(IMAGES.get(counter));
                     }
                     if (toBeResizedAsSoonAsAImageIsInIt != null) {
                         resizeImage(toBeResizedAsSoonAsAImageIsInIt);
@@ -189,14 +191,14 @@ public class Background implements Exitable {
                 } catch (Exception e) {
                     Logger.error("Could not change the background image", e);
                 }
-            }, 0, (long) durationInMinutes, TimeUnit.MINUTES);
+            }, 0, (long) durationInSeconds, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public void exit() {
-        if (!imageChangingSchedulerService.isShutdown()) {
-            imageChangingSchedulerService.shutdown();
+        if (!IMAGE_CHANGEING_SCHEDULER_SERVICE.isShutdown()) {
+            IMAGE_CHANGEING_SCHEDULER_SERVICE.shutdown();
         }
     }
 

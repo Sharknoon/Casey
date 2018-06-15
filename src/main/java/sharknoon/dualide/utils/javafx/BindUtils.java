@@ -29,7 +29,9 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.event.Event;
 import org.fxmisc.easybind.EasyBind;
 
 /**
@@ -75,9 +77,9 @@ public class BindUtils {
         return result;
     }
 
-    public static <T> void listen(ObservableValue<T> observable, Consumer<? super T> subscriber) {
-        subscriber.accept(observable.getValue());
-        observable.addListener((obs, oldValue, newValue) -> subscriber.accept(newValue));
+    public static <T> void addListener(ObservableValue<T> observable, ChangeListener<? super T> changeListener) {
+        changeListener.changed(observable, null, observable.getValue());
+        observable.addListener(changeListener);
     }
 
     /**

@@ -15,40 +15,41 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.input.MouseEvent;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 
 /**
  *
  * @author Josua Frank
  */
-public class WorkspaceMoving {
+public class WorkspaceMoving implements MouseConsumable {
 
-    private final AnchorPane workspace;
+    private final FunctionSite functionSite;
     private double startMouseX = 0;
     private double startMouseY = 0;
     private double startTranslationX = 0;
     private double startTranslationY = 0;
 
-    public WorkspaceMoving(AnchorPane workspace) {
-        this.workspace = workspace;
+    public WorkspaceMoving(FunctionSite functionSite) {
+        this.functionSite = functionSite;
     }
 
-    public void init() {
-
+    @Override
+    public void onMousePressed(MouseEvent event) {
+        startMouseX = event.getSceneX();
+        startMouseY = event.getSceneY();
+          var root = functionSite.getLogicSite().getRoot();
+        startTranslationX = root.getTranslateX();
+        startTranslationY = root.getTranslateY();
     }
 
-    public void onMousePressed(double sceneX, double sceneY) {
-        startMouseX = sceneX;
-        startMouseY = sceneY;
-        startTranslationX = workspace.getTranslateX();
-        startTranslationY = workspace.getTranslateY();
-    }
-
-    public void onMouseDragged(double sceneX, double sceneY) {
-        double deltaX = sceneX - startMouseX;
-        double deltaY = sceneY - startMouseY;
-        workspace.setTranslateX(startTranslationX + deltaX);
-        workspace.setTranslateY(startTranslationY + deltaY);
+    @Override
+    public void onMouseDragged(MouseEvent event) {
+          var deltaX = event.getSceneX() - startMouseX;
+          var deltaY = event.getSceneY() - startMouseY;
+          var root = functionSite.getLogicSite().getRoot();
+        root.setTranslateX(startTranslationX + deltaX);
+        root.setTranslateY(startTranslationY + deltaY);
     }
 
 }

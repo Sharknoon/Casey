@@ -19,7 +19,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -28,11 +31,10 @@ import sharknoon.dualide.utils.language.Word;
  *
  * @author Josua Frank
  */
-public class WorkspaceContextMenu {
+public class WorkspaceContextMenu implements MouseConsumable {
 
     private final FunctionSite functionSite;
     private ContextMenu menu;
-    private Point2D origin;
 
     public WorkspaceContextMenu(FunctionSite functionSite) {
         this.functionSite = functionSite;
@@ -42,16 +44,19 @@ public class WorkspaceContextMenu {
 
     }
 
-    public void onMousePressed(Point2D screenOrigin) {
-        origin = screenOrigin;
+    @Override
+    public void onMousePressed(MouseEvent event) {
         if (menu != null) {
             menu.hide();
         }
     }
+//Point2D workspaceOrigin, Point2D screenOrigin, Node originNode
 
-    public void onContextMenuRequested(Point2D workspaceOrigin, Point2D screenOrigin, Node originNode) {
-        double x = workspaceOrigin.getX();
-        double y = workspaceOrigin.getY();
+    @Override
+    public void onContextMenuRequested(ContextMenuEvent event) {
+        var workspaceOrigin = new Point2D(event.getX(), event.getY());
+        var x = workspaceOrigin.getX();
+        var y = workspaceOrigin.getY();
         if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return;
         } else if (x > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING) {
@@ -69,12 +74,12 @@ public class WorkspaceContextMenu {
             menu.hide();
         }
         if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)) {
-            MenuItem addNewDecisionBlockItem = new MenuItem();
-            MenuItem addNewAssignmentBlockItem = new MenuItem();
-            MenuItem addNewEndBlockItem = new MenuItem();
-            MenuItem addNewCallBlockItem = new MenuItem();
-            MenuItem addNewInputBlockItem = new MenuItem();
-            MenuItem addNewOutputBlockItem = new MenuItem();
+            var addNewDecisionBlockItem = new MenuItem();
+            var addNewAssignmentBlockItem = new MenuItem();
+            var addNewEndBlockItem = new MenuItem();
+            var addNewCallBlockItem = new MenuItem();
+            var addNewInputBlockItem = new MenuItem();
+            var addNewOutputBlockItem = new MenuItem();
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, addNewDecisionBlockItem::setText);
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, addNewAssignmentBlockItem::setText);
             Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, addNewEndBlockItem::setText);
@@ -101,14 +106,14 @@ public class WorkspaceContextMenu {
             });
             menu.getItems().clear();
             menu.getItems().addAll(
-                    addNewDecisionBlockItem, 
-                    addNewAssignmentBlockItem, 
+                    addNewDecisionBlockItem,
+                    addNewAssignmentBlockItem,
                     addNewEndBlockItem,
                     addNewCallBlockItem,
                     addNewInputBlockItem,
                     addNewOutputBlockItem
             );
-            menu.show(originNode, screenOrigin.getX(), screenOrigin.getY());
+            menu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
         }
     }
 

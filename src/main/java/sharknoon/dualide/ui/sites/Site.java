@@ -27,6 +27,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -109,7 +110,7 @@ public abstract class Site<I extends Item> {
             if (tab.isSelected() && tab.getContent() == null) {
                 getTabContentPane().thenAccept((t) -> {
                     Platform.runLater(() -> {
-                        tab.setContent((Pane) t);
+                        tab.setContent(t);
                     });
                 }).exceptionally((ex) -> {
                     if (ex instanceof Exception) {
@@ -162,7 +163,7 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public abstract CompletableFuture<Pane> getTabContentPane();
+    public abstract CompletableFuture<Node> getTabContentPane();
 
     /**
      * The Name of the Tab in the Tabpane
@@ -201,35 +202,7 @@ public abstract class Site<I extends Item> {
         return set;
     }
 
-    protected static Button createButton(Word buttonText, Consumer<ActionEvent> onAction) {
-        return createButton(buttonText, null, onAction);
-    }
 
-    protected static Button createButton(Icon icon, Consumer<ActionEvent> onAction) {
-        return createButton(null, icon, onAction);
-    }
-
-    protected static Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction) {
-        return createButton(buttonText, icon, onAction, true, true);
-    }
-
-    protected static Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction, boolean withText, boolean withTooltip) {
-        Button buttonAdd = new Button();
-        if (buttonText != null) {
-            if (withText) {
-                Language.set(buttonText, buttonAdd);
-            } else if (withTooltip) {
-                Language.setCustom(buttonText, s -> buttonAdd.setTooltip(new Tooltip(s)));
-            }
-        }
-        if (icon != null) {
-            Icons.set(icon, buttonAdd);
-        }
-        if (onAction != null) {
-            buttonAdd.setOnAction(e -> onAction.accept(e));
-        }
-        return buttonAdd;
-    }
 
     @Override
     public String toString() {

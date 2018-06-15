@@ -29,8 +29,8 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.ui.toolbar.ToolBarInit;
-import sharknoon.dualide.ui.menubar.MenuBarInit;
+import sharknoon.dualide.ui.navigation.ToolBarInit;
+import sharknoon.dualide.ui.navigation.MenuBarInit;
 import sharknoon.dualide.utils.settings.Keyboard;
 
 /**

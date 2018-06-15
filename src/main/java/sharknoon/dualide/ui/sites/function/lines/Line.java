@@ -40,8 +40,8 @@ import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.blocks.MouseConsumable;
-import sharknoon.dualide.ui.sites.function.blocks.Moveable;
+import sharknoon.dualide.ui.misc.MouseConsumable;
+import sharknoon.dualide.ui.sites.function.Moveable;
 
 /**
  *

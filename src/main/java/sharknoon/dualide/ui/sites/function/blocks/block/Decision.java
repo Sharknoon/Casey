@@ -33,6 +33,10 @@ public class Decision extends Block {
         super(functionSite);
     }
 
+    public Decision(FunctionSite functionSite, String id) {
+        super(functionSite, id);
+    }
+
     @Override
     public double initShapeHeight() {
         return 100;
@@ -66,9 +70,7 @@ public class Decision extends Block {
 
     @Override
     public void onOpen() {
-        
+
     }
 
-    
-    
 }

@@ -33,6 +33,10 @@ public class End extends Block {
         super(functionSite);
     }
 
+    public End(FunctionSite functionSite, String id) {
+        super(functionSite, id);
+    }
+
     @Override
     public double initShapeHeight() {
         return 100;

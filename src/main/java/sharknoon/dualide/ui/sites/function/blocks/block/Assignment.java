@@ -33,6 +33,10 @@ public class Assignment extends Block {
         super(functionSite);
     }
 
+    public Assignment(FunctionSite functionSite, String id) {
+        super(functionSite, id);
+    }
+
     @Override
     public double initShapeHeight() {
         return 100;
@@ -62,7 +66,7 @@ public class Assignment extends Block {
 
     @Override
     public void onOpen() {
-        
+
     }
 
 }

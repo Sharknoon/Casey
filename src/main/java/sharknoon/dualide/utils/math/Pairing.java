@@ -27,14 +27,14 @@ public class Pairing {
      * @param d2
      * @return 
      */
-    public static final double pair(double d1, double d2){
+    public static final double pairr(double d1, double d2){
         return 0.5 * (d1 + d2) * (d1 + d2 + 1) + d2;
     }
  
-    public static final double pair(double d1, double d2, double... d){
-        var dr = pair(d1, d2);
+    public static final double pairr(double d1, double d2, double... d){
+        var dr = pairr(d1, d2);
         for (double dx : d) {
-            dr = pair(dr, dx);
+            dr = pairr(dr, dx);
         }
         return dr;
     }

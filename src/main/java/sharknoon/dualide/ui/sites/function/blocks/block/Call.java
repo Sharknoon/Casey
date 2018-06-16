@@ -32,6 +32,10 @@ public class Call extends Block {
         super(functionSite);
     }
 
+    public Call(FunctionSite functionSite, String id) {
+        super(functionSite, id);
+    }
+
     @Override
     public double initShapeHeight() {
         return 100;
@@ -63,9 +67,7 @@ public class Call extends Block {
 
     @Override
     public void onOpen() {
-        
+
     }
-    
-    
 
 }

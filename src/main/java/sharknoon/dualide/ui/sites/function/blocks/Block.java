@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.animation.KeyFrame;
@@ -33,12 +34,8 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
@@ -49,7 +46,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -63,7 +59,6 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
-import sharknoon.dualide.utils.math.Pairing;
 
 /**
  *
@@ -73,6 +68,8 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     //The root pane for this block
     private final AnchorPane root = new AnchorPane();
+    //An id for the Block to uniquely identify them, needed for derialisation
+    private final String id;
     //The height of the block
     private final double shapeHeight;
     //The width of the block
@@ -101,17 +98,18 @@ public abstract class Block implements Moveable, MouseConsumable {
     //The hoverListener for the blockshape and the dotShapes
     private final Binding<Boolean> hoverBinding;
     //The text in the block
-    private final ObservableList<Text> text = FXCollections.observableArrayList();    
+    private final ObservableList<Text> text = FXCollections.observableArrayList();
     //Just some handy variables, see BlockMoving
     public double startX;
     public double startY;
 
-    /**
-     *
-     * @param functionSite
-     */
     public Block(FunctionSite functionSite) {
+        this(functionSite, UUID.randomUUID().toString());
+    }
+
+    public Block(FunctionSite functionSite, String id) {
         this.functionSite = functionSite;
+        this.id = id == null ? UUID.randomUUID().toString() : id;
         shapeHeight = initShapeHeight();
         shapeWidth = initShapeWidth();
         dotOutputSides = initDotOutputSides();
@@ -166,9 +164,10 @@ public abstract class Block implements Moveable, MouseConsumable {
      * @return The shape of this block
      */
     public abstract Shape initBlockShape();
-    
+
     /**
-     * Is being called when the user doubleclicks on the block, is intendet to open a dialog or something like that
+     * Is being called when the user doubleclicks on the block, is intendet to
+     * open a dialog or something like that
      */
     public abstract void onOpen();
 
@@ -185,7 +184,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     private static Node setBlockText(ObservableList<Text> texts) {
-        var textFlow = new TextFlow();
+          var textFlow = new TextFlow();
         Bindings.bindContent(textFlow.getChildren(), texts);
         return textFlow;
     }
@@ -279,22 +278,6 @@ public abstract class Block implements Moveable, MouseConsumable {
         menu.onContextMenuRequested(event);
     }
 
-    @Override
-    public void onMouseEntered(MouseEvent event) {
-    }
-
-    @Override
-    public void onMouseExited(MouseEvent event) {
-    }
-
-    @Override
-    public void onMouseMoved(MouseEvent event) {
-    }
-
-    @Override
-    public void onScroll(ScrollEvent event) {
-    }
-
     /**
      *
      * @return The shape of the block
@@ -309,6 +292,10 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public Shape getShadow() {
         return predictionShadowShape;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -605,7 +592,7 @@ public abstract class Block implements Moveable, MouseConsumable {
 
     @Override
     public String toString() {
-        return "Block{" + "id=" + Pairing.pair(getMinX(), getMinY()) + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
+        return "Block{" + "id=" + id + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
     }
 
 }

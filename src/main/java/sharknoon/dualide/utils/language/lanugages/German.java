@@ -95,7 +95,7 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, "Neuen Zuweisungsblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, "Neuen Funktionsblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Neuen Eingabeblock erstellen");
-        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabenlock erstellen");
+        add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabeblock erstellen");
         add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
         add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
         //Dialogs

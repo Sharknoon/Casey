@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
+import java.util.EnumSet;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -23,6 +24,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.misc.MouseConsumable;
+import sharknoon.dualide.ui.sites.function.blocks.BlockType;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -50,13 +52,12 @@ public class WorkspaceContextMenu implements MouseConsumable {
             menu.hide();
         }
     }
-//Point2D workspaceOrigin, Point2D screenOrigin, Node originNode
 
     @Override
     public void onContextMenuRequested(ContextMenuEvent event) {
-        var workspaceOrigin = new Point2D(event.getX(), event.getY());
-        var x = workspaceOrigin.getX();
-        var y = workspaceOrigin.getY();
+          var workspaceOrigin = new Point2D(event.getX(), event.getY());
+          var x = workspaceOrigin.getX();
+          var y = workspaceOrigin.getY();
         if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return;
         } else if (x > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING) {
@@ -74,45 +75,22 @@ public class WorkspaceContextMenu implements MouseConsumable {
             menu.hide();
         }
         if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)) {
-            var addNewDecisionBlockItem = new MenuItem();
-            var addNewAssignmentBlockItem = new MenuItem();
-            var addNewEndBlockItem = new MenuItem();
-            var addNewCallBlockItem = new MenuItem();
-            var addNewInputBlockItem = new MenuItem();
-            var addNewOutputBlockItem = new MenuItem();
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_DECISION_BLOCK, addNewDecisionBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_ASSIGNMENT_BLOCK, addNewAssignmentBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_END_BLOCK, addNewEndBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, addNewCallBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, addNewInputBlockItem::setText);
-            Language.setCustom(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, addNewOutputBlockItem::setText);
-            addNewDecisionBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addDecisionBlock(workspaceOrigin);
-            });
-            addNewAssignmentBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addAssignmentBlock(workspaceOrigin);
-            });
-            addNewEndBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addEndBlock(workspaceOrigin);
-            });
-            addNewCallBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addCallBlock(workspaceOrigin);
-            });
-            addNewInputBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addInputBlock(workspaceOrigin);
-            });
-            addNewOutputBlockItem.setOnAction(e -> {
-                functionSite.getLogicSite().addOutputBlock(workspaceOrigin);
-            });
             menu.getItems().clear();
-            menu.getItems().addAll(
-                    addNewDecisionBlockItem,
-                    addNewAssignmentBlockItem,
-                    addNewEndBlockItem,
-                    addNewCallBlockItem,
-                    addNewInputBlockItem,
-                    addNewOutputBlockItem
-            );
+
+            EnumSet
+                    .allOf(BlockType.class)
+                    .stream()
+                    .filter(bt -> bt != BlockType.START)
+                    .forEach(blockType -> {
+                          var menuItemAddNewBlock = new MenuItem();
+                        menuItemAddNewBlock.setId(blockType.name());
+                        Language.setCustom(blockType.getContextMenuAddBlockWord(), menuItemAddNewBlock::setText);
+                        menuItemAddNewBlock.setOnAction(e -> {
+                            functionSite.getLogicSite().addBlock(blockType, workspaceOrigin);
+                        });
+                        menu.getItems().add(menuItemAddNewBlock);
+                    });
+
             menu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
         }
     }

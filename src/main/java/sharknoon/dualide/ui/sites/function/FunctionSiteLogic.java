@@ -37,6 +37,7 @@ import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.misc.MouseConsumable;
+import sharknoon.dualide.ui.sites.function.blocks.BlockType;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
@@ -151,66 +152,32 @@ public class FunctionSiteLogic implements MouseConsumable {
         drawLineAroundWorkspace();
         centerWorkspaceView();
         if (!startBlockAlreadyAdded) {
-            addStartBlock(new Point2D(-1, -1));
+            addBlock(BlockType.START, new Point2D(-1, -1));
         }
         initialized = true;
     }
 
     private boolean startBlockAlreadyAdded = false;
 
-    public Block addStartBlock(Point2D origin) {
-        if (startBlockAlreadyAdded) {
-            return null;
+    public Block addBlock(BlockType type, Point2D origin) {
+        return addBlock(type, origin, null);
+    }
+
+    public Block addBlock(BlockType type, Point2D origin, String id) {
+        if (type == BlockType.START) {
+            if (startBlockAlreadyAdded) {
+                return null;
+            }
+            startBlockAlreadyAdded = true;
         }
-          var startBlock = Blocks.createStartBlock(functionSite);
+          var block = Blocks.createBlock(functionSite, type, id);
         if (origin.getX() < 0 || origin.getY() < 0) {
               var screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            double x = (UISettings.WORKSPACE_MAX_X / 2) - (startBlock.getWidth() / 2);
+            double x = (UISettings.WORKSPACE_MAX_X / 2) - (block.getWidth() / 2);
             double y = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
             origin = new Point2D(x, y);
         }
-        addBlock(startBlock, origin);
-        startBlockAlreadyAdded = true;
-        return startBlock;
-    }
 
-    public Block addEndBlock(Point2D origin) {
-          var endBlock = Blocks.createEndBlock(functionSite);
-        addBlock(endBlock, origin);
-        return endBlock;
-    }
-
-    public Block addDecisionBlock(Point2D origin) {
-          var decisionBlock = Blocks.createDecisionBlock(functionSite);
-        addBlock(decisionBlock, origin);
-        return decisionBlock;
-    }
-
-    public Block addAssignmentBlock(Point2D origin) {
-          var assignmentBlock = Blocks.createAssignmentBlock(functionSite);
-        addBlock(assignmentBlock, origin);
-        return assignmentBlock;
-    }
-
-    public Block addCallBlock(Point2D origin) {
-          var assignmentBlock = Blocks.createCallBlock(functionSite);
-        addBlock(assignmentBlock, origin);
-        return assignmentBlock;
-    }
-
-    public Block addInputBlock(Point2D origin) {
-          var assignmentBlock = Blocks.createInputBlock(functionSite);
-        addBlock(assignmentBlock, origin);
-        return assignmentBlock;
-    }
-
-    public Block addOutputBlock(Point2D origin) {
-          var assignmentBlock = Blocks.createOutputBlock(functionSite);
-        addBlock(assignmentBlock, origin);
-        return assignmentBlock;
-    }
-
-    private void addBlock(Block block, Point2D origin) {
         double minX = origin.getX() - UISettings.WORKSPACE_PADDING;
         minX -= (minX % UISettings.BLOCK_GRID_SNAPPING_X);
         minX += UISettings.WORKSPACE_PADDING;
@@ -254,6 +221,7 @@ public class FunctionSiteLogic implements MouseConsumable {
         block.setMinX(newX);
         block.setMinY(newY);
         block.addTo(root);
+        return block;
     }
 
     private void centerWorkspaceView() {

@@ -44,32 +44,44 @@ import sharknoon.dualide.utils.settings.Logger;
  */
 public class Blocks {
 
-    public static Block createStartBlock(FunctionSite functionSite) {
-        return new Start(functionSite);
+    /**
+     * Creates a new Block
+     *
+     * @param functionSite The general site of the function as reference
+     * @param type The type of the block
+     * @return
+     */
+    public static Block createBlock(FunctionSite functionSite, BlockType type) {
+        return createBlock(functionSite, type, null);
     }
 
-    public static Block createEndBlock(FunctionSite functionSite) {
-        return new End(functionSite);
-    }
-
-    public static Block createDecisionBlock(FunctionSite functionSite) {
-        return new Decision(functionSite);
-    }
-
-    public static Block createAssignmentBlock(FunctionSite functionSite) {
-        return new Assignment(functionSite);
-    }
-
-    public static Block createCallBlock(FunctionSite functionSite) {
-        return new Call(functionSite);
-    }
-
-    public static Block createInputBlock(FunctionSite functionSite) {
-        return new Input(functionSite);
-    }
-
-    public static Block createOutputBlock(FunctionSite functionSite) {
-        return new Output(functionSite);
+    /**
+     * Creates a new Block
+     *
+     * @param functionSite The general site of the function as reference
+     * @param type The type of the block
+     * @param id OPTIONAL Id (just needed for parsing) can be null
+     * @return
+     */
+    public static Block createBlock(FunctionSite functionSite, BlockType type, String id) {
+        switch (type) {
+            case START:
+                return new Start(functionSite, id);
+            case END:
+                return new End(functionSite, id);
+            case DECISION:
+                return new Decision(functionSite, id);
+            case ASSIGNMENT:
+                return new Assignment(functionSite, id);
+            case CALL:
+                return new Call(functionSite, id);
+            case INPUT:
+                return new Input(functionSite, id);
+            case OUTPUT:
+                return new Output(functionSite, id);
+            default:
+                return new Call(functionSite, id);
+        }
     }
 
     private static final ObservableMap<FunctionSite, ObservableSet<Block>> BLOCKS = FXCollections.observableHashMap();

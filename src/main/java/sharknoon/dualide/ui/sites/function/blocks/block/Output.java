@@ -32,6 +32,10 @@ public class Output extends Block {
         super(functionSite);
     }
 
+    public Output(FunctionSite functionSite, String id) {
+        super(functionSite, id);
+    }
+
     @Override
     public double initShapeHeight() {
         return 100;

@@ -15,7 +15,9 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Side;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
@@ -26,7 +28,7 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  *
  * @author Josua Frank
  */
-public class Input extends Block {
+public class Input extends Block<Polygon> {
 
     public Input(FunctionSite functionSite) {
         super(functionSite);
@@ -69,8 +71,18 @@ public class Input extends Block {
     }
 
     @Override
-    public void onOpen() {
+    public Pane initBody() {
+        return null;
+    }
 
+    @Override
+    public DoubleProperty initWidthProperty(Polygon shape) {
+        return null;
+    }
+
+    @Override
+    public DoubleProperty initHeightProperty(Polygon shape) {
+        return null;
     }
 
 }

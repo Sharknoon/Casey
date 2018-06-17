@@ -15,19 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
-import sharknoon.dualide.ui.sites.function.Moveable;
-import sharknoon.dualide.ui.misc.MouseConsumable;
-import sharknoon.dualide.ui.sites.function.dots.Dot;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -35,13 +22,13 @@ import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
@@ -51,21 +38,25 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.fxmisc.easybind.EasyBind;
-import sharknoon.dualide.ui.bodies.Body;
+import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.function.Moveable;
 import sharknoon.dualide.ui.sites.function.UISettings;
+import sharknoon.dualide.ui.sites.function.dots.Dot;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
- *
  * @author Josua Frank
  */
-public abstract class Block implements Moveable, MouseConsumable {
+public abstract class Block<S extends Shape> implements Moveable, MouseConsumable {
 
     //The root pane for this block
     private final AnchorPane root = new AnchorPane();
@@ -80,9 +71,9 @@ public abstract class Block implements Moveable, MouseConsumable {
     //The sides, of where there are input dots
     private final Side[] dotInputSides;
     //The blockshape itself
-    private final Shape blockShape;
+    private final S blockShape;
     //The content of the block
-    private final Body blockBody;
+    private final Pane blockBody;
     //The shape of the shadow of the vlock
     private final Shape predictionShadowShape;
     //Timelines for the animation of the shadown, the dots and the moving of the block
@@ -116,8 +107,8 @@ public abstract class Block implements Moveable, MouseConsumable {
         dotOutputSides = initDotOutputSides();
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
-        blockBody = initBlockBody();
-        root.getChildren().add(blockShape);
+        blockBody = initBody();
+        root.getChildren().addAll(blockShape, blockBody);
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
         hoverBinding = initHoverListeners(blockShape, dots.keySet());
@@ -159,18 +150,43 @@ public abstract class Block implements Moveable, MouseConsumable {
      */
     public abstract Side[] initDotInputSides();
 
+    private static Shape createPredictionShadow(Shape original) {
+        var shadow = Shape.union(original, original);
+        shadow.setFill(Color.rgb(0, 0, 0, 0));
+        shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
+        shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
+        shadow.setStrokeType(StrokeType.INSIDE);
+        shadow.setEffect(null);
+        return shadow;
+    }
+
+    private static void addDropShadowEffect(Shape shape) {
+        var dropShadow = new DropShadow();
+        dropShadow.setSpread(0.5);
+        dropShadow.setRadius(0.0);
+        dropShadow.setColor(UISettings.BLOCK_SELECTION_SHADOW_COLOR);
+        shape.setEffect(dropShadow);
+    }
+
+    private static Map<Dot, Boolean> initDots(Block block, Side[] outputSides, Side[] inputSides) {
+        Map<Dot, Boolean> result = new HashMap<>();
+        for (var outputSide : outputSides) {
+            var dot = new Dot(outputSide, block, false);
+            result.put(dot, true);
+        }
+        for (var dotInputSide : inputSides) {
+            var dot = new Dot(dotInputSide, block, true);
+            result.put(dot, false);
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
     /**
      * Gets the shape of this block
      *
      * @return The shape of this block
      */
-    public abstract Shape initBlockShape();
-
-    /**
-     * Is being called when the user doubleclicks on the block, is intendet to
-     * open a dialog or something like that
-     */
-    public abstract void onOpen();
+    public abstract S initBlockShape();
 
     private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
         ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
@@ -184,15 +200,10 @@ public abstract class Block implements Moveable, MouseConsumable {
         );
     }
 
-    private static Shape createPredictionShadow(Shape original) {
-          var shadow = Shape.union(original, original);
-        shadow.setFill(Color.rgb(0, 0, 0, 0));
-        shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
-        shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
-        shadow.setStrokeType(StrokeType.INSIDE);
-        shadow.setEffect(null);
-        return shadow;
-    }
+    /**
+     * Gets the Content for the block
+     */
+    public abstract Pane initBody();
 
     private static void setStrokeProperties(Shape shape) {
         shape.setStroke(UISettings.BLOCK_BORDER_STROKE_COLOR);
@@ -200,26 +211,9 @@ public abstract class Block implements Moveable, MouseConsumable {
         shape.setStrokeType(StrokeType.CENTERED);
     }
 
-    private static void addDropShadowEffect(Shape shape) {
-          var dropShadow = new DropShadow();
-        dropShadow.setSpread(0.5);
-        dropShadow.setRadius(0.0);
-        dropShadow.setColor(UISettings.BLOCK_SELECTION_SHADOW_COLOR);
-        shape.setEffect(dropShadow);
-    }
+    public abstract DoubleProperty initWidthProperty(S shape);
 
-    private static Map<Dot, Boolean> initDots(Block block, Side[] outputSides, Side[] inputSides) {
-        Map<Dot, Boolean> result = new HashMap<>();
-        for (  var outputSide : outputSides) {
-              var dot = new Dot(outputSide, block, false);
-            result.put(dot, true);
-        }
-        for (  var dotInputSide : inputSides) {
-              var dot = new Dot(dotInputSide, block, true);
-            result.put(dot, false);
-        }
-        return Collections.unmodifiableMap(result);
-    }
+    public abstract DoubleProperty initHeightProperty(S shape);
 
     @Override
     public void onMousePressed(MouseEvent event) {
@@ -263,7 +257,7 @@ public abstract class Block implements Moveable, MouseConsumable {
                 toggleSelection();
             }
             if (event.getClickCount() == 2) {
-                onOpen();
+                initBody();
             }
         }
     }
@@ -274,7 +268,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     /**
-     *
      * @return The shape of the block
      */
     public Shape getShape() {
@@ -282,7 +275,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     /**
-     *
      * @return The prediction shadow of the block
      */
     public Shape getShadow() {
@@ -404,15 +396,15 @@ public abstract class Block implements Moveable, MouseConsumable {
     /**
      * Checks, if this block can move to the desired destination
      *
-     * @param x the x coordinate
-     * @param y the y coordinate
+     * @param x               the x coordinate
+     * @param y               the y coordinate
      * @param ignoreSelection true = ignores selection (default), false = has to
-     * be unselected, because selected ones are dragged all together
+     *                        be unselected, because selected ones are dragged all together
      * @return
      */
     public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
-          var noBlock = Blocks
+        var noBlock = Blocks
                 .getAllBlocks(functionSite)
                 .filter(b -> ignoreSelection || !b.isSelected())
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
@@ -420,7 +412,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     /**
-     *
      * @return true, if this block has been selected by the user
      */
     public boolean isSelected() {
@@ -428,7 +419,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     }
 
     /**
-     *
      * @return The functionSite, in which this block is in
      */
     public FunctionSite getFunctionSite() {
@@ -441,7 +431,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     public void select() {
         if (!selected) {
             selected = true;
-              var dropShadow = (DropShadow) blockShape.getEffect();
+            var dropShadow = (DropShadow) blockShape.getEffect();
             shadowShowTimeline.getKeyFrames().setAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -465,7 +455,7 @@ public abstract class Block implements Moveable, MouseConsumable {
     public void unselect() {
         if (selected) {
             selected = false;
-              var dropShadow = (DropShadow) blockShape.getEffect();
+            var dropShadow = (DropShadow) blockShape.getEffect();
             shadowRemoveTimeline.getKeyFrames().setAll(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -496,7 +486,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Shows the bigger shadow, e.g. for the movement of the block
      */
     public void highlight() {
-          var dropShadow = (DropShadow) blockShape.getEffect();
+        var dropShadow = (DropShadow) blockShape.getEffect();
         shadowShowTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -517,7 +507,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Removes the bigger shadow, e.g. for the movement of the block
      */
     public void unhighlight() {
-          var dropShadow = (DropShadow) blockShape.getEffect();
+        var dropShadow = (DropShadow) blockShape.getEffect();
         shadowRemoveTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(dropShadow.radiusProperty(), dropShadow.getRadius()),
@@ -550,7 +540,7 @@ public abstract class Block implements Moveable, MouseConsumable {
      * Destroyes this block completely
      */
     public void remove() {
-          var lines = dots.keySet()
+        var lines = dots.keySet()
                 .stream()
                 .map(Dot::getLines)
                 .flatMap(Set::stream)
@@ -584,10 +574,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     @Override
     public String toString() {
         return "Block{" + "id=" + id + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
-    }
-
-    private Body initBlockBody() {
-        return null;
     }
 
 }

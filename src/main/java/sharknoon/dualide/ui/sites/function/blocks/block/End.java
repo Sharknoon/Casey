@@ -15,10 +15,11 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Side;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
@@ -27,7 +28,7 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  *
  * @author Josua Frank
  */
-public class End extends Block {
+public class End extends Block<Rectangle> {
 
     public End(FunctionSite functionSite) {
         super(functionSite);
@@ -58,8 +59,8 @@ public class End extends Block {
     }
 
     @Override
-    public Shape initBlockShape() {
-        Rectangle rectangle = new Rectangle(getWidth(), getHeight());
+    public Rectangle initBlockShape() {
+        var rectangle = new Rectangle(getWidth(), getHeight());
         rectangle.setArcWidth(getHeight() < getWidth() ? getHeight() : getWidth());
         rectangle.setArcHeight(getHeight() < getWidth() ? getHeight() : getWidth());
         rectangle.setFill(Color.RED);
@@ -67,8 +68,18 @@ public class End extends Block {
     }
 
     @Override
-    public void onOpen() {
+    public Pane initBody() {
+        return null;
+    }
 
+    @Override
+    public DoubleProperty initWidthProperty(Rectangle shape) {
+        return shape.widthProperty();
+    }
+
+    @Override
+    public DoubleProperty initHeightProperty(Rectangle shape) {
+        return shape.heightProperty();
     }
 
 }

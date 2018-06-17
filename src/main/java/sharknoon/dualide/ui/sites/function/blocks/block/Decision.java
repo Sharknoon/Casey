@@ -15,19 +15,24 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Side;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Shape;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+
+import java.util.List;
 
 /**
  * This is a Decision block, similar like a if clausel
  *
  * @author Josua Frank
  */
-public class Decision extends Block {
+public class Decision extends Block<Polygon> {
 
     public Decision(FunctionSite functionSite) {
         super(functionSite);
@@ -58,8 +63,8 @@ public class Decision extends Block {
     }
 
     @Override
-    public Shape initBlockShape() {
-        Polygon polygon = new Polygon(
+    public Polygon initBlockShape() {
+        var polygon = new Polygon(
                 getWidth() / 2, 0,//oben mitte
                 getWidth(), getHeight() / 2,
                 getWidth() / 2, getHeight(),
@@ -69,8 +74,19 @@ public class Decision extends Block {
     }
 
     @Override
-    public void onOpen() {
+    public Pane initBody() {
+        return new Pane(StatementPlaceholderBody.createValuePlaceholderBody(List.of(PrimitiveType.BOOLEAN), null));
+    }
 
+    @Override
+    public DoubleProperty initWidthProperty(Polygon shape) {
+        shape
+        return shape.
+    }
+
+    @Override
+    public DoubleProperty initHeightProperty(Polygon shape) {
+        return null;
     }
 
 }

@@ -15,24 +15,20 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
+import javafx.application.Platform;
+import javafx.scene.input.MouseEvent;
 import sharknoon.dualide.ui.misc.MouseConsumable;
-import java.util.Collection;
+import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.function.UISettings;
+import sharknoon.dualide.ui.sites.function.lines.Lines;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.application.Platform;
-import javafx.geometry.Point2D;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.ui.sites.function.UISettings;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
- *
  * @author Josua Frank
  */
 public class BlockMoving implements MouseConsumable {
@@ -141,12 +137,12 @@ public class BlockMoving implements MouseConsumable {
             Map<Block, Double[]> futureShadows = new HashMap<>();
             boolean canMoveInX = true;
             boolean canMoveInY = true;
-            for (Iterator<Block> it = blocks.iterator(); it.hasNext();) {
+            for (Iterator<Block> it = blocks.iterator(); it.hasNext(); ) {
                 Block b = it.next();
                 double newX = b.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
                 double newY = b.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
-                canMoveInX = canMoveInX ? isXInsideWorkspace(b, newX) : false;
-                canMoveInY = canMoveInY ? isYInsideWorkspace(b, newY) : false;
+                canMoveInX = canMoveInX && isXInsideWorkspace(b, newX);
+                canMoveInY = canMoveInY && isYInsideWorkspace(b, newY);
                 if (!b.canMoveTo(newX, newY, false)) {
                     return;
                 }
@@ -163,10 +159,10 @@ public class BlockMoving implements MouseConsumable {
                 }
             });
         } else {
-              var shadow = block.getShadow();
-              var newX = block.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
-              var newY = block.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
-              var isSpaceFree = block.canMoveTo(newX, newY);
+            var shadow = block.getShadow();
+            var newX = block.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
+            var newY = block.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);
+            var isSpaceFree = block.canMoveTo(newX, newY);
             if (isSpaceFree && isXInsideWorkspace(block, newX)) {
                 shadow.setTranslateX(newX);
             }
@@ -179,7 +175,7 @@ public class BlockMoving implements MouseConsumable {
     @Override
     public void onMouseReleased(MouseEvent event) {
         IS_DRAGGING.put(functionSite, false);
-          var block = Blocks.getMovingBlock(functionSite);
+        var block = Blocks.getMovingBlock(functionSite);
         if (block == null) {
             return;
         }
@@ -193,24 +189,18 @@ public class BlockMoving implements MouseConsumable {
             block.setMinYAnimated(block.getShadow().getTranslateY());
         }
     }
-    
-    
+
+
     private boolean isXInsideWorkspace(Block b, double x) {
         if (x < 0 + UISettings.WORKSPACE_PADDING) {
             return false;
-        } else if (x + b.getWidth() > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING) {
-            return false;
-        }
-        return true;
+        } else return !(x + b.getWidth() > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING);
     }
 
     private boolean isYInsideWorkspace(Block b, double y) {
         if (y < 0 + UISettings.WORKSPACE_PADDING) {
             return false;
-        } else if (y + b.getHeight() > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING) {
-            return false;
-        }
-        return true;
+        } else return !(y + b.getHeight() > UISettings.WORKSPACE_MAX_Y - UISettings.WORKSPACE_PADDING);
     }
 
 }

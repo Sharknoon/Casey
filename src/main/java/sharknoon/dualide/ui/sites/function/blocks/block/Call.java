@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
 import javafx.geometry.Side;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -23,7 +24,6 @@ import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
 /**
- *
  * @author Josua Frank
  */
 public class Call extends Block {
@@ -66,8 +66,8 @@ public class Call extends Block {
     }
 
     @Override
-    public void onOpen() {
-
+    public Pane initBody() {
+        return null;
     }
 
 }

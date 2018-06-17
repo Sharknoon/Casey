@@ -18,7 +18,6 @@ package sharknoon.dualide.ui.navigation;
 import javafx.scene.control.TreeView;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.sites.Site;
 
 /**

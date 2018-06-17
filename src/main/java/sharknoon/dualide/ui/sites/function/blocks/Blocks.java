@@ -138,7 +138,7 @@ public class Blocks {
     }
 
     public static Stream<Block> getAllBlocks(FunctionSite functionSite) {
-        return allBlocksObsevable(functionSite).parallelStream();
+        return allBlocksObsevable(functionSite).stream();
     }
 
     public static Stream<Block> getSelectedBlocks(FunctionSite functionSite) {

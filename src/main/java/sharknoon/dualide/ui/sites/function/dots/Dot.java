@@ -30,6 +30,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
@@ -44,7 +45,7 @@ import sharknoon.dualide.ui.sites.function.lines.Lines;
  */
 public class Dot {
 
-    private final Circle circle;
+    private final Polygon circle;
     private final Block block;
     private final ObservableSet<Line> lines = FXCollections.observableSet();
     private final Side side;
@@ -60,7 +61,11 @@ public class Dot {
         this.isInput = isInput;
         this.functionSite = block.getFunctionSite();
 
-        circle = new Circle(UISettings.DOT_RADIUS, isInput ? UISettings.DOT_INPUT_COLOR : UISettings.DOT_OUTPUT_COLOR);
+        circle = new Polygon(
+                -8, -7,
+                +8, -7,
+                0, 8
+        );
         showingBinding = Bindings.isNotEmpty(lines).or(circle.hoverProperty()).or(block.getShape().hoverProperty());
         showingBinding.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -76,20 +81,28 @@ public class Dot {
         circle.setEffect(shadow);
         switch (side) {
             case BOTTOM:
-                circle.setCenterX(block.getWidth() / 2);
-                circle.setCenterY(block.getHeight());
+                circle.setTranslateX(block.getWidth() / 2);
+                circle.setTranslateY(block.getHeight());
+                if (isInput) {
+                    circle.setRotate(180);
+                }
                 break;
             case LEFT:
-                circle.setCenterX(0);
-                circle.setCenterY(block.getHeight() / 2);
+                circle.setTranslateX(0);
+                circle.setTranslateY(block.getHeight() / 2);
+                circle.setRotate(isInput ? -90 : +90);
                 break;
             case RIGHT:
-                circle.setCenterX(block.getWidth());
-                circle.setCenterY(block.getHeight() / 2);
+                circle.setTranslateX(block.getWidth());
+                circle.setTranslateY(block.getHeight() / 2);
+                circle.setRotate(!isInput ? -90 : +90);
                 break;
             case TOP:
-                circle.setCenterX(block.getWidth() / 2);
-                circle.setCenterY(0);
+                circle.setTranslateX(block.getWidth() / 2);
+                circle.setTranslateY(0);
+                if (!isInput) {
+                    circle.setRotate(180);
+                }
                 break;
         }
     }
@@ -130,11 +143,11 @@ public class Dot {
      * @return
      */
     public double getCenterX() {
-        return block.getMinX() + circle.getCenterX();
+        return block.getMinX() + circle.getTranslateX();
     }
 
     public DoubleExpression centerXExpression() {
-        return block.minXExpression().add(circle.centerXProperty());
+        return block.minXExpression().add(circle.translateXProperty());
     }
 
     /**
@@ -143,11 +156,11 @@ public class Dot {
      * @return
      */
     public double getCenterY() {
-        return block.getMinY() + circle.getCenterY();
+        return block.getMinY() + circle.getTranslateY();
     }
 
     public DoubleExpression centerYExpression() {
-        return block.minYExpression().add(circle.centerYProperty());
+        return block.minYExpression().add(circle.translateYProperty());
     }
 
     public void onMouseClicked(MouseEvent event) {

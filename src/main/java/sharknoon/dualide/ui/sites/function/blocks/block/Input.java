@@ -58,7 +58,7 @@ public class Input extends Block {
 
     @Override
     public Shape initBlockShape() {
-        Polygon polygon = new Polygon(
+        var polygon = new Polygon(
                 0, 0,
                 getWidth(), 0,
                 getWidth(), getHeight(),

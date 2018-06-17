@@ -55,6 +55,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.fxmisc.easybind.EasyBind;
+import sharknoon.dualide.ui.bodies.Body;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
 import sharknoon.dualide.ui.sites.function.lines.Line;
@@ -80,6 +81,8 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final Side[] dotInputSides;
     //The blockshape itself
     private final Shape blockShape;
+    //The content of the block
+    private final Body blockBody;
     //The shape of the shadow of the vlock
     private final Shape predictionShadowShape;
     //Timelines for the animation of the shadown, the dots and the moving of the block
@@ -97,8 +100,6 @@ public abstract class Block implements Moveable, MouseConsumable {
     private final BlockContextMenu menu = new BlockContextMenu(this);
     //The hoverListener for the blockshape and the dotShapes
     private final Binding<Boolean> hoverBinding;
-    //The text in the block
-    private final ObservableList<Text> text = FXCollections.observableArrayList();
     //Just some handy variables, see BlockMoving
     public double startX;
     public double startY;
@@ -115,6 +116,7 @@ public abstract class Block implements Moveable, MouseConsumable {
         dotOutputSides = initDotOutputSides();
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
+        blockBody = initBlockBody();
         root.getChildren().add(blockShape);
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
@@ -123,7 +125,6 @@ public abstract class Block implements Moveable, MouseConsumable {
             Blocks.hoverOverBlockProperty(functionSite).set(newValue);
         });
         this.predictionShadowShape = createPredictionShadow(blockShape);
-        root.getChildren().add(setBlockText(text));
         MouseConsumable.registerListeners(blockShape, this);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
@@ -181,12 +182,6 @@ public abstract class Block implements Moveable, MouseConsumable {
                 list,
                 stream -> stream.reduce((a, b) -> a || b).orElse(false)
         );
-    }
-
-    private static Node setBlockText(ObservableList<Text> texts) {
-          var textFlow = new TextFlow();
-        Bindings.bindContent(textFlow.getChildren(), texts);
-        return textFlow;
     }
 
     private static Shape createPredictionShadow(Shape original) {
@@ -586,13 +581,13 @@ public abstract class Block implements Moveable, MouseConsumable {
         return getOutputDots().filter(d -> d.getSide() == side).findAny();
     }
 
-    public ObservableList<Text> getText() {
-        return text;
-    }
-
     @Override
     public String toString() {
         return "Block{" + "id=" + id + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
+    }
+
+    private Body initBlockBody() {
+        return null;
     }
 
 }

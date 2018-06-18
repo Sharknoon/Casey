@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Side;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;

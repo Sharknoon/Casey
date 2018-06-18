@@ -45,8 +45,8 @@ public class UISettings {
     public static final Color WORKSPACE_BACKGROUND_COLOR = Color.rgb(0, 0, 0, 0.50);
     //The fading Duration between the background images
     public static final Duration WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION = Duration.seconds(1);
-    //The period of a image being in the background before being changed
-    public static final Duration WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION = Duration.seconds(60);
+    //The period of a image being in the background before being changed in seconds
+    public static final int WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION = 60;
     //
     //***Block***
     //
@@ -76,6 +76,8 @@ public class UISettings {
     public static final Color BLOCK_PREDICTION_SHADOW_STROKE_COLOR = Color.GREY;
     //The width of the shadow stroke of the block
     public static final double BLOCK_PREDICTION_SHADOW_STROKE_WIDTH = BLOCK_BORDER_STROKE_WIDTH;
+    //The threshold in which to toggle between a describing text and the body itself
+    public static final double BLOCK_ZOOMING_BODY_THRESHOLD = 5;
     //
     //***Dot***
     //
@@ -85,8 +87,8 @@ public class UISettings {
     public static final Color DOT_INPUT_COLOR = Color.ORANGE;
     //The Color of the output dots around the block
     public static final Color DOT_OUTPUT_COLOR = Color.BLUE;
-    //The radius of the dots around the block
-    public static final double DOT_RADIUS = 10;
+    //The size of the dots around the block
+    public static final double DOT_SIZE = 8;
     //
     //***Line***
     //
@@ -105,6 +107,4 @@ public class UISettings {
     //
     //***General
     //
-    //The minimum amount of the left space of the Divider from the Splitpane
-    public static final int GENERAL_SPLITPANE_DIVIDER_MIN_LEFT_SPACE = 250;
 }

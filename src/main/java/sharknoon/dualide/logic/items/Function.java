@@ -110,7 +110,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
 
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
-        final Map<String, Block> blockIDs = new HashMap<>();
+        final Map<String, Block<?>> blockIDs = new HashMap<>();
         //<blockid<side<id,side>>
         final Map<String, Map<Side, Map<String, Side>>> blockConections = new HashMap<>();
         properties.forEach((key, value) -> {

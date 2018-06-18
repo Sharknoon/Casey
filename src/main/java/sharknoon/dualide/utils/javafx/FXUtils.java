@@ -17,6 +17,7 @@ package sharknoon.dualide.utils.javafx;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -26,9 +27,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.skin.ScrollPaneSkin;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
 /**
- *
  * @author Josua Frank
  */
 public class FXUtils {
@@ -61,6 +62,16 @@ public class FXUtils {
             }
 
         });
+    }
+
+    private static Color prevColor = null;
+
+    public static Color getRandomDifferentColor() {
+        Color c = Color.color(Math.random(), Math.random(), Math.random());
+        if (c.equals(prevColor)) {
+            return getRandomDifferentColor();
+        }
+        return c;
     }
 
 }

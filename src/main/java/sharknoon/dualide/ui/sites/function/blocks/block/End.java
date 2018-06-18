@@ -72,14 +72,4 @@ public class End extends Block<Rectangle> {
         return null;
     }
 
-    @Override
-    public DoubleProperty initWidthProperty(Rectangle shape) {
-        return shape.widthProperty();
-    }
-
-    @Override
-    public DoubleProperty initHeightProperty(Rectangle shape) {
-        return shape.heightProperty();
-    }
-
 }

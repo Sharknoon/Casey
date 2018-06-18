@@ -59,7 +59,7 @@ public class Input extends Block<Polygon> {
     }
 
     @Override
-    public Shape initBlockShape() {
+    public Polygon initBlockShape() {
         var polygon = new Polygon(
                 0, 0,
                 getWidth(), 0,
@@ -72,16 +72,6 @@ public class Input extends Block<Polygon> {
 
     @Override
     public Pane initBody() {
-        return null;
-    }
-
-    @Override
-    public DoubleProperty initWidthProperty(Polygon shape) {
-        return null;
-    }
-
-    @Override
-    public DoubleProperty initHeightProperty(Polygon shape) {
         return null;
     }
 

@@ -51,7 +51,7 @@ public class Blocks {
      * @param type The type of the block
      * @return
      */
-    public static Block createBlock(FunctionSite functionSite, BlockType type) {
+    public static Block<?> createBlock(FunctionSite functionSite, BlockType type) {
         return createBlock(functionSite, type, null);
     }
 
@@ -63,7 +63,7 @@ public class Blocks {
      * @param id OPTIONAL Id (just needed for parsing) can be null
      * @return
      */
-    public static Block createBlock(FunctionSite functionSite, BlockType type, String id) {
+    public static Block<?> createBlock(FunctionSite functionSite, BlockType type, String id) {
         switch (type) {
             case START:
                 return new Start(functionSite, id);
@@ -84,16 +84,16 @@ public class Blocks {
         }
     }
 
-    private static final ObservableMap<FunctionSite, ObservableSet<Block>> BLOCKS = FXCollections.observableHashMap();
+    private static final ObservableMap<FunctionSite, ObservableSet<Block<?>>> BLOCKS = FXCollections.observableHashMap();
     private static final ObservableMap<FunctionSite, BooleanProperty> MOUSE_OVER_BLOCK_PROPERTY = FXCollections.observableHashMap();
-    private static final ObservableMap<FunctionSite, ObjectProperty<Block>> MOVING_BLOCK = FXCollections.observableHashMap();
-    private static final ObservableSet<Block> EMPTY = FXCollections.observableSet(Set.of());
+    private static final ObservableMap<FunctionSite, ObjectProperty<Block<?>>> MOVING_BLOCK = FXCollections.observableHashMap();
+    private static final ObservableSet<Block<?>> EMPTY = FXCollections.observableSet(Set.of());
 
     static void registerBlock(FunctionSite functionSite, Block block) {
         if (BLOCKS.containsKey(functionSite)) {
             BLOCKS.get(functionSite).add(block);
         } else {
-            ObservableSet<Block> list = FXCollections.observableSet();
+            ObservableSet<Block<?>> list = FXCollections.observableSet();
             list.addListener((SetChangeListener.Change<? extends Block> change) -> {
                 if (change.wasAdded()) {
                     Logger.debug("added Block" + block.toString());
@@ -118,7 +118,7 @@ public class Blocks {
         }
     }
 
-    public static Block getMovingBlock(FunctionSite functionSite) {
+    public static Block<?> getMovingBlock(FunctionSite functionSite) {
         if (!MOVING_BLOCK.containsKey(functionSite)) {
             return null;
         }
@@ -133,19 +133,19 @@ public class Blocks {
         }
     }
 
-    public static ObjectProperty<Block> movingBlockBinding(FunctionSite functionSite) {
+    public static ObjectProperty<Block<?>> movingBlockBinding(FunctionSite functionSite) {
         return MOVING_BLOCK.get(functionSite);
     }
 
-    public static Stream<Block> getAllBlocks(FunctionSite functionSite) {
+    public static Stream<Block<?>> getAllBlocks(FunctionSite functionSite) {
         return allBlocksObsevable(functionSite).stream();
     }
 
-    public static Stream<Block> getSelectedBlocks(FunctionSite functionSite) {
+    public static Stream<Block<?>> getSelectedBlocks(FunctionSite functionSite) {
         return getAllBlocks(functionSite).filter(Block::isSelected);
     }
 
-    public static ObservableSet<Block> allBlocksObsevable(FunctionSite functionSite) {
+    public static ObservableSet<Block<?>> allBlocksObsevable(FunctionSite functionSite) {
         return BLOCKS.getOrDefault(functionSite, EMPTY);
     }
 

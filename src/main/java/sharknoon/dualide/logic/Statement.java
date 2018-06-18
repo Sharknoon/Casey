@@ -17,6 +17,7 @@ package sharknoon.dualide.logic;
 
 import sharknoon.dualide.logic.types.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
@@ -48,9 +49,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
                 parentProperty().get().childs.add((Statement) this);
             }
         }
-        childs.addListener((observable, oldValue, newValue) -> {
-            onChange();
-        });
+        childs.addListener((observable, oldValue, newValue) -> onChange());
     }
 
     public ReadOnlyObjectProperty<Statement<Type, Type, T>> parentProperty() {
@@ -59,6 +58,10 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
 
     public ReadOnlyListProperty<Statement<T, CT, Type>> childsProperty() {
         return childs.getReadOnlyProperty();
+    }
+
+    public List<Statement<T, CT, Type>> getChilds(){
+        return Collections.unmodifiableList(childs);
     }
 
     public Body getBody() {
@@ -101,7 +104,6 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     /**
      * You shouldnt need this method, use the resultproperty instead
      *
-     * @param <V>
      * @return
      */
     public abstract Value<T> calculateResult();

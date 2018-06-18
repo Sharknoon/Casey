@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -40,7 +41,6 @@ import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Resources;
 
 /**
- *
  * @author Josua Frank
  */
 public class Background implements Exitable {
@@ -88,10 +88,10 @@ public class Background implements Exitable {
         });
         MainApplication.registerExitable(this);
         reloadImages();
-        setDuration(60);
+        setDuration(UISettings.WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION);
     }
 
-    public void reloadImages() {
+    private void reloadImages() {
         Resources.getDirectory("Backgroundimages", false).ifPresent((path) -> {
             try {
                 IMAGES.clear();
@@ -111,6 +111,7 @@ public class Background implements Exitable {
             }
         });
     }
+
     private static double stageHeight = 0;
     private static double stageWidth = 0;
     private static boolean viewToggle = false;
@@ -173,26 +174,27 @@ public class Background implements Exitable {
         if (imageChangingScheduler != null) {
             imageChangingScheduler.cancel(false);
         }
-        if (durationInSeconds > 0) {
-            imageChangingScheduler = IMAGE_CHANGEING_SCHEDULER_SERVICE.scheduleAtFixedRate(() -> {
-                try {
-                    if (IMAGES.size() - 1 > counter) {
-                        counter++;
-                    } else {
-                        counter = 0;
-                    }
-                    if (IMAGES.size() > counter) {
-                        setImage(IMAGES.get(counter));
-                    }
-                    if (toBeResizedAsSoonAsAImageIsInIt != null) {
-                        resizeImage(toBeResizedAsSoonAsAImageIsInIt);
-                        toBeResizedAsSoonAsAImageIsInIt = null;
-                    }
-                } catch (Exception e) {
-                    Logger.error("Could not change the background image", e);
+        durationInSeconds = durationInSeconds > 0
+                ? durationInSeconds
+                : UISettings.WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION;
+        imageChangingScheduler = IMAGE_CHANGEING_SCHEDULER_SERVICE.scheduleAtFixedRate(() -> {
+            try {
+                if (IMAGES.size() - 1 > counter) {
+                    counter++;
+                } else {
+                    counter = 0;
                 }
-            }, 0, (long) durationInSeconds, TimeUnit.SECONDS);
-        }
+                if (IMAGES.size() > counter) {
+                    setImage(IMAGES.get(counter));
+                }
+                if (toBeResizedAsSoonAsAImageIsInIt != null) {
+                    resizeImage(toBeResizedAsSoonAsAImageIsInIt);
+                    toBeResizedAsSoonAsAImageIsInIt = null;
+                }
+            } catch (Exception e) {
+                Logger.error("Could not change the background image", e);
+            }
+        }, 0, (long) durationInSeconds, TimeUnit.SECONDS);
     }
 
     @Override

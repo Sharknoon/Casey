@@ -17,13 +17,13 @@ package sharknoon.dualide.ui.bodies;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
+
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -32,22 +32,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.operators.Operator;
 import sharknoon.dualide.logic.values.Value;
-import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.javafx.FXUtils;
 
 /**
  * Helper class
  *
- * @author Josua Frank
  * @param <S> The Statement this body corresponds to
+ * @author Josua Frank
  */
 public abstract class Body<S extends Statement> extends Group {
 
@@ -154,6 +155,7 @@ public abstract class Body<S extends Statement> extends Group {
             }
         }
     }
+
     private Node previousCloseIcon;
 
     private void setCurrentCloseIcon(Node newCloseIcon) {
@@ -168,6 +170,7 @@ public abstract class Body<S extends Statement> extends Group {
     private void onMouseEntered(Consumer<MouseEvent> event) {
         onMouseEntered.add(event);
     }
+
     private final List<Consumer<MouseEvent>> onMouseExited = new ArrayList<>();
 
     private void onMouseExited(Consumer<MouseEvent> event) {
@@ -188,9 +191,8 @@ public abstract class Body<S extends Statement> extends Group {
     }
 
     /**
-     *
      * @param polygon
-     * @param isOctagon wether this is a octagon(true) or a hexagon(false)
+     * @param isOctagon    wether this is a octagon(true) or a hexagon(false)
      * @param parentHeight
      * @param parentWidth
      */
@@ -277,7 +279,7 @@ public abstract class Body<S extends Statement> extends Group {
             shape = rect;
         }
         shape.setFill(Color.WHITE);
-        if (this instanceof StatementPlaceholderBody) {
+        if (this instanceof PlaceholderBody) {
             shape.setStroke(Color.GREY);
         } else {
             shape.setStroke(Color.BLACK);
@@ -318,6 +320,46 @@ public abstract class Body<S extends Statement> extends Group {
         }
         contentPane.getChildren().clear();
         getChildren().clear();
+    }
+
+    public ObservableList<Text> toText() {
+        ObservableList<Text> text = FXCollections.observableArrayList();
+        if (statement instanceof Operator) {
+            List<Statement> childs = statement.getChilds();
+            Text bracketOpen = new Text("(");
+            Text bracketClose = new Text(")");
+            Color random = FXUtils.getRandomDifferentColor();
+            bracketOpen.setFill(random);
+            bracketClose.setFill(random);
+            text.add(bracketOpen);
+            if (childs.size() > 1) {//infix
+                childs.stream().forEach((child) -> {
+                    List<Text> par = child != null?child.getBody().toText():List.of(new Text(String.valueOf((Object)null)));
+                    text.addAll(par);
+                    Text op = new Text(String.valueOf(((Operator) statement).getOperatorType()));
+                    text.add(op);
+                });
+                if (childs.size() > 0) {
+                    text.remove(text.size() - 1);
+                }
+            } else {//op text
+                Text op = new Text(String.valueOf(((Operator) statement).getOperatorType()));
+                text.add(op);
+                if (childs.size() > 0) {
+                    Text par = new Text(String.valueOf(childs.get(0)));
+                    par.setFill(Color.LIGHTBLUE);
+                    text.add(par);
+                }
+            }
+            text.add(bracketClose);
+        } else if (statement instanceof Value) {
+            Text par = new Text(String.valueOf(String.valueOf(statement)));
+            par.setFill(Color.LIGHTBLUE);
+            text.add(par);
+        } else {
+            //TODO funktionen
+        }
+        return text;
     }
 
     @Override

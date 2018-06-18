@@ -21,7 +21,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
+import sharknoon.dualide.ui.bodies.PlaceholderBody;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
@@ -75,18 +75,7 @@ public class Decision extends Block<Polygon> {
 
     @Override
     public Pane initBody() {
-        return new Pane(StatementPlaceholderBody.createValuePlaceholderBody(List.of(PrimitiveType.BOOLEAN), null));
-    }
-
-    @Override
-    public DoubleProperty initWidthProperty(Polygon shape) {
-        shape
-        return shape.
-    }
-
-    @Override
-    public DoubleProperty initHeightProperty(Polygon shape) {
-        return null;
+        return new Pane(PlaceholderBody.createValuePlaceholderBody(List.of(PrimitiveType.BOOLEAN), null));
     }
 
 }

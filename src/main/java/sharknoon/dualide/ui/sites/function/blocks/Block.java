@@ -38,6 +38,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.ui.misc.MouseConsumable;
@@ -74,6 +76,9 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     private final S blockShape;
     //The content of the block
     private final Pane blockBody;
+    //The contentPlaceholder of the block
+    private final ObservableList<Text> blockText = FXCollections.observableArrayList();
+    private final TextFlow blockTextFlow;
     //The shape of the shadow of the vlock
     private final Shape predictionShadowShape;
     //Timelines for the animation of the shadown, the dots and the moving of the block
@@ -108,7 +113,11 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
         blockBody = initBody();
-        root.getChildren().addAll(blockShape, blockBody);
+        //blockText = null;//initText();
+        blockTextFlow = initTextFlow();
+        //TMP
+        blockText.add(new Text("Test 123"));
+        root.getChildren().addAll(blockShape, blockTextFlow);
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
         hoverBinding = initHoverListeners(blockShape, dots.keySet());
@@ -117,10 +126,20 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         });
         this.predictionShadowShape = createPredictionShadow(blockShape);
         MouseConsumable.registerListeners(blockShape, this);
+        MouseConsumable.registerListeners(blockTextFlow, this);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
+        functionSite.getLogicSite().getWz().zoomFactorProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() > UISettings.BLOCK_ZOOMING_BODY_THRESHOLD) {
+                showContentBody();
+            } else {
+                showContentText();
+            }
+        });
+        showContentText();
         Blocks.registerBlock(functionSite, this);
     }
+
 
     /**
      * Gets the height of the block
@@ -149,6 +168,18 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
      * @return The sides of this blocktype, where there are input dots
      */
     public abstract Side[] initDotInputSides();
+
+    /**
+     * Gets the shape of this block
+     *
+     * @return The shape of this block
+     */
+    public abstract S initBlockShape();
+
+    /**
+     * Gets the Content for the block
+     */
+    public abstract Pane initBody();
 
     private static Shape createPredictionShadow(Shape original) {
         var shadow = Shape.union(original, original);
@@ -181,12 +212,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         return Collections.unmodifiableMap(result);
     }
 
-    /**
-     * Gets the shape of this block
-     *
-     * @return The shape of this block
-     */
-    public abstract S initBlockShape();
 
     private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
         ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
@@ -200,10 +225,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         );
     }
 
-    /**
-     * Gets the Content for the block
-     */
-    public abstract Pane initBody();
 
     private static void setStrokeProperties(Shape shape) {
         shape.setStroke(UISettings.BLOCK_BORDER_STROKE_COLOR);
@@ -211,9 +232,14 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         shape.setStrokeType(StrokeType.CENTERED);
     }
 
-    public abstract DoubleProperty initWidthProperty(S shape);
+    private TextFlow initTextFlow() {
+        TextFlow result = new TextFlow();
+        Bindings.bindContent(result.getChildren(), blockText);
+        result.translateXProperty().bind(widthExpression().divide(2).subtract(result.widthProperty().divide(2)));
+        result.translateYProperty().bind(heightExpression().divide(2).subtract(result.heightProperty().divide(2)));
+        return result;
+    }
 
-    public abstract DoubleProperty initHeightProperty(S shape);
 
     @Override
     public void onMousePressed(MouseEvent event) {
@@ -474,7 +500,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         }
     }
 
-    public void toggleSelection() {
+    private void toggleSelection() {
         if (isSelected()) {
             unselect();
         } else {
@@ -485,7 +511,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     /**
      * Shows the bigger shadow, e.g. for the movement of the block
      */
-    public void highlight() {
+    private void highlight() {
         var dropShadow = (DropShadow) blockShape.getEffect();
         shadowShowTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO,
@@ -506,7 +532,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     /**
      * Removes the bigger shadow, e.g. for the movement of the block
      */
-    public void unhighlight() {
+    private void unhighlight() {
         var dropShadow = (DropShadow) blockShape.getEffect();
         shadowRemoveTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO,
@@ -569,6 +595,26 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
 
     public Optional<Dot> getOutputDot(Side side) {
         return getOutputDots().filter(d -> d.getSide() == side).findAny();
+    }
+
+    private boolean showsPlaceholder = true;
+
+    private void showContentBody() {
+        if (!showsPlaceholder) {
+            return;
+        }
+        showsPlaceholder = false;
+        //blockBody.setVisible(true);
+        blockTextFlow.setVisible(false);
+    }
+
+    private void showContentText() {
+        if (showsPlaceholder) {
+            return;
+        }
+        showsPlaceholder = true;
+        //blockBody.setVisible(false);
+        blockTextFlow.setVisible(true);
     }
 
     @Override

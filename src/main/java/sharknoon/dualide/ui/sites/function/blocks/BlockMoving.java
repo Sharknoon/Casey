@@ -133,11 +133,11 @@ public class BlockMoving implements MouseConsumable {
         lastGridY.put(block, currentGridY);
 
         if (block.isSelected()) {
-            Stream<Block> blocks = Blocks.getSelectedBlocks(functionSite);
+            Stream<Block<?>> blocks = Blocks.getSelectedBlocks(functionSite);
             Map<Block, Double[]> futureShadows = new HashMap<>();
             boolean canMoveInX = true;
             boolean canMoveInY = true;
-            for (Iterator<Block> it = blocks.iterator(); it.hasNext(); ) {
+            for (Iterator<Block<?>> it = blocks.iterator(); it.hasNext(); ) {
                 Block b = it.next();
                 double newX = b.startX + ((currentGridX - startGridX) * UISettings.BLOCK_GRID_SNAPPING_X);
                 double newY = b.startY + ((currentGridY - startGridY) * UISettings.BLOCK_GRID_SNAPPING_Y);

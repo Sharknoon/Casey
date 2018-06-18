@@ -15,32 +15,26 @@
  */
 package sharknoon.dualide.ui.navigation;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
 import sharknoon.dualide.ui.fields.TypeField;
 
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 /**
- *
  * @author Josua Frank
  */
 public class ToolBarInit {
@@ -74,14 +68,18 @@ public class ToolBarInit {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
 
-        Label result = new Label();
+        TextFlow result = new TextFlow();
         ValueField field = new ValueField();
         field.setOnStatementSet(s -> {
-            result.setText(s.calculateResult().toString() + "\n" + s.toString());
+            result.getChildren().clear();
+            result.getChildren().add(new Text(s.calculateResult().toString()+"\n"));
+            result.getChildren().addAll(s.getBody().toText());
         });
-        field.setOnStatementDestroyed(() -> result.setText(""));
+        field.setOnStatementDestroyed(() -> result.getChildren().clear());
         field.addStatementChangeListener(s -> {
-            result.setText(s.calculateResult().toString() + "\n" + s.toString());
+            result.getChildren().clear();
+            result.getChildren().add(new Text(s.calculateResult().toString()+"\n"));
+            result.getChildren().addAll(s.getBody().toText());
         });
 
         TypeField tfield = new TypeField();

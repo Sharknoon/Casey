@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.sites.function.dots;
 
 import java.util.Set;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -29,7 +30,6 @@ import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -40,12 +40,11 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 
 /**
- *
  * @author Josua Frank
  */
 public class Dot {
 
-    private final Polygon circle;
+    private final Polygon polygon;
     private final Block block;
     private final ObservableSet<Line> lines = FXCollections.observableSet();
     private final Side side;
@@ -61,12 +60,14 @@ public class Dot {
         this.isInput = isInput;
         this.functionSite = block.getFunctionSite();
 
-        circle = new Polygon(
-                -8, -7,
-                +8, -7,
-                0, 8
+        double s = UISettings.DOT_SIZE;
+        polygon = new Polygon(
+                -s, -s,
+                +s, -s,
+                0, s
         );
-        showingBinding = Bindings.isNotEmpty(lines).or(circle.hoverProperty()).or(block.getShape().hoverProperty());
+        polygon.setFill(isInput ? UISettings.DOT_INPUT_COLOR : UISettings.DOT_OUTPUT_COLOR);
+        showingBinding = Bindings.isNotEmpty(lines).or(polygon.hoverProperty()).or(block.getShape().hoverProperty());
         showingBinding.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 show();
@@ -74,42 +75,42 @@ public class Dot {
                 hide();
             }
         });
-        circle.setOpacity(0);
-        circle.setOnMouseClicked(this::onMouseClicked);
-          var shadow = new DropShadow(25, Color.WHITE);
+        polygon.setOpacity(0);
+        polygon.setOnMouseClicked(this::onMouseClicked);
+        var shadow = new DropShadow(25, Color.WHITE);
         shadow.setSpread(0.5);
-        circle.setEffect(shadow);
+        polygon.setEffect(shadow);
         switch (side) {
             case BOTTOM:
-                circle.setTranslateX(block.getWidth() / 2);
-                circle.setTranslateY(block.getHeight());
+                polygon.setTranslateX(block.getWidth() / 2);
+                polygon.setTranslateY(block.getHeight());
                 if (isInput) {
-                    circle.setRotate(180);
+                    polygon.setRotate(180);
                 }
                 break;
             case LEFT:
-                circle.setTranslateX(0);
-                circle.setTranslateY(block.getHeight() / 2);
-                circle.setRotate(isInput ? -90 : +90);
+                polygon.setTranslateX(0);
+                polygon.setTranslateY(block.getHeight() / 2);
+                polygon.setRotate(isInput ? -90 : +90);
                 break;
             case RIGHT:
-                circle.setTranslateX(block.getWidth());
-                circle.setTranslateY(block.getHeight() / 2);
-                circle.setRotate(!isInput ? -90 : +90);
+                polygon.setTranslateX(block.getWidth());
+                polygon.setTranslateY(block.getHeight() / 2);
+                polygon.setRotate(!isInput ? -90 : +90);
                 break;
             case TOP:
-                circle.setTranslateX(block.getWidth() / 2);
-                circle.setTranslateY(0);
+                polygon.setTranslateX(block.getWidth() / 2);
+                polygon.setTranslateY(0);
                 if (!isInput) {
-                    circle.setRotate(180);
+                    polygon.setRotate(180);
                 }
                 break;
         }
     }
 
     public void show() {
-          var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-          var opacityEnd = new KeyValue(circle.opacityProperty(), 1);
+        var opacityStart = new KeyValue(polygon.opacityProperty(), polygon.getOpacity());
+        var opacityEnd = new KeyValue(polygon.opacityProperty(), 1);
 
         showTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
@@ -123,8 +124,8 @@ public class Dot {
     }
 
     public void hide() {
-          var opacityStart = new KeyValue(circle.opacityProperty(), circle.getOpacity());
-          var opacityEnd = new KeyValue(circle.opacityProperty(), 0);
+        var opacityStart = new KeyValue(polygon.opacityProperty(), polygon.getOpacity());
+        var opacityEnd = new KeyValue(polygon.opacityProperty(), 0);
 
         hideTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
@@ -143,11 +144,11 @@ public class Dot {
      * @return
      */
     public double getCenterX() {
-        return block.getMinX() + circle.getTranslateX();
+        return block.getMinX() + polygon.getTranslateX();
     }
 
     public DoubleExpression centerXExpression() {
-        return block.minXExpression().add(circle.translateXProperty());
+        return block.minXExpression().add(polygon.translateXProperty());
     }
 
     /**
@@ -156,20 +157,20 @@ public class Dot {
      * @return
      */
     public double getCenterY() {
-        return block.getMinY() + circle.getTranslateY();
+        return block.getMinY() + polygon.getTranslateY();
     }
 
     public DoubleExpression centerYExpression() {
-        return block.minYExpression().add(circle.translateYProperty());
+        return block.minYExpression().add(polygon.translateYProperty());
     }
 
     public void onMouseClicked(MouseEvent event) {
         if (!Lines.isLineDrawing(functionSite)) {
-              var line = Lines.createLine(functionSite, this);
+            var line = Lines.createLine(functionSite, this);
             lines.add(line);
             Lines.setLineDrawing(functionSite, line);
         } else {
-              var line = Lines.getDrawingLine(functionSite);
+            var line = Lines.getDrawingLine(functionSite);
             if (!Lines.isDuplicate(functionSite, line, this)
                     && Lines.isConnectionAllowed(line.getStartDot(), this)) {
                 line.setEndDot(this);
@@ -214,7 +215,7 @@ public class Dot {
     }
 
     public Shape getShape() {
-        return circle;
+        return polygon;
     }
 
 }

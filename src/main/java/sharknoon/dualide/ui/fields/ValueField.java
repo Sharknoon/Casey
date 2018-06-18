@@ -19,12 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.Statement;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.bodies.StatementPlaceholderBody;
+import sharknoon.dualide.ui.bodies.PlaceholderBody;
 
 /**
  *
@@ -43,7 +42,7 @@ public class ValueField extends Pane {
     }
 
     public ValueField(Collection<? extends Type> allowedTypes) {
-        StatementPlaceholderBody body = StatementPlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
 
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());
@@ -66,7 +65,7 @@ public class ValueField extends Pane {
     }
 
     private ValueField(boolean disabled) {
-        getChildren().add(StatementPlaceholderBody.DISABLED);
+        getChildren().add(PlaceholderBody.DISABLED);
     }
 
     public Optional<Statement> getStatement() {

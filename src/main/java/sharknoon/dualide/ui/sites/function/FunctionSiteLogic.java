@@ -249,11 +249,34 @@ public class FunctionSiteLogic implements MouseConsumable {
         return s;
     }
 
-    public Pane getTabContentPane() {
+    Pane getTabContentPane() {
         if (!initialized) {
             init();
         }
         return root;
     }
 
+    public WorkspaceSelection getWs() {
+        return ws;
+    }
+
+    public BlockMoving getBm() {
+        return bm;
+    }
+
+    public WorkspaceMoving getWm() {
+        return wm;
+    }
+
+    public WorkspaceZooming getWz() {
+        return wz;
+    }
+
+    public WorkspaceContextMenu getWc() {
+        return wc;
+    }
+
+    public LineDrawing getLd() {
+        return ld;
+    }
 }

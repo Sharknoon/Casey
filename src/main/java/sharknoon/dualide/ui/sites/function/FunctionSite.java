@@ -16,11 +16,11 @@
 package sharknoon.dualide.ui.sites.function;
 
 import java.util.concurrent.CompletableFuture;
+
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.Pane;
-import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
+
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
@@ -29,13 +29,14 @@ import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 /**
- *
  * @author Josua Frank
  */
 public class FunctionSite extends Site<Function> {
 
     private final FunctionSiteVariables variableSite;
     private final FunctionSiteLogic logicSite;
+    private final FunctionSiteParameters parametersSite;
+    private final FunctionSiteReturnType returnSite;
 
     private TabPane root;
 
@@ -43,6 +44,8 @@ public class FunctionSite extends Site<Function> {
         super(item);
         variableSite = new FunctionSiteVariables(this);
         logicSite = new FunctionSiteLogic(this);
+        parametersSite = new FunctionSiteParameters(this);
+        returnSite = new FunctionSiteReturnType(this);
     }
 
     public FunctionSiteVariables getVariableSite() {
@@ -53,22 +56,40 @@ public class FunctionSite extends Site<Function> {
         return logicSite;
     }
 
+    public FunctionSiteParameters getParametersSite() {
+        return parametersSite;
+    }
+
+    public FunctionSiteReturnType getReturnSite() {
+        return returnSite;
+    }
+
     public TabPane getRoot() {
         return root;
     }
 
     private void init() {
-          var tabLogic = new Tab();
+        var tabLogic = new Tab();
         Language.setCustom(Word.FUNCTION_SITE_FUNCTION_LOGIC, tabLogic.textProperty()::set);
         Icons.setCustom(Icon.FUNCTIONFLOWCHART, tabLogic.graphicProperty()::set);
         tabLogic.setContent(logicSite.getTabContentPane());
 
-          var tabVariables = new Tab();
+        var tabVariables = new Tab();
         Language.setCustom(Word.FUNCTION_SITE_FUNCTION_VARIABLES, tabVariables.textProperty()::set);
         Icons.setCustom(Icon.FUNCTIONVARIABLE, tabVariables.graphicProperty()::set);
         tabVariables.setContent(variableSite.getTabContentPane());
 
-        root = new TabPane(tabLogic, tabVariables);
+        var tabParameters = new Tab();
+        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, tabParameters.textProperty()::set);
+        Icons.setCustom(Icon.FUNCTIONPARAMETER, tabParameters.graphicProperty()::set);
+        tabParameters.setContent(parametersSite.getTabContentPane());
+
+        var tabReturnType = new Tab();
+        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, tabReturnType.textProperty()::set);
+        Icons.setCustom(Icon.FUNCTIONRETURN, tabReturnType.graphicProperty()::set);
+        tabReturnType.setContent(returnSite.getTabContentPane());
+
+        root = new TabPane(tabLogic, tabVariables, tabParameters, tabReturnType);
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     }
 

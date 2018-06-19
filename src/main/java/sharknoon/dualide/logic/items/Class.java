@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.beans.binding.Bindings;
+
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,24 +30,14 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import sharknoon.dualide.logic.Statement;
-import sharknoon.dualide.logic.operators.OperatorType;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.values.ObjectValue;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.ui.bodies.TypeBrowser;
-import sharknoon.dualide.ui.bodies.TypePopUp;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;
-import sharknoon.dualide.utils.javafx.FXUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -81,7 +70,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             CLASSES.remove(this);
             type.onDelete.forEach(Runnable::run);
         } else {
-            Dialogs.showErrorDialog(Dialogs.Errors.TYPE_IN_USE_DIALOG, null, "#LIST", usagesList.stream().collect(Collectors.joining("\n")));
+            Dialogs.showErrorDialog(Dialogs.Errors.TYPE_IN_USE_DIALOG, null, Map.of("LIST", usagesList.stream().collect(Collectors.joining("\n"))));
         }
     }
 
@@ -175,18 +164,18 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             return Class.forName(name).map(c -> c.toType());
         }
 
-        
-        
+
+
         @Override
         public Icon getIcon() {
             return Icon.CLASS;
         }
 
-        
+
         private Type selectedType;
         @Override
         public Optional<ObjectValue> createValue(Statement parent) {
-            TypeBrowser browser = new TypeBrowser(t -> selectedType = t, null, true);
+            TypeBrowser browser = TypeBrowser.createOnlyObjectTypebrowser(t -> selectedType = t, null);
             browser.setMinHeight(200);
             return Dialogs
                     .showCustomInputDialog(
@@ -219,7 +208,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         private StringProperty name;
 
         @Override
-        public StringProperty getName() {
+        public StringProperty getLanguageDependentName() {
             if (name == null) {
                 name = new SimpleStringProperty();
                 Language.setCustom(Word.OBJECT, name::set);
@@ -283,8 +272,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
 
             @Override
-            public StringProperty getName() {
-                return super.getName();
+            public StringProperty getLanguageDependentName() {
+                return super.getLanguageDependentName();
             }
 
             @Override
@@ -331,7 +320,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             public boolean isPrimitive() {
                 return super.isPrimitive();
             }
-            
+
         };
     }
 

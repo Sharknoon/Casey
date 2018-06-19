@@ -87,6 +87,7 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
+        add(Word.FUNCTION_SITE_ADD_PARAMETER_BUTTON_TEXT,"Parameter hinzufügen");
         add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Funktion kommentieren");
         add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Funktion umbenennen");
         add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Funktion löschen");
@@ -96,8 +97,13 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_ADD_NEW_CALL_BLOCK, "Neuen Funktionsblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Neuen Eingabeblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabeblock erstellen");
-        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
         add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
+        add(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, "Funktionsparameter");
+        add(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, "Funktionsrückgabe");
+        add(Word.FUNCTION_SITE_COMMENT_PARAMETER_BUTTON_TEXT, "Parameter kommentieren");
+        add(Word.FUNCTION_SITE_RENAME_PARAMETER_BUTTON_TEXT, "Parameter umbenennen");
+        add(Word.FUNCTION_SITE_DELETE_PARAMETER_BUTTON_TEXT, "Parameter löschen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
@@ -111,9 +117,9 @@ public class German extends Language {
         add(Word.COMMENT_PROJECT_DIALOG_TITLE, "Projekt kommentieren");
         add(Word.COMMENT_PROJECT_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         ///Delete Project
-        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt #PROJECT löschen");
-        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt #PROJECT wirklich löschen?");
-        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt #PROJECT werden unwiederruflich gelöscht!");
+        add(Word.DELETE_PROJECT_DIALOG_TITLE, "Projekt ${PROJECT} löschen");
+        add(Word.DELETE_PROJECT_DIALOG_HEADER_TEXT, "Projekt ${PROJECT} wirklich löschen?");
+        add(Word.DELETE_PROJECT_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Projekt ${PROJECT} werden unwiederruflich gelöscht!");
         ///Save Project
         add(Word.SAVE_DIALOG_TITLE, "Projekt speichern");
         add(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT, "DualIDE Projekt");
@@ -131,9 +137,9 @@ public class German extends Language {
         add(Word.COMMENT_PACKAGE_DIALOG_TITLE, "Paket kommentieren");
         add(Word.COMMENT_PACKAGE_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         ///Delete Package
-        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket #PACKAGE löschen");
-        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket #PACKAGE wirklich löschen?");
-        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket #PACKAGE werden unwiederruflich gelöscht!");
+        add(Word.DELETE_PACKAGE_DIALOG_TITLE, "Paket ${PACKAGE} löschen");
+        add(Word.DELETE_PACKAGE_DIALOG_HEADER_TEXT, "Paket ${PACKAGE} wirklich löschen?");
+        add(Word.DELETE_PACKAGE_DIALOG_CONTENT_TEXT, "Alle Inhalte in dem Paket ${PACKAGE} werden unwiederruflich gelöscht!");
         ///New Class
         add(Word.NEW_CLASS_DIALOG_TITLE, "Neue Klasse anlegen");
         add(Word.NEW_CLASS_DIALOG_HEADER_TEXT, "Klassenname eingeben");
@@ -146,9 +152,9 @@ public class German extends Language {
         add(Word.COMMENT_CLASS_DIALOG_TITLE, "Klasse kommentieren");
         add(Word.COMMENT_CLASS_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         ///Delete Class
-        add(Word.DELETE_CLASS_DIALOG_TITLE, "Klasse #CLASS löschen");
-        add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse #CLASS wirklich löschen?");
-        add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "Alle Inhalte der Klasse #CLASS werden unwiederruflich gelöscht!");
+        add(Word.DELETE_CLASS_DIALOG_TITLE, "Klasse ${CLASS} löschen");
+        add(Word.DELETE_CLASS_DIALOG_HEADER_TEXT, "Klasse ${CLASS} wirklich löschen?");
+        add(Word.DELETE_CLASS_DIALOG_CONTENT_TEXT, "Alle Inhalte der Klasse ${CLASS} werden unwiederruflich gelöscht!");
         ///New Function
         add(Word.NEW_FUNCTION_DIALOG_TITLE, "Neue Funktion anlegen");
         add(Word.NEW_FUNCTION_DIALOG_HEADER_TEXT, "Funktionsnamen eingeben");
@@ -161,9 +167,24 @@ public class German extends Language {
         add(Word.COMMENT_FUNCTION_DIALOG_TITLE, "Funktion kommentieren");
         add(Word.COMMENT_FUNCTION_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         ///Delete Function
-        add(Word.DELETE_FUNCTION_DIALOG_TITLE, "Funktion #FUNCTION löschen");
-        add(Word.DELETE_FUNCTION_DIALOG_HEADER_TEXT, "Funktion #FUNCTION wirklich löschen?");
-        add(Word.DELETE_FUNCTION_DIALOG_CONTENT_TEXT, "Alle Inhalte der Funktion #FUNCTION werden unwiederruflich gelöscht!");
+        add(Word.DELETE_FUNCTION_DIALOG_TITLE, "Funktion ${FUNCTION} löschen");
+        add(Word.DELETE_FUNCTION_DIALOG_HEADER_TEXT, "Funktion ${FUNCTION} wirklich löschen?");
+        add(Word.DELETE_FUNCTION_DIALOG_CONTENT_TEXT, "Alle Inhalte der Funktion ${FUNCTION} werden unwiederruflich gelöscht!");
+        ///New Parameter
+        add(Word.NEW_PARAMETER_VALUE_DIALOG_TITLE, "Neuen Parameter anlegen");
+        add(Word.NEW_PARAMETER_VALUE_DIALOG_HEADER_TEXT, "Parametername eingeben");
+        add(Word.NEW_PARAMETER_VALUE_DIALOG_CONTENT_TEXT, "Parametername");
+        ///Rename Parameter
+        add(Word.RENAME_PARAMETER_VALUE_DIALOG_TITLE, "Parameter umbenennen");
+        add(Word.RENAME_PARAMETER_VALUE_DIALOG_HEADER_TEXT, "Neuen Parameternamen eingeben");
+        add(Word.RENAME_PARAMETER_VALUE_DIALOG_CONTENT_TEXT, "Parametername");
+        ///Comment Parameter
+        add(Word.COMMENT_PARAMETER_DIALOG_TITLE, "Parameter kommentieren");
+        add(Word.COMMENT_PARAMETER_DIALOG_HEADER_TEXT, "Kommentare eingeben");
+        ///Delete Parameter
+        add(Word.DELETE_PARAMETER_DIALOG_TITLE, "Parameter ${PARAMETER} löschen");
+        add(Word.DELETE_PARAMETER_DIALOG_HEADER_TEXT, "Parameter ${PARAMETER} wirklich löschen?");
+        add(Word.DELETE_PARAMETER_DIALOG_CONTENT_TEXT, "Der Parameter ${PARAMETER} wird unwiederruflich gelöscht!");
         ///New Variable
         add(Word.NEW_VARIABLE_DIALOG_TITLE, "Neue Variable anlegen");
         add(Word.NEW_VARIABLE_DIALOG_HEADER_TEXT, "Variablennamen eingeben");
@@ -176,9 +197,9 @@ public class German extends Language {
         add(Word.COMMENT_VARIABLE_DIALOG_TITLE, "Variable kommentieren");
         add(Word.COMMENT_VARIABLE_DIALOG_HEADER_TEXT, "Kommentare eingeben");
         ///Delete Variable
-        add(Word.DELETE_VARIABLE_DIALOG_TITLE, "Variable #VARIABLE löschen");
-        add(Word.DELETE_VARIABLE_DIALOG_HEADER_TEXT, "Variable #VARIABLE wirklich löschen?");
-        add(Word.DELETE_VARIABLE_DIALOG_CONTENT_TEXT, "Die Variable #VARIABLE wird unwiederruflich gelöscht!");
+        add(Word.DELETE_VARIABLE_DIALOG_TITLE, "Variable ${VARIABLE} löschen");
+        add(Word.DELETE_VARIABLE_DIALOG_HEADER_TEXT, "Variable ${VARIABLE} wirklich löschen?");
+        add(Word.DELETE_VARIABLE_DIALOG_CONTENT_TEXT, "Die Variable ${VARIABLE} wird unwiederruflich gelöscht!");
         ///Corrupt project
         add(Word.PROJECT_CORRUPT_DIALOG_TITLE, "Fehlerhaftes Projekt");
         add(Word.PROJECT_CORRUPT_DIALOG_HEADER_TEXT, "Projekt ist fehlerhaft");
@@ -186,7 +207,7 @@ public class German extends Language {
         ///Class in Use
         add(Word.CLASS_IN_USE_DIALOG_TITLE, "Klasse noch in Benutzung");
         add(Word.CLASS_IN_USE_DIALOG_HEADER_TEXT, "Die Klasse ist noch in Benutzung");
-        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "Die Klasse konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:\n#LIST");
+        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "Die Klasse konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:\n${LIST}");
         ///New Text value
         add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "Neuer Text");
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Bitte Text eingeben");
@@ -252,5 +273,6 @@ public class German extends Language {
         add(Word.CONCAT, "Zusammenfügen");
         add(Word.LENGTH, "Länge");
         add(Word.DELETE, "Löschen");
+        add(Word.VOID, "Nichts");
     }
 }

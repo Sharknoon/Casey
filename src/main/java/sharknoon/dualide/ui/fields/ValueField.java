@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javafx.scene.layout.Pane;
-import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.PlaceholderBody;
 

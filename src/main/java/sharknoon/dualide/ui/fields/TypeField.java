@@ -38,18 +38,26 @@ public class TypeField extends Button {
         this(null);
     }
 
-    public TypeField(Collection<? extends Type> types) {
+    public TypeField(Collection<? extends Type> allowedTypes) {
+        this(allowedTypes,false);
+    }
+
+    public TypeField(Collection<? extends Type> allowedTypes, boolean withVoid) {
         Language.set(Word.TYPE_SELECTION_FIELD_SELECT_TYPE, this);
 
         setOnAction((event) -> {
-            TypePopUp.showTypeSelectionPopUp(this, type::set, types);
+            TypePopUp.showTypeSelectionPopUp(this, type::set, allowedTypes, withVoid);
         });
 
         typeProperty().addListener((o, old, t) -> {
             Language.unset(this);
-            textProperty().bind(t.getSimpleName());
+            textProperty().bind(t.getLanguageDependentName());
             setGraphic(Icons.get(t.getIcon()));
         });
+    }
+
+    public void setType(Type type){
+        this.type.set(type);
     }
 
     public Optional<Type> getType() {

@@ -57,11 +57,19 @@ public class TypeBrowser extends VBox {
     private final Consumer<Type> typeConsumer;
     private final Collection<? extends Type> allowedTypes;
 
-    public TypeBrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes) {
-        this(typeConsumer, allowedTypes, false);
+    public static TypeBrowser createTypeBrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
+        return new TypeBrowser(typeConsumer, allowedTypes, false, false);
     }
 
-    public TypeBrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes, boolean onlyObjects) {
+    public static TypeBrowser createOnlyObjectTypebrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
+        return new TypeBrowser(typeConsumer, allowedTypes, true, false);
+    }
+
+    public static TypeBrowser createTypeBrowserWithVoid(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
+        return new TypeBrowser(typeConsumer, allowedTypes, false, true);
+    }
+
+    private TypeBrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes, boolean onlyObjects, boolean withVoid) {
         this.typeConsumer = typeConsumer;
         this.allowedTypes = allowedTypes;
         init();
@@ -69,7 +77,7 @@ public class TypeBrowser extends VBox {
             addNoTypeLabel();
         } else {
             if (!onlyObjects) {
-                addPrimitiveTypeSelectors();
+                addPrimitiveTypeSelectors(withVoid);
             }
             addObjectTypeSelectors();
         }
@@ -92,7 +100,7 @@ public class TypeBrowser extends VBox {
         getChildren().add(labelNoType);
     }
 
-    private void addPrimitiveTypeSelectors() {
+    private void addPrimitiveTypeSelectors(boolean withVoid) {
         Collection<? extends Type> types
                 = allowedTypes == null
                         ? PrimitiveType.getAll()
@@ -107,6 +115,12 @@ public class TypeBrowser extends VBox {
                 addPrimitiveTypeSegmentedButtons(type.getPrimitiveType());
             }
         }
+        if (withVoid && allowedTypes == null){
+            if (!hasPrimitiveType) {
+                addPrimitiveTypeSeparator();
+            }
+            addPrimitiveTypeSegmentedButtons(PrimitiveType.VOID);
+        }
     }
 
     private void addPrimitiveTypeSeparator() {
@@ -118,7 +132,7 @@ public class TypeBrowser extends VBox {
     private HBox hBoxSegmentedButtons = new HBox(10);
 
     private void addPrimitiveTypeSegmentedButtons(PrimitiveType type) {
-        String text = type.getName().get();
+        String text = type.getLanguageDependentName().get();
 
         Button button = new Button(text, Icons.get(type.getIcon()));
         button.setMaxWidth(Double.MAX_VALUE);

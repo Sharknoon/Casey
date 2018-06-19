@@ -1,16 +1,13 @@
 package sharknoon.dualide.ui.bodies;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,34 +21,29 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.SegmentedButton;
-import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.operators.OperatorType;
+import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.values.ObjectValue;
-import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.javafx.FXUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 /**
- *
  * @author Josua Frank
  */
 public class StatementPopUp extends PopOver {
@@ -105,8 +97,8 @@ public class StatementPopUp extends PopOver {
     }
 
     private void addNoTypeLabel() {
-          var text = Language.get(Word.TYPE_SELECTION_POPUP_NO_TYPES);
-          var labelNoType = new Label(text);
+        var text = Language.get(Word.TYPE_SELECTION_POPUP_NO_TYPES);
+        var labelNoType = new Label(text);
         labelNoType.setFont(Font.font(20));
         labelNoType.setMaxWidth(Double.MAX_VALUE);
         labelNoType.setAlignment(Pos.CENTER);
@@ -162,7 +154,7 @@ public class StatementPopUp extends PopOver {
         String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
 
         Node icon = Icons.get(type.getIcon());
-        Label text = PopUpUtils.createLabel(type.getName().get() + stringValues);
+        Label text = PopUpUtils.createLabel(type.getLanguageDependentName().get() + stringValues);
         gp.add(new HBox(10, icon, text), 0, row);
 
         FlowPane flowPaneButtons = new FlowPane();
@@ -202,14 +194,14 @@ public class StatementPopUp extends PopOver {
     }
 
     private void addNewObjectValueSelectors() {
-        if (row>0) {
+        if (row > 0) {
             Separator separator = new Separator();
             gp.add(separator, 1, row - 1);
         }
 
         String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
         Node icon = Icons.get(ObjectType.GENERAL.getIcon());
-        Label text = PopUpUtils.createLabel(ObjectType.GENERAL.getName().get() + stringValues);
+        Label text = PopUpUtils.createLabel(ObjectType.GENERAL.getLanguageDependentName().get() + stringValues);
         gp.add(new HBox(10, icon, text), 0, row);
 
         Button buttonCreation = new Button(ObjectType.GENERAL.getCreationText().get(), Icons.get(ObjectType.GENERAL.getCreationIcon()));
@@ -323,7 +315,12 @@ public class StatementPopUp extends PopOver {
                         .getChildren()
                         .stream()
                         .map(ti -> ti.getValue())
-                        .filter(i -> i instanceof Returnable)
+                        .filter(i -> i instanceof Returnable || i instanceof Class)
+                        .filter(i -> i instanceof Class
+                                || allowedTypes == null
+                                ? true
+                                : allowedTypes.contains(((Returnable) i).getReturnType())
+                        )
                         .forEach((t) -> {
                             HBox hBoxFunctionOrVariable = new HBox(10);
                             Node icon = Icons.get(t.getSite().getTabIcon());

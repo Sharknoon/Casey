@@ -28,14 +28,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
-import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
-import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
-import sharknoon.dualide.logic.values.ObjectValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.BooleanValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.NumberValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.TextValue;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
 
 /**
  *

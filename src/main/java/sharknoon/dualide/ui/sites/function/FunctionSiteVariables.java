@@ -15,12 +15,13 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
+import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.ui.sites.SiteUtils;
 
 /**
- *
  * @author Josua Frank
  */
 public class FunctionSiteVariables {
@@ -31,6 +32,7 @@ public class FunctionSiteVariables {
     public FunctionSiteVariables(FunctionSite functionSite) {
         this.functionSite = functionSite;
     }
+
 
     public Pane getTabContentPane() {
         if (paneRoot == null) {

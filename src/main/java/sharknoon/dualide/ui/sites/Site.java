@@ -15,14 +15,18 @@
  */
 package sharknoon.dualide.ui.sites;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -33,6 +37,7 @@ import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.package_.PackageSite;
@@ -51,10 +56,8 @@ import sharknoon.dualide.ui.sites.variable.VariableSite;
 import sharknoon.dualide.utils.settings.Logger;
 
 /**
- *
- * @author Josua Frank
  * @param <I>
- *
+ * @author Josua Frank
  */
 public abstract class Site<I extends Item> {
 
@@ -86,10 +89,20 @@ public abstract class Site<I extends Item> {
         this.item = item;
         //treeitem setup
         treeItem.setValue(item);
-        ObservableList<TreeItem<Item>> treeItems = EasyBind.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
-        Bindings.bindContent(treeItem.getChildren(), treeItems);
+        //Not working Properly
+        //ObservableList<TreeItem<Item>> treeItems = EasyBind.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
+        item.childrenProperty().addListener((ListChangeListener<? super Item>) c -> {
+            while (c.next()) {
+                List<TreeItem<Item>> newTreeItems = new ArrayList<>();
+                item.childrenProperty().forEach(ch -> {
+                    newTreeItems.add(((Item)ch).getSite().getTreeItem());
+                });
+                treeItem.getChildren().setAll(newTreeItems);
+            }
+        });
+        //Name changing should also change tree item name
         item.nameProperty().addListener((observable, oldValue, newValue) -> {
-              var event = new TreeModificationEvent<>(TreeItem.valueChangedEvent(), treeItem);
+            var event = new TreeModificationEvent<>(TreeItem.valueChangedEvent(), treeItem);
             Event.fireEvent(treeItem, event);
         });
         //tab setup
@@ -118,8 +131,8 @@ public abstract class Site<I extends Item> {
 
     public void destroy() {
         //Stupid javafx implementation, just need a method tab.close() or tabPane.closeTab(tab)
-          var tabPane = MainController.getTabPane();
-          var onClosed = tab.getOnClosed();
+        var tabPane = MainController.getTabPane();
+        var onClosed = tab.getOnClosed();
         if (onClosed != null) {
             onClosed.handle(null);
         }
@@ -193,7 +206,6 @@ public abstract class Site<I extends Item> {
         set.addAll(PrimitiveType.getForbiddenNames());
         return set;
     }
-
 
 
     @Override

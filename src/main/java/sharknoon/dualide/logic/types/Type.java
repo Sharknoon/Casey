@@ -15,20 +15,13 @@
  */
 package sharknoon.dualide.logic.types;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import sharknoon.dualide.logic.Statement;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.values.Value;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
@@ -74,7 +67,7 @@ public abstract class Type<T extends Type, V extends Value> {
      *
      * @return
      */
-    public abstract StringProperty getName();
+    public abstract StringProperty getLanguageDependentName();
 
     public abstract Optional<V> createValue(Statement parent);
 

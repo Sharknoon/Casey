@@ -17,29 +17,26 @@ package sharknoon.dualide.logic.types;
 
 import java.util.Collection;
 import java.util.Optional;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.MapProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleMapProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import sharknoon.dualide.logic.Statement;
+import javafx.collections.ObservableList;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.values.PrimitiveValue;
-import sharknoon.dualide.logic.values.PrimitiveValue.BooleanValue;
-import sharknoon.dualide.logic.values.PrimitiveValue.NumberValue;
-import sharknoon.dualide.logic.values.PrimitiveValue.TextValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.BooleanValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.NumberValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.TextValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue.VoidValue;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 /**
- *
- * @author Josua Frank
  * @param <T>
  * @param <V>
+ * @author Josua Frank
  */
 public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue> extends Type<T, V> {
 
@@ -60,7 +57,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         String nameWithType = getClass().getSimpleName().toUpperCase();
         name.set(nameWithType.substring(0, nameWithType.length() - 4));
         TYPESLIST.add(this);
-        TYPESMAP.put(name.get(), this);
+        TYPESMAP.put(name.get().toUpperCase(), this);
     }
 
     @Override
@@ -78,8 +75,8 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         return null;
     }
 
-    public static ListProperty<PrimitiveType> getAll() {
-        return TYPESLIST;
+    public static ObservableList<PrimitiveType> getAll() {
+        return TYPESLIST.filtered(pt -> pt != VOID);
     }
 
     @Override
@@ -97,8 +94,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         //Do nothing, primitive types cant be deleted
     }
 
-    
-    
+
     public static BooleanType BOOLEAN = new BooleanType();
 
     public static class BooleanType extends PrimitiveType<BooleanType, BooleanValue> {
@@ -122,6 +118,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         public Icon getCreationIcon() {
             return Icon.PLUSBOOLEAN;
         }
+
         private StringProperty creationText;
 
         @Override
@@ -133,10 +130,11 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
             }
             return creationText;
         }
+
         private StringProperty name;
 
         @Override
-        public StringProperty getName() {
+        public StringProperty getLanguageDependentName() {
             if (name == null) {
                 name = new SimpleStringProperty();
                 Language.setCustom(Word.BOOLEAN, name::set);
@@ -181,10 +179,11 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
             }
             return creationText;
         }
+
         private StringProperty name;
 
         @Override
-        public StringProperty getName() {
+        public StringProperty getLanguageDependentName() {
             if (name == null) {
                 name = new SimpleStringProperty();
                 Language.setCustom(Word.NUMBER, name::set);
@@ -229,13 +228,56 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
             }
             return creationText;
         }
+
         private StringProperty name;
 
         @Override
-        public StringProperty getName() {
+        public StringProperty getLanguageDependentName() {
             if (name == null) {
                 name = new SimpleStringProperty();
                 Language.setCustom(Word.TEXT, name::set);
+            }
+            return name;
+        }
+
+    }
+
+    public static VoidType VOID = new VoidType();
+
+    public static class VoidType extends PrimitiveType<VoidType, VoidValue> {
+
+        private VoidType() {
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.BANNED;
+        }
+
+        @Override
+        public Optional<VoidValue> createValue(Statement parent) {
+            return Optional.of(new VoidValue(parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.BANNED;
+        }
+
+        private StringProperty creationText = new SimpleStringProperty("Void cannot be created");
+
+        @Override
+        public StringProperty getCreationText() {
+            return creationText;
+        }
+
+        private StringProperty name;
+
+        @Override
+        public StringProperty getLanguageDependentName() {
+            if (name == null) {
+                name = new SimpleStringProperty();
+                Language.setCustom(Word.VOID, name::set);
             }
             return name;
         }

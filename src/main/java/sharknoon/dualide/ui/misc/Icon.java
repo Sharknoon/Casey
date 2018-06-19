@@ -17,11 +17,11 @@ package sharknoon.dualide.ui.misc;
 
 import java.nio.file.Path;
 import java.util.Optional;
+
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Resources;
 
 /**
- *
  * @author Josua Frank
  */
 public enum Icon {
@@ -43,6 +43,8 @@ public enum Icon {
     ERROR,
     FUNCTION,
     FUNCTIONFLOWCHART,
+    FUNCTIONPARAMETER,
+    FUNCTIONRETURN,
     FUNCTIONVARIABLE,
     GERMAN,
     GREATEROREQUALTHAN,

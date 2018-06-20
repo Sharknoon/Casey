@@ -20,16 +20,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import sharknoon.dualide.logic.Returnable;
@@ -41,36 +33,62 @@ import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.settings.Logger;
 
+import java.util.*;
+
 /**
  * @author Josua Frank
  */
 public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Variable> implements Returnable {
 
-    private final ObjectProperty<Type> returnTypeString = new SimpleObjectProperty<>();
     private static final String RETURNTYPE = "returntype";
-
-    private final ListProperty<Parameter> parameters = new SimpleListProperty<>(FXCollections.observableArrayList());
     private static final String PARAMETERS = "parameters";
+    //Needed for the usages check in the class
+    private static final ObservableMap<Type, List<Function>> ALL_RETURN_TYPES = FXCollections.observableHashMap();
+    private static final ObservableSet<Parameter> ALL_PARAMETERS = FXCollections.observableSet();
     private static final String PARAMETERNAME = "name";
     private static final String PARAMETERTYPE = "type";
     private static final String PARAMETERCOMMENTS = "comments";
-
     private static final String BLOCKS = "blocks";
     private static final String BLOCK_ID = "blockid";
     private static final String BLOCK_X = "blockX";
     private static final String BLOCK_Y = "blockY";
     private static final String BLOCK_TYPE = "blocktype";
     private static final String BLOCK_CONNECTIONS = "blockconnections";
+    private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
+    private final ListProperty<Parameter> parameters = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
         super(parent, name);
+        parameters.addListener((ListChangeListener<Parameter>) c -> {
+            while (c.next()) {
+                ALL_PARAMETERS.removeAll(c.getRemoved());
+                ALL_PARAMETERS.addAll(c.getAddedSubList());
+            }
+        });
+        returnType.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !ALL_RETURN_TYPES.containsKey(newValue)) {
+                ALL_RETURN_TYPES.put(newValue, new ArrayList<>());
+            }
+            ALL_RETURN_TYPES.get(newValue).add(this);
+            if (oldValue != null && ALL_RETURN_TYPES.containsKey(oldValue)) {
+                ALL_RETURN_TYPES.get(oldValue).remove(this);
+            }
+        });
+    }
+
+    static ObservableMap<Type, List<Function>> getAllReturnTypes() {
+        return ALL_RETURN_TYPES;
+    }
+
+    static ObservableSet<Parameter> getAllParameters() {
+        return ALL_PARAMETERS;
     }
 
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();
-        String typeString = returnTypeString.get() != null
-                ? returnTypeString.get().getFullName().get()
+        String typeString = returnType.get() != null
+                ? returnType.get().fullNameProperty().get()
                 : "";
         map.put(RETURNTYPE, TextNode.valueOf(typeString));
 
@@ -78,7 +96,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
         parameters.forEach(p -> {
             ObjectNode parameterNode = new ObjectNode(JsonNodeFactory.instance);
             parameterNode.put(PARAMETERNAME, p.getName());
-            parameterNode.put(PARAMETERTYPE, p.getType().getFullName().get());
+            parameterNode.put(PARAMETERTYPE, p.getType().fullNameProperty().get());
             parameterNode.put(PARAMETERCOMMENTS, p.getComments());
             parametersNode.add(parameterNode);
         });
@@ -123,7 +141,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
         properties.forEach((key, value) -> {
             switch (key) {
                 case RETURNTYPE:
-                    Type.valueOf(value.asText()).ifPresent(returnTypeString::set);
+                    Type.valueOf(value.asText()).ifPresent(returnType::set);
                     break;
                 case PARAMETERS:
                     ArrayNode pars = (ArrayNode) value;
@@ -136,7 +154,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                             Logger.error("Could not determine function parameter type: " + par.get(PARAMETERTYPE));
                             break;
                         }
-                        Parameter parameter = new Parameter(name, type.get(), comments);
+                        Parameter parameter = new Parameter(name, type.get(), comments, this);
                         parameters.add(parameter);
                     }
                     break;
@@ -183,29 +201,27 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             }
         });
         blockConections.forEach((originBlockId, originSides) -> {
-            originSides.forEach((originSide, lines) -> {
-                lines.forEach((destinationBlockId, destinationSide) -> {
-                    try {
-                        blockIDs
-                                .get(originBlockId)
-                                .getOutputDot(originSide)
-                                .ifPresent(originDot -> {
-                                    var destinationBlock = blockIDs.get(destinationBlockId);
-                                    destinationBlock.getInputDot(destinationSide).ifPresent(destinationDot -> {
-                                        var line = Lines.createLine((FunctionSite) getSite(), originDot);
-                                        line.setEndDot(destinationDot);
-                                    });
+            originSides.forEach((originSide, lines) -> lines.forEach((destinationBlockId, destinationSide) -> {
+                try {
+                    blockIDs
+                            .get(originBlockId)
+                            .getOutputDot(originSide)
+                            .ifPresent(originDot -> {
+                                var destinationBlock = blockIDs.get(destinationBlockId);
+                                destinationBlock.getInputDot(destinationSide).ifPresent(destinationDot -> {
+                                    var line = Lines.createLine((FunctionSite) getSite(), originDot);
+                                    line.setEndDot(destinationDot);
                                 });
-                    } catch (Exception e) {
-                        Logger.error("Could not load line", e);
-                    }
-                });
-            });
+                            });
+                } catch (Exception e) {
+                    Logger.error("Could not load line", e);
+                }
+            }));
         });
     }
 
     public ObjectProperty<Type> returnTypeProperty() {
-        return returnTypeString;
+        return returnType;
     }
 
     @Override
@@ -226,9 +242,13 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
         private final ObjectProperty<Type> typeProperty = new SimpleObjectProperty<>();
         private final StringProperty commentsProperty = new SimpleStringProperty();
 
-        public Parameter(String name, Type type, String comments) {
+        private final ObjectProperty<Function> functionProperty = new SimpleObjectProperty<>();
+
+        public Parameter(String name, Type type, String comments, Function function) {
             nameProperty.set(name);
             typeProperty.set(type);
+            commentsProperty.set(comments);
+            functionProperty.set(function);
         }
 
         public Type getType() {
@@ -253,6 +273,14 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
 
         public StringProperty commentsProperty() {
             return commentsProperty;
+        }
+
+        public Function getFunction() {
+            return functionProperty.get();
+        }
+
+        public ObjectProperty<Function> functionProperty() {
+            return functionProperty;
         }
     }
 

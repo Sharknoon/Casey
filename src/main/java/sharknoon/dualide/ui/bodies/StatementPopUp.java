@@ -1,56 +1,40 @@
 package sharknoon.dualide.ui.bodies;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.TreeItem;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.SegmentedButton;
 import sharknoon.dualide.logic.Returnable;
-import sharknoon.dualide.logic.items.Function;
-import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.items.Class;
-import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.items.*;
+import sharknoon.dualide.logic.items.Package;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operators.OperatorType;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+
 /**
  * @author Josua Frank
  */
-public class StatementPopUp extends PopOver {
-
-    public static void showValueSelectionPopUp(Node ownerNode, Collection<? extends Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
-        StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, statementConsumer);
-    }
+class StatementPopUp extends PopOver {
 
     private final GridPane gridPaneRoot = new GridPane();
     private final VBox vBoxLeft = new VBox();
@@ -58,6 +42,10 @@ public class StatementPopUp extends PopOver {
     private final Collection<? extends Type> allowedTypes;
     private final Statement parent;
     private final Consumer<Statement> statementConsumer;
+    private GridPane gp = new GridPane();
+    private int row = 0;
+    private int size = -1;
+    private Node previousContent = null;
 
     private StatementPopUp(Node ownerNode, Collection<? extends Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
         super();
@@ -73,6 +61,10 @@ public class StatementPopUp extends PopOver {
             addExistingValueSelectors();
         }
         show(ownerNode);
+    }
+
+    static void showValueSelectionPopUp(Node ownerNode, Collection<? extends Type> allowedValues, Statement parent, Consumer<Statement> statementConsumer) {
+        StatementPopUp popUp = new StatementPopUp(ownerNode, allowedValues, parent, statementConsumer);
     }
 
     private void init() {
@@ -132,10 +124,6 @@ public class StatementPopUp extends PopOver {
         vBoxLeft.getChildren().add(separator);
     }
 
-    GridPane gp = new GridPane();
-    int row = 0;
-    int size = -1;
-
     private void addNewPrimitiveValueSelector(PrimitiveType type) {
         if (!vBoxLeft.getChildren().contains(gp)) {
             gp.setHgap(10);
@@ -160,7 +148,7 @@ public class StatementPopUp extends PopOver {
         FlowPane flowPaneButtons = new FlowPane();
         flowPaneButtons.setHgap(10);
         flowPaneButtons.setVgap(10);
-        Button buttonCreation = new Button(type.getCreationText().get(), Icons.get(type.getCreationIcon()));
+        Button buttonCreation = new Button(type.creationTextProperty().get(), Icons.get(type.getCreationIcon()));
         flowPaneButtons.getChildren().add(buttonCreation);
 
         buttonCreation.setOnAction((event) -> {
@@ -204,7 +192,7 @@ public class StatementPopUp extends PopOver {
         Label text = PopUpUtils.createLabel(ObjectType.GENERAL.getLanguageDependentName().get() + stringValues);
         gp.add(new HBox(10, icon, text), 0, row);
 
-        Button buttonCreation = new Button(ObjectType.GENERAL.getCreationText().get(), Icons.get(ObjectType.GENERAL.getCreationIcon()));
+        Button buttonCreation = new Button(ObjectType.GENERAL.creationTextProperty().get(), Icons.get(ObjectType.GENERAL.getCreationIcon()));
         buttonCreation.setOnAction((event) -> {
             Optional<ObjectValue> t = ObjectType.GENERAL.createValue(parent);
             if (statementConsumer != null && t.isPresent()) {
@@ -241,15 +229,9 @@ public class StatementPopUp extends PopOver {
         toggleButtonThisClass.prefWidthProperty().bind(vBoxRight.widthProperty().divide(3));
         toggleButtonThisFunction.prefWidthProperty().bind(vBoxRight.widthProperty().divide(3));
 
-        toggleButtonStatic.setOnAction((event) -> {
-            setStaticContent();
-        });
-        toggleButtonThisClass.setOnAction((event) -> {
-            setThisClassContent();
-        });
-        toggleButtonThisFunction.setOnAction((event) -> {
-            setThisFunctionContent();
-        });
+        toggleButtonStatic.setOnAction((event) -> setStaticContent());
+        toggleButtonThisClass.setOnAction((event) -> setThisClassContent());
+        toggleButtonThisFunction.setOnAction((event) -> setThisFunctionContent());
 
         segmentedButtonValueSource.getButtons().addAll(toggleButtonStatic, toggleButtonThisClass, toggleButtonThisFunction);
         vBoxRight.getChildren().add(segmentedButtonValueSource);
@@ -257,8 +239,6 @@ public class StatementPopUp extends PopOver {
         //GridPane.setFillWidth(segmentedButtonValueSource, true);
         toggleButtonStatic.fire();
     }
-
-    private Node previousContent = null;
 
     private void setStaticContent() {
         GridPane gridPanePackagesAndVariables = new GridPane();
@@ -314,12 +294,10 @@ public class StatementPopUp extends PopOver {
                 newValue
                         .getChildren()
                         .stream()
-                        .map(ti -> ti.getValue())
+                        .map(TreeItem::getValue)
                         .filter(i -> i instanceof Returnable || i instanceof Class)
-                        .filter(i -> i instanceof Class
-                                || allowedTypes == null
-                                ? true
-                                : allowedTypes.contains(((Returnable) i).getReturnType())
+                        .filter(i -> (i instanceof Class || allowedTypes == null)
+                                || allowedTypes.contains(((Returnable) i).getReturnType())
                         )
                         .forEach((t) -> {
                             HBox hBoxFunctionOrVariable = new HBox(10);

@@ -19,12 +19,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -69,7 +67,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
         });
     }
 
-    public static Map<Type, List<Variable>> getAllVariables() {
+    static Map<Type, List<Variable>> getAllVariables() {
         return VARIABLES;
     }
 
@@ -78,7 +76,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
         Map<String, JsonNode> map = super.getAdditionalProperties();
         String typeString = "";
         if (type.get() != null) {
-            typeString = type.get().getFullName().get();
+            typeString = type.get().fullNameProperty().get();
         }
         map.put(TYPE, TextNode.valueOf(typeString));
         map.put(MODIFIABLE, BooleanNode.valueOf(modifiable.get()));

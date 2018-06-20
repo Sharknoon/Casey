@@ -61,7 +61,7 @@ import sharknoon.dualide.utils.settings.Logger;
  */
 public abstract class Site<I extends Item> {
 
-    private static final ObjectProperty<Item> CURRENT_SELECTED_ITEM = new SimpleObjectProperty<>();
+    private static final ObjectProperty<Item<?,?,?>> CURRENT_SELECTED_ITEM = new SimpleObjectProperty<>();
 
     public static Site createSite(Item item) {
         switch (item.getType()) {
@@ -159,7 +159,7 @@ public abstract class Site<I extends Item> {
         return CURRENT_SELECTED_ITEM.get() == getItem();
     }
 
-    public static ObjectProperty<Item> currentSelectedProperty() {
+    public static ObjectProperty<Item<?,?,?>> currentSelectedProperty() {
         return CURRENT_SELECTED_ITEM;
     }
 

@@ -38,7 +38,7 @@ import sharknoon.dualide.utils.language.Word;
  * @param <V>
  * @author Josua Frank
  */
-public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue> extends Type<T, V> {
+public abstract class PrimitiveType<T extends PrimitiveType, V extends PrimitiveValue<T,?>> extends Type<T, V> {
 
     public static Optional<PrimitiveType> forName(String asText) {
         return Optional.ofNullable(TYPESMAP.get(asText.toUpperCase()));
@@ -80,13 +80,13 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
     }
 
     @Override
-    public StringProperty getSimpleName() {
+    public StringProperty simpleNameProperty() {
         return name;
     }
 
     @Override
-    public StringProperty getFullName() {
-        return getSimpleName();
+    public StringProperty fullNameProperty() {
+        return simpleNameProperty();
     }
 
     @Override
@@ -122,7 +122,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         private StringProperty creationText;
 
         @Override
-        public StringProperty getCreationText() {
+        public StringProperty creationTextProperty() {
             if (creationText == null) {
                 creationText = new SimpleStringProperty();
                 Language.setCustom(Word.BOOLEAN_CREATION, creationText::set);
@@ -171,7 +171,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         private StringProperty creationText;
 
         @Override
-        public StringProperty getCreationText() {
+        public StringProperty creationTextProperty() {
             if (creationText == null) {
                 creationText = new SimpleStringProperty();
                 Language.setCustom(Word.NUMBER_CREATION, creationText::set);
@@ -220,7 +220,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         private StringProperty creationText;
 
         @Override
-        public StringProperty getCreationText() {
+        public StringProperty creationTextProperty() {
             if (creationText == null) {
                 creationText = new SimpleStringProperty();
                 Language.setCustom(Word.TEXT_CREATION, creationText::set);
@@ -267,7 +267,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         private StringProperty creationText = new SimpleStringProperty("Void cannot be created");
 
         @Override
-        public StringProperty getCreationText() {
+        public StringProperty creationTextProperty() {
             return creationText;
         }
 

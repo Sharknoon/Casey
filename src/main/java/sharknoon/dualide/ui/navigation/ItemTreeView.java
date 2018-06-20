@@ -19,6 +19,7 @@ import javafx.scene.control.TreeView;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.settings.Logger;
 
 /**
  *
@@ -32,7 +33,7 @@ public class ItemTreeView {
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null && newValue.getValue() != null) {
                         newValue.getValue().getSite().select();
-                        System.out.println("selecting " + newValue.getValue().toString() + " with children " + newValue.getValue().getChildren().toString());
+                        Logger.debug("Selecting " + newValue.getValue().toString() + " with children " + newValue.getValue().getChildren().toString());
                     }
                 });
         Site.currentSelectedProperty()

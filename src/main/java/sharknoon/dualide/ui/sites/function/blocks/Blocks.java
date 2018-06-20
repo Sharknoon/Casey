@@ -15,12 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks;
 
-import java.util.Set;
-import sharknoon.dualide.ui.sites.function.blocks.block.Start;
-import sharknoon.dualide.ui.sites.function.blocks.block.Assignment;
-import sharknoon.dualide.ui.sites.function.blocks.block.End;
-import sharknoon.dualide.ui.sites.function.blocks.block.Decision;
-import java.util.stream.Stream;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,12 +23,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
+import javafx.scene.shape.Shape;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.UISettings;
-import sharknoon.dualide.ui.sites.function.blocks.block.Call;
-import sharknoon.dualide.ui.sites.function.blocks.block.Input;
-import sharknoon.dualide.ui.sites.function.blocks.block.Output;
+import sharknoon.dualide.ui.sites.function.blocks.block.*;
 import sharknoon.dualide.utils.settings.Logger;
+
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * This is the general class for all blocks, it has handy funtions to create new
@@ -44,12 +40,17 @@ import sharknoon.dualide.utils.settings.Logger;
  */
 public class Blocks {
 
+    private static final ObservableMap<FunctionSite, ObservableSet<Block<?>>> BLOCKS = FXCollections.observableHashMap();
+    private static final ObservableMap<FunctionSite, BooleanProperty> MOUSE_OVER_BLOCK_PROPERTY = FXCollections.observableHashMap();
+    private static final ObservableMap<FunctionSite, ObjectProperty<Block<?>>> MOVING_BLOCK = FXCollections.observableHashMap();
+    private static final ObservableSet<Block<?>> EMPTY = FXCollections.observableSet(Set.of());
+
     /**
      * Creates a new Block
      *
      * @param functionSite The general site of the function as reference
-     * @param type The type of the block
-     * @return
+     * @param type         The type of the block
+     * @return The newly created Block
      */
     public static Block<?> createBlock(FunctionSite functionSite, BlockType type) {
         return createBlock(functionSite, type, null);
@@ -59,9 +60,9 @@ public class Blocks {
      * Creates a new Block
      *
      * @param functionSite The general site of the function as reference
-     * @param type The type of the block
-     * @param id OPTIONAL Id (just needed for parsing) can be null
-     * @return
+     * @param type         The type of the block
+     * @param id           OPTIONAL Id (just needed for parsing) can be null
+     * @return The newly created Block
      */
     public static Block<?> createBlock(FunctionSite functionSite, BlockType type, String id) {
         switch (type) {
@@ -84,21 +85,16 @@ public class Blocks {
         }
     }
 
-    private static final ObservableMap<FunctionSite, ObservableSet<Block<?>>> BLOCKS = FXCollections.observableHashMap();
-    private static final ObservableMap<FunctionSite, BooleanProperty> MOUSE_OVER_BLOCK_PROPERTY = FXCollections.observableHashMap();
-    private static final ObservableMap<FunctionSite, ObjectProperty<Block<?>>> MOVING_BLOCK = FXCollections.observableHashMap();
-    private static final ObservableSet<Block<?>> EMPTY = FXCollections.observableSet(Set.of());
-
-    static void registerBlock(FunctionSite functionSite, Block block) {
+    static void registerBlock(FunctionSite functionSite, Block<? extends Shape> block) {
         if (BLOCKS.containsKey(functionSite)) {
             BLOCKS.get(functionSite).add(block);
         } else {
             ObservableSet<Block<?>> list = FXCollections.observableSet();
             list.addListener((SetChangeListener.Change<? extends Block> change) -> {
                 if (change.wasAdded()) {
-                    Logger.debug("added Block" + block.toString());
-                } else {
-                    Logger.debug("removed Block" + block.toString());
+                    Logger.debug("Added Block " + change.getElementAdded().toString());
+                } else if (change.wasRemoved()) {
+                    Logger.debug("Removed Block " + change.getElementRemoved().toString());
                 }
             });
             list.add(block);
@@ -106,7 +102,7 @@ public class Blocks {
         }
     }
 
-    static void unregisterBlock(FunctionSite functionSite, Block block) {
+    static void unregisterBlock(FunctionSite functionSite, Block<? extends Shape> block) {
         if (BLOCKS.containsKey(functionSite)) {
             BLOCKS.get(functionSite).remove(block);
         }
@@ -118,14 +114,14 @@ public class Blocks {
         }
     }
 
-    public static Block<?> getMovingBlock(FunctionSite functionSite) {
+    static Block<?> getMovingBlock(FunctionSite functionSite) {
         if (!MOVING_BLOCK.containsKey(functionSite)) {
             return null;
         }
         return MOVING_BLOCK.get(functionSite).get();
     }
 
-    public static void setMovingBlock(FunctionSite functionSite, Block block) {
+    static void setMovingBlock(FunctionSite functionSite, Block<? extends Shape> block) {
         if (MOVING_BLOCK.containsKey(functionSite)) {
             MOVING_BLOCK.get(functionSite).set(block);
         } else {
@@ -141,20 +137,20 @@ public class Blocks {
         return allBlocksObsevable(functionSite).stream();
     }
 
-    public static Stream<Block<?>> getSelectedBlocks(FunctionSite functionSite) {
+    static Stream<Block<?>> getSelectedBlocks(FunctionSite functionSite) {
         return getAllBlocks(functionSite).filter(Block::isSelected);
     }
 
-    public static ObservableSet<Block<?>> allBlocksObsevable(FunctionSite functionSite) {
+    private static ObservableSet<Block<?>> allBlocksObsevable(FunctionSite functionSite) {
         return BLOCKS.getOrDefault(functionSite, EMPTY);
     }
 
-    public static boolean isSpaceFree(Block block, double x, double y) {
+    public static boolean isSpaceFree(Block<? extends javafx.scene.shape.Shape> block, double x, double y) {
         boolean isSpaceFree = block.canMoveTo(x, y);
         return isSpaceFree && isInsideWorkspace(block, x, y);
     }
 
-    public static boolean isInsideWorkspace(Block b, double x, double y) {
+    private static boolean isInsideWorkspace(Block<? extends javafx.scene.shape.Shape> b, double x, double y) {
         return !(x < 0 + UISettings.WORKSPACE_PADDING
                 || y < 0 + UISettings.WORKSPACE_PADDING
                 || x + b.getWidth() > UISettings.WORKSPACE_MAX_X - UISettings.WORKSPACE_PADDING
@@ -165,7 +161,7 @@ public class Blocks {
         return hoverOverBlockProperty(functionSite).get();
     }
 
-    public static BooleanProperty hoverOverBlockProperty(FunctionSite functionSite) {
+    static BooleanProperty hoverOverBlockProperty(FunctionSite functionSite) {
         if (!MOUSE_OVER_BLOCK_PROPERTY.containsKey(functionSite)) {
             MOUSE_OVER_BLOCK_PROPERTY.put(functionSite, new SimpleBooleanProperty());
         }

@@ -16,13 +16,6 @@
 package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,9 +24,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.ui.bodies.TypeBrowser;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
@@ -41,8 +34,10 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
- *
  * @author Josua Frank
  */
 public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
@@ -58,31 +53,15 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         CLASSES.add(this);
     }
 
-    @Override
-    public void destroy() {
-        List<String> usagesList = new ArrayList<>();
-        if (Variable.getAllVariables().containsKey(type) && !Variable.getAllVariables().get(type).isEmpty()) {
-            usagesList.add(Language.get(Word.VARIABLE) + ":");
-            Variable.getAllVariables().get(type).stream().map(v -> v.getFullName()).forEachOrdered(usagesList::add);
-        }
-        if (usagesList.isEmpty()) {
-            super.destroy();
-            CLASSES.remove(this);
-            type.onDelete.forEach(Runnable::run);
-        } else {
-            Dialogs.showErrorDialog(Dialogs.Errors.TYPE_IN_USE_DIALOG, null, Map.of("LIST", usagesList.stream().collect(Collectors.joining("\n"))));
-        }
-    }
-
-    public static ListProperty<Class> classesProperty() {
+    private static ListProperty<Class> classesProperty() {
         return CLASSES;
     }
 
     /**
      * case sensitive!
      *
-     * @param fullName
-     * @return
+     * @param fullName The full name of the class, e.g. MyProject.package.Class
+     * @return A optional holding eventuelly the class type
      */
     public static Optional<Class> forName(String fullName) {
         if (fullName.isEmpty()) {
@@ -91,6 +70,30 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         return CLASSES.stream()
                 .filter(c -> c.getFullName().equals(fullName))
                 .findFirst();
+    }
+
+    @Override
+    public void destroy() {
+        List<String> usagesList = new ArrayList<>();
+        if (Variable.getAllVariables().containsKey(type) && !Variable.getAllVariables().get(type).isEmpty()) {
+            usagesList.add(Language.get(Word.VARIABLE) + ":");
+            Variable.getAllVariables().get(type).stream().map(Item::getFullName).forEachOrdered(usagesList::add);
+        }
+        if (Function.getAllParameters().stream().anyMatch(p -> p.getType().equals(type))) {
+            usagesList.add(Language.get(Word.FUNCTION_SITE_FUNCTION_PARAMETERS) + ":");
+            Function.getAllParameters().stream().filter(p -> p.getType().equals(type)).map(p -> p.getFunction().getFullName() + ":" + p.getName()).forEachOrdered(usagesList::add);
+        }
+        if (Function.getAllReturnTypes().containsKey(type) && !Function.getAllReturnTypes().get(type).isEmpty()) {
+            usagesList.add(Language.get(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE) + ":");
+            Function.getAllReturnTypes().get(type).stream().map(Item::getFullName).forEachOrdered(usagesList::add);
+        }
+        if (usagesList.isEmpty()) {
+            super.destroy();
+            CLASSES.remove(this);
+            type.onDelete.forEach(Runnable::run);
+        } else {
+            Dialogs.showErrorDialog(Dialogs.Errors.TYPE_IN_USE_DIALOG, null, Map.of("LIST", usagesList.stream().collect(Collectors.joining("\n"))));
+        }
     }
 
     public ObservableList<Item<? extends Item, Class, ? extends Item>> getVariables() {
@@ -102,13 +105,13 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     }
 
     @Override
-    public void setAdditionalProperties(Map<String, JsonNode> properties) {
-        super.setAdditionalProperties(properties);
+    public Map<String, JsonNode> getAdditionalProperties() {
+        return super.getAdditionalProperties();
     }
 
     @Override
-    public Map<String, JsonNode> getAdditionalProperties() {
-        return super.getAdditionalProperties();
+    public void setAdditionalProperties(Map<String, JsonNode> properties) {
+        super.setAdditionalProperties(properties);
     }
 
     public ObjectType toType() {
@@ -117,140 +120,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
     public static class ObjectType extends Type<ObjectType, ObjectValue> {
 
-        private final Class clazz;
         private static final ListProperty<ObjectType> TYPES = new SimpleListProperty<>(BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type));
-
-        public ObjectType(Class clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public boolean isPrimitive() {
-            return false;
-        }
-
-        @Override
-        public PrimitiveType getPrimitiveType() {
-            return null;
-        }
-
-        @Override
-        public ObjectType getObjectType() {
-            return this;
-        }
-
-        public static ListProperty<ObjectType> getAll() {
-            return TYPES;
-        }
-
-        @Override
-        public StringProperty getSimpleName() {
-            return clazz.nameProperty();
-        }
-
-        /**
-         * unidirectional binding only
-         *
-         * @return
-         */
-        @Override
-        public StringProperty getFullName() {
-            StringProperty sp = new SimpleStringProperty();
-            sp.bind(clazz.fullNameProperty());
-            return sp;
-        }
-
-        public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(c -> c.toType());
-        }
-
-
-
-        @Override
-        public Icon getIcon() {
-            return Icon.CLASS;
-        }
-
-
-        private Type selectedType;
-        @Override
-        public Optional<ObjectValue> createValue(Statement parent) {
-            TypeBrowser browser = TypeBrowser.createOnlyObjectTypebrowser(t -> selectedType = t, null);
-            browser.setMinHeight(200);
-            return Dialogs
-                    .showCustomInputDialog(
-                            Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
-                            Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
-                            Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
-                            Icon.CLASS,
-                            browser,
-                            p -> selectedType
-                    )
-                    .map(o -> new ObjectValue(o.getObjectType(), parent));
-        }
-
-        @Override
-        public Icon getCreationIcon() {
-            return Icon.PLUSCLASS;
-        }
-
-        private StringProperty creationText;
-
-        @Override
-        public StringProperty getCreationText() {
-            if (creationText == null) {
-                creationText = new SimpleStringProperty();
-                Language.setCustom(Word.OBJECT_CREATION, creationText::set);
-
-            }
-            return creationText;
-        }
-        private StringProperty name;
-
-        @Override
-        public StringProperty getLanguageDependentName() {
-            if (name == null) {
-                name = new SimpleStringProperty();
-                Language.setCustom(Word.OBJECT, name::set);
-            }
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return getSimpleName().get();
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 59 * hash + Objects.hashCode(this.clazz);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final ObjectType other = (ObjectType) obj;
-            return Objects.equals(this.clazz, other.clazz);
-        }
-
-        List<Runnable> onDelete = new ArrayList();
-
-        @Override
-        public void onDelete(Runnable runnable) {
-            onDelete.add(runnable);
-        }
-
-        public static ObjectType GENERAL = new ObjectType(null){
+        public static ObjectType GENERAL = new ObjectType(null) {
             @Override
             public void onDelete(Runnable runnable) {
                 //general cant be deleted
@@ -277,8 +148,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
 
             @Override
-            public StringProperty getCreationText() {
-                return super.getCreationText();
+            public StringProperty creationTextProperty() {
+                return super.creationTextProperty();
             }
 
             @Override
@@ -297,13 +168,13 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
 
             @Override
-            public StringProperty getFullName() {
-                return new SimpleStringProperty("GENERIC");
+            public StringProperty fullNameProperty() {
+                return new SimpleStringProperty("GENERAL");
             }
 
             @Override
-            public StringProperty getSimpleName() {
-                return getFullName();
+            public StringProperty simpleNameProperty() {
+                return fullNameProperty();
             }
 
             @Override
@@ -322,6 +193,129 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
 
         };
+
+        private final Class clazz;
+        List<Runnable> onDelete = new ArrayList<>();
+        private Type selectedType;
+        private StringProperty creationText;
+        private StringProperty name;
+
+        ObjectType(Class clazz) {
+            this.clazz = clazz;
+        }
+
+        public static ListProperty<ObjectType> getAll() {
+            return TYPES;
+        }
+
+        public static Optional<ObjectType> forName(String name) {
+            return Class.forName(name).map(Class::toType);
+        }
+
+        @Override
+        public boolean isPrimitive() {
+            return false;
+        }
+
+        @Override
+        public PrimitiveType getPrimitiveType() {
+            return null;
+        }
+
+        @Override
+        public ObjectType getObjectType() {
+            return this;
+        }
+
+        @Override
+        public StringProperty simpleNameProperty() {
+            return clazz.nameProperty();
+        }
+
+        /**
+         * unidirectional binding only
+         *
+         * @return Returns the full name of the class
+         */
+        @Override
+        public StringProperty fullNameProperty() {
+            StringProperty sp = new SimpleStringProperty();
+            sp.bind(clazz.fullNameProperty());
+            return sp;
+        }
+
+        @Override
+        public Icon getIcon() {
+            return Icon.CLASS;
+        }
+
+        @Override
+        public Optional<ObjectValue> createValue(Statement parent) {
+            TypeBrowser browser = TypeBrowser.createOnlyObjectTypebrowser(t -> selectedType = t, null);
+            browser.setMinHeight(200);
+            return Dialogs
+                    .showCustomInputDialog(
+                            Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
+                            Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
+                            Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
+                            Icon.CLASS,
+                            browser,
+                            p -> selectedType
+                    )
+                    .map(o -> new ObjectValue(o.getObjectType(), parent));
+        }
+
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSCLASS;
+        }
+
+        @Override
+        public StringProperty creationTextProperty() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.OBJECT_CREATION, creationText::set);
+
+            }
+            return creationText;
+        }
+
+        @Override
+        public StringProperty getLanguageDependentName() {
+            return simpleNameProperty();
+        }
+
+        @Override
+        public String toString() {
+            return simpleNameProperty().get();
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 59 * hash + Objects.hashCode(this.clazz);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ObjectType other = (ObjectType) obj;
+            return Objects.equals(this.clazz, other.clazz);
+        }
+
+        @Override
+        public void onDelete(Runnable runnable) {
+            onDelete.add(runnable);
+        }
     }
 
 }

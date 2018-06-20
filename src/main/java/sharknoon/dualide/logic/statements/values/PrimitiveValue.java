@@ -17,11 +17,8 @@ package sharknoon.dualide.logic.statements.values;
 
 import java.util.Objects;
 
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
@@ -34,14 +31,14 @@ import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
  * @author Josua Frank
  * @param <T>
  */
-public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<PrimitiveType> {
+public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T> {
 
     public PrimitiveValue(T type, Statement parent) {
         super(type, parent);
     }
 
     @Override
-    public Value<PrimitiveType> calculateResult() {
+    public Value<T> calculateResult() {
         return this;
     }
 
@@ -53,7 +50,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
         return new NumberValue(value, parent);
     }
 
-    public static class NumberValue<Void> extends PrimitiveValue<NumberType, Double> {
+    public static class NumberValue extends PrimitiveValue<NumberType, Double> {
 
         private final ObjectProperty<Double> number = new SimpleObjectProperty<>(0.0);
 
@@ -102,7 +99,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final NumberValue<?> other = (NumberValue<?>) obj;
+            final NumberValue other = (NumberValue) obj;
             return Objects.equals(this.number.get(), other.number.get());
         }
 
@@ -110,11 +107,11 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
 
     }
 
-    public static TextValue createNewTextalue(String value, Statement parent) {
+    public static TextValue createNewTextValue(String value, Statement parent) {
         return new TextValue(value, parent);
     }
 
-    public static class TextValue<Void> extends PrimitiveValue<TextType, String> {
+    public static class TextValue extends PrimitiveValue<TextType, String> {
 
         private final ObjectProperty<String> text = new SimpleObjectProperty<>("");
 
@@ -162,7 +159,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final TextValue<?> other = (TextValue<?>) obj;
+            final TextValue other = (TextValue) obj;
             return Objects.equals(this.text.get(), other.text.get());
         }
     }
@@ -171,7 +168,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
         return new BooleanValue(value, parent);
     }
 
-    public static class BooleanValue<Void> extends PrimitiveValue<BooleanType, Boolean> {
+    public static class BooleanValue extends PrimitiveValue<BooleanType, Boolean> {
 
         private final ObjectProperty<Boolean> bool = new SimpleObjectProperty<>(false);
 
@@ -219,7 +216,7 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<P
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final BooleanValue<?> other = (BooleanValue<?>) obj;
+            final BooleanValue other = (BooleanValue) obj;
             return Objects.equals(this.bool.get(), other.bool.get());
         }
     }

@@ -22,7 +22,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -90,8 +89,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     private final Map<Dot, Boolean> dots;
     //The Functionsite this block counts to
     private final FunctionSite functionSite;
-    //The current state of the block
-    private boolean selected;
     //The contextmenu for a block
     private final BlockContextMenu menu = new BlockContextMenu(this);
     //The hoverListener for the blockshape and the dotShapes
@@ -99,10 +96,14 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     //Just some handy variables, see BlockMoving
     public double startX;
     public double startY;
+    //The current state of the block
+    private boolean selected;
+    private boolean showsPlaceholder = true;
 
     public Block(FunctionSite functionSite) {
         this(functionSite, UUID.randomUUID().toString());
     }
+
 
     public Block(FunctionSite functionSite, String id) {
         this.functionSite = functionSite;
@@ -121,9 +122,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
         hoverBinding = initHoverListeners(blockShape, dots.keySet());
-        hoverBinding.addListener((observable, oldValue, newValue) -> {
-            Blocks.hoverOverBlockProperty(functionSite).set(newValue);
-        });
+        hoverBinding.addListener((observable, oldValue, newValue) -> Blocks.hoverOverBlockProperty(functionSite).set(newValue));
         this.predictionShadowShape = createPredictionShadow(blockShape);
         MouseConsumable.registerListeners(blockShape, this);
         MouseConsumable.registerListeners(blockTextFlow, this);
@@ -140,6 +139,52 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         Blocks.registerBlock(functionSite, this);
     }
 
+    private static Shape createPredictionShadow(Shape original) {
+        var shadow = Shape.union(original, original);
+        shadow.setFill(Color.rgb(0, 0, 0, 0));
+        shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
+        shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
+        shadow.setStrokeType(StrokeType.INSIDE);
+        shadow.setEffect(null);
+        return shadow;
+    }
+
+    private static void addDropShadowEffect(Shape shape) {
+        var dropShadow = new DropShadow();
+        dropShadow.setSpread(0.5);
+        dropShadow.setRadius(0.0);
+        dropShadow.setColor(UISettings.BLOCK_SELECTION_SHADOW_COLOR);
+        shape.setEffect(dropShadow);
+    }
+
+    private static Map<Dot, Boolean> initDots(Block block, Side[] outputSides, Side[] inputSides) {
+        Map<Dot, Boolean> result = new HashMap<>();
+        for (var outputSide : outputSides) {
+            var dot = new Dot(outputSide, block, false);
+            result.put(dot, true);
+        }
+        for (var dotInputSide : inputSides) {
+            var dot = new Dot(dotInputSide, block, true);
+            result.put(dot, false);
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
+        ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
+        list.add(shape.hoverProperty());
+        dots.forEach((dot) -> list.add(dot.getShape().hoverProperty()));
+        return EasyBind.combine(
+                list,
+                stream -> stream.reduce((a, b) -> a || b).orElse(false)
+        );
+    }
+
+    private static void setStrokeProperties(Shape shape) {
+        shape.setStroke(UISettings.BLOCK_BORDER_STROKE_COLOR);
+        shape.setStrokeWidth(UISettings.BLOCK_BORDER_STROKE_WIDTH);
+        shape.setStrokeType(StrokeType.CENTERED);
+    }
 
     /**
      * Gets the height of the block
@@ -181,57 +226,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
      */
     public abstract Pane initBody();
 
-    private static Shape createPredictionShadow(Shape original) {
-        var shadow = Shape.union(original, original);
-        shadow.setFill(Color.rgb(0, 0, 0, 0));
-        shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
-        shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
-        shadow.setStrokeType(StrokeType.INSIDE);
-        shadow.setEffect(null);
-        return shadow;
-    }
-
-    private static void addDropShadowEffect(Shape shape) {
-        var dropShadow = new DropShadow();
-        dropShadow.setSpread(0.5);
-        dropShadow.setRadius(0.0);
-        dropShadow.setColor(UISettings.BLOCK_SELECTION_SHADOW_COLOR);
-        shape.setEffect(dropShadow);
-    }
-
-    private static Map<Dot, Boolean> initDots(Block block, Side[] outputSides, Side[] inputSides) {
-        Map<Dot, Boolean> result = new HashMap<>();
-        for (var outputSide : outputSides) {
-            var dot = new Dot(outputSide, block, false);
-            result.put(dot, true);
-        }
-        for (var dotInputSide : inputSides) {
-            var dot = new Dot(dotInputSide, block, true);
-            result.put(dot, false);
-        }
-        return Collections.unmodifiableMap(result);
-    }
-
-
-    private static Binding<Boolean> initHoverListeners(Shape shape, Collection<Dot> dots) {
-        ObservableList<ReadOnlyBooleanProperty> list = FXCollections.observableArrayList();
-        list.add(shape.hoverProperty());
-        dots.forEach((dot) -> {
-            list.add(dot.getShape().hoverProperty());
-        });
-        return EasyBind.combine(
-                list,
-                stream -> stream.reduce((a, b) -> a || b).orElse(false)
-        );
-    }
-
-
-    private static void setStrokeProperties(Shape shape) {
-        shape.setStroke(UISettings.BLOCK_BORDER_STROKE_COLOR);
-        shape.setStrokeWidth(UISettings.BLOCK_BORDER_STROKE_WIDTH);
-        shape.setStrokeType(StrokeType.CENTERED);
-    }
-
     private TextFlow initTextFlow() {
         TextFlow result = new TextFlow();
         Bindings.bindContent(result.getChildren(), blockText);
@@ -239,7 +233,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         result.translateYProperty().bind(heightExpression().divide(2).subtract(result.heightProperty().divide(2)));
         return result;
     }
-
 
     @Override
     public void onMousePressed(MouseEvent event) {
@@ -303,7 +296,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     /**
      * @return The prediction shadow of the block
      */
-    public Shape getShadow() {
+    Shape getShadow() {
         return predictionShadowShape;
     }
 
@@ -311,12 +304,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         return id;
     }
 
-    @Override
-    public void setMinX(double x) {
-        root.setTranslateX(x);
-    }
-
-    public void setMinXAnimated(double x) {
+    void setMinXAnimated(double x) {
         movingXTimeline.getKeyFrames().clear();
         movingXTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
@@ -329,12 +317,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         movingXTimeline.play();
     }
 
-    @Override
-    public void setMinY(double y) {
-        root.setTranslateY(y);
-    }
-
-    public void setMinYAnimated(double y) {
+    void setMinYAnimated(double y) {
         movingYTimeline.getKeyFrames().clear();
         movingYTimeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO,
@@ -353,6 +336,11 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     }
 
     @Override
+    public void setMinX(double x) {
+        root.setTranslateX(x);
+    }
+
+    @Override
     public DoubleExpression minXExpression() {
         return root.translateXProperty();
     }
@@ -360,6 +348,11 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     @Override
     public double getMinY() {
         return root.getTranslateY();
+    }
+
+    @Override
+    public void setMinY(double y) {
+        root.setTranslateY(y);
     }
 
     @Override
@@ -426,15 +419,14 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
      * @param y               the y coordinate
      * @param ignoreSelection true = ignores selection (default), false = has to
      *                        be unselected, because selected ones are dragged all together
-     * @return
+     * @return true, if the block can move, false otherwise
      */
-    public boolean canMoveTo(double x, double y, boolean ignoreSelection) {
+    boolean canMoveTo(double x, double y, boolean ignoreSelection) {
         Bounds newBounds = new BoundingBox(x, y, getWidth(), getHeight());
-        var noBlock = Blocks
+        return Blocks
                 .getAllBlocks(functionSite)
                 .filter(b -> ignoreSelection || !b.isSelected())
                 .noneMatch(block -> block != this && newBounds.intersects(block.getBounds()));
-        return noBlock;
     }
 
     /**
@@ -581,7 +573,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         return dots.keySet();
     }
 
-    public Stream<Dot> getInputDots() {
+    private Stream<Dot> getInputDots() {
         return dots.entrySet().stream().filter(e -> !e.getValue()).map(Entry::getKey);
     }
 
@@ -596,8 +588,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     public Optional<Dot> getOutputDot(Side side) {
         return getOutputDots().filter(d -> d.getSide() == side).findAny();
     }
-
-    private boolean showsPlaceholder = true;
 
     private void showContentBody() {
         if (!showsPlaceholder) {
@@ -618,8 +608,23 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Block<?> block = (Block<?>) o;
+
+        return id.equals(block.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
     public String toString() {
-        return "Block{" + "id=" + id + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
+        return getClass().getSimpleName() + "{" + "id=" + id + ", shapeHeight=" + shapeHeight + ", shapeWidth=" + shapeWidth + ", selected=" + selected + ", startX=" + startX + ", startY=" + startY + '}';
     }
 
 }

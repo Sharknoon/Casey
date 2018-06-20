@@ -52,20 +52,20 @@ public abstract class Type<T extends Type, V extends Value> {
                 .or(() -> ObjectType.forName(name));
     }
 
-    public abstract StringProperty getSimpleName();
+    public abstract StringProperty simpleNameProperty();
 
-    public abstract StringProperty getFullName();
+    public abstract StringProperty fullNameProperty();
 
     public abstract Icon getIcon();
 
     public abstract Icon getCreationIcon();
 
-    public abstract StringProperty getCreationText();
+    public abstract StringProperty creationTextProperty();
 
     /**
      * Language dependent name, e.g. Nummer in german for Number
      *
-     * @return
+     * @return A property for type name, which changes when the language changes
      */
     public abstract StringProperty getLanguageDependentName();
 

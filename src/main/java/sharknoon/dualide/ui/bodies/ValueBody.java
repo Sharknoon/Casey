@@ -49,7 +49,7 @@ public class ValueBody extends Body<Value> {
 
     private static final Insets MARGIN = new Insets(10);
 
-    public ValueBody(Value value) {
+    ValueBody(Value value) {
         super(value);
         Node content = createContentNode(value);
         setContent(content);
@@ -69,7 +69,7 @@ public class ValueBody extends Body<Value> {
             NumberValue val2 = (NumberValue) value;
             Spinner<Double> spinnerValue = new Spinner<>(-Double.MAX_VALUE, Double.MAX_VALUE, Double.NaN);
             StackPane.setMargin(spinnerValue, MARGIN);
-            spinnerValue.getValueFactory().setConverter(new StringConverter<Double>() {
+            spinnerValue.getValueFactory().setConverter(new StringConverter<>() {
                 @Override
                 public String toString(Double value) {
                     // If the specified value is null, return a zero-length String
@@ -97,8 +97,8 @@ public class ValueBody extends Body<Value> {
                             return 0.0;
                         }
 
-                        value = value.replaceAll("[^0-9\\.-]", "");
-                        
+                        value = value.replaceAll("[^0-9.-]", "");
+
                         // Perform the requested parsing
                         return Double.parseDouble(value);
                     } catch (NumberFormatException ex) {
@@ -119,10 +119,10 @@ public class ValueBody extends Body<Value> {
             textFieldValue.textProperty().bindBidirectional(val3.valueProperty());
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {
-            ObjectValue<?> val4 = (ObjectValue) value;
+            ObjectValue val4 = (ObjectValue) value;
             Text textType = new Text();
             StackPane.setMargin(textType, MARGIN);
-            textType.textProperty().bind(val4.getReturnType().getSimpleName());
+            textType.textProperty().bind(val4.getReturnType().simpleNameProperty());
             textType.setFill(Color.BLACK);
             return textType;
         }

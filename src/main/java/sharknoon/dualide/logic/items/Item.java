@@ -244,7 +244,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return fullNameProperty().get();
     }
 
-    public Site getSite() {
+    public Site<I> getSite() {
         return siteProperty().get();
     }
 

@@ -45,7 +45,7 @@ public class FunctionSiteParameters {
     private final FunctionSite functionSite;
     private Pane paneRoot;
 
-    public FunctionSiteParameters(FunctionSite functionSite) {
+    FunctionSiteParameters(FunctionSite functionSite) {
         this.functionSite = functionSite;
     }
 
@@ -106,16 +106,12 @@ public class FunctionSiteParameters {
 
                 var buttonComment = SiteUtils.createButton(wordComment, Icon.COMMENTS, (t) -> {
                     var comments = Dialogs.showTextEditorDialog(dialogComment, par.getComments());
-                    if (comments.isPresent()) {
-                        par.commentsProperty().set(comments.get());
-                    }
+                    comments.ifPresent(s -> par.commentsProperty().set(s));
                 }, false, true);
 
                 var buttonRename = SiteUtils.createButton(wordRename, Icon.RENAME, (t) -> {
                     Optional<String> name = Dialogs.showTextInputDialog(dialogRename, par.getName(), getForbittenParameterNames(par.getName()), null);
-                    if (name.isPresent()) {
-                        par.nameProperty().set(name.get());
-                    }
+                    name.ifPresent(s -> par.nameProperty().set(s));
                 }, false, true);
 
                 var buttonDelete = SiteUtils.createButton(wordDelete, Icon.TRASH, (t) -> {
@@ -152,7 +148,7 @@ public class FunctionSiteParameters {
         var buttonAddParamter = SiteUtils.createButton(wordAddParameter, Icon.PLUSVARIABLE, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(dialogAddParameter, getForbittenParameterNames(), null);
             if (name.isPresent()) {
-                Function.Parameter par = new Function.Parameter(name.get(), PrimitiveType.TEXT, "");
+                Function.Parameter par = new Function.Parameter(name.get(), PrimitiveType.TEXT, "", functionSite.getItem());
                 functionSite.getItem().getParameters().add(par);
             }
         }, true, true);
@@ -165,12 +161,12 @@ public class FunctionSiteParameters {
     }
 
     private Set<String> getForbittenParameterNames(String ignoreMe) {
-        Set<String> set = (Set<String>) functionSite
+        Set<String> set = functionSite
                 .getItem()
                 .getParameters()
                 .stream()
-                .map(i -> i.getName())
-                .filter(n -> ignoreMe == null || !n.equals(ignoreMe))
+                .map(Function.Parameter::getName)
+                .filter(n -> !n.equals(ignoreMe))
                 .collect(Collectors.toSet());
         set.addAll(PrimitiveType.getForbiddenNames());
         return set;

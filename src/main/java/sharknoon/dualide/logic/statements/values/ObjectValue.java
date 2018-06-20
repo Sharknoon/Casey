@@ -22,9 +22,8 @@ import sharknoon.dualide.logic.items.Class.ObjectType;
 /**
  *
  * @author Josua Frank
- * @param <Void>
  */
-public class ObjectValue<Void> extends Value<ObjectType> {
+public class ObjectValue extends Value<ObjectType> {
 
     public static ObjectValue createObject(ObjectType type, Statement parent) {
         return new ObjectValue(type, parent);
@@ -41,7 +40,7 @@ public class ObjectValue<Void> extends Value<ObjectType> {
 
     @Override
     public String toString() {
-        return getReturnType().getSimpleName().get();
+        return getReturnType().simpleNameProperty().get();
     }
 
     @Override
@@ -61,7 +60,7 @@ public class ObjectValue<Void> extends Value<ObjectType> {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final ObjectValue<?> other = (ObjectValue<?>) obj;
+            final ObjectValue other = (ObjectValue) obj;
             return Objects.equals(this.getReturnType(), other.getReturnType());
             //TODO implement methods and paramteres
         }

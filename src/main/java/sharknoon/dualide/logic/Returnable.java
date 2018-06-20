@@ -21,8 +21,8 @@ import sharknoon.dualide.logic.types.Type;
  *
  * @author Josua Frank
  */
-public interface Returnable {
+public interface Returnable<T extends Type> {
 
-    public Type getReturnType();
+    T getReturnType();
 
 }

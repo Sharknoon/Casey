@@ -15,9 +15,7 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import java.util.*;
-import java.util.function.Consumer;
-
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -27,11 +25,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -43,6 +39,9 @@ import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Josua Frank
@@ -61,6 +60,8 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_COMMENT_BUTTON_TEXT;
             case VARIABLE:
                 return Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT;
+            case PARAMETER:
+                return Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT;
             case WELCOME:
             default:
                 return Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT;
@@ -79,6 +80,8 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_RENAME_BUTTON_TEXT;
             case VARIABLE:
                 return Word.VARIABLE_SITE_RENAME_BUTTON_TEXT;
+            case PARAMETER:
+                return Word.PARAMETER_SITE_RENAME_BUTTON_TEXT;
             case WELCOME:
             default:
                 return Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT;
@@ -97,6 +100,8 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_DELETE_BUTTON_TEXT;
             case VARIABLE:
                 return Word.VARIABLE_SITE_DELETE_BUTTON_TEXT;
+            case PARAMETER:
+                return Word.PARAMETER_SITE_DELETE_BUTTON_TEXT;
             case WELCOME:
             default:
                 return Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT;
@@ -115,6 +120,8 @@ public class SiteUtils {
                 return Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT;
             case VARIABLE:
                 return Word.PACKAGE_SITE_ADD_VARIABLE_BUTTON_TEXT;
+            case PARAMETER:
+                return Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT;
             case WELCOME:
             default:
                 return Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT;
@@ -133,6 +140,8 @@ public class SiteUtils {
                 return Dialogs.TextInputs.NEW_PROJECT_DIALOG;
             case VARIABLE:
                 return Dialogs.TextInputs.NEW_VARIABLE_DIALOG;
+            case PARAMETER:
+                return Dialogs.TextInputs.NEW_PARAMETER_DIALOG;
             case WELCOME:
             default:
                 return Dialogs.TextInputs.NEW_TEXT_VALUE;
@@ -151,6 +160,8 @@ public class SiteUtils {
                 return Dialogs.TextEditors.COMMENT_PROJECT_DIALOG;
             case VARIABLE:
                 return Dialogs.TextEditors.COMMENT_VARIABLE_DIALOG;
+            case PARAMETER:
+                return Dialogs.TextEditors.COMMENT_PARAMETER_DIALOG;
             case WELCOME:
             default:
                 return Dialogs.TextEditors.COMMENT_PROJECT_DIALOG;
@@ -169,6 +180,8 @@ public class SiteUtils {
                 return Dialogs.TextInputs.RENAME_PROJECT_DIALOG;
             case VARIABLE:
                 return Dialogs.TextInputs.RENAME_VARIABLE_DIALOG;
+            case PARAMETER:
+                return Dialogs.TextInputs.RENAME_PARAMETER_DIALOG;
             case WELCOME:
             default:
                 return Dialogs.TextInputs.RENAME_PROJECT_DIALOG;
@@ -187,6 +200,8 @@ public class SiteUtils {
                 return Dialogs.Confirmations.DELETE_PROJECT_DIALOG;
             case VARIABLE:
                 return Dialogs.Confirmations.DELETE_VARIABLE_DIALOG;
+            case PARAMETER:
+                return Dialogs.Confirmations.DELETE_PARAMETER_DIALOG;
             case WELCOME:
             default:
                 return Dialogs.Confirmations.DELETE_PROJECT_DIALOG;
@@ -204,6 +219,8 @@ public class SiteUtils {
             case PROJECT:
                 return Icon.PLUSPROJECT;
             case VARIABLE:
+                return Icon.PLUSVARIABLE;
+            case PARAMETER:
                 return Icon.PLUSVARIABLE;
             case WELCOME:
             default:
@@ -254,7 +271,7 @@ public class SiteUtils {
         var wordRename = getRenameWord(item.getType());
         var dialogRename = getRenameDialog(item.getType());
         var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(dialogRename, item.getName(), item.getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()),null);
+            Optional<String> name = Dialogs.showTextInputDialog(dialogRename, item.getName(), item.getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()), null);
             if (name.isPresent()) {
                 item.setName(name.get());
             }
@@ -312,8 +329,11 @@ public class SiteUtils {
             for (Item<?, ?, ?> c : childs) {
                 Runnable onClick = () -> c.getSite().select();
 
-                var icon = Icons.get(c.getSite().getTabIcon(), 50);
+                var icon = new ImageView();
+                icon.setPreserveRatio(true);
+                icon.setFitHeight(50);
                 icon.setOnMouseClicked(e -> onClick.run());
+                icon.imageProperty().bind( Icons.iconToImageProperty(c.getSite().tabIconProperty()));
 
                 var textName = new Text();
                 var shadowEffect = new DropShadow(10, Color.WHITESMOKE);
@@ -339,14 +359,14 @@ public class SiteUtils {
                 }, false, true);
 
                 var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
-                    Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()),null);
+                    Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()), null);
                     if (name.isPresent()) {
                         c.setName(name.get());
                     }
                 }, false, true);
 
                 var buttonDelete = createButton(wordDelete, Icon.TRASH, (t) -> {
-                    var confirmed = Dialogs.showConfirmationDialog(dialogDelete, Map.of( c.getType().name(), c.getName()));
+                    var confirmed = Dialogs.showConfirmationDialog(dialogDelete, Map.of(c.getType().name(), c.getName()));
                     if (confirmed.isPresent() && confirmed.get()) {
                         c.destroy();
                     }

@@ -146,7 +146,7 @@ public class Radio implements Exitable {
             } catch (IOException ex) {
                 Logger.error("Could not stream radio from network", ex);
             } catch (LineUnavailableException ex) {
-                Logger.error("Cant get sourcedataline to play back the radio", ex);
+                Logger.error("Cant iconToNodeProperty sourcedataline to play back the radio", ex);
             } catch (NullPointerException ex) {
                 Logger.error("Nullpointer during radio playback", ex);
             } catch (SecurityException ex) {

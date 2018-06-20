@@ -18,10 +18,7 @@ package sharknoon.dualide.logic.items;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,18 +29,19 @@ import javafx.collections.ObservableMap;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.sites.variable.VariableSite;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
- *
  * @author Josua Frank
  */
-public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> implements Returnable {
+public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> implements Returnable<Type> {
 
-    private final ObjectProperty<Type> type = new SimpleObjectProperty<>(PrimitiveType.TEXT);
     private static final String TYPE = "type";
-    private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
     private static final String MODIFIABLE = "modifiable";
-
     private static final ObservableMap<Type, List<Variable>> VARIABLES = FXCollections.observableHashMap();
 
     static {
@@ -53,6 +51,9 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
             }
         });
     }
+
+    private final ObjectProperty<Type> type = new SimpleObjectProperty<>(PrimitiveType.TEXT);
+    private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
 
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         super(parent, name);
@@ -65,6 +66,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
             }
             VARIABLES.get(newValue).add(this);
         });
+        getSite().afterInit();
     }
 
     static Map<Type, List<Variable>> getAllVariables() {
@@ -110,4 +112,15 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
         return type.get();
     }
 
+    public boolean isInFunction() {
+        return isIn(ItemType.FUNCTION);
+    }
+
+    public boolean isInClass() {
+        return isIn(ItemType.CLASS);
+    }
+
+    public boolean isInPackage(){
+        return isIn(ItemType.PACKAGE);
+    }
 }

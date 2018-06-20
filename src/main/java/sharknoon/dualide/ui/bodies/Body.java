@@ -15,12 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,15 +28,21 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.javafx.FXUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Helper class
@@ -55,17 +55,12 @@ public abstract class Body<S extends Statement> extends Group {
     private final S statement;
     private final StackPane contentPane = new StackPane();
     private final Shape backgroundShape;
+    private final List<Consumer<MouseEvent>> onMouseEntered = new ArrayList<>();
+    private final List<Consumer<MouseEvent>> onMouseExited = new ArrayList<>();
+    private Node previousCloseIcon;
+    private List<Runnable> onDestroy;
 
-    public static final Body createBody(Statement statement) {
-        if (statement instanceof Operator) {
-            return new OperatorBody((Operator) statement);
-        } else if (statement instanceof Value) {
-            return new ValueBody((Value) statement);
-        }
-        return null;
-    }
-
-    public Body(S statement) {
+    Body(S statement) {
         super();
         this.statement = statement;
         this.backgroundShape = createOuterShape(statement.getReturnType());
@@ -73,7 +68,7 @@ public abstract class Body<S extends Statement> extends Group {
         super.getChildren().addAll(backgroundShape, contentPane);
     }
 
-    public Body(Collection<? extends Type> types) {
+    Body(Collection<? extends Type> types) {
         super();
         this.statement = null;
         this.backgroundShape = createOuterShape(types);
@@ -81,113 +76,13 @@ public abstract class Body<S extends Statement> extends Group {
         super.getChildren().addAll(backgroundShape, contentPane);
     }
 
-    private void init() {
-        contentPane.setMinSize(57, 57);
-        initCloseButton();
-        initPlusButton();
-        initMinusButton();
-        initListeners();
-    }
-
-    private void initCloseButton() {
-        Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
-        closeIcon.setOnMouseClicked((event) -> {
-            if (statement != null) {
-                statement.destroy();
-            }
-        });
-        closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-        closeIcon.setLayoutY(0);
-        closeIcon.setVisible(false);
-        getChildren().add(closeIcon);
-        onMouseEntered((event) -> {
-            closeIcon.setVisible(true);
-            closeIcon.toFront();
-        });
-        onMouseExited((event) -> {
-            closeIcon.setVisible(false);
-        });
-    }
-
-    private void initPlusButton() {
-        if (this instanceof OperatorBody) {
-            Operator operator = (Operator) getStatement().get();
-            if (operator.isExtensible()) {
-                Node addIcon = Icons.get(Icon.PLUSROUND, 25);
-                addIcon.setOnMouseClicked((event) -> {
-                    ((OperatorBody) this).extend();
-                });
-                addIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-                addIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
-                addIcon.setVisible(false);
-                getChildren().add(addIcon);
-                onMouseEntered((event) -> {
-                    addIcon.setVisible(true);
-                    addIcon.toFront();
-                });
-                onMouseExited((event) -> {
-                    addIcon.setVisible(false);
-                });
-            }
+    public static Body createBody(Statement statement) {
+        if (statement instanceof Operator) {
+            return new OperatorBody((Operator) statement);
+        } else if (statement instanceof Value) {
+            return new ValueBody((Value) statement);
         }
-    }
-
-    private void initMinusButton() {
-        if (this instanceof OperatorBody) {
-            Operator operator = (Operator) getStatement().get();
-            if (operator.isExtensible()) {
-                Node removeIcon = Icons.get(Icon.MINUSROUND, 25);
-                removeIcon.setOnMouseClicked((event) -> {
-                    ((OperatorBody) this).reduce();
-                });
-                removeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-                removeIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
-                removeIcon.setVisible(false);
-                getChildren().add(removeIcon);
-                onMouseEntered((event) -> {
-                    removeIcon.visibleProperty().bind(operator.parameterAmountProperty().greaterThan(operator.getMinimumParameterAmount()));
-                    removeIcon.toFront();
-                });
-                onMouseExited((event) -> {
-                    removeIcon.visibleProperty().unbind();
-                    removeIcon.setVisible(false);
-                });
-            }
-        }
-    }
-
-    private Node previousCloseIcon;
-
-    private void setCurrentCloseIcon(Node newCloseIcon) {
-        if (previousCloseIcon != null) {
-            previousCloseIcon.setVisible(false);
-        }
-        previousCloseIcon = newCloseIcon;
-    }
-
-    private final List<Consumer<MouseEvent>> onMouseEntered = new ArrayList<>();
-
-    private void onMouseEntered(Consumer<MouseEvent> event) {
-        onMouseEntered.add(event);
-    }
-
-    private final List<Consumer<MouseEvent>> onMouseExited = new ArrayList<>();
-
-    private void onMouseExited(Consumer<MouseEvent> event) {
-        onMouseExited.add(event);
-    }
-
-    private void initListeners() {
-        setOnMouseEntered((event) -> {
-            onMouseEntered.forEach(c -> c.accept(event));
-        });
-        setOnMouseExited((event) -> {
-            onMouseExited.forEach(c -> c.accept(event));
-        });
-    }
-
-    public Optional<S> getStatement() {
-        return Optional.ofNullable(statement);
+        return null;
     }
 
     /**
@@ -220,6 +115,109 @@ public abstract class Body<S extends Statement> extends Group {
                     parentHeight / 2, parentHeight
             );
         }
+    }
+
+    private void init() {
+        contentPane.setMinSize(57, 57);
+        initCloseButton();
+        initPlusButton();
+        initMinusButton();
+        initListeners();
+    }
+
+    private void initCloseButton() {
+        Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
+        closeIcon.setOnMouseClicked((event) -> {
+            if (statement != null) {
+                statement.destroy();
+            }
+        });
+        closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+        closeIcon.setLayoutY(0);
+        closeIcon.setVisible(false);
+        getChildren().add(closeIcon);
+        onMouseEntered((event) -> {
+            closeIcon.setVisible(true);
+            closeIcon.toFront();
+        });
+        onMouseExited((event) -> {
+            closeIcon.setVisible(false);
+        });
+    }
+
+    private void initPlusButton() {
+        if (this instanceof OperatorBody) {
+            Operator operator = (Operator) getStatement().orElse(null);
+            if (operator != null && operator.isExtensible()) {
+                Node addIcon = Icons.get(Icon.PLUSROUND, 25);
+                addIcon.setOnMouseClicked((event) -> {
+                    ((OperatorBody) this).extend();
+                });
+                addIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+                addIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
+                addIcon.setVisible(false);
+                getChildren().add(addIcon);
+                onMouseEntered((event) -> {
+                    addIcon.setVisible(true);
+                    addIcon.toFront();
+                });
+                onMouseExited((event) -> {
+                    addIcon.setVisible(false);
+                });
+            }
+        }
+    }
+
+    private void initMinusButton() {
+        if (this instanceof OperatorBody) {
+            Operator operator = (Operator) getStatement().orElse(null);
+            if (operator != null && operator.isExtensible()) {
+                Node removeIcon = Icons.get(Icon.MINUSROUND, 25);
+                removeIcon.setOnMouseClicked((event) -> {
+                    ((OperatorBody) this).reduce();
+                });
+                removeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+                removeIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
+                removeIcon.setVisible(false);
+                getChildren().add(removeIcon);
+                onMouseEntered((event) -> {
+                    removeIcon.visibleProperty().bind(operator.parameterAmountProperty().greaterThan(operator.getMinimumParameterAmount()));
+                    removeIcon.toFront();
+                });
+                onMouseExited((event) -> {
+                    removeIcon.visibleProperty().unbind();
+                    removeIcon.setVisible(false);
+                });
+            }
+        }
+    }
+
+    private void setCurrentCloseIcon(Node newCloseIcon) {
+        if (previousCloseIcon != null) {
+            previousCloseIcon.setVisible(false);
+        }
+        previousCloseIcon = newCloseIcon;
+    }
+
+    private void onMouseEntered(Consumer<MouseEvent> event) {
+        onMouseEntered.add(event);
+    }
+
+    private void onMouseExited(Consumer<MouseEvent> event) {
+        onMouseExited.add(event);
+    }
+
+    private void initListeners() {
+        setOnMouseEntered((event) -> {
+            onMouseEntered.forEach(c -> c.accept(event));
+        });
+        setOnMouseExited((event) -> {
+            onMouseExited.forEach(c -> c.accept(event));
+        });
+    }
+
+    public Optional<S> getStatement() {
+        return Optional.ofNullable(statement);
     }
 
     private Shape createOuterShape(Type type) {
@@ -289,20 +287,18 @@ public abstract class Body<S extends Statement> extends Group {
         return shape;
     }
 
+    public List<Node> getContent() {
+        return contentPane.getChildren();
+    }
+
     public void setContent(Node... node) {
         contentPane.getChildren().clear();
         contentPane.getChildren().addAll(node);
     }
 
-    public List<Node> getContent() {
-        return contentPane.getChildren();
-    }
-
-    public ReadOnlyDoubleProperty heightProperty() {
+    ReadOnlyDoubleProperty heightProperty() {
         return contentPane.heightProperty();
     }
-
-    private List<Runnable> onDestroy;
 
     public void setOnBodyDestroyed(Runnable runnable) {
         if (onDestroy == null) {
@@ -333,8 +329,8 @@ public abstract class Body<S extends Statement> extends Group {
             bracketClose.setFill(random);
             text.add(bracketOpen);
             if (childs.size() > 1) {//infix
-                childs.stream().forEach((child) -> {
-                    List<Text> par = child != null?child.getBody().toText():List.of(new Text(String.valueOf((Object)null)));
+                childs.forEach((child) -> {
+                    List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
                     text.addAll(par);
                     Text op = new Text(String.valueOf(((Operator) statement).getOperatorType()));
                     text.add(op);

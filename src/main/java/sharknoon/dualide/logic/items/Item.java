@@ -16,33 +16,21 @@
 package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.collection.Collections;
 
+import java.util.*;
+
 /**
- *
- * @author Josua Frank
  * @param <I> The type of the item itself
  * @param <P> The type of the parent item
  * @param <C> The type of the children, only useful for the type project and
- * welcome
+ *            welcome
+ * @author Josua Frank
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
@@ -54,6 +42,16 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     //DO NOT CHANGE ORDER!!!
     private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
     private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
+
+    protected Item(P parent, String name) {
+        parentProperty().set(parent);
+        if (name != null) {
+            nameProperty().set(name);
+        }
+        if (parentProperty().get() != null) {
+            parentProperty().get().childrenProperty().add(this);
+        }
+    }
 
     public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name) {
         return createItem(itemType, parent, name, false);
@@ -92,21 +90,14 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
             case WELCOME:
                 item = (ITEM) new Welcome(null, name);
                 break;
+            case PARAMETER:
+                item = (ITEM) new Parameter(parent, name);
+                break;
         }
         if (item != null && select) {
             item.getSite().select();
         }
         return item;
-    }
-
-    protected Item(P parent, String name) {
-        parentProperty().set(parent);
-        if (name != null) {
-            nameProperty().set(name);
-        }
-        if (parentProperty().get() != null) {
-            parentProperty().get().childrenProperty().add(this);
-        }
     }
 
     public void move(P newParent) {
@@ -246,6 +237,17 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
 
     public Site<I> getSite() {
         return siteProperty().get();
+    }
+
+    public boolean isIn(ItemType parentType) {
+        if (!getParent().isPresent()) {
+            return false;
+        }
+        return getParent()
+                .map(Item::getType)
+                .filter(it -> it == parentType)
+                .isPresent()
+                || getParent().get().isIn(parentType);
     }
 
 }

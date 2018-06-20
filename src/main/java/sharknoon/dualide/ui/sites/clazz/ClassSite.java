@@ -16,6 +16,9 @@
 package sharknoon.dualide.ui.sites.clazz;
 
 import java.util.concurrent.CompletableFuture;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.ui.sites.Site;
@@ -31,6 +34,7 @@ import sharknoon.dualide.ui.sites.SiteUtils;
 public class ClassSite extends Site<Class> {
 
     private Pane paneRoot;
+    private static ObjectProperty<Icon> icon = new SimpleObjectProperty<>(Icon.CLASS);
 
     public ClassSite(Class item) {
         super(item);
@@ -51,8 +55,8 @@ public class ClassSite extends Site<Class> {
     }
 
     @Override
-    public Icon getTabIcon() {
-        return Icon.CLASS;
+    public ObjectProperty<Icon> tabIconProperty() {
+        return icon;
     }
 
     @Override

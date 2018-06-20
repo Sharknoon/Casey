@@ -310,7 +310,7 @@ public class Logger {
 
     private static final HashMap<Integer, String> SPACES = new HashMap<>();
 
-    //Fast Method to get a amount of blanks as a String
+    //Fast Method to iconToNodeProperty a amount of blanks as a String
     private static String getBlanks(int amount) {
         if (SPACES.containsKey(amount)) {
             return SPACES.get(amount);

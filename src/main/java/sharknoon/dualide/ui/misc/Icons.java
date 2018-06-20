@@ -16,22 +16,25 @@
 package sharknoon.dualide.ui.misc;
 
 import afester.javafx.svg.SvgLoader;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Resources;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 /**
- *
  * @author Josua Frank
  */
 public class Icons {
@@ -39,6 +42,9 @@ public class Icons {
     private static final double DEFAULT_SIZE = 30;
     private static final double DEFAULT_PADDING = 3;
     private static final Insets DEFAULT_PADDING_INSETS = new Insets(DEFAULT_PADDING);
+    private static final Map<Icon, Image> IMAGE_CACHE = new HashMap<>();
+    private static final Map<Icon, Group> SVG_CACHE = new HashMap<>();
+    private static final SvgLoader SVG_LOADER = new SvgLoader();
 
     public static Node get(Icon icon) {
         return get(icon, DEFAULT_SIZE);
@@ -46,6 +52,26 @@ public class Icons {
 
     public static Node get(Icon icon, double size) {
         return create(icon, size);
+    }
+
+    public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon) {
+        return iconToNodeProperty(icon, DEFAULT_SIZE);
+    }
+
+    public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon, double size) {
+        ObjectProperty<Node> result = new SimpleObjectProperty<>();
+        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> Platform.runLater(() -> result.set(get(newValue, size)));
+        icon.addListener(listener);
+        listener.changed(icon, null, icon.get());
+        return result;
+    }
+
+    public static ObjectProperty<Image> iconToImageProperty(ObjectProperty<Icon> icon){
+        ObjectProperty<Image> result = new SimpleObjectProperty<>();
+        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> Platform.runLater(() -> result.set(getImage(newValue).orElse(null)));
+        icon.addListener(listener);
+        listener.changed(icon, null, icon.get());
+        return result;
     }
 
     public static void set(Icon icon, Labeled labeled) {
@@ -64,13 +90,10 @@ public class Icons {
         valueSetter.setValue(create(icon, size));
     }
 
-    private static final Map<Icon, Image> IMAGE_CACHE = new HashMap<>();
-    private static final Map<Icon, Group> SVG_CACHE = new HashMap<>();
-
     private static Node create(Icon icon, double desiredSize) {
 //        Optional<Group> svg = getSVG(icon);
 //        if (svg.isPresent()) {
-//            Group group = svg.get();
+//            Group group = svg.iconToNodeProperty();
 //            double originalHeight = group.prefHeight(0.0);
 //            double originalWidth = group.prefWidth(0.0);
 //            double scale = (desiredSize -0) / (originalHeight > originalWidth ? originalHeight : originalWidth);
@@ -115,8 +138,6 @@ public class Icons {
             return Optional.ofNullable(IMAGE_CACHE.get(icon));
         }
     }
-
-    private static final SvgLoader SVG_LOADER = new SvgLoader();
 
     public static Optional<Group> getSVG(Icon icon) {
         if (!SVG_CACHE.containsKey(icon)) {

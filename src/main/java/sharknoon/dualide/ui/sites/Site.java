@@ -15,45 +15,36 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
-import org.fxmisc.easybind.EasyBind;
-import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.sites.package_.PackageSite;
-import sharknoon.dualide.ui.sites.project.ProjectSite;
-import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
-import sharknoon.dualide.logic.items.Package;
-import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.logic.items.Class;
-import sharknoon.dualide.logic.items.Function;
-import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.logic.items.*;
+import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.MainController;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
+import sharknoon.dualide.ui.sites.package_.PackageSite;
+import sharknoon.dualide.ui.sites.project.ProjectSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
+import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
 import sharknoon.dualide.utils.settings.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @param <I>
@@ -61,41 +52,23 @@ import sharknoon.dualide.utils.settings.Logger;
  */
 public abstract class Site<I extends Item> {
 
-    private static final ObjectProperty<Item<?,?,?>> CURRENT_SELECTED_ITEM = new SimpleObjectProperty<>();
-
-    public static Site createSite(Item item) {
-        switch (item.getType()) {
-            case CLASS:
-                return new ClassSite((Class) item);
-            case FUNCTION:
-                return new FunctionSite((Function) item);
-            case PACKAGE:
-                return new PackageSite((Package) item);
-            case PROJECT:
-                return new ProjectSite((Project) item);
-            case VARIABLE:
-                return new VariableSite((Variable) item);
-            case WELCOME:
-                return new WelcomeSite((Welcome) item);
-        }
-        return null;
-    }
-
+    private static final ObjectProperty<Item<?, ?, ?>> CURRENT_SELECTED_ITEM = new SimpleObjectProperty<>();
     private final I item;
-    private final TreeItem<Item> treeItem = new TreeItem(null, Icons.get(getTabIcon()));
+    private final TreeItem<Item> treeItem = new TreeItem<>();
     private final Tab tab = new Tab();
 
     public Site(I item) {
         this.item = item;
         //treeitem setup
         treeItem.setValue(item);
+        treeItem.graphicProperty().bind(Icons.iconToNodeProperty(tabIconProperty()));
         //Not working Properly
         //ObservableList<TreeItem<Item>> treeItems = EasyBind.map((ObservableList<Item>) item.childrenProperty(), i -> i.getSite().getTreeItem());
         item.childrenProperty().addListener((ListChangeListener<? super Item>) c -> {
             while (c.next()) {
                 List<TreeItem<Item>> newTreeItems = new ArrayList<>();
                 item.childrenProperty().forEach(ch -> {
-                    newTreeItems.add(((Item)ch).getSite().getTreeItem());
+                    newTreeItems.add(((Item) ch).getSite().getTreeItem());
                 });
                 treeItem.getChildren().setAll(newTreeItems);
             }
@@ -107,7 +80,7 @@ public abstract class Site<I extends Item> {
         });
         //tab setup
         tab.textProperty().bind(item.nameProperty());
-        Icons.setCustom(getTabIcon(), g -> tab.setGraphic(g));
+        tab.graphicProperty().bind(Icons.iconToNodeProperty(tabIconProperty()));
         if (item.getType().equals(ItemType.WELCOME)) {
             tab.setClosable(false);
         }
@@ -127,6 +100,30 @@ public abstract class Site<I extends Item> {
                 });
             }
         });
+    }
+
+    public void afterInit(){}
+
+    public static Site createSite(Item item) {
+        switch (item.getType()) {
+            case CLASS:
+                return new ClassSite((Class) item);
+            case FUNCTION:
+                return new FunctionSite((Function) item);
+            case PACKAGE:
+                return new PackageSite((Package) item);
+            case PROJECT:
+                return new ProjectSite((Project) item);
+            case VARIABLE:
+                return new VariableSite((Variable) item);
+            case WELCOME:
+                return new WelcomeSite((Welcome) item);
+        }
+        return null;
+    }
+
+    public static ObjectProperty<Item<?, ?, ?>> currentSelectedProperty() {
+        return CURRENT_SELECTED_ITEM;
     }
 
     public void destroy() {
@@ -159,10 +156,6 @@ public abstract class Site<I extends Item> {
         return CURRENT_SELECTED_ITEM.get() == getItem();
     }
 
-    public static ObjectProperty<Item<?,?,?>> currentSelectedProperty() {
-        return CURRENT_SELECTED_ITEM;
-    }
-
     /**
      * The Pane of the Tab in the Tabpane
      *
@@ -188,7 +181,11 @@ public abstract class Site<I extends Item> {
      *
      * @return
      */
-    public abstract Icon getTabIcon();
+    public abstract ObjectProperty<Icon> tabIconProperty();
+
+    public Icon getTabIcon(){
+        return tabIconProperty().get();
+    }
 
     public abstract Icon getAddIcon();
 

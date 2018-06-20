@@ -24,6 +24,8 @@ import java.time.format.FormatStyle;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -33,7 +35,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -63,6 +64,8 @@ public class WelcomeSite extends Site<Welcome> {
     private ScrollPane scrollPaneRecentProjects;
     private static final String lastDirectoryKey = "lastProjectDirectory";
     private static Optional<String> lastDirectory = Optional.empty();
+
+    private static final ObjectProperty<Icon> icon = new SimpleObjectProperty<>(Icon.WELCOME);
 
     private void init() {
         borderPaneRoot = new BorderPane();
@@ -215,13 +218,13 @@ public class WelcomeSite extends Site<Welcome> {
     }
 
     @Override
-    public Icon getTabIcon() {
-        return Icon.WELCOME;
+    public ObjectProperty<Icon> tabIconProperty() {
+        return icon;
     }
 
     @Override
     public Icon getAddIcon() {
-        return getTabIcon();
+        return tabIconProperty().get();
     }
 
 }

@@ -304,7 +304,7 @@ public class Resources {
 //                        return false;
 //                    }).findFirst();
 //                    if (pathOptional.isPresent()) {
-//                        FILE_CACHE.put(path, pathOptional.get());
+//                        FILE_CACHE.put(path, pathOptional.iconToNodeProperty());
 //                        return pathOptional;
 //                    }
 //                }
@@ -427,7 +427,7 @@ public class Resources {
                         });
             }
         } catch (SecurityException | IOException | NullPointerException | URISyntaxException ex) {
-            Logger.error("Could not get the executing jar", ex);
+            Logger.error("Could not iconToNodeProperty the executing jar", ex);
         }
     }
 

@@ -87,7 +87,7 @@ public class English extends Language {
         add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
         add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete");
         add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
-        add(Word.FUNCTION_SITE_ADD_PARAMETER_BUTTON_TEXT,"Add parameter");
+        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT,"Add parameter");
         add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Comment function");
         add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Rename function");
         add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Delete function");
@@ -98,12 +98,12 @@ public class English extends Language {
         add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Add new input block");
         add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Add new output block");
         add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Logic of the function");
-        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Variables of the function");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES_AND_PARAMETER, "Variables and parameters of the function");
         add(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, "Parameters of the function");
         add(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, "Return of the function");
-        add(Word.FUNCTION_SITE_COMMENT_PARAMETER_BUTTON_TEXT, "Comment parameter");
-        add(Word.FUNCTION_SITE_RENAME_PARAMETER_BUTTON_TEXT, "Rename parameter");
-        add(Word.FUNCTION_SITE_DELETE_PARAMETER_BUTTON_TEXT, "Delete parameter");
+        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Comment parameter");
+        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Rename parameter");
+        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Delete parameter");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");

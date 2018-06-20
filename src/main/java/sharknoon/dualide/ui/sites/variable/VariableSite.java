@@ -15,8 +15,9 @@
  */
 package sharknoon.dualide.ui.sites.variable;
 
-import java.util.concurrent.CompletableFuture;
-
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -26,30 +27,58 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import sharknoon.dualide.logic.items.Variable;
-import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.fields.TypeField;
+import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.SiteUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Josua Frank
  */
 public class VariableSite extends Site<Variable> {
 
+    private ObjectProperty<Icon> icon;
     private BorderPane borderPaneRoot;
+
+    public VariableSite(Variable item) {
+        super(item);
+    }
+
+    @Override
+    public void afterInit() {
+        ChangeListener<? super Type> listener = (observable, oldValue, newValue) -> icon.set(getIcon(newValue));
+        getItem().typeProperty().addListener(listener);
+        listener.changed(getItem().typeProperty(), null, getItem().typeProperty().get());
+    }
 
     private void init() {
         borderPaneRoot = new BorderPane();
-
-
         borderPaneRoot.setCenter(getContent());
         borderPaneRoot.setBottom(SiteUtils.getFooter(getItem()));
     }
 
-    public VariableSite(Variable item) {
-        super(item);
+    private Icon getIcon(Type type) {
+        if (type == null) {
+            return Icon.VARIABLE;
+        } else if (!type.isPrimitive()) {
+            return Icon.VARIABLECLASS;
+        } else if (type == PrimitiveType.BOOLEAN) {
+            return Icon.VARIABLEBOOLEAN;
+        } else if (type == PrimitiveType.NUMBER) {
+            return Icon.VARIABLENUMBER;
+        } else if (type == PrimitiveType.TEXT) {
+            return Icon.VARIABLETEXT;
+        } else if (type == PrimitiveType.VOID) {
+            return Icon.BANNED;
+        } else {
+            return Icon.VARIABLE;
+        }
     }
 
     private ScrollPane getContent() {
@@ -90,8 +119,11 @@ public class VariableSite extends Site<Variable> {
     }
 
     @Override
-    public Icon getTabIcon() {
-        return Icon.VARIABLE;
+    public ObjectProperty<Icon> tabIconProperty() {
+        if (icon == null){
+            icon = new SimpleObjectProperty<>(Icon.VARIABLE);
+        }
+        return icon;
     }
 
     @Override

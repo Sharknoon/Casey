@@ -87,7 +87,7 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
-        add(Word.FUNCTION_SITE_ADD_PARAMETER_BUTTON_TEXT,"Parameter hinzufügen");
+        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT,"Parameter hinzufügen");
         add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Funktion kommentieren");
         add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Funktion umbenennen");
         add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Funktion löschen");
@@ -98,12 +98,12 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_ADD_NEW_INPUT_BLOCK, "Neuen Eingabeblock erstellen");
         add(Word.FUNCTION_SITE_ADD_NEW_OUTPUT_BLOCK, "Neuen Ausgabeblock erstellen");
         add(Word.FUNCTION_SITE_FUNCTION_LOGIC, "Funktionslogik");
-        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES, "Funktionsvariablen");
+        add(Word.FUNCTION_SITE_FUNCTION_VARIABLES_AND_PARAMETER, "Funktionsvariablen und -parameter");
         add(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, "Funktionsparameter");
         add(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, "Funktionsrückgabe");
-        add(Word.FUNCTION_SITE_COMMENT_PARAMETER_BUTTON_TEXT, "Parameter kommentieren");
-        add(Word.FUNCTION_SITE_RENAME_PARAMETER_BUTTON_TEXT, "Parameter umbenennen");
-        add(Word.FUNCTION_SITE_DELETE_PARAMETER_BUTTON_TEXT, "Parameter löschen");
+        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Parameter kommentieren");
+        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Parameter umbenennen");
+        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Parameter löschen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");

@@ -43,6 +43,7 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
@@ -239,7 +240,7 @@ public class TypeBrowser extends VBox {
                         .filter(i -> i instanceof sharknoon.dualide.logic.items.Class)
                         .filter(i -> types == null
                         ? true
-                        : types.contains(((sharknoon.dualide.logic.items.Class) i).toType())
+                        : types.contains(((sharknoon.dualide.logic.items.Class) i).getReturnType())
                         )
                         .forEach((t) -> {
                             HBox hBoxclass = new HBox(10);
@@ -252,7 +253,7 @@ public class TypeBrowser extends VBox {
                                 hBoxclass.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
                                 previousSelectedType = hBoxclass;
                                 if (typeConsumer != null) {
-                                    typeConsumer.accept(((sharknoon.dualide.logic.items.Class) t).toType());
+                                    typeConsumer.accept(((sharknoon.dualide.logic.items.Class) t).getReturnType());
                                 }
                             });
                             hBoxclass.getChildren().addAll(icon, name);

@@ -32,7 +32,8 @@ public enum ItemType {
     PACKAGE(Package.class),
     PROJECT(Project.class),
     VARIABLE(Variable.class),
-    WELCOME(Welcome.class);
+    WELCOME(Welcome.class),
+    PARAMETER(Parameter.class);
 
     private final java.lang.Class<? extends Item> type;
     //Language dependent name, e.g. 'Klasse' in german, 'class' in english

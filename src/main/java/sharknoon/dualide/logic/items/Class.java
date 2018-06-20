@@ -23,6 +23,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.types.PrimitiveType;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * @author Josua Frank
  */
-public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
+public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> implements Returnable<Class.ObjectType> {
 
     private transient static final ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
 
@@ -79,9 +80,9 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             usagesList.add(Language.get(Word.VARIABLE) + ":");
             Variable.getAllVariables().get(type).stream().map(Item::getFullName).forEachOrdered(usagesList::add);
         }
-        if (Function.getAllParameters().stream().anyMatch(p -> p.getType().equals(type))) {
+        if (Parameter.getAllParameters().containsKey(type) && !Parameter.getAllParameters().get(type).isEmpty()) {
             usagesList.add(Language.get(Word.FUNCTION_SITE_FUNCTION_PARAMETERS) + ":");
-            Function.getAllParameters().stream().filter(p -> p.getType().equals(type)).map(p -> p.getFunction().getFullName() + ":" + p.getName()).forEachOrdered(usagesList::add);
+            Parameter.getAllParameters().get(type).stream().map(Item::getFullName).forEachOrdered(usagesList::add);
         }
         if (Function.getAllReturnTypes().containsKey(type) && !Function.getAllReturnTypes().get(type).isEmpty()) {
             usagesList.add(Language.get(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE) + ":");
@@ -114,7 +115,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         super.setAdditionalProperties(properties);
     }
 
-    public ObjectType toType() {
+    @Override
+    public ObjectType getReturnType() {
         return type;
     }
 
@@ -122,6 +124,9 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
         private static final ListProperty<ObjectType> TYPES = new SimpleListProperty<>(BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type));
         public static ObjectType GENERAL = new ObjectType(null) {
+
+            private StringProperty typeName = new SimpleStringProperty();
+
             @Override
             public void onDelete(Runnable runnable) {
                 //general cant be deleted
@@ -144,7 +149,10 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
 
             @Override
             public StringProperty getLanguageDependentName() {
-                return super.getLanguageDependentName();
+                if (typeName.get() == null){
+                    Language.setCustom(Word.OBJECT, typeName::set);
+                }
+                return typeName;
             }
 
             @Override
@@ -209,7 +217,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
 
         public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(Class::toType);
+            return Class.forName(name).map(Class::getReturnType);
         }
 
         @Override

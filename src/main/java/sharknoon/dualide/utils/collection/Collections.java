@@ -692,7 +692,7 @@ public class Collections {
             public <T> T[] toArray(T[] a) {
                 // We don't pass a to c.toArray, to avoid window of
                 // vulnerability wherein an unscrupulous multithreaded client
-                // could get his hands on raw (unwrapped) Entries from c.
+                // could iconToNodeProperty his hands on raw (unwrapped) Entries from c.
                 Object[] arr = c.toArray(a.length == 0 ? a : Arrays.copyOf(a, 0));
 
                 for (int i = 0; i < arr.length; i++) {

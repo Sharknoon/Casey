@@ -17,6 +17,8 @@ package sharknoon.dualide.ui.sites.function;
 
 import java.util.concurrent.CompletableFuture;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -33,31 +35,27 @@ import sharknoon.dualide.utils.language.Word;
  */
 public class FunctionSite extends Site<Function> {
 
-    private final FunctionSiteVariables variableSite;
+    private final FunctionSiteVariablesParameters variableAndParameterSite;
     private final FunctionSiteLogic logicSite;
-    private final FunctionSiteParameters parametersSite;
     private final FunctionSiteReturnType returnSite;
+
+    private static final ObjectProperty<Icon> icon = new SimpleObjectProperty<>(Icon.FUNCTION);
 
     private TabPane root;
 
     public FunctionSite(Function item) {
         super(item);
-        variableSite = new FunctionSiteVariables(this);
+        variableAndParameterSite = new FunctionSiteVariablesParameters(this);
         logicSite = new FunctionSiteLogic(this);
-        parametersSite = new FunctionSiteParameters(this);
         returnSite = new FunctionSiteReturnType(this);
     }
 
-    public FunctionSiteVariables getVariableSite() {
-        return variableSite;
+    public FunctionSiteVariablesParameters getVariableAndParameterSite() {
+        return variableAndParameterSite;
     }
 
     public FunctionSiteLogic getLogicSite() {
         return logicSite;
-    }
-
-    public FunctionSiteParameters getParametersSite() {
-        return parametersSite;
     }
 
     public FunctionSiteReturnType getReturnSite() {
@@ -74,22 +72,17 @@ public class FunctionSite extends Site<Function> {
         Icons.setCustom(Icon.FUNCTIONFLOWCHART, tabLogic.graphicProperty()::set);
         tabLogic.setContent(logicSite.getTabContentPane());
 
-        var tabVariables = new Tab();
-        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_VARIABLES, tabVariables.textProperty()::set);
-        Icons.setCustom(Icon.FUNCTIONVARIABLE, tabVariables.graphicProperty()::set);
-        tabVariables.setContent(variableSite.getTabContentPane());
-
-        var tabParameters = new Tab();
-        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, tabParameters.textProperty()::set);
-        Icons.setCustom(Icon.FUNCTIONPARAMETER, tabParameters.graphicProperty()::set);
-        tabParameters.setContent(parametersSite.getTabContentPane());
+        var tabVariablesAndParameters = new Tab();
+        Language.setCustom(Word.FUNCTION_SITE_FUNCTION_VARIABLES_AND_PARAMETER, tabVariablesAndParameters.textProperty()::set);
+        Icons.setCustom(Icon.FUNCTIONVARIABLEPARAMETER, tabVariablesAndParameters.graphicProperty()::set);
+        tabVariablesAndParameters.setContent(variableAndParameterSite.getTabContentPane());
 
         var tabReturnType = new Tab();
         Language.setCustom(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, tabReturnType.textProperty()::set);
         Icons.setCustom(Icon.FUNCTIONRETURN, tabReturnType.graphicProperty()::set);
         tabReturnType.setContent(returnSite.getTabContentPane());
 
-        root = new TabPane(tabLogic, tabVariables, tabParameters, tabReturnType);
+        root = new TabPane(tabLogic, tabVariablesAndParameters, tabReturnType);
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     }
 
@@ -104,8 +97,8 @@ public class FunctionSite extends Site<Function> {
     }
 
     @Override
-    public Icon getTabIcon() {
-        return Icon.FUNCTION;
+    public ObjectProperty<Icon> tabIconProperty() {
+        return icon;
     }
 
     @Override

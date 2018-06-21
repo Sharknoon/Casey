@@ -68,8 +68,9 @@ public class MainApplication extends Application {
     
     //Error handling
     private static void showError(Thread t, Throwable e) {
-        System.err.println("An unexpected error occurred in " + t + "\n" + e);
-        ExceptionDialog.show("JavaFX application thread error occured", e);
+        System.err.println("An unexpected error occurred in " + t);
+        e.printStackTrace();
+        ExceptionDialog.show("An unexpected error occurred in " + t, e);
     }
     
     private Scene scene;

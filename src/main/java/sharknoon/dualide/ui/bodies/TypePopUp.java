@@ -15,9 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.Collection;
-import java.util.function.Consumer;
-
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.PopOver;
@@ -25,36 +22,41 @@ import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
+import java.util.Collection;
+import java.util.function.Consumer;
+
 /**
  * @author frank
  */
 public class TypePopUp extends PopOver {
-
+    
     public static void showTypeSelectionPopUp(Node ownerNode, Consumer<Type> typeConsumer) {
         showTypeSelectionPopUp(ownerNode, typeConsumer, null);
     }
-
+    
     public static void showTypeSelectionPopUp(Node ownerNode, Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes) {
         new TypePopUp(ownerNode, typeConsumer, allowedTypes, false);
     }
-
+    
     public static void showTypeSelectionPopUp(Node ownerNode, Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes, boolean withVoid) {
         new TypePopUp(ownerNode, typeConsumer, allowedTypes, withVoid);
     }
-
+    
     private TypePopUp(Node ownerNode, Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes, boolean withVoid) {
         super();
         Consumer<Type> newTypeConsumer = t -> {
             hide();
-            typeConsumer.accept(t);
+            if (typeConsumer != null) {
+                typeConsumer.accept(t);
+            }
         };
         VBox vBoxRoot = withVoid ? TypeBrowser.createTypeBrowserWithVoid(newTypeConsumer, allowedTypes) : TypeBrowser.createTypeBrowser(newTypeConsumer, allowedTypes);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         setContentNode(vBoxRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.TYPE_SELECTION_POPUP_TITLE));
-
+        
         show(ownerNode);
     }
-
+    
 }

@@ -26,19 +26,16 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- *
  * @author Josua Frank
  */
 public class PlaceholderBody extends Body {
-
+    
     public static PlaceholderBody DISABLED = new PlaceholderBody();
-
-    private Consumer<Statement> statementConsumer;
-
+    
     public static PlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent) {
         return createValuePlaceholderBody(types, parent, null);
     }
-
+    
     /**
      * all types
      *
@@ -47,24 +44,30 @@ public class PlaceholderBody extends Body {
      * @return
      */
     public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return new PlaceholderBody(null, parent, statementConsumer);
+        return createValuePlaceholderBody((Collection<? extends Type>) null, parent, statementConsumer);
     }
-
+    
     public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
         Set<Type> types = new HashSet<>();
         types.add(type);
-        return new PlaceholderBody(types, parent, statementConsumer);
+        return createValuePlaceholderBody(types, parent, statementConsumer);
     }
-
+    
     public static PlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         return new PlaceholderBody(types, parent, statementConsumer);
     }
-
+    
+    private Consumer<Statement> statementConsumer;
+    
     public PlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
-            StatementPopUp.showValueSelectionPopUp(this, types, parent, this.statementConsumer);
+            ValuePopUpBuilder
+                    .create(this, this.statementConsumer)
+                    .setParent(parent)
+                    .setAllowedTypes(types)
+                    .showValuePopUp();
         });
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.PLUS, 50));
@@ -73,7 +76,7 @@ public class PlaceholderBody extends Body {
             setContent();
         });
     }
-
+    
     private PlaceholderBody() {
         super((Collection<? extends Type>) null);
         setOnMouseEntered((event) -> {
@@ -83,14 +86,14 @@ public class PlaceholderBody extends Body {
             setContent();
         });
     }
-
+    
     public void setStatementConsumer(Consumer<Statement> consumer) {
         this.statementConsumer = consumer;
     }
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName();
     }
-
+    
 }

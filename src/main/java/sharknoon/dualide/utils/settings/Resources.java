@@ -76,7 +76,7 @@ public class Resources {
      * Returns a Path to the requested File. The Files are contained in the
      * ressources folder in the .jar/.war or the plain File System .<br>
      * Divide the Directories with a '/'<br>
-     * Dont start the file or directory witrh a '/'
+     * Dont create the file or directory witrh a '/'
      *
      * @param fileName    Name of the requested file
      * @param privateFile
@@ -322,7 +322,7 @@ public class Resources {
                 return false;
             }
         } catch (IOException ex) {
-            Logger.error("Could not determine, if this is the first start or not", ex);
+            Logger.error("Could not determine, if this is the first create or not", ex);
         }
         return true;
     }

@@ -54,11 +54,24 @@ public class TypeBrowser extends VBox {
     public static TypeBrowser createTypeBrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
         return new TypeBrowser(typeConsumer, allowedTypes, false, false);
     }
-
+    
+    /**
+     * Dismisses the primitive types
+     *
+     * @param typeConsumer
+     * @param allowedTypes
+     * @return
+     */
     public static TypeBrowser createOnlyObjectTypebrowser(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
         return new TypeBrowser(typeConsumer, allowedTypes, true, false);
     }
-
+    
+    /**
+     * Allows the primitive type void, e.g. for method return type
+     * @param typeConsumer
+     * @param allowedTypes
+     * @return
+     */
     public static TypeBrowser createTypeBrowserWithVoid(Consumer<Type> typeConsumer, Collection<? extends Type> allowedTypes){
         return new TypeBrowser(typeConsumer, allowedTypes, false, true);
     }

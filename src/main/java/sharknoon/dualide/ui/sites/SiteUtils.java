@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.sites;
 
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -25,7 +24,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -290,10 +288,11 @@ public class SiteUtils {
         for (var i = 0; i < buttonRow.size(); i++) {
             gridPanePackageButtons.add(buttonRow.get(i), i, 0);
             var colAddChildren = new ColumnConstraints();
-            if (i + 1 < allowedChildrenTypes.length) {
+            if (i < allowedChildrenTypes.length) {
                 colAddChildren.setHalignment(HPos.LEFT);
-            } else if (i + 1 == allowedChildrenTypes.length) {
+            } else if (i == allowedChildrenTypes.length) {
                 colAddChildren.setHgrow(Priority.ALWAYS);
+                colAddChildren.setHalignment(HPos.RIGHT);
             } else {
                 colAddChildren.setHalignment(HPos.RIGHT);
             }
@@ -333,7 +332,7 @@ public class SiteUtils {
                 icon.setPreserveRatio(true);
                 icon.setFitHeight(50);
                 icon.setOnMouseClicked(e -> onClick.run());
-                icon.imageProperty().bind( Icons.iconToImageProperty(c.getSite().tabIconProperty()));
+                icon.imageProperty().bind(Icons.iconToImageProperty(c.getSite().tabIconProperty()));
 
                 var textName = new Text();
                 var shadowEffect = new DropShadow(10, Color.WHITESMOKE);
@@ -353,16 +352,12 @@ public class SiteUtils {
 
                 var buttonComment = createButton(wordComment, Icon.COMMENTS, (t) -> {
                     var comments = Dialogs.showTextEditorDialog(dialogComment, c.getComments());
-                    if (comments.isPresent()) {
-                        c.setComments(comments.get());
-                    }
+                    comments.ifPresent(c::setComments);
                 }, false, true);
 
                 var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
                     Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()), null);
-                    if (name.isPresent()) {
-                        c.setName(name.get());
-                    }
+                    name.ifPresent(c::setName);
                 }, false, true);
 
                 var buttonDelete = createButton(wordDelete, Icon.TRASH, (t) -> {

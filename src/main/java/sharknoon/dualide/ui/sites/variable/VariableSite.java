@@ -63,23 +63,7 @@ public class VariableSite extends Site<Variable> {
         borderPaneRoot.setBottom(SiteUtils.getFooter(getItem()));
     }
 
-    private Icon getIcon(Type type) {
-        if (type == null) {
-            return Icon.VARIABLE;
-        } else if (!type.isPrimitive()) {
-            return Icon.VARIABLECLASS;
-        } else if (type == PrimitiveType.BOOLEAN) {
-            return Icon.VARIABLEBOOLEAN;
-        } else if (type == PrimitiveType.NUMBER) {
-            return Icon.VARIABLENUMBER;
-        } else if (type == PrimitiveType.TEXT) {
-            return Icon.VARIABLETEXT;
-        } else if (type == PrimitiveType.VOID) {
-            return Icon.BANNED;
-        } else {
-            return Icon.VARIABLE;
-        }
-    }
+
 
     private ScrollPane getContent() {
         var gridPaneContent = new GridPane();
@@ -129,6 +113,24 @@ public class VariableSite extends Site<Variable> {
     @Override
     public Icon getAddIcon() {
         return Icon.PLUSVARIABLE;
+    }
+    
+    private Icon getIcon(Type type) {
+        if (type == null) {
+            return Icon.VARIABLE;
+        } else if (!type.isPrimitive()) {
+            return Icon.VARIABLECLASS;
+        } else if (type == PrimitiveType.BOOLEAN) {
+            return Icon.VARIABLEBOOLEAN;
+        } else if (type == PrimitiveType.NUMBER) {
+            return Icon.VARIABLENUMBER;
+        } else if (type == PrimitiveType.TEXT) {
+            return Icon.VARIABLETEXT;
+        } else if (type == PrimitiveType.VOID) {
+            return Icon.VOID;
+        } else {
+            return Icon.VARIABLE;
+        }
     }
 
 }

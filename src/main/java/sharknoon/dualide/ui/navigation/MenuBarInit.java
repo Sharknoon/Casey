@@ -15,14 +15,9 @@
  */
 package sharknoon.dualide.ui.navigation;
 
-import java.util.Locale;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
@@ -33,8 +28,9 @@ import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.utils.settings.Props;
 
+import java.util.Locale;
+
 /**
- *
  * @author Josua Frank
  */
 public class MenuBarInit {
@@ -129,8 +125,16 @@ public class MenuBarInit {
 
     private static void initProjectMenu() {
         Menu menuProject = new Menu();
+        menuProject.setDisable(true);
         Language.setCustom(Word.MENUBAR_PROJECT_TEXT, s -> menuProject.setText(s));
         Icons.setCustom(Icon.PROJECT, g -> menuProject.setGraphic(g));
+        Project.currentProjectProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                menuProject.setDisable(true);
+            } else {
+                menuProject.setDisable(false);
+            }
+        });
         menubar.getMenus().add(menuProject);
 
         MenuItem menuCloseProject = new MenuItem();
@@ -138,7 +142,7 @@ public class MenuBarInit {
         Icons.setCustom(Icon.CLOSE, g -> menuCloseProject.setGraphic(g));
         menuCloseProject.setOnAction((event) -> {
             Project.getCurrentProject().ifPresent(p -> {
-                p.save();
+                p.close();
             });
             Welcome.getWelcome().getSite().select();
         });

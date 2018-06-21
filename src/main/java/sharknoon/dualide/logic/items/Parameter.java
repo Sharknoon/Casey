@@ -60,7 +60,6 @@ public class Parameter extends Item<Parameter, Item<? extends Item, ? extends It
             }
             PARAMETERS.get(newValue).add(this);
         });
-        getSite().afterInit();
     }
 
     static Map<Type, List<Parameter>> getAllParameters() {

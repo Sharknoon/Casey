@@ -15,14 +15,11 @@
  */
 package sharknoon.dualide.logic.types;
 
-import java.util.Collection;
-import java.util.Optional;
-
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.BooleanValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.NumberValue;
@@ -32,6 +29,9 @@ import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @param <T>
@@ -251,7 +251,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
 
         @Override
         public Icon getIcon() {
-            return Icon.BANNED;
+            return Icon.VOID;
         }
 
         @Override
@@ -261,7 +261,7 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
 
         @Override
         public Icon getCreationIcon() {
-            return Icon.BANNED;
+            return Icon.VOID;
         }
 
         private StringProperty creationText = new SimpleStringProperty("Void cannot be created");

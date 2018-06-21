@@ -17,21 +17,21 @@ package sharknoon.dualide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.File;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sharknoon.dualide.serial.Serialisation;
-import sharknoon.dualide.ui.navigation.ItemTreeView;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.welcome.RecentProject;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -97,6 +97,11 @@ public class Project extends Item<Project, Item, Package> {
                     break;
             }
         });
+    }
+    
+    public void close() {
+        save();
+        currentProject.set(null);
     }
 
     public void save() {

@@ -280,12 +280,10 @@ class StatementPopUp extends PopOver {
                         .getChildren()
                         .stream()
                         .filter(i -> i.getValue() instanceof Package)
-                        .forEach((ti) -> {
-                            vBoxSubPackages.getChildren().add(getEntries(ti.getValue(), event -> {
-                                breadCrumbBarNavigation.setSelectedCrumb(ti);
-                                breadCrumbBarNavigation.requestFocus();
-                            }));
-                        });
+                        .forEach((ti) -> vBoxSubPackages.getChildren().add(getEntries(ti.getValue(), event -> {
+                            breadCrumbBarNavigation.setSelectedCrumb(ti);
+                            breadCrumbBarNavigation.requestFocus();
+                        })));
             }
         });
         scrollPanePackages.setContent(vBoxSubPackages);
@@ -306,11 +304,9 @@ class StatementPopUp extends PopOver {
                         .filter(i -> allowedTypes == null
                                 || allowedTypes.contains(((Returnable) i).getReturnType())
                         )
-                        .forEach((i) -> {
-                            vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
-                                //TODO
-                            }));
-                        });
+                        .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
+                            //TODO
+                        })));
             }
         });
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
@@ -351,11 +347,13 @@ class StatementPopUp extends PopOver {
         currentClass
                 .getChildren()
                 .stream()
-                .forEach((item) -> {
-                    vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
-                        //TODO
-                    }));
-                });
+                .filter(i -> i instanceof Returnable)
+                .filter(i -> allowedTypes == null
+                        || allowedTypes.contains(((Returnable) i).getReturnType())
+                )
+                .forEach((item) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
+                    //TODO
+                })));
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
 
         vBoxRight.getChildren().remove(previousContent);
@@ -384,11 +382,13 @@ class StatementPopUp extends PopOver {
         currentFunction
                 .getChildren()
                 .stream()
-                .forEach((item) -> {
-                    vBoxVariables.getChildren().add(getEntries(item, event -> {
-                        //TODO
-                    }));
-                });
+                .filter(i -> i instanceof Returnable)
+                .filter(i -> allowedTypes == null
+                        || allowedTypes.contains(((Returnable) i).getReturnType())
+                )
+                .forEach((item) -> vBoxVariables.getChildren().add(getEntries(item, event -> {
+                    //TODO
+                })));
         scrollPaneVariables.setContent(vBoxVariables);
 
         vBoxRight.getChildren().remove(previousContent);

@@ -1,8 +1,13 @@
 package sharknoon.dualide.logic.statements.functions;
 
+import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /*
  * Copyright 2018 Shark Industries.
@@ -20,6 +25,8 @@ import sharknoon.dualide.logic.types.Type;
  * limitations under the License.
  */
 public class FunctionCall<T extends Type, CT extends Type> extends Statement<Type, T, CT> {
+    
+    private final List<Function> functions = new ArrayList<>();
 
     public FunctionCall(Statement<Type, Type, T> parent) {
         super(parent);
@@ -32,11 +39,14 @@ public class FunctionCall<T extends Type, CT extends Type> extends Statement<Typ
 
     @Override
     public String toString() {
-        return null;
+        return functions.stream().map(Function::getName).collect(Collectors.joining(" > "));
     }
 
     @Override
     public Type getReturnType() {
-        return null;
+        if (functions.isEmpty()) {
+            return null;
+        }
+        return functions.get(functions.size() - 1).getReturnType();
     }
 }

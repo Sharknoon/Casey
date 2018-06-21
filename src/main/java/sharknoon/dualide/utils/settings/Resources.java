@@ -20,25 +20,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.file.*;
+import java.util.*;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Josua Frank frank.josua@gmail.com
  */
 public class Resources {
@@ -52,6 +40,7 @@ public class Resources {
     private static final String PRIVATE_DIR_NAME = ".dualide";
     private static final String PUBLIC_DIR_NAME = "DualIDE";
     private static final Map<String, Path> CACHE;
+    private static final Map<String, Optional<Path>> SEARCH_CACHE = new HashMap<>();
 
     static {
         CACHE = new HashMap<>();
@@ -89,7 +78,7 @@ public class Resources {
      * Divide the Directories with a '/'<br>
      * Dont start the file or directory witrh a '/'
      *
-     * @param fileName Name of the requested file
+     * @param fileName    Name of the requested file
      * @param privateFile
      * @return Path to te requested file
      */
@@ -143,7 +132,7 @@ public class Resources {
      * Creates a new File in the ressources Folder under the '/' divided
      * Directory, if it isnt already there, if it is, it does nothing
      *
-     * @param path Directory where the new file is created
+     * @param path        Directory where the new file is created
      * @param privateFile
      * @return
      */
@@ -181,7 +170,7 @@ public class Resources {
     /**
      * Returns the requested File and creates it, if it doesnt exist
      *
-     * @param path Directory where the new file is created
+     * @param path        Directory where the new file is created
      * @param privateFile
      * @return The requested file
      */
@@ -211,7 +200,7 @@ public class Resources {
     /**
      * Deletes a File
      *
-     * @param path The file to be deleted
+     * @param path        The file to be deleted
      * @param privateFile
      * @return true if successful, false otherwise
      */
@@ -252,7 +241,7 @@ public class Resources {
     /**
      * Returns a list of all Files in the specific Directory
      *
-     * @param path Directory of the files
+     * @param path       Directory of the files
      * @param privateDir
      * @return List of all files in the directory
      */
@@ -273,7 +262,6 @@ public class Resources {
     }
 
     /**
-     *
      * @param pathString the full path to the file/folder e.g. db/alioth.db
      * @return
      */
@@ -434,8 +422,8 @@ public class Resources {
     /**
      * copies ressources from the private dir to the public dir
      *
-     * @param from
-     * @param to
+     * @param fromDir
+     * @param toDir
      */
     private static void copyDirectory(String fromDir, String toDir) {
         Optional<Path> pathFrom = getDirectory(fromDir, true);
@@ -446,7 +434,7 @@ public class Resources {
                         .filter(p -> !Files.isDirectory(p))
                         .forEach(f -> {
                             try {
-                                Files.copy(f, pathTo.get().resolve(f.getFileName()));
+                                Files.copy(f, pathTo.get().resolve(f.getFileName()), StandardCopyOption.REPLACE_EXISTING);
                             } catch (IOException ex) {
                                 Logger.error("Could not copy files", ex);
                             }
@@ -475,8 +463,6 @@ public class Resources {
         }
         return stack.length > 0 ? stack[0].getClass().getPackage().getName() : "";
     }
-
-    private static final Map<String, Optional<Path>> SEARCH_CACHE = new HashMap<>();
 
     public static Optional<Path> search(String fileName, boolean privateRes) {
         return search(fileName, privateRes, false, false);

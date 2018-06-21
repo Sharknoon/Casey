@@ -19,7 +19,8 @@ package sharknoon.dualide.misc;
  *
  * @author Josua Frank
  */
+@FunctionalInterface
 public interface Exitable {
-
-    public void exit();
+    
+    void exit();
 }

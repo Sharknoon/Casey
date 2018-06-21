@@ -18,7 +18,6 @@ package sharknoon.dualide.logic.items;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,7 +28,6 @@ import javafx.collections.ObservableMap;
 import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.sites.variable.VariableSite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +64,6 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
             }
             VARIABLES.get(newValue).add(this);
         });
-        getSite().afterInit();
     }
 
     static Map<Type, List<Variable>> getAllVariables() {

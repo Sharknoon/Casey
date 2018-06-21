@@ -15,14 +15,15 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  *
@@ -76,7 +77,7 @@ public class PlaceholderBody extends Body {
     private PlaceholderBody() {
         super((Collection<? extends Type>) null);
         setOnMouseEntered((event) -> {
-            setContent(Icons.get(Icon.BANNED, 50));
+            setContent(Icons.get(Icon.VOID, 50));
         });
         setOnMouseExited((event) -> {
             setContent();

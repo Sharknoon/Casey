@@ -35,6 +35,7 @@ import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.clazz.ClassSite;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.package_.PackageSite;
+import sharknoon.dualide.ui.sites.parameter.ParameterSite;
 import sharknoon.dualide.ui.sites.project.ProjectSite;
 import sharknoon.dualide.ui.sites.variable.VariableSite;
 import sharknoon.dualide.ui.sites.welcome.WelcomeSite;
@@ -56,6 +57,29 @@ public abstract class Site<I extends Item> {
     private final I item;
     private final TreeItem<Item> treeItem = new TreeItem<>();
     private final Tab tab = new Tab();
+    
+    public static Site createSite(Item item) {
+        switch (item.getType()) {
+            case CLASS:
+                return new ClassSite((Class) item);
+            case FUNCTION:
+                return new FunctionSite((Function) item);
+            case PACKAGE:
+                return new PackageSite((Package) item);
+            case PROJECT:
+                return new ProjectSite((Project) item);
+            case VARIABLE:
+                return new VariableSite((Variable) item);
+            case PARAMETER:
+                return new ParameterSite((Parameter) item);
+            case WELCOME:
+                return new WelcomeSite((Welcome) item);
+        }
+        return null;
+    }
+    
+    public void afterInit() {
+    }
 
     public Site(I item) {
         this.item = item;
@@ -92,7 +116,7 @@ public abstract class Site<I extends Item> {
                     });
                 }).exceptionally((ex) -> {
                     if (ex instanceof Exception) {
-                        Logger.error("Could not set the content pane", (Exception) ex);
+                        Logger.error("Could not set the content pane", ex);
                     } else {
                         Logger.error("Could not set the content pane " + ex);
                     }
@@ -100,26 +124,6 @@ public abstract class Site<I extends Item> {
                 });
             }
         });
-    }
-
-    public void afterInit(){}
-
-    public static Site createSite(Item item) {
-        switch (item.getType()) {
-            case CLASS:
-                return new ClassSite((Class) item);
-            case FUNCTION:
-                return new FunctionSite((Function) item);
-            case PACKAGE:
-                return new PackageSite((Package) item);
-            case PROJECT:
-                return new ProjectSite((Project) item);
-            case VARIABLE:
-                return new VariableSite((Variable) item);
-            case WELCOME:
-                return new WelcomeSite((Welcome) item);
-        }
-        return null;
     }
 
     public static ObjectProperty<Item<?, ?, ?>> currentSelectedProperty() {

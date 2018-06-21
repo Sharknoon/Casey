@@ -94,10 +94,17 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 item = (ITEM) new Parameter(parent, name);
                 break;
         }
-        if (item != null && select) {
-            item.getSite().select();
+        if (item != null) {
+            if (select) {
+                item.getSite().select();
+            }
+            item.afterInit();
         }
         return item;
+    }
+    
+    protected void afterInit() {
+        getSite().afterInit();
     }
 
     public void move(P newParent) {

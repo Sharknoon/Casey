@@ -15,19 +15,12 @@
  */
 package sharknoon.dualide.ui;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.misc.Initializable;
@@ -36,73 +29,26 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.settings.Resources;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author frank
  */
 public class MainApplication extends Application {
-
-    private Scene scene;
-
-    @Override
-    public void init() throws Exception {
-        Thread.setDefaultUncaughtExceptionHandler(this::showError);
-
-          var loader = new FXMLLoader();
-          var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
-
-        Parent root = loader.load(fxmlStream);
-        scene = new Scene(root);
-        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
-        INITIALIZABLES.forEach(i -> i.init(scene));
-    }
-
-    @Override
-    public void start(Stage stage) throws IOException {
-        Icons.getImage(Icon.LOGO).ifPresent(stage.getIcons()::add);
-        stage.setScene(scene);
-        stage.setTitle("DualIDE");
-        stage.setMaximized(true);
-        notifyPreloader(new Preloader.ProgressNotification(1.0));
-        stage.show();
-    }
-
+    
     //Initlialisables and Exitables
     private static final List<Initializable> INITIALIZABLES = new ArrayList<>();
     private static final List<Exitable> EXITABLES = new ArrayList<>();
-
+    
     public static void registerInitializable(Initializable initializable) {
         INITIALIZABLES.add(initializable);
     }
-
+    
     public static void registerExitable(Exitable exitable) {
         EXITABLES.add(exitable);
     }
-
-    @Override
-    public void stop() throws Exception {
-        EXITABLES.forEach(Exitable::exit);
-    }
-
-    private boolean isshowing = false;
     
-    //Error handling
-    private void showError(Thread t, Throwable e) {
-        if (isshowing) {
-            return;
-        }
-        if (Platform.isFxApplicationThread()) {
-            e.printStackTrace(System.err);
-            isshowing = true;
-            ExceptionDialog.show("JavaFX application thread error occured", e);
-            isshowing = false;
-        } else {
-            e.printStackTrace(System.err);
-            System.err.println("An unexpected error occurred in " + t);
-
-        }
-    }
-
     /**
      * Fallback for launching this JavaFX Application, please use
      * MainApplication.java instead!
@@ -110,5 +56,50 @@ public class MainApplication extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    
+    public static void stopApp(String error) {
+        showError(Thread.currentThread(), new Exception(error));
+        if (Platform.isFxApplicationThread()) {
+            Platform.exit();
+        } else {
+            System.exit(1);
+        }
+    }
+    
+    //Error handling
+    private static void showError(Thread t, Throwable e) {
+        System.err.println("An unexpected error occurred in " + t + "\n" + e);
+        ExceptionDialog.show("JavaFX application thread error occured", e);
+    }
+    
+    private Scene scene;
+    
+    @Override
+    public void init() throws Exception {
+        Thread.setDefaultUncaughtExceptionHandler(MainApplication::showError);
+        
+        var loader = new FXMLLoader();
+        var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/dualide/ui/MainFXML.fxml", true);
+        
+        Parent root = loader.load(fxmlStream);
+        scene = new Scene(root);
+        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        INITIALIZABLES.forEach(i -> i.init(scene));
+    }
+    
+    @Override
+    public void start(Stage stage) {
+        Icons.getImage(Icon.LOGO).ifPresent(stage.getIcons()::add);
+        stage.setScene(scene);
+        stage.setTitle("DualIDE");
+        stage.setMaximized(true);
+        notifyPreloader(new Preloader.ProgressNotification(1.0));
+        stage.show();
+    }
+    
+    @Override
+    public void stop() {
+        EXITABLES.forEach(Exitable::exit);
+    }
+    
 }

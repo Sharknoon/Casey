@@ -45,15 +45,13 @@ public class Logger {
     };
 
     /**
-     * The weight of the LogLevel, 0 means the worst and 5 the best
+     * Logs a message as a debug log-message. Debug means it is only intended to
+     * be used in development usecases.
+     *
+     * @param message The message to be written to the log
      */
-    public enum LogLevel {
-        OFF(0), FATALERROR(1), ERROR(2), WARNING(3), INFO(4), DEBUG(5);
-        public final int level;
-
-        private LogLevel(int level) {
-            this.level = level;
-        }
+    public static void debug(String message) {
+        debug(message, null);
     }
 
     /**
@@ -81,20 +79,10 @@ public class Logger {
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.
      *
-     * @param message The message to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void debug(String message) {
-        debug(message, null);
-    }
-
-    /**
-     * Logs a message as a debug log-message. Debug means it is only intended to
-     * be used in development usecases.
-     *
-     * @param exception The Exception to be written to the log
-     */
-    public static void debug(Exception exception) {
-        debug(null, exception);
+    public static void debug(Throwable throwable) {
+        debug(null, throwable);
     }
 
     /**
@@ -102,10 +90,20 @@ public class Logger {
      * be used in development usecases.
      *
      * @param message The message to be written to the log
-     * @param exception The Exception to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void debug(String message, Exception exception) {
-        log(LogLevel.DEBUG, message, exception);
+    public static void debug(String message, Throwable throwable) {
+        log(LogLevel.DEBUG, message, throwable);
+    }
+    
+    /**
+     * Logs a message as a info log-message. Info means it informs the user
+     * about something.
+     *
+     * @param throwable The Throwable to be written to the log
+     */
+    public static void info(Throwable throwable) {
+        info(null, throwable);
     }
 
     /**
@@ -122,21 +120,21 @@ public class Logger {
      * Logs a message as a info log-message. Info means it informs the user
      * about something.
      *
-     * @param exception The Exception to be written to the log
-     */
-    public static void info(Exception exception) {
-        info(null, exception);
-    }
-
-    /**
-     * Logs a message as a info log-message. Info means it informs the user
-     * about something.
-     *
      * @param message The message to be written to the log
-     * @param exception The Exception to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void info(String message, Exception exception) {
-        log(LogLevel.INFO, message, exception);
+    public static void info(String message, Throwable throwable) {
+        log(LogLevel.INFO, message, throwable);
+    }
+    
+    /**
+     * Logs a message as a warning log-message. Warning means that something
+     * <b>should</b> be changed, but it isn't a error (yet)
+     *
+     * @param throwable The Throwable to be written to the log
+     */
+    public static void warning(Throwable throwable) {
+        warning(null, throwable);
     }
 
     /**
@@ -153,21 +151,21 @@ public class Logger {
      * Logs a message as a warning log-message. Warning means that something
      * <b>should</b> be changed, but it isn't a error (yet)
      *
-     * @param exception The Exception to be written to the log
-     */
-    public static void warning(Exception exception) {
-        warning(null, exception);
-    }
-
-    /**
-     * Logs a message as a warning log-message. Warning means that something
-     * <b>should</b> be changed, but it isn't a error (yet)
-     *
      * @param message The message to be written to the log
-     * @param exception The Exception to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void warning(String message, Exception exception) {
-        log(LogLevel.WARNING, message, exception);
+    public static void warning(String message, Throwable throwable) {
+        log(LogLevel.WARNING, message, throwable);
+    }
+    
+    /**
+     * Logs a message as a error log-message. Error means that something failed,
+     * but it isn't system critical.
+     *
+     * @param throwable The Throwable to be written to the log
+     */
+    public static void error(Throwable throwable) {
+        error(null, throwable);
     }
 
     /**
@@ -184,21 +182,21 @@ public class Logger {
      * Logs a message as a error log-message. Error means that something failed,
      * but it isn't system critical.
      *
-     * @param exception The Exception to be written to the log
-     */
-    public static void error(Exception exception) {
-        error(null, exception);
-    }
-
-    /**
-     * Logs a message as a error log-message. Error means that something failed,
-     * but it isn't system critical.
-     *
      * @param message The message to be written to the log
-     * @param exception The Exception to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void error(String message, Exception exception) {
-        log(LogLevel.ERROR, message, exception);
+    public static void error(String message, Throwable throwable) {
+        log(LogLevel.ERROR, message, throwable);
+    }
+    
+    /**
+     * Logs a message as a fatalerror log-message. Fatalerror means that
+     * something system-critical failed.
+     *
+     * @param throwable The Throwable to be written to the log
+     */
+    public static void fatalError(Throwable throwable) {
+        fatalError(null, throwable);
     }
 
     /**
@@ -215,39 +213,29 @@ public class Logger {
      * Logs a message as a fatalerror log-message. Fatalerror means that
      * something system-critical failed.
      *
-     * @param exception The Exception to be written to the log
-     */
-    public static void fatalError(Exception exception) {
-        fatalError(null, exception);
-    }
-
-    /**
-     * Logs a message as a fatalerror log-message. Fatalerror means that
-     * something system-critical failed.
-     *
      * @param message The message to be written to the log
-     * @param exception The Exception to be written to the log
+     * @param throwable The Throwable to be written to the log
      */
-    public static void fatalError(String message, Exception exception) {
-        log(LogLevel.FATALERROR, message, exception);
+    public static void fatalError(String message, Throwable throwable) {
+        log(LogLevel.FATALERROR, message, throwable);
     }
 
     /*
-    * Logs the message, message and/or exception can be null
+     * Logs the message, message and/or throwable can be null
      */
-    private static void log(LogLevel level, String message, Exception exception) {
+    private static void log(LogLevel level, String message, Throwable throwable) {
         if (level.level > logLevel.level || logLevel.equals(LogLevel.OFF)) {
             return;
         }
         message = message == null ? "" : message;
-        if (exception != null) {
+        if (throwable != null) {
             message += message.isEmpty() ? "" : "\n";
             if (LogLevel.DEBUG.equals(logLevel)) {
                 StringWriter writer = new StringWriter();
-                exception.printStackTrace(new PrintWriter(writer));
+                throwable.printStackTrace(new PrintWriter(writer));
                 message += writer.toString();
             } else {
-                message += exception.toString();
+                message += throwable.toString();
             }
         }
         String[] linesToPrint = message.split("\\R+");
@@ -262,6 +250,18 @@ public class Logger {
             message += (i == 0 ? header : headerBlanks) + linesToPrint[i] + (i + 1 < linesToPrint.length ? System.lineSeparator() : "");
         }
         logMessageConsumer.accept(LogMessage.of(level, message));
+    }
+    
+    /**
+     * The weight of the LogLevel, 0 means the worst and 5 the best
+     */
+    public enum LogLevel {
+        OFF(0), FATALERROR(1), ERROR(2), WARNING(3), INFO(4), DEBUG(5);
+        public final int level;
+        
+        LogLevel(int level) {
+            this.level = level;
+        }
     }
 
     /**

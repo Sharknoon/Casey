@@ -15,11 +15,11 @@
  */
 package sharknoon.dualide.ui.misc;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Resources;
+
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * @author Josua Frank
@@ -28,7 +28,7 @@ public enum Icon {
 
     AND,
     BACKGROUND,
-    BANNED,
+    VOID,
     BOOLEAN,
     CLASS,
     CLOSE,
@@ -84,12 +84,26 @@ public enum Icon {
     VARIABLECLASS,
     VARIABLENUMBER,
     VARIABLETEXT,
-    WELCOME;
+    WELCOME,
+    PARAMETER,
+    PLUSPARAMETER,
+    PARAMETERCLASS,
+    PARAMETERBOOLEAN,
+    PARAMETERNUMBER,
+    PARAMETERTEXT,
+    FUNCTIONBOOLEAN,
+    FUNCTIONCLASS,
+    FUNCTIONTEXT,
+    FUNCTIONNUMBER, FUNCTIONVOID;
 
     private String path;
     private boolean isSearched = false;
-
-    private Icon() {
+    
+    public static Icon forName(String name) {
+        return Enum.valueOf(Icon.class, name.toUpperCase());
+    }
+    
+    Icon() {
         this.path = name().toLowerCase();
     }
 
@@ -110,10 +124,6 @@ public enum Icon {
             isSearched = true;
         }
         return path.isEmpty() ? path : path + (asSVG ? ".svg" : ".png");
-    }
-
-    public static Icon forName(String name) {
-        return Enum.valueOf(Icon.class, name.toUpperCase());
     }
 
 }

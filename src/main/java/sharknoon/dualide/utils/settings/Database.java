@@ -5,29 +5,38 @@
  */
 package sharknoon.dualide.utils.settings;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
 import org.dizitart.no2.objects.ObjectFilter;
 import org.dizitart.no2.objects.ObjectRepository;
-import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.ui.MainApplication;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  * @author frank
  */
-public class Database implements Exitable {
-
-    private static final Nitrite DB = Nitrite
-            .builder()
-            .filePath(Resources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
-            .openOrCreate();
-
-    {
-        MainApplication.registerExitable(this);
+public class Database {
+    
+    private static Nitrite DB;
+    
+    static {
+        try {
+            DB = Nitrite
+                    .builder()
+                    .filePath(Resources.createAndGetFile("sharknoon/dualide/utils/settings/dualide.db", true).toFile())
+                    .openOrCreate();
+        } catch (Exception e) {
+            MainApplication.stopApp(e.getMessage());
+        }
+        MainApplication.registerExitable(() -> {
+            if (DB != null) {
+                DB.close();
+            }
+        });
     }
 
     public static <T> void store(T... objects) {
@@ -133,10 +142,4 @@ public class Database implements Exitable {
         });
     }
 
-    @Override
-    public void exit() {
-        if (DB != null) {
-            DB.close();
-        }
-    }
 }

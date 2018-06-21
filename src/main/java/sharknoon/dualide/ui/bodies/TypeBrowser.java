@@ -15,10 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -26,14 +22,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
@@ -43,11 +32,15 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
@@ -238,9 +231,7 @@ public class TypeBrowser extends VBox {
                         .stream()
                         .map(ti -> ti.getValue())
                         .filter(i -> i instanceof sharknoon.dualide.logic.items.Class)
-                        .filter(i -> types == null
-                        ? true
-                        : types.contains(((sharknoon.dualide.logic.items.Class) i).getReturnType())
+                        .filter(i -> types == null || types.contains(((sharknoon.dualide.logic.items.Class) i).toType())
                         )
                         .forEach((t) -> {
                             HBox hBoxclass = new HBox(10);
@@ -253,7 +244,7 @@ public class TypeBrowser extends VBox {
                                 hBoxclass.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
                                 previousSelectedType = hBoxclass;
                                 if (typeConsumer != null) {
-                                    typeConsumer.accept(((sharknoon.dualide.logic.items.Class) t).getReturnType());
+                                    typeConsumer.accept(((sharknoon.dualide.logic.items.Class) t).toType());
                                 }
                             });
                             hBoxclass.getChildren().addAll(icon, name);

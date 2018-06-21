@@ -15,20 +15,22 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import java.util.concurrent.CompletableFuture;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
 import sharknoon.dualide.logic.items.Function;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Josua Frank
@@ -38,8 +40,8 @@ public class FunctionSite extends Site<Function> {
     private final FunctionSiteVariablesParameters variableAndParameterSite;
     private final FunctionSiteLogic logicSite;
     private final FunctionSiteReturnType returnSite;
+    private ObjectProperty<Icon> icon;
 
-    private static final ObjectProperty<Icon> icon = new SimpleObjectProperty<>(Icon.FUNCTION);
 
     private TabPane root;
 
@@ -64,6 +66,13 @@ public class FunctionSite extends Site<Function> {
 
     public TabPane getRoot() {
         return root;
+    }
+    
+    @Override
+    public void afterInit() {
+        ChangeListener<? super Type> listener = (observable, oldValue, newValue) -> icon.set(getIcon(newValue));
+        getItem().returnTypeProperty().addListener(listener);
+        listener.changed(getItem().returnTypeProperty(), null, getItem().returnTypeProperty().get());
     }
 
     private void init() {
@@ -98,12 +107,33 @@ public class FunctionSite extends Site<Function> {
 
     @Override
     public ObjectProperty<Icon> tabIconProperty() {
+        if (icon == null) {
+            icon = new SimpleObjectProperty<>(Icon.FUNCTION);
+        }
         return icon;
     }
 
     @Override
     public Icon getAddIcon() {
         return Icon.PLUSFUNCTION;
+    }
+    
+    private Icon getIcon(Type type) {
+        if (type == null) {
+            return Icon.FUNCTION;
+        } else if (!type.isPrimitive()) {
+            return Icon.FUNCTIONCLASS;
+        } else if (type == PrimitiveType.BOOLEAN) {
+            return Icon.FUNCTIONBOOLEAN;
+        } else if (type == PrimitiveType.NUMBER) {
+            return Icon.FUNCTIONNUMBER;
+        } else if (type == PrimitiveType.TEXT) {
+            return Icon.FUNCTIONTEXT;
+        } else if (type == PrimitiveType.VOID) {
+            return Icon.FUNCTIONVOID;
+        } else {
+            return Icon.FUNCTION;
+        }
     }
 
 }

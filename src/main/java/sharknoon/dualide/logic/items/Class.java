@@ -23,7 +23,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import sharknoon.dualide.logic.Returnable;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.types.PrimitiveType;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * @author Josua Frank
  */
-public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> implements Returnable<Class.ObjectType> {
+public class Class extends Item<Class, Package, Item<? extends Item, Class, ? extends Item>> {
 
     private transient static final ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
 
@@ -71,6 +70,10 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         return CLASSES.stream()
                 .filter(c -> c.getFullName().equals(fullName))
                 .findFirst();
+    }
+    
+    public ObjectType toType() {
+        return type;
     }
 
     @Override
@@ -113,11 +116,6 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
         super.setAdditionalProperties(properties);
-    }
-
-    @Override
-    public ObjectType getReturnType() {
-        return type;
     }
 
     public static class ObjectType extends Type<ObjectType, ObjectValue> {
@@ -217,7 +215,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
 
         public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(Class::getReturnType);
+            return Class.forName(name).map(Class::toType);
         }
 
         @Override

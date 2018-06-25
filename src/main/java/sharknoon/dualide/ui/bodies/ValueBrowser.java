@@ -11,12 +11,13 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.SegmentedButton;
-import sharknoon.dualide.logic.Returnable;
+import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.calls.FunctionCall;
 import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -294,11 +295,16 @@ class ValueBrowser extends GridPane {
                         .getChildren()
                         .stream()
                         .map(TreeItem::getValue)
-                        .filter(i -> i instanceof Returnable)
+                        .filter(i -> i instanceof ValueReturnable)
                         .filter(i -> allowedTypes == null
-                                || allowedTypes.contains(((Returnable) i).getReturnType())
+                                || allowedTypes.contains(((ValueReturnable) i).getReturnType())
                         )
                         .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
+                            if (i.getType() == ItemType.FUNCTION) {
+                                statementConsumer.accept(new FunctionCall(parent, (Function) i));
+                            } else if (i.getType() == ItemType.VARIABLE) {
+                                //statementConsumer.accept(new VariableCall());
+                            }
                             //TODO
                         })));
             }
@@ -341,9 +347,9 @@ class ValueBrowser extends GridPane {
         currentClass
                 .getChildren()
                 .stream()
-                .filter(i -> i instanceof Returnable)
+                .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedTypes == null
-                        || allowedTypes.contains(((Returnable) i).getReturnType())
+                        || allowedTypes.contains(((ValueReturnable) i).getReturnType())
                 )
                 .forEach((item) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
                     //TODO
@@ -376,9 +382,9 @@ class ValueBrowser extends GridPane {
         currentFunction
                 .getChildren()
                 .stream()
-                .filter(i -> i instanceof Returnable)
+                .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedTypes == null
-                        || allowedTypes.contains(((Returnable) i).getReturnType())
+                        || allowedTypes.contains(((ValueReturnable) i).getReturnType())
                 )
                 .forEach((item) -> vBoxVariables.getChildren().add(getEntries(item, event -> {
                     //TODO

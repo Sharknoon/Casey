@@ -15,19 +15,20 @@
  */
 package sharknoon.dualide.logic.statements;
 
-import sharknoon.dualide.logic.Returnable;
-import sharknoon.dualide.logic.statements.operators.Operator;
-import sharknoon.dualide.logic.types.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.Body;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The statement is the base class for values, operators, ...
@@ -37,7 +38,7 @@ import sharknoon.dualide.ui.bodies.Body;
  * @param <T> The type of this statement
  * @param <CT> The child type of this statement
  */
-public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements Returnable {
+public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements ValueReturnable {
 
     private final transient ReadOnlyObjectWrapper<Statement<Type, Type, T>> parent = new ReadOnlyObjectWrapper<>();
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
@@ -75,7 +76,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     public void destroy() {
         destroy_impl();
         if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
-            parentProperty().get().childs.remove((Statement) this);
+            parentProperty().get().childs.remove(this);
         }
     }
 

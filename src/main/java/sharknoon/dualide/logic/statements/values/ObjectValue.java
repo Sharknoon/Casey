@@ -15,56 +15,54 @@
  */
 package sharknoon.dualide.logic.statements.values;
 
-import java.util.Objects;
-import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.statements.Statement;
+
+import java.util.Objects;
 
 /**
- *
  * @author Josua Frank
  */
 public class ObjectValue extends Value<ObjectType> {
-
+    
     public static ObjectValue createObject(ObjectType type, Statement parent) {
         return new ObjectValue(type, parent);
     }
-
+    
     public ObjectValue(ObjectType type, Statement parent) {
         super(type, parent);
     }
-
+    
     @Override
     public Value<ObjectType> calculateResult() {
         return this;
     }
-
+    
     @Override
     public String toString() {
         return getReturnType().simpleNameProperty().get();
     }
-
+    
     @Override
     public int hashCode() {
         return getReturnType().hashCode();
         //TODO implement methods and paramteres
     }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final ObjectValue other = (ObjectValue) obj;
-            return Objects.equals(this.getReturnType(), other.getReturnType());
-            //TODO implement methods and paramteres
-        }
-
     
-
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ObjectValue other = (ObjectValue) obj;
+        return Objects.equals(this.getReturnType(), other.getReturnType());
+        //TODO implement methods and paramteres
+    }
+    
 }

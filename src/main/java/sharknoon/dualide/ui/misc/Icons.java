@@ -16,7 +16,6 @@
 package sharknoon.dualide.ui.misc;
 
 import afester.javafx.svg.SvgLoader;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -38,58 +37,58 @@ import java.util.Optional;
  * @author Josua Frank
  */
 public class Icons {
-
+    
     private static final double DEFAULT_SIZE = 30;
     private static final double DEFAULT_PADDING = 3;
     private static final Insets DEFAULT_PADDING_INSETS = new Insets(DEFAULT_PADDING);
     private static final Map<Icon, Image> IMAGE_CACHE = new HashMap<>();
     private static final Map<Icon, Group> SVG_CACHE = new HashMap<>();
     private static final SvgLoader SVG_LOADER = new SvgLoader();
-
+    
     public static Node get(Icon icon) {
         return get(icon, DEFAULT_SIZE);
     }
-
+    
     public static Node get(Icon icon, double size) {
         return create(icon, size);
     }
-
+    
     public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon) {
         return iconToNodeProperty(icon, DEFAULT_SIZE);
     }
-
+    
     public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon, double size) {
         ObjectProperty<Node> result = new SimpleObjectProperty<>();
-        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> Platform.runLater(() -> result.set(get(newValue, size)));
+        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> result.set(get(newValue, size));
         icon.addListener(listener);
         listener.changed(icon, null, icon.get());
         return result;
     }
-
-    public static ObjectProperty<Image> iconToImageProperty(ObjectProperty<Icon> icon){
+    
+    public static ObjectProperty<Image> iconToImageProperty(ObjectProperty<Icon> icon) {
         ObjectProperty<Image> result = new SimpleObjectProperty<>();
-        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> Platform.runLater(() -> result.set(getImage(newValue).orElse(null)));
+        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> result.set(getImage(newValue).orElse(null));
         icon.addListener(listener);
         listener.changed(icon, null, icon.get());
         return result;
     }
-
+    
     public static void set(Icon icon, Labeled labeled) {
         labeled.setGraphic(create(icon, DEFAULT_SIZE));
     }
-
+    
     public static void set(Icon icon, Labeled labeled, double size) {
         labeled.setGraphic(create(icon, size));
     }
-
+    
     public static void setCustom(Icon icon, ValueSetter<Node> valueSetter) {
         valueSetter.setValue(create(icon, DEFAULT_SIZE));
     }
-
+    
     public static void setCustom(Icon icon, ValueSetter<Node> valueSetter, double size) {
         valueSetter.setValue(create(icon, size));
     }
-
+    
     private static Node create(Icon icon, double desiredSize) {
 //        Optional<Group> svg = getSVG(icon);
 //        if (svg.isPresent()) {
@@ -120,7 +119,7 @@ public class Icons {
         }
         return view;
     }
-
+    
     public static Optional<Image> getImage(Icon icon) {
         if (!IMAGE_CACHE.containsKey(icon)) {
             synchronized (Icons.class) {
@@ -138,7 +137,7 @@ public class Icons {
             return Optional.ofNullable(IMAGE_CACHE.get(icon));
         }
     }
-
+    
     public static Optional<Group> getSVG(Icon icon) {
         if (!SVG_CACHE.containsKey(icon)) {
             synchronized (Icons.class) {
@@ -156,11 +155,11 @@ public class Icons {
             return Optional.ofNullable(SVG_CACHE.get(icon));
         }
     }
-
+    
     @FunctionalInterface
     public interface ValueSetter<T> {
-
-        public void setValue(T value);
+        
+        void setValue(T value);
     }
-
+    
 }

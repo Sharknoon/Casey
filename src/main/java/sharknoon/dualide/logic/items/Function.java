@@ -20,11 +20,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import javafx.beans.property.*;
-import javafx.collections.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
-import sharknoon.dualide.logic.Returnable;
+import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
@@ -34,12 +36,15 @@ import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.settings.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Josua Frank
  */
-public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Item<? extends Item, ? extends Item, Function>> implements Returnable<Type> {
+public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Item<? extends Item, ? extends Item, Function>> implements ValueReturnable<Type> {
 
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>(PrimitiveType.VOID);
     private static final String RETURNTYPE = "returntype";

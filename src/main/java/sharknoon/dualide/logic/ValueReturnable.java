@@ -1,4 +1,3 @@
-package sharknoon.dualide.ui.bodies;
 /*
  * Copyright 2018 Shark Industries.
  *
@@ -14,19 +13,18 @@ package sharknoon.dualide.ui.bodies;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package sharknoon.dualide.logic;
 
-import sharknoon.dualide.logic.statements.functions.FunctionCall;
+import javafx.beans.property.ObjectProperty;
 import sharknoon.dualide.logic.types.Type;
 
-import java.util.Collection;
-
-public class FunctionBody extends Body<FunctionCall<Type,Type>> {
-
-    public FunctionBody(FunctionCall<Type, Type> statement) {
-        super(statement);
-    }
-
-    public FunctionBody(Collection<? extends Type> types) {
-        super(types);
-    }
+/**
+ * @author Josua Frank
+ */
+public interface ValueReturnable<T extends Type> {
+    
+    T getReturnType();
+    
+    ObjectProperty<T> returnTypeProperty();
+    
 }

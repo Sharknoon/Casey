@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.sites;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -45,7 +46,7 @@ import java.util.function.Consumer;
  * @author Josua Frank
  */
 public class SiteUtils {
-
+    
     public static Word getCommentWord(ItemType type) {
         switch (type) {
             case CLASS:
@@ -65,7 +66,7 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_COMMENT_CHILDREN_BUTTON_TEXT;
         }
     }
-
+    
     public static Word getRenameWord(ItemType type) {
         switch (type) {
             case CLASS:
@@ -85,7 +86,7 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_RENAME_CHILDREN_BUTTON_TEXT;
         }
     }
-
+    
     public static Word getDeleteWord(ItemType type) {
         switch (type) {
             case CLASS:
@@ -105,7 +106,7 @@ public class SiteUtils {
                 return Word.PROJECT_SITE_DELETE_CHILDREN_BUTTON_TEXT;
         }
     }
-
+    
     public static Word getAddChildrenWord(ItemType type) {
         switch (type) {
             case CLASS:
@@ -125,7 +126,7 @@ public class SiteUtils {
                 return Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT;
         }
     }
-
+    
     public static Dialogs.TextInputs getAddChildrenDialog(ItemType type) {
         switch (type) {
             case CLASS:
@@ -145,7 +146,7 @@ public class SiteUtils {
                 return Dialogs.TextInputs.NEW_TEXT_VALUE;
         }
     }
-
+    
     public static Dialogs.TextEditors getCommentDialog(ItemType type) {
         switch (type) {
             case CLASS:
@@ -165,7 +166,7 @@ public class SiteUtils {
                 return Dialogs.TextEditors.COMMENT_PROJECT_DIALOG;
         }
     }
-
+    
     public static Dialogs.TextInputs getRenameDialog(ItemType type) {
         switch (type) {
             case CLASS:
@@ -185,7 +186,7 @@ public class SiteUtils {
                 return Dialogs.TextInputs.RENAME_PROJECT_DIALOG;
         }
     }
-
+    
     public static Dialogs.Confirmations getDeleteDialog(ItemType type) {
         switch (type) {
             case CLASS:
@@ -205,7 +206,7 @@ public class SiteUtils {
                 return Dialogs.Confirmations.DELETE_PROJECT_DIALOG;
         }
     }
-
+    
     public static Icon getAddChildrenIcon(ItemType type) {
         switch (type) {
             case CLASS:
@@ -225,24 +226,24 @@ public class SiteUtils {
                 return Icon.PLUS;
         }
     }
-
+    
     public static Pane getItemContent(Item<?, ?, ?> item, ItemType... allowedChildrenTypes) {
         var borderPaneRoot = new BorderPane();
-
+        
         var childContent = getChildContent(item);
         var siteFooter = getFooter(item, allowedChildrenTypes);
-
-
+        
+        
         borderPaneRoot.setCenter(childContent);
         borderPaneRoot.setBottom(siteFooter);
         return borderPaneRoot;
     }
-
+    
     public static Node getFooter(Item<?, ?, ?> item, ItemType... allowedChildrenTypes) {
         var gridPanePackageButtons = new GridPane();
         gridPanePackageButtons.setHgap(20);
         gridPanePackageButtons.setPadding(new Insets(50));
-
+        
         List<Button> buttonRow = new ArrayList<>();
         for (ItemType allowedChildrenType : allowedChildrenTypes) {
             var wordButtonText = getAddChildrenWord(allowedChildrenType);
@@ -256,7 +257,7 @@ public class SiteUtils {
             });
             buttonRow.add(buttonAddChildren);
         }
-
+        
         var wordComment = getCommentWord(item.getType());
         var dialogComment = getCommentDialog(item.getType());
         var buttonComment = createButton(wordComment, Icon.COMMENTS, (t) -> {
@@ -284,7 +285,7 @@ public class SiteUtils {
             }
         }, false, true);
         buttonRow.add(buttonDelete);
-
+        
         for (var i = 0; i < buttonRow.size(); i++) {
             gridPanePackageButtons.add(buttonRow.get(i), i, 0);
             var colAddChildren = new ColumnConstraints();
@@ -300,14 +301,14 @@ public class SiteUtils {
         }
         return gridPanePackageButtons;
     }
-
+    
     public static ScrollPane getChildContent(Item<?, ?, ?> item) {
         var gridPaneChildren = new GridPane();
         gridPaneChildren.setVgap(20);
         gridPaneChildren.setHgap(20);
         gridPaneChildren.setAlignment(Pos.TOP_CENTER);
         gridPaneChildren.setPadding(new Insets(50));
-
+        
         var colIcon = new ColumnConstraints();
         colIcon.setHalignment(HPos.LEFT);
         var colText = new ColumnConstraints();
@@ -321,19 +322,19 @@ public class SiteUtils {
         var colButtonDelete = new ColumnConstraints();
         colButtonDelete.setHalignment(HPos.RIGHT);
         gridPaneChildren.getColumnConstraints().addAll(colIcon, colText, colButtonComments, colButtonRename, colButtonDelete);
-
+        
         BindUtils.addListener(item.childrenProperty(), (prop, oldChilds, childs) -> {
             gridPaneChildren.getChildren().clear();
             var rowCounter = 0;
             for (Item<?, ?, ?> c : childs) {
                 Runnable onClick = () -> c.getSite().select();
-
+    
                 var icon = new ImageView();
                 icon.setPreserveRatio(true);
                 icon.setFitHeight(50);
                 icon.setOnMouseClicked(e -> onClick.run());
-                icon.imageProperty().bind(Icons.iconToImageProperty(c.getSite().tabIconProperty()));
-
+                Platform.runLater(() -> icon.imageProperty().bind(Icons.iconToImageProperty(c.getSite().tabIconProperty())));
+                
                 var textName = new Text();
                 var shadowEffect = new DropShadow(10, Color.WHITESMOKE);
                 shadowEffect.setSpread(0.5);
@@ -341,32 +342,32 @@ public class SiteUtils {
                 textName.setFont(Font.font(30));
                 textName.textProperty().bindBidirectional(c.nameProperty());
                 textName.setOnMouseClicked(e -> onClick.run());
-
+    
                 var wordComment = SiteUtils.getCommentWord(c.getType());
                 var wordRename = SiteUtils.getRenameWord(c.getType());
                 var wordDelete = SiteUtils.getDeleteWord(c.getType());
-
+    
                 var dialogComment = SiteUtils.getCommentDialog(c.getType());
                 var dialogRename = SiteUtils.getRenameDialog(c.getType());
                 var dialogDelete = SiteUtils.getDeleteDialog(c.getType());
-
+    
                 var buttonComment = createButton(wordComment, Icon.COMMENTS, (t) -> {
                     var comments = Dialogs.showTextEditorDialog(dialogComment, c.getComments());
                     comments.ifPresent(c::setComments);
                 }, false, true);
-
+    
                 var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
                     Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()), null);
                     name.ifPresent(c::setName);
                 }, false, true);
-
+    
                 var buttonDelete = createButton(wordDelete, Icon.TRASH, (t) -> {
                     var confirmed = Dialogs.showConfirmationDialog(dialogDelete, Map.of(c.getType().name(), c.getName()));
                     if (confirmed.isPresent() && confirmed.get()) {
                         c.destroy();
                     }
                 }, false, true);
-
+    
                 gridPaneChildren.addRow(rowCounter,
                         icon,
                         textName,
@@ -374,7 +375,7 @@ public class SiteUtils {
                         buttonRename,
                         buttonDelete
                 );
-
+    
                 rowCounter++;
             }
         });
@@ -383,19 +384,19 @@ public class SiteUtils {
         scrollPaneChildren.setFitToWidth(true);
         return scrollPaneChildren;
     }
-
+    
     public static Button createButton(Word buttonText, Consumer<ActionEvent> onAction) {
         return createButton(buttonText, null, onAction);
     }
-
+    
     public static Button createButton(Icon icon, Consumer<ActionEvent> onAction) {
         return createButton(null, icon, onAction);
     }
-
+    
     public static Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction) {
         return createButton(buttonText, icon, onAction, true, true);
     }
-
+    
     public static Button createButton(Word buttonText, Icon icon, Consumer<ActionEvent> onAction, boolean withText, boolean withTooltip) {
         var buttonAdd = new Button();
         if (buttonText != null) {

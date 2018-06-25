@@ -15,38 +15,35 @@
  */
 package sharknoon.dualide.logic.statements.operators;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.Body;
 
+import java.util.*;
+import java.util.function.Supplier;
+
 /**
- *
- * @author Josua Frank
- * @param <T> type
+ * @param <T>  type
  * @param <CT> Child type, if the type is unimportant, use the abstract type
- * value
+ *             value
+ * @author Josua Frank
  */
 public abstract class Operator<T extends Type, CT extends Type> extends Statement<Type, T, CT> {
-
-    //A map instead of a list to leave empty spaces inbetween the indexes
+    
     private final Type returnType;
+    //A map instead of a list to leave empty spaces inbetween the indexes
     private final Set<Type> parameterTypes;
     private final int minimumParameters;
     private final int maximumParamerters;
     private final boolean isExtensible;
-
+    
     public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType, PrimitiveType... parameterTypes) {
         super(parent);
         this.returnType = returnType;
@@ -62,7 +59,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         this.maximumParamerters = maximumParameters;
         this.isExtensible = isExtensible;
     }
-
+    
     public void addParameter(Statement<T, CT, Type> parameter) {
         if (parameter != null) {//If the parameter is null, add it to the end, if not, replace the first null value
             for (int i = 0; i < childs.size(); i++) {
@@ -74,15 +71,15 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         }
         setParameter(getParameterAmount(), parameter);
     }
-
+    
     public void removeLastParameter() {
         childs.remove(childs.size() - 1);
     }
-
+    
     /**
      * Overrides the parameter
      *
-     * @param index starting at 0
+     * @param index     starting at 0
      * @param parameter
      */
     public void setParameter(int index, Statement<T, CT, Type> parameter) {
@@ -98,11 +95,11 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
             childs.add(parameter);
         }
     }
-
+    
     public Optional<Statement<T, CT, Type>> getParameter(int index) {
         return Optional.ofNullable(childs.get(index));
     }
-
+    
     /**
      * be warned, there could be some null gapps inbetween the parameters
      *
@@ -111,12 +108,17 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     public List<Statement<T, CT, Type>> getParameters() {
         return childs;
     }
-
+    
     @Override
     public Type getReturnType() {
         return returnType;
     }
-
+    
+    @Override
+    public ObjectProperty returnTypeProperty() {
+        return new SimpleObjectProperty<>(returnType);
+    }
+    
     /**
      * empty set means all types are allowed
      *
@@ -125,31 +127,30 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     public Set<Type> getParameterTypes() {
         return parameterTypes;
     }
-
+    
     public OperatorType getOperatorType() {
         return OperatorType.valueOf(this);
     }
-
+    
     public int getMinimumParameterAmount() {
         return minimumParameters;
     }
-
+    
     /**
-     *
      * @return -1 for infinite parameters
      */
     public int getMaximumParameterAmount() {
         return maximumParamerters;
     }
-
+    
     public int getParameterAmount() {
         return parameterAmountProperty().get();
     }
-
+    
     public ReadOnlyIntegerProperty parameterAmountProperty() {
         return childs.sizeProperty();
     }
-
+    
     /**
      * To be overridden by e.g. the negation
      *
@@ -176,7 +177,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         }
         return listParameter;
     }
-
+    
     /**
      * to be overridden
      *
@@ -190,11 +191,11 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         addParameter(null);
         return result;
     }
-
+    
     public int indexWithOperatorsToRegularIndex(int indexWithOperators) {
         return indexWithOperators / 2;
     }
-
+    
     /**
      * to be overridden
      *
@@ -204,15 +205,15 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         removeLastParameter();
         return 2;
     }
-
+    
     public Optional<Statement<T, CT, Type>> getFirstParameter() {
         return Optional.ofNullable(childs.get(0));
     }
-
+    
     public Optional<Statement<T, CT, Type>> getLastParameter() {
         return Optional.ofNullable(childs.get(getParameterAmount() - 1));
     }
-
+    
     /**
      * To be overridden by some subclasses
      *
@@ -221,7 +222,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     public boolean startsWithParameter() {
         return true;
     }
-
+    
     /**
      * To be overridden by some subclasses
      *
@@ -230,7 +231,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     public boolean endsWithParameter() {
         return true;
     }
-
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder().append('(');
@@ -250,10 +251,9 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         }
         return builder.append(')').toString();
     }
-
+    
     public boolean isExtensible() {
         return isExtensible;
     }
-;
-
+    
 }

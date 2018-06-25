@@ -25,7 +25,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
-import sharknoon.dualide.logic.Returnable;
+import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 
@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * @author Josua Frank
  */
-public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> implements Returnable<Type> {
+public class Variable extends Item<Variable, Item<? extends Item, ? extends Item, Variable>, Item<? extends Item, Variable, ? extends Item>> implements ValueReturnable<Type> {
 
     private static final String TYPE = "type";
     private static final String MODIFIABLE = "modifiable";
@@ -108,7 +108,12 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     public Type getReturnType() {
         return type.get();
     }
-
+    
+    @Override
+    public ObjectProperty<Type> returnTypeProperty() {
+        return type;
+    }
+    
     public boolean isInFunction() {
         return isIn(ItemType.FUNCTION);
     }

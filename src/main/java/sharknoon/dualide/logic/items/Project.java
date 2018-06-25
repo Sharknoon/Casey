@@ -21,6 +21,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.MainApplication;
 import sharknoon.dualide.ui.sites.welcome.RecentProject;
@@ -113,7 +114,8 @@ public class Project extends Item<Project, Item, Package> {
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_DUALIDE_PROJECT), "*.dip")
             );
-            File file = chooser.showSaveDialog(Stage.getWindows().iterator().next());
+            Window ownerWindow = Stage.getWindows().size() > 0 ? Stage.getWindows().get(0) : null;
+            File file = chooser.showSaveDialog(ownerWindow);
             if (file != null) {
                 saveFile.set(file.toPath());
             }

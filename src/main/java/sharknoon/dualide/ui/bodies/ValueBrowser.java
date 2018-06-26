@@ -298,6 +298,8 @@ class ValueBrowser extends GridPane {
                         .filter(i -> i instanceof ValueReturnable)
                         .filter(i -> allowedTypes == null
                                 || allowedTypes.contains(((ValueReturnable) i).getReturnType())
+                                || !((ValueReturnable) i).getReturnType().isPrimitive()
+                                
                         )
                         .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
                             if (i.getType() == ItemType.FUNCTION) {
@@ -350,6 +352,7 @@ class ValueBrowser extends GridPane {
                 .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedTypes == null
                         || allowedTypes.contains(((ValueReturnable) i).getReturnType())
+                        || !((ValueReturnable) i).getReturnType().isPrimitive()
                 )
                 .forEach((item) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
                     //TODO
@@ -385,6 +388,7 @@ class ValueBrowser extends GridPane {
                 .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedTypes == null
                         || allowedTypes.contains(((ValueReturnable) i).getReturnType())
+                        || !((ValueReturnable) i).getReturnType().isPrimitive()
                 )
                 .forEach((item) -> vBoxVariables.getChildren().add(getEntries(item, event -> {
                     //TODO

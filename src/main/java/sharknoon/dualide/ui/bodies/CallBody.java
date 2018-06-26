@@ -15,10 +15,7 @@ package sharknoon.dualide.ui.bodies;
  * limitations under the License.
  */
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.DoubleExpression;
-import javafx.beans.binding.ObjectExpression;
+import javafx.beans.binding.*;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -131,9 +128,9 @@ public class CallBody extends Body<Call<?>> {
             label.setTextFill(Color.BLACK);
             label.setFont(Font.font(25));
             label.textProperty().bind(name);
-    
+            
             listNode.addAll(icon, label);
-    
+            
             if (call instanceof Function) {
                 Function f = (Function) call;
                 if (f.hasParameter()) {
@@ -142,7 +139,7 @@ public class CallBody extends Body<Call<?>> {
                     });
                 }
             }
-    
+            
             if (i < calls.size() - 1) {
                 Node arrow = Icons.get(Icon.BACKGROUND, 40);
                 listNode.add(arrow);
@@ -191,36 +188,82 @@ public class CallBody extends Body<Call<?>> {
     }
     
     private void onChildChange(Call<?> call, HBox hBoxContent) {
+        ObjectProperty<Type> rightReturnType = new SimpleObjectProperty<>();
+        BindUtils.getLast(call.getCalls()).addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                newValue.returnTypeProperty().addListener((observable1, oldValue1, newValue1) -> {
+                    rightReturnType.set(newValue1);
+                });
+                rightReturnType.set(newValue.getReturnType());
+            } else {
+                rightReturnType.set(null);
+            }
+        });
+        rightReturnType.setValue(call.getCalls().get(call.getCalls().size()-1).getReturnType());
+        
         ObjectExpression<Insets> padding = getPadding(
                 call.returnTypeProperty(),
-                heightProperty()
+                heightProperty(),
+                rightReturnType
         );
         ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
         hBoxContent.paddingProperty().bind(ov);
     }
     
-    private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height) {
-        DoubleBinding padding = calculateDistance(parent, height);
+    private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> rightType) {
+        DoubleBinding padding = calculateDistance(parent, height, rightType);
         return Bindings.createObjectBinding(() -> new Insets(0, padding.get(), 0, padding.get()), padding);
     }
     
-    private DoubleBinding calculateDistance(ObjectExpression<Type> parentOE, DoubleExpression childheightOE) {
+    private DoubleBinding calculateDistance(ObjectExpression<Type> parentOE, DoubleExpression childheightOE, ObjectExpression<Type> childOE) {
         return Bindings.createDoubleBinding(() -> {
             Type parent = parentOE.get();
-            double childheight = childheightOE.get();
-            if (parent instanceof PrimitiveType.VoidType) {
-                return childheight * (1.0 / 2.0);
-            } else if (parent instanceof PrimitiveType.BooleanType) {
-                return childheight * (1.0 / 3.0);
-            } else if (parent instanceof PrimitiveType.NumberType) {
-                return childheight * (1.0 / 4.0);
+            double childHeight = childheightOE.get();
+            Type childType = childOE.get();
+            int childValue = getWeight(childType);
+            //Parent is a boolean
+            if (parent instanceof BooleanType) {
+                switch (childValue) {
+                    //Child is a number
+                    case 1:
+                        return childHeight * (1.0 / 4.0);
+                    //Child is a object
+                    case 2:
+                        return childHeight * (1.0 / 6.0);
+                    //Child is a text
+                    case 3:
+                        return childHeight * (3.0 / 8.0);
+                    //Child can be everything
+                    case 4:
+                        return childHeight * (1.0 / 2.0);
+                }
+            } else if (parent instanceof NumberType) {
+                switch (childValue) {
+                    //Child is a object
+                    case 2:
+                        return childHeight * (3.0 / 20.0);
+                    //Child is a text
+                    case 3:
+                        return childHeight * (1.0 / 4.0);
+                    //Child can be everything
+                    case 4:
+                        return childHeight * (1.0 / 2.0);
+                }
             } else if (parent instanceof ObjectType) {
-                return childheight * (1.0 / 4.0);
+                switch (childValue) {
+                    //Child is a text
+                    case 3:
+                        return childHeight * (2.0 / 9.0);
+                    //Child can be everything
+                    case 4:
+                        return childHeight * (1.0 / 3.0);
+                }
             } else if (parent instanceof PrimitiveType.TextType) {
-                return childheight * (1.0 / 8.0);
+                //Child can be everything
+                return childHeight * (1.0 / 4.0);
             }
             return 0.0;
-        }, parentOE, childheightOE);
+        }, parentOE, childheightOE, childOE);
     }
     
     @Override

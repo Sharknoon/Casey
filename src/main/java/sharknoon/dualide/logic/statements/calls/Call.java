@@ -14,8 +14,6 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,6 +22,7 @@ import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.stream.Collectors;
 
@@ -35,8 +34,7 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
     
     public Call(Statement<Type, Type, Type> parent, VR startCall) {
         super(parent);
-        IntegerBinding lastIndexBinding = Bindings.size(calls).subtract(1);
-        lastCall = Bindings.valueAt(calls, lastIndexBinding);
+        lastCall = BindUtils.getLast(calls);
         lastCall.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 newValue.returnTypeProperty().addListener((observable1, oldValue1, newValue1) -> {

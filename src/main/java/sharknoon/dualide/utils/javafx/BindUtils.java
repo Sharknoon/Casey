@@ -15,24 +15,21 @@
  */
 package sharknoon.dualide.utils.javafx;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.function.Function;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.IntegerBinding;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import java.util.List;
-import java.util.function.Consumer;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.IntegerBinding;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.event.Event;
 import org.fxmisc.easybind.EasyBind;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  *
@@ -137,6 +134,11 @@ public class BindUtils {
             }
             return FXCollections.unmodifiableObservableList(deps);
         }
+    }
+    
+    public static <E> ObjectBinding<E> getLast(ObservableList<E> list) {
+        IntegerBinding lastIndex = Bindings.size(list).subtract(1);
+        return Bindings.valueAt(list, lastIndex);
     }
 
 }

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Parameter extends Item<Parameter, Item<? extends Item, ? extends Item, Parameter>, Item<? extends Item, Parameter, ? extends Item>> implements ValueReturnable<Type> {
+public class Parameter extends Item<Parameter, Function, Item<? extends Item, Parameter, ? extends Item>> implements ValueReturnable<Type> {
 
     private static final String TYPE = "type";
     private static final String MODIFIABLE = "modifiable";
@@ -48,8 +48,8 @@ public class Parameter extends Item<Parameter, Item<? extends Item, ? extends It
 
     private final ObjectProperty<Type> type = new SimpleObjectProperty<>(PrimitiveType.TEXT);
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
-
-    protected Parameter(Item<? extends Item, ? extends Item, Parameter> parent, String name) {
+    
+    protected Parameter(Function parent, String name) {
         super(parent, name);
         typeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && PARAMETERS.containsKey(oldValue)) {

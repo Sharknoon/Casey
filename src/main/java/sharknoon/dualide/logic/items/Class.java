@@ -167,7 +167,12 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             public Optional<ObjectValue> createValue(Statement parent) {
                 return super.createValue(parent);
             }
-
+    
+            @Override
+            public ObjectValue createEmptyValue(Statement parent) {
+                return super.createEmptyValue(parent);
+            }
+    
             @Override
             public Icon getIcon() {
                 return super.getIcon();
@@ -270,7 +275,12 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
                     )
                     .map(o -> new ObjectValue(o.getObjectType(), parent));
         }
-
+    
+        @Override
+        public ObjectValue createEmptyValue(Statement parent) {
+            return new ObjectValue(this, parent);
+        }
+    
         @Override
         public Icon getCreationIcon() {
             return Icon.PLUSCLASS;

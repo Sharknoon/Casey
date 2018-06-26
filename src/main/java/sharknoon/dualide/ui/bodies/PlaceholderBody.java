@@ -15,6 +15,9 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
@@ -96,4 +99,8 @@ public class PlaceholderBody extends Body {
         return getClass().getSimpleName();
     }
     
+    @Override
+    public ObservableList<Text> toText() {
+        return FXCollections.emptyObservableList();
+    }
 }

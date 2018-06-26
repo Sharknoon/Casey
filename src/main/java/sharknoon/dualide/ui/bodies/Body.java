@@ -20,7 +20,6 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -39,9 +38,11 @@ import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.utils.javafx.FXUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -123,7 +124,6 @@ public abstract class Body<S extends Statement> extends Group {
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
         backgroundShape.addListener((observable, oldValue, newValue) -> {
-            System.out.println("backgroundshape changed from statement const");
             getChildren().remove(oldValue);
             getChildren().add(0, newValue);
         });
@@ -132,11 +132,10 @@ public abstract class Body<S extends Statement> extends Group {
     Body(Collection<? extends Type> types) {
         super();
         this.statement = null;
-        this.backgroundShape = typeToShapeBinding(FXCollections.observableSet(new HashSet<>(types == null ? List.of() : types)));
+        this.backgroundShape = typeToShapeBinding(FXCollections.observableArrayList(types == null ? List.of() : types));
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
         backgroundShape.addListener((observable, oldValue, newValue) -> {
-            System.out.println("backgroundshape changed from types const");
             getChildren().remove(oldValue);
             getChildren().add(0, newValue);
         });
@@ -246,15 +245,15 @@ public abstract class Body<S extends Statement> extends Group {
     }
     
     private ObjectBinding<Shape> typeToShapeBinding(ObservableObjectValue<Type> type) {
-        ObservableSet<Type> set = FXCollections.observableSet();
+        ObservableList<Type> list = FXCollections.observableArrayList();
         type.addListener((observable, oldValue, newValue) -> {
-            set.remove(oldValue);
-            set.add(newValue);
+            list.set(0, newValue);
         });
-        return typeToShapeBinding(set);
+        list.add(type.get());
+        return typeToShapeBinding(list);
     }
     
-    private ObjectBinding<Shape> typeToShapeBinding(ObservableSet<? extends Type> types) {
+    private ObjectBinding<Shape> typeToShapeBinding(ObservableList<? extends Type> types) {
         Body b = this;
         return new ObjectBinding<>() {
             
@@ -272,7 +271,7 @@ public abstract class Body<S extends Statement> extends Group {
                 final Shape shape;
                 double height = contentPane.getHeight();
                 double width = contentPane.getWidth();
-                if (types != null && types.size() == 1) {
+                if (types != null && types.size() == 1 && types.get(0) != null) {
                     Type type = types.iterator().next();
                     if (type.isPrimitive()) {
                         if (type instanceof BooleanType) {
@@ -374,45 +373,7 @@ public abstract class Body<S extends Statement> extends Group {
         getChildren().clear();
     }
     
-    public ObservableList<Text> toText() {
-        ObservableList<Text> text = FXCollections.observableArrayList();
-        if (statement instanceof Operator) {
-            List<Statement> childs = statement.getChilds();
-            Text bracketOpen = new Text("(");
-            Text bracketClose = new Text(")");
-            Color random = FXUtils.getRandomDifferentColor();
-            bracketOpen.setFill(random);
-            bracketClose.setFill(random);
-            text.add(bracketOpen);
-            if (childs.size() > 1) {//infix
-                childs.forEach((child) -> {
-                    List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
-                    text.addAll(par);
-                    Text op = new Text(String.valueOf(((Operator) statement).getOperatorType()));
-                    text.add(op);
-                });
-                if (childs.size() > 0) {
-                    text.remove(text.size() - 1);
-                }
-            } else {//op text
-                Text op = new Text(String.valueOf(((Operator) statement).getOperatorType()));
-                text.add(op);
-                if (childs.size() > 0) {
-                    Text par = new Text(String.valueOf(childs.get(0)));
-                    par.setFill(Color.LIGHTBLUE);
-                    text.add(par);
-                }
-            }
-            text.add(bracketClose);
-        } else if (statement instanceof Value) {
-            Text par = new Text(String.valueOf(String.valueOf(statement)));
-            par.setFill(Color.LIGHTBLUE);
-            text.add(par);
-        } else {
-            //TODO funktionen
-        }
-        return text;
-    }
+    public abstract ObservableList<Text> toText();
     
     @Override
     public String toString() {

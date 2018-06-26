@@ -14,5 +14,22 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
-public class VariableCall {
+import sharknoon.dualide.logic.items.Variable;
+import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.types.Type;
+
+public class VariableCall extends Call<Variable> {
+    
+    private final Variable variable;
+    
+    public VariableCall(Statement<Type, Type, Type> parent, Variable startCall) {
+        super(parent, startCall);
+        this.variable = startCall;
+    }
+    
+    @Override
+    public Value<Type> calculateResult() {
+        return variable.getReturnType().createEmptyValue(parentProperty().get());
+    }
 }

@@ -15,46 +15,23 @@
  */
 package sharknoon.dualide;
 
-import javafx.application.Application;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
-public class Debug extends Application {
-
-    Rectangle rectBack;
-    Rectangle rectFront;
-
-    @Override
-    public void start(Stage primaryStage) {
-        rectBack = new Rectangle(100, 100);
-        rectBack.setFill(Color.GREEN);
-        rectFront = new Rectangle(50, 50);
-        rectFront.setFill(Color.BLUE);
-
-        rectBack.setOnMouseDragged(event -> {
-            System.out.println("mouse dragged back node");
-        });
-        rectFront.setOnMouseDragged(event -> {
-            System.out.println("mouse dragged front node");
-        });
-        StackPane root = new StackPane();
-        root.getChildren().addAll(rectBack, rectFront);
-        root.setOnMouseDragged(event -> {
-            System.out.println("mouse dragged root node");
-        });
-        root.setStyle("-fx-background-color: yellow");
-        Scene scene = new Scene(root, 300, 300);
-
-        primaryStage.setTitle("MouseClicked!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+public class Debug {
+    
+    public static Stage stage;
+    public static FlowPane pane = new FlowPane();
+    
+    public static void show(Node node) {
+        if (stage == null) {
+            stage = new Stage();
+            stage.setScene(new Scene(pane));
+            stage.show();
+        }
+        pane.getChildren().add(node);
     }
 
 }

@@ -18,6 +18,8 @@ package sharknoon.dualide.ui.bodies;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
@@ -28,33 +30,26 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.BooleanValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.NumberValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.TextValue;
-import sharknoon.dualide.logic.statements.values.ObjectValue;
+import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.types.PrimitiveType;
+import sharknoon.dualide.logic.types.Type;
 
 /**
- *
  * @author Josua Frank
  */
 public class ValueBody extends Body<Value> {
-
+    
+    private static final Insets MARGIN = new Insets(10);
+    
     public static ValueBody createValueBody(Value value) {
         return new ValueBody(value);
     }
-
-    private static final Insets MARGIN = new Insets(10);
-
-    ValueBody(Value value) {
-        super(value);
-        Node content = createContentNode(value);
-        setContent(content);
-    }
-
+    
     private static Node createContentNode(Value value) {
         Type returnType = value.getReturnType();
         if (returnType == PrimitiveType.BOOLEAN) {
@@ -82,7 +77,7 @@ public class ValueBody extends Body<Value> {
                     }
                     return stringValue;
                 }
-
+    
                 @Override
                 public Double fromString(String value) {
                     try {
@@ -90,15 +85,15 @@ public class ValueBody extends Body<Value> {
                         if (value == null) {
                             return null;
                         }
-
+    
                         value = value.trim();
-
+    
                         if (value.length() < 1) {
                             return 0.0;
                         }
-
+    
                         value = value.replaceAll("[^0-9.-]", "");
-
+    
                         // Perform the requested parsing
                         return Double.parseDouble(value);
                     } catch (NumberFormatException ex) {
@@ -130,7 +125,7 @@ public class ValueBody extends Body<Value> {
         errorText.setFill(Color.RED);
         return errorText;
     }
-
+    
     private static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {
         ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
         tf.textProperty().addListener((ov, prevText, currText) -> {
@@ -147,5 +142,19 @@ public class ValueBody extends Body<Value> {
         });
         return minTextFieldWidthProperty.getReadOnlyProperty();
     }
-
+    
+    ValueBody(Value value) {
+        super(value);
+        Node content = createContentNode(value);
+        setContent(content);
+    }
+    
+    @Override
+    public ObservableList<Text> toText() {
+        ObservableList<Text> text = FXCollections.observableArrayList();
+        Text par = new Text(getStatement().map(Value::toString).orElse("ERROR"));
+        par.setFill(Color.LIGHTBLUE);
+        text.add(par);
+        return text;
+    }
 }

@@ -15,9 +15,6 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
@@ -29,43 +26,65 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import sharknoon.dualide.logic.statements.Statement;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Class.ObjectType;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operators.Operator;
+import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.javafx.BindUtils;
+import sharknoon.dualide.utils.javafx.FXUtils;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
- *
  * @author Josua Frank
  */
 public class OperatorBody extends Body<Operator<Type, Type>> {
-
+    
+    private static final int DEFAULT_MARGIN = 5;
+    
     public static OperatorBody createOperatorBody(Operator operator) {
         return new OperatorBody(operator);
     }
-
+    
+    private static int getWeight(Type type) {
+        if (type instanceof BooleanType) {
+            return 0;
+        } else if (type instanceof NumberType) {
+            return 1;
+        } else if (type instanceof ObjectType) {
+            return 2;
+        } else if (type instanceof TextType) {
+            return 3;
+        }
+        //placeholder rectangle
+        return 4;
+    }
+    
+    private ObservableList<Node> content;
+    
     public OperatorBody(Operator operator) {
         super(operator);
         HBox contentNode = createContentNode();
         onChildChange(operator, contentNode);
         setContent(contentNode);
     }
-
-    private static final int DEFAULT_MARGIN = 5;
-    private ObservableList<Node> content;
-
+    
     private HBox createContentNode() {
         Operator<?, ?> operator = getStatement().get();
-
+        
         HBox hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
-
+        
         //contains nulls for empty parameter
         ObservableList<Body> bodies = statementsToBody(operator);
         content = operator.setOperatorsBetweenParameters(bodies, () -> Icons.get(operator.getOperatorType().getIcon(), 50));
@@ -83,15 +102,15 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         }
         hBoxContent.setSpacing(DEFAULT_MARGIN);
         Bindings.bindContentBidirectional(hBoxContent.getChildren(), content);
-
+        
         return hBoxContent;
     }
-
+    
     private PlaceholderBody createPlaceholder() {
         Operator<?, ?> operator = getStatement().get();
         Set<Type> parameterTypes = operator.getParameterTypes();
         PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
-
+        
         Consumer<Statement> statementConsumer = s -> {
             if (content.contains(body)) {
                 int index = content.indexOf(body);
@@ -106,7 +125,7 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         body.setStatementConsumer(statementConsumer);
         return body;
     }
-
+    
     public void extend() {
         Operator<?, ?> operator = getStatement().get();
         if (operator.isExtensible()) {
@@ -121,7 +140,7 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
             }
         }
     }
-
+    
     public void reduce() {
         Operator<?, ?> operator = getStatement().get();
         if (operator.isExtensible() && operator.getParameterAmount() > operator.getMinimumParameterAmount()) {
@@ -129,7 +148,7 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
             content.remove(content.size() - toReduce, content.size());
         }
     }
-
+    
     private ObservableList<Body> statementsToBody(Operator<?, ?> o) {
         ObservableList<Body> listBody = FXCollections.observableArrayList();
         o.getParameters().stream()
@@ -139,7 +158,7 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
                 });
         return listBody;
     }
-
+    
     private void onChildChange(Operator<?, ?> operator, HBox hBoxContent) {
         DoubleBinding defaultHeight = Bindings.createDoubleBinding(() -> 57.0);
         ObjectProperty<Insets> padding = getPadding(
@@ -154,14 +173,14 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
         hBoxContent.paddingProperty().bind(ov);
     }
-
+    
     private ObjectProperty<Insets> getPadding(boolean leftParameter,
-            boolean rightParameter, 
-            Type parent, 
-            Set<Type> leftType, 
-            Set<Type> rightType, 
-            DoubleBinding leftHeight, 
-            DoubleBinding rightHeight) {
+                                              boolean rightParameter,
+                                              Type parent,
+                                              Set<Type> leftType,
+                                              Set<Type> rightType,
+                                              DoubleBinding leftHeight,
+                                              DoubleBinding rightHeight) {
         DoubleBinding leftPadding = Bindings.createDoubleBinding(() -> 0.0);
         DoubleBinding rightPadding = Bindings.createDoubleBinding(() -> 0.0);
         if (leftParameter) {
@@ -173,22 +192,19 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         ObjectProperty<Insets> insets = new SimpleObjectProperty<>();
         insets.set(new Insets(0, rightPadding.get(), 0, leftPadding.get()));
         leftPadding.addListener((observable, oldValue, newValue) -> {
-            System.out.println("leftpadding changed to: " + newValue);
             Insets oldInsets = insets.get();
             Insets newInsets = new Insets(oldInsets.getTop(), oldInsets.getRight(), oldInsets.getBottom(), newValue.doubleValue());
             insets.set(newInsets);
         });
         rightPadding.addListener((observable, oldValue, newValue) -> {
-            System.out.println("rightpadding changed to: " + newValue);
             Insets oldInsets = insets.get();
             Insets newInsets = new Insets(oldInsets.getTop(), newValue.doubleValue(), oldInsets.getBottom(), oldInsets.getLeft());
             insets.set(newInsets);
         });
         return insets;
     }
-
+    
     /**
-     *
      * @param parent
      * @param childs
      */
@@ -244,19 +260,47 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         }
         return childheight.multiply(0);
     }
-
-    private static int getWeight(Type type) {
-        if (type instanceof BooleanType) {
-            return 0;
-        } else if (type instanceof NumberType) {
-            return 1;
-        } else if (type instanceof ObjectType) {
-            return 2;
-        } else if (type instanceof TextType) {
-            return 3;
+    
+    @Override
+    public ObservableList<Text> toText() {
+        ObservableList<Text> text = FXCollections.observableArrayList();
+        List<Statement<Type, Type, Type>> childs = getStatement().map(Statement::getChilds).orElse(List.of());
+        Text bracketOpen = new Text("(");
+        Text bracketClose = new Text(")");
+        Color random = FXUtils.getRandomDifferentColor();
+        bracketOpen.setFill(random);
+        bracketClose.setFill(random);
+        text.add(bracketOpen);
+        if (childs.size() > 1) {//infix
+            childs.forEach((child) -> {
+                List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
+                text.addAll(par);
+                Text op = new Text(
+                        getStatement()
+                                .map(Operator::getOperatorType)
+                                .map(OperatorType::toString)
+                                .orElse("ERROR")
+                );
+                text.add(op);
+            });
+            if (childs.size() > 0) {
+                text.remove(text.size() - 1);
+            }
+        } else {//op text
+            Text op = new Text(
+                    getStatement()
+                            .map(Operator::getOperatorType)
+                            .map(OperatorType::toString)
+                            .orElse("ERROR")
+            );
+            text.add(op);
+            if (childs.size() > 0) {
+                Text par = new Text(String.valueOf(childs.get(0)));
+                par.setFill(Color.LIGHTBLUE);
+                text.add(par);
+            }
         }
-        //placeholder rectangle
-        return 4;
+        text.add(bracketClose);
+        return text;
     }
-
 }

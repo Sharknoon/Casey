@@ -23,9 +23,12 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
+import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
@@ -44,21 +47,24 @@ import java.util.Map;
 /**
  * @author Josua Frank
  */
-public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Item<? extends Item, ? extends Item, Function>> implements ValueReturnable<Type> {
-
-    private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>(PrimitiveType.VOID);
+public class Function extends Item<Function, Item<? extends Item, ? extends Item, Function>, Item<? extends Item, Function, ? extends Item>> implements ValueReturnable<Type> {
+    
     private static final String RETURNTYPE = "returntype";
     //Needed for the usages check in the class
     private static final ObservableMap<Type, List<Function>> ALL_RETURN_TYPES = FXCollections.observableHashMap();
-
     private static final String BLOCKS = "blocks";
     private static final String BLOCK_ID = "blockid";
     private static final String BLOCK_X = "blockX";
     private static final String BLOCK_Y = "blockY";
     private static final String BLOCK_TYPE = "blocktype";
     private static final String BLOCK_CONNECTIONS = "blockconnections";
-
-
+    
+    static ObservableMap<Type, List<Function>> getAllReturnTypes() {
+        return ALL_RETURN_TYPES;
+    }
+    
+    private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>(PrimitiveType.VOID);
+    
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
         super(parent, name);
         returnType.addListener((observable, oldValue, newValue) -> {
@@ -71,11 +77,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             }
         });
     }
-
-    static ObservableMap<Type, List<Function>> getAllReturnTypes() {
-        return ALL_RETURN_TYPES;
-    }
-
+    
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();
@@ -83,7 +85,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                 ? returnType.get().fullNameProperty().get()
                 : "";
         map.put(RETURNTYPE, TextNode.valueOf(typeString));
-
+        
         var blocksNode = new ArrayNode(JsonNodeFactory.instance);
         Blocks.getAllBlocks((FunctionSite) getSite()).forEach(b -> {
             var block = new ObjectNode(JsonNodeFactory.instance);
@@ -91,7 +93,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             block.put(BLOCK_X, b.getMinX());
             block.put(BLOCK_Y, b.getMinY());
             block.put(BLOCK_TYPE, b.getClass().getSimpleName().toUpperCase());
-
+    
             var dots = new ObjectNode(JsonNodeFactory.instance);
             b.getOutputDots().forEach(d -> {
                 var lines = new ObjectNode(JsonNodeFactory.instance);
@@ -111,10 +113,10 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             blocksNode.add(block);
         });
         map.put(BLOCKS, blocksNode);
-
+        
         return map;
     }
-
+    
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
         final Map<String, Block<?>> blockIDs = new HashMap<>();
@@ -129,13 +131,13 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                     ArrayNode blocks = (ArrayNode) value;
                     for (JsonNode b : blocks) {
                         var blockNode = (ObjectNode) b;
-
+    
                         var id = blockNode.get(BLOCK_ID).asText("");
                         var x = blockNode.get(BLOCK_X).asInt(0);
                         var y = blockNode.get(BLOCK_Y).asInt(0);
                         var type = blockNode.get(BLOCK_TYPE).asText("");
                         var connections = (ObjectNode) blockNode.get(BLOCK_CONNECTIONS);
-
+    
                         var fs = (FunctionSite) getSite();
                         var block = fs.getLogicSite().addBlock(
                                 BlockType.forName(type),
@@ -186,27 +188,35 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             }));
         });
     }
-
-    public ObjectProperty<Type> returnTypeProperty() {
-        return returnType;
-    }
-
+    
     @Override
     public Type getReturnType() {
         return returnTypeProperty().get();
+    }
+    
+    public ObjectProperty<Type> returnTypeProperty() {
+        return returnType;
     }
 
 //    public ObservableList<Parameter> parametersProperty() {
 //        return childrenProperty().filtered(c->c.getType() == ItemType.PARAMETER).ma;
 //    }
-
-
+    
     public boolean isInClass() {
         return isIn(ItemType.CLASS);
     }
-
+    
     public boolean isInPackage() {
         return isIn(ItemType.PACKAGE);
     }
-
+    
+    public boolean hasParameter() {
+        return getChildren().stream().anyMatch(i -> i instanceof Parameter);
+    }
+    
+    public ObservableList<Parameter> getParameter() {
+        FilteredList<Item<?, Function, ?>> filtered = getChildren().filtered(i -> i instanceof Parameter);
+        return EasyBind.map(filtered, i -> (Parameter) i);
+    }
+    
 }

@@ -20,8 +20,8 @@ import javafx.beans.binding.StringExpression;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import sharknoon.dualide.ui.sites.Site;
-import sharknoon.dualide.utils.collection.Collections;
 
 import java.util.*;
 
@@ -91,7 +91,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 item = (ITEM) new Welcome(null, name);
                 break;
             case PARAMETER:
-                item = (ITEM) new Parameter(parent, name);
+                item = (ITEM) new Parameter((Function) parent, name);
                 break;
         }
         if (item != null) {
@@ -213,9 +213,9 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     public Optional<P> getParent() {
         return Optional.ofNullable(parentProperty().get());
     }
-
-    public List<C> getChildren() {
-        return Collections.silentUnmodifiableList(childrenProperty().get());
+    
+    public ObservableList<C> getChildren() {
+        return childrenProperty();
     }
 
     public String getName() {

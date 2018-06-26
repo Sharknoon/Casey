@@ -23,44 +23,36 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.values.Value;
-import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public class Call<VR extends ValueReturnable<Type>> extends Statement<Type, Type, Type> {
+public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<Type, Type, Type> {
     
     private final ObservableList<VR> calls = FXCollections.observableArrayList();
+    private final ObjectBinding<VR> lastCall;
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
     
     public Call(Statement<Type, Type, Type> parent, VR startCall) {
         super(parent);
-        calls.add(startCall);
         IntegerBinding lastIndexBinding = Bindings.size(calls).subtract(1);
-        ObjectBinding<VR> lastCallBinding = Bindings.valueAt(calls, lastIndexBinding);
-        Callable<Type> returnTypeCallable = () -> lastCallBinding.get().getReturnType();
-        ObjectBinding<Type> lastCallReturnTypeBinding = Bindings.createObjectBinding(returnTypeCallable, lastCallBinding);
-        returnType.bind(Bindings
-                .when(
-                        Bindings.isEmpty(calls)
-                ).then(
-                        (Type) null
-                ).otherwise(
-                        lastCallReturnTypeBinding
-                )
-        );
+        lastCall = Bindings.valueAt(calls, lastIndexBinding);
+        lastCall.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                newValue.returnTypeProperty().addListener((observable1, oldValue1, newValue1) -> {
+                    returnType.set(newValue1);
+                });
+                returnType.set(newValue.getReturnType());
+            } else {
+                returnType.set(null);
+            }
+        });
+        
+        calls.add(startCall);
     }
     
-    public List<VR> getCalls() {
+    public ObservableList<VR> getCalls() {
         return calls;
-    }
-    
-    @Override
-    public Value<Type> calculateResult() {
-        return (Value) PrimitiveType.VOID.createValue(parentProperty().get()).get();
     }
     
     @Override
@@ -80,4 +72,6 @@ public class Call<VR extends ValueReturnable<Type>> extends Statement<Type, Type
     public ObjectProperty returnTypeProperty() {
         return returnType;
     }
+    
+    
 }

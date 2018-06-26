@@ -113,7 +113,12 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
                     .showBooleanInputDialog(Dialogs.BooleanInputs.NEW_BOOLEAN_VALUE)
                     .map(b -> new BooleanValue(b, parent));
         }
-
+    
+        @Override
+        public BooleanValue createEmptyValue(Statement parent) {
+            return new BooleanValue(parent);
+        }
+    
         @Override
         public Icon getCreationIcon() {
             return Icon.PLUSBOOLEAN;
@@ -162,7 +167,12 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
                     .showNumberInputDialog(Dialogs.NumberInputs.NEW_NUMBER_VALUE)
                     .map(d -> new NumberValue(d, parent));
         }
-
+    
+        @Override
+        public NumberValue createEmptyValue(Statement parent) {
+            return new NumberValue(parent);
+        }
+    
         @Override
         public Icon getCreationIcon() {
             return Icon.PLUSNUMBER;
@@ -211,7 +221,12 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
                     .showTextInputDialog(Dialogs.TextInputs.NEW_TEXT_VALUE)
                     .map(t -> new TextValue(t, parent));
         }
-
+    
+        @Override
+        public TextValue createEmptyValue(Statement parent) {
+            return new TextValue(parent);
+        }
+    
         @Override
         public Icon getCreationIcon() {
             return Icon.PLUSTEXT;
@@ -258,7 +273,12 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
         public Optional<VoidValue> createValue(Statement parent) {
             return Optional.of(new VoidValue(parent));
         }
-
+    
+        @Override
+        public VoidValue createEmptyValue(Statement parent) {
+            return new VoidValue(parent);
+        }
+    
         @Override
         public Icon getCreationIcon() {
             return Icon.VOID;

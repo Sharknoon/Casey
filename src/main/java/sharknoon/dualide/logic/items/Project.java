@@ -46,7 +46,7 @@ public class Project extends Item<Project, Item, Package> {
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
 
     protected Project(Welcome parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
         init();
     }
 

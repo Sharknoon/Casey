@@ -20,12 +20,9 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -84,8 +81,8 @@ public class BindUtilsTest {
         ObservableList<Integer> l1 = FXCollections.observableArrayList(1, 2, 3);
         ObservableList<Integer> l2 = FXCollections.observableArrayList(5, 6, 7);
         ObservableList<Integer> l3 = FXCollections.observableArrayList(9, 10, 11);
-
-        ObservableList<Integer> lc = BindUtils.concat(l1, l2, l3);
+    
+        ObservableList<Integer> lc = BindUtils.concatAll(l1, l2, l3);
 
         l1.add(4);
         l3.add(0, 8);

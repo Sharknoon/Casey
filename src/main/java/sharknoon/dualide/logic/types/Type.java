@@ -45,7 +45,7 @@ public abstract class Type<T extends Type, V extends Value> {
     public abstract ObjectType getObjectType();
 
     public static ListProperty<Type> getAllTypes() {
-        return new SimpleListProperty<>(BindUtils.concat(PrimitiveType.getAll(), ObjectType.getAll()));
+        return new SimpleListProperty<>(BindUtils.concatAll(PrimitiveType.getAll(), ObjectType.getAll()));
     }
 
     public static Optional<Type> valueOf(String name) {

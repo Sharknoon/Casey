@@ -42,8 +42,8 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     //DO NOT CHANGE ORDER!!!
     private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
     private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
-
-    protected Item(P parent, String name) {
+    
+    protected void superInit(P parent, String name) {
         parentProperty().set(parent);
         if (name != null) {
             nameProperty().set(name);

@@ -25,7 +25,7 @@ import sharknoon.dualide.utils.language.Word;
 public class Welcome extends Item<Welcome, Item<? extends Item, ? extends Item, Welcome>, Project> {
 
     protected Welcome(Item<? extends Item, ? extends Item, Welcome> parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
     }
 
     private static Welcome welcome;

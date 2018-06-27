@@ -16,6 +16,7 @@
 package sharknoon.dualide.ui.bodies;
 
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
@@ -133,6 +134,18 @@ public abstract class Body<S extends Statement> extends Group {
         super();
         this.statement = null;
         this.backgroundShape = typeToShapeBinding(FXCollections.observableArrayList(types == null ? List.of() : types));
+        init();
+        getChildren().addAll(backgroundShape.get(), contentPane);
+        backgroundShape.addListener((observable, oldValue, newValue) -> {
+            getChildren().remove(oldValue);
+            getChildren().add(0, newValue);
+        });
+    }
+    
+    Body(ObjectExpression<Type> type) {
+        super();
+        this.statement = null;
+        this.backgroundShape = typeToShapeBinding(type);
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
         backgroundShape.addListener((observable, oldValue, newValue) -> {

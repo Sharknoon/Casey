@@ -15,7 +15,11 @@ package sharknoon.dualide.ui.bodies;
  * limitations under the License.
  */
 
-import javafx.beans.binding.*;
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -38,6 +42,7 @@ import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.Parameter;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
 import sharknoon.dualide.logic.statements.calls.FunctionCall;
@@ -51,7 +56,6 @@ import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class CallBody extends Body<Call<?>> {
@@ -106,53 +110,88 @@ public class CallBody extends Body<Call<?>> {
     }
     
     private ObservableList<Node> callsToNodes(Call<?> o) {
-        ObservableList<Node> listNode = FXCollections.observableArrayList();
+        ObservableList<ObservableList<Node>> listNode = FXCollections.observableArrayList();
         ObservableList<? extends ValueReturnable> calls = o.getCalls();
+        BindUtils.addListener(calls, c -> onCallChanged(listNode, calls));
+        //onCallChanged(listNode, calls);
+        return BindUtils.concatFromList(listNode);
+    }
+    
+    private void onCallChanged(ObservableList<ObservableList<Node>> listNode, ObservableList<? extends ValueReturnable> calls) {
+        listNode.clear();
         for (int i = 0; i < calls.size(); i++) {
             ValueReturnable call = calls.get(i);
-            
-            ObjectProperty<Image> image = getIcon(call);
-            ImageView icon = new ImageView();
-            icon.setPreserveRatio(true);
-            Image im = image.get();
-            if (im.getWidth() > im.getHeight()) {
-                icon.setFitWidth(50);
-            } else {
-                icon.setFitHeight(50);
-            }
-            icon.imageProperty().bind(image);
-            
-            StringProperty name = getName(call);
-            Label label = new Label();
-            label.setMinWidth(Region.USE_PREF_SIZE);
-            label.setTextFill(Color.BLACK);
-            label.setFont(Font.font(25));
-            label.textProperty().bind(name);
-            
-            listNode.addAll(icon, label);
-            
-            if (call instanceof Function) {
-                Function f = (Function) call;
-                if (f.hasParameter()) {
-                    f.getParameter().forEach(p -> {
-                        listNode.add(createPlaceholder(p.getReturnType()));
-                    });
-                }
-            }
+            ObservableList<Node> callNodes = callToNode(call);
             
             if (i < calls.size() - 1) {
                 Node arrow = Icons.get(Icon.BACKGROUND, 40);
-                listNode.add(arrow);
+                callNodes.add(arrow);
             } else if (i == calls.size() - 1) {
                 //BooleanProperty isVisible = BindUtils.getLast(calls).
             }
+            listNode.add(callNodes);
         }
-        return listNode;
     }
     
-    private PlaceholderBody createPlaceholder(Type allowedType) {
+    private ObservableList<Node> callToNode(ValueReturnable call) {
+        ObservableList<Node> nodeList = FXCollections.observableArrayList();
+        ObjectProperty<Image> image = getIcon(call);
+        ImageView icon = new ImageView();
+        icon.setPreserveRatio(true);
+        Image im = image.get();
+        if (im.getWidth() > im.getHeight()) {
+            icon.setFitWidth(50);
+        } else {
+            icon.setFitHeight(50);
+        }
+        icon.imageProperty().bind(image);
+        
+        StringProperty name = getName(call);
+        Label label = new Label();
+        label.setMinWidth(Region.USE_PREF_SIZE);
+        label.setTextFill(Color.BLACK);
+        label.setFont(Font.font(25));
+        label.textProperty().bind(name);
+        
+        nodeList.addAll(icon, label);
+        
+        if (call instanceof Function) {
+            Function f = (Function) call;
+            f.getChildren()
+                    .stream()
+                    .filter(i -> i instanceof Parameter)
+                    .map(i -> (Parameter) i)
+                    .forEach(p -> nodeList.add(createPlaceholder(p.returnTypeProperty())));
+            
+            JavaFxObservable.changesOf(f.getChildren())
+                    .subscribe()
+            
+            /*
+            JavaFxObservable
+                    .emitOnChanged(f.getChildren())
+                    //.doOnNext(l->{nodeList.clear();nodeList.addAll(icon,label);})
+                    .flatMapIterable(c->c)
+                    .filter(i->i.getType()==ItemType.PARAMETER)
+                    .map(i->(Parameter)i)
+                    .map(p->createPlaceholder(p.returnTypeProperty()))
+                    .to(JavaFxObserver::)
+                    .subscribe(items -> {
+                        nodeList.clear();
+                        nodeList.addAll(icon, label);
+                        items
+                                .stream()
+                                .filter(i -> i instanceof Parameter)
+                                .map(i -> (Parameter) i)
+                                .forEach(p -> nodeList.add(createPlaceholder(p.returnTypeProperty())));
+                        System.out.println("changed fxobservable");
+                    });*/
+        }
+        return nodeList;
+    }
+    
+    private PlaceholderBody createPlaceholder(ObjectProperty<Type> allowedType) {
         Call<?> call = getStatement().get();
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(List.of(allowedType), call);
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedType, call);
         
         Consumer<Statement> statementConsumer = s -> {
             if (content.contains(body)) {
@@ -199,7 +238,7 @@ public class CallBody extends Body<Call<?>> {
                 rightReturnType.set(null);
             }
         });
-        rightReturnType.setValue(call.getCalls().get(call.getCalls().size()-1).getReturnType());
+        rightReturnType.setValue(call.getCalls().get(call.getCalls().size() - 1).getReturnType());
         
         ObjectExpression<Insets> padding = getPadding(
                 call.returnTypeProperty(),
@@ -279,9 +318,7 @@ public class CallBody extends Body<Call<?>> {
             for (int i = 0; i < c.getCalls().size(); i++) {
                 Function function = c.getCalls().get(i);
                 Text callText = new Text(function.getName());
-                if (function.hasParameter()) {
-                    //TODO
-                }
+                //TODO parameter
                 text.add(callText);
             }
         } else if (statement instanceof VariableCall) {

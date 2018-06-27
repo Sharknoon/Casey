@@ -50,7 +50,7 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
     
     protected Parameter(Function parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
         typeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && PARAMETERS.containsKey(oldValue)) {
                 PARAMETERS.get(oldValue).remove(this);

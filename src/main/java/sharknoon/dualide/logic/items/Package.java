@@ -22,7 +22,7 @@ package sharknoon.dualide.logic.items;
 public class Package extends Item<Package, Item, Item> {
 
     protected Package(Item parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
     }
 
 }

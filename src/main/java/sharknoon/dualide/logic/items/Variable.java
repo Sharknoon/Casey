@@ -54,7 +54,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     private final BooleanProperty modifiable = new SimpleBooleanProperty(true);
 
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
         typeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && VARIABLES.containsKey(oldValue)) {
                 VARIABLES.get(oldValue).remove(this);

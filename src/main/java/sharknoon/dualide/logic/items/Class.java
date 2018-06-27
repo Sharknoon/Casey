@@ -49,7 +49,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     private transient final FilteredList<Item<? extends Item, Class, ? extends Item>> functions = new FilteredList<>(childrenProperty(), c -> c.getType() == ItemType.FUNCTION);
 
     protected Class(Package parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
         CLASSES.add(this);
     }
 

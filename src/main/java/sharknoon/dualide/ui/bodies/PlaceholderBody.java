@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import javafx.beans.binding.ObjectExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.text.Text;
@@ -25,6 +26,7 @@ import sharknoon.dualide.ui.misc.Icons;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -60,7 +62,29 @@ public class PlaceholderBody extends Body {
         return new PlaceholderBody(types, parent, statementConsumer);
     }
     
+    public static PlaceholderBody createValuePlaceholderBody(ObjectExpression<Type> type, Statement parent) {
+        return new PlaceholderBody(type, parent, null);
+    }
+    
     private Consumer<Statement> statementConsumer;
+    
+    public PlaceholderBody(ObjectExpression<Type> type, Statement parent, Consumer<Statement> statementConsumer) {
+        super(type);
+        this.statementConsumer = statementConsumer;
+        setOnMouseClicked((event) -> {
+            ValuePopUpBuilder
+                    .create(this, this.statementConsumer)
+                    .setParent(parent)
+                    .setAllowedTypes(List.of(type.get()))
+                    .showValuePopUp();
+        });
+        setOnMouseEntered((event) -> {
+            setContent(Icons.get(Icon.PLUS, 50));
+        });
+        setOnMouseExited((event) -> {
+            setContent();
+        });
+    }
     
     public PlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
         super(types);

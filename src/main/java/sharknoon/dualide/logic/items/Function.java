@@ -23,12 +23,9 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
-import org.fxmisc.easybind.EasyBind;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
@@ -66,7 +63,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>(PrimitiveType.VOID);
     
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
-        super(parent, name);
+        superInit(parent, name);
         returnType.addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !ALL_RETURN_TYPES.containsKey(newValue)) {
                 ALL_RETURN_TYPES.put(newValue, new ArrayList<>());
@@ -208,15 +205,6 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     
     public boolean isInPackage() {
         return isIn(ItemType.PACKAGE);
-    }
-    
-    public boolean hasParameter() {
-        return getChildren().stream().anyMatch(i -> i instanceof Parameter);
-    }
-    
-    public ObservableList<Parameter> getParameter() {
-        FilteredList<Item<?, Function, ?>> filtered = getChildren().filtered(i -> i instanceof Parameter);
-        return EasyBind.map(filtered, i -> (Parameter) i);
     }
     
 }

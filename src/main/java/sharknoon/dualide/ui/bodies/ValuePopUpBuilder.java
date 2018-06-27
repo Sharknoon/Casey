@@ -4,7 +4,6 @@ import javafx.scene.Node;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 
 public class ValuePopUpBuilder {
@@ -16,7 +15,7 @@ public class ValuePopUpBuilder {
     private Node ownerNode;
     private Consumer<Statement> statementConsumer;
     private Statement parent;
-    private Collection<? extends Type> allowedTypes;
+    private Type allowedType;
     private boolean allowValueCreation = true;
     
     public ValuePopUpBuilder(Node ownerNode, Consumer<Statement> statementConsumer) {
@@ -29,8 +28,8 @@ public class ValuePopUpBuilder {
         return this;
     }
     
-    public ValuePopUpBuilder setAllowedTypes(Collection<? extends Type> allowedTypes) {
-        this.allowedTypes = allowedTypes;
+    public ValuePopUpBuilder setAllowedType(Type allowedType) {
+        this.allowedType = allowedType;
         return this;
     }
     
@@ -40,6 +39,6 @@ public class ValuePopUpBuilder {
     }
     
     public ValuePopUp showValuePopUp() {
-        return new ValuePopUp(ownerNode, statementConsumer, parent, allowedTypes, allowValueCreation);
+        return new ValuePopUp(ownerNode, statementConsumer, parent, allowedType, allowValueCreation);
     }
 }

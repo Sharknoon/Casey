@@ -53,8 +53,8 @@ public class ParameterSite extends Site<Parameter> {
     @Override
     public void afterInit() {
         ChangeListener<? super Type> listener = (observable, oldValue, newValue) -> icon.set(getIcon(newValue));
-        getItem().typeProperty().addListener(listener);
-        listener.changed(getItem().typeProperty(), null, getItem().typeProperty().get());
+        getItem().returnTypeProperty().addListener(listener);
+        listener.changed(getItem().returnTypeProperty(), null, getItem().returnTypeProperty().get());
     }
     
     @Override
@@ -117,7 +117,7 @@ public class ParameterSite extends Site<Parameter> {
         gridPaneContent.addRow(0, labelClass);
         
         TypeField typeField = new TypeField();
-        typeField.typeProperty().bindBidirectional(getItem().typeProperty());
+        typeField.typeProperty().bindBidirectional(getItem().returnTypeProperty());
         
         CheckBox checkBoxFinal = new CheckBox();
         checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());

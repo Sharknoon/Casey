@@ -55,7 +55,7 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
 
     protected Variable(Item<? extends Item, ? extends Item, Variable> parent, String name) {
         superInit(parent, name);
-        typeProperty().addListener((observable, oldValue, newValue) -> {
+        returnTypeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && VARIABLES.containsKey(oldValue)) {
                 VARIABLES.get(oldValue).remove(this);
             }
@@ -94,10 +94,6 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
                     break;
             }
         });
-    }
-
-    public ObjectProperty<Type> typeProperty() {
-        return type;
     }
 
     public BooleanProperty modifiableProperty() {

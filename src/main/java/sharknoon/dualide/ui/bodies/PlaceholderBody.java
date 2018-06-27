@@ -24,10 +24,6 @@ import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -37,29 +33,16 @@ public class PlaceholderBody extends Body {
     
     public static PlaceholderBody DISABLED = new PlaceholderBody();
     
-    public static PlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent) {
-        return createValuePlaceholderBody(types, parent, null);
+    public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent) {
+        return createValuePlaceholderBody(type, parent, null);
     }
     
-    /**
-     * all types
-     *
-     * @param parent
-     * @param statementConsumer
-     * @return
-     */
     public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return createValuePlaceholderBody((Collection<? extends Type>) null, parent, statementConsumer);
+        return createValuePlaceholderBody(null, parent, statementConsumer);
     }
     
     public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
-        Set<Type> types = new HashSet<>();
-        types.add(type);
-        return createValuePlaceholderBody(types, parent, statementConsumer);
-    }
-    
-    public static PlaceholderBody createValuePlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
-        return new PlaceholderBody(types, parent, statementConsumer);
+        return new PlaceholderBody(type, parent, statementConsumer);
     }
     
     public static PlaceholderBody createValuePlaceholderBody(ObjectExpression<Type> type, Statement parent) {
@@ -75,7 +58,7 @@ public class PlaceholderBody extends Body {
             ValuePopUpBuilder
                     .create(this, this.statementConsumer)
                     .setParent(parent)
-                    .setAllowedTypes(List.of(type.get()))
+                    .setAllowedType(type.get())
                     .showValuePopUp();
         });
         setOnMouseEntered((event) -> {
@@ -86,14 +69,14 @@ public class PlaceholderBody extends Body {
         });
     }
     
-    public PlaceholderBody(Collection<? extends Type> types, Statement parent, Consumer<Statement> statementConsumer) {
-        super(types);
+    public PlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
+        super(type);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
             ValuePopUpBuilder
                     .create(this, this.statementConsumer)
                     .setParent(parent)
-                    .setAllowedTypes(types)
+                    .setAllowedType(type)
                     .showValuePopUp();
         });
         setOnMouseEntered((event) -> {
@@ -105,7 +88,7 @@ public class PlaceholderBody extends Body {
     }
     
     private PlaceholderBody() {
-        super((Collection<? extends Type>) null);
+        super((Type) null);
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.VOID, 50));
         });

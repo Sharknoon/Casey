@@ -64,7 +64,12 @@ public abstract class PrimitiveType<T extends PrimitiveType, V extends Primitive
     public boolean isPrimitive() {
         return true;
     }
-
+    
+    @Override
+    public boolean isObject() {
+        return false;
+    }
+    
     @Override
     public PrimitiveType getPrimitiveType() {
         return this;

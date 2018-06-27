@@ -28,7 +28,7 @@ import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -50,7 +50,7 @@ class ValueBrowser extends GridPane {
     
     private final VBox vBoxLeft = new VBox();
     private final VBox vBoxRight = new VBox();
-    private final Collection<? extends Type> allowedTypes;
+    private final Type allowedType;
     private final boolean allowValueCreation;
     private final Statement parent;
     private final Consumer<Statement> statementConsumer;
@@ -60,15 +60,15 @@ class ValueBrowser extends GridPane {
     private Node previousContent = null;
     
     
-    public ValueBrowser(Consumer<Statement> statementConsumer, Statement parent, Collection<? extends Type> allowedTypes, boolean allowValueCreation) {
+    public ValueBrowser(Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation) {
         super();
         this.parent = parent;
         this.statementConsumer = statementConsumer;
-        this.allowedTypes = allowedTypes;
+        this.allowedType = allowedType;
         this.allowValueCreation = allowValueCreation;
         init();
-        //null means no filter, empty means blocked all types
-        if (allowedTypes != null && allowedTypes.isEmpty()) {
+        //null no types allowed
+        if (allowedType == null) {
             addNoTypeLabel();
         } else {
             if (allowValueCreation) {
@@ -112,21 +112,14 @@ class ValueBrowser extends GridPane {
     private void addNewValueSelectors() {
         addNewValueSparator();
         //primitives
-        for (Type type : allowedTypes == null ? PrimitiveType.getAll() : allowedTypes) {
+        for (Type type : allowedType == Type.UNDEFINED ? PrimitiveType.getAll() : List.of(allowedType)) {
             if (type != null && type.isPrimitive()) {
                 addNewPrimitiveValueSelector(type.getPrimitiveType());
             }
         }
         //objects
-        if (allowedTypes == null) {
+        if (allowedType == Type.UNDEFINED || allowedType.isObject()) {
             addNewObjectValueSelectors();
-        } else {
-            for (Type type : allowedTypes) {
-                if (type != null && !type.isPrimitive()) {
-                    addNewObjectValueSelectors();
-                    break;
-                }
-            }
         }
     }
     
@@ -148,7 +141,7 @@ class ValueBrowser extends GridPane {
             vBoxLeft.getChildren().add(gp);
         }
         if (size < 0) {
-            size = allowedTypes == null ? PrimitiveType.getAll().size() : allowedTypes.size();
+            size = allowedType == Type.UNDEFINED ? PrimitiveType.getAll().size() : 1;
         }
         
         String stringValues = Language.get(Word.VALUE_SELECTION_POPUP_VALUES_EXTENSION);
@@ -296,10 +289,9 @@ class ValueBrowser extends GridPane {
                         .stream()
                         .map(TreeItem::getValue)
                         .filter(i -> i instanceof ValueReturnable)
-                        .filter(i -> allowedTypes == null
-                                || allowedTypes.contains(((ValueReturnable) i).getReturnType())
-                                || !((ValueReturnable) i).getReturnType().isPrimitive()
-                                
+                        .filter(i -> allowedType == Type.UNDEFINED
+                                || allowedType == ((ValueReturnable) i).getReturnType()
+                                || ((ValueReturnable) i).getReturnType().isObject()
                         )
                         .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
                             if (i.getType() == ItemType.FUNCTION) {
@@ -350,9 +342,9 @@ class ValueBrowser extends GridPane {
                 .getChildren()
                 .stream()
                 .filter(i -> i instanceof ValueReturnable)
-                .filter(i -> allowedTypes == null
-                        || allowedTypes.contains(((ValueReturnable) i).getReturnType())
-                        || !((ValueReturnable) i).getReturnType().isPrimitive()
+                .filter(i -> allowedType == Type.UNDEFINED
+                        || allowedType == ((ValueReturnable) i).getReturnType()
+                        || ((ValueReturnable) i).getReturnType().isObject()
                 )
                 .forEach((item) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
                     //TODO
@@ -386,9 +378,9 @@ class ValueBrowser extends GridPane {
                 .getChildren()
                 .stream()
                 .filter(i -> i instanceof ValueReturnable)
-                .filter(i -> allowedTypes == null
-                        || allowedTypes.contains(((ValueReturnable) i).getReturnType())
-                        || !((ValueReturnable) i).getReturnType().isPrimitive()
+                .filter(i -> allowedType == Type.UNDEFINED
+                        || allowedType == ((ValueReturnable) i).getReturnType()
+                        || ((ValueReturnable) i).getReturnType().isObject()
                 )
                 .forEach((item) -> vBoxVariables.getChildren().add(getEntries(item, event -> {
                     //TODO

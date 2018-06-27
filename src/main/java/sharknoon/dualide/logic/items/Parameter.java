@@ -51,7 +51,7 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
     
     protected Parameter(Function parent, String name) {
         superInit(parent, name);
-        typeProperty().addListener((observable, oldValue, newValue) -> {
+        returnTypeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && PARAMETERS.containsKey(oldValue)) {
                 PARAMETERS.get(oldValue).remove(this);
             }
@@ -90,10 +90,6 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
                     break;
             }
         });
-    }
-
-    public ObjectProperty<Type> typeProperty() {
-        return type;
     }
 
     public BooleanProperty modifiableProperty() {

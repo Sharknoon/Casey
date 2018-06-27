@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 
 public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<Type, Type, Type> {
     
-    private final ObservableList<VR> calls = FXCollections.observableArrayList();
-    private final ObjectBinding<VR> lastCall;
+    private final ObservableList<ValueReturnable<Type>> calls = FXCollections.observableArrayList();
+    private final ObjectBinding<ValueReturnable<Type>> lastCall;
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
     
     public Call(Statement<Type, Type, Type> parent, VR startCall) {
@@ -49,8 +49,16 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
         calls.add(startCall);
     }
     
-    public ObservableList<VR> getCalls() {
+    public ObservableList<ValueReturnable<Type>> getCalls() {
         return calls;
+    }
+    
+    public ValueReturnable<Type> getLastCall() {
+        return lastCall.get();
+    }
+    
+    public ObjectBinding<ValueReturnable<Type>> lastCallProperty() {
+        return lastCall;
     }
     
     @Override
@@ -60,14 +68,11 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
     
     @Override
     public Type getReturnType() {
-        if (calls.isEmpty()) {
-            return null;
-        }
-        return calls.get(calls.size() - 1).getReturnType();
+        return returnTypeProperty().get();
     }
     
     @Override
-    public ObjectProperty returnTypeProperty() {
+    public ObjectProperty<Type> returnTypeProperty() {
         return returnType;
     }
     

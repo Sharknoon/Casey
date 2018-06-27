@@ -28,6 +28,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operators.Operator;
@@ -41,7 +42,6 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.javafx.FXUtils;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -108,8 +108,8 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
     
     private PlaceholderBody createPlaceholder() {
         Operator<?, ?> operator = getStatement().get();
-        Set<Type> parameterTypes = operator.getParameterTypes();
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterTypes, operator);
+        Type parameterType = operator.getParameterType();
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterType, operator);
         
         Consumer<Statement> statementConsumer = s -> {
             if (content.contains(body)) {
@@ -164,9 +164,9 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         ObjectProperty<Insets> padding = getPadding(
                 operator.startsWithParameter(),
                 operator.endsWithParameter(),
-                operator.getReturnType(),
-                operator.getFirstParameter().map(p -> Set.of(p.getReturnType())).orElse(operator.getParameterTypes()),
-                operator.getLastParameter().map(p -> Set.of(p.getReturnType())).orElse(operator.getParameterTypes()),
+                operator.returnTypeProperty(),
+                operator.getFirstParameter().map(ValueReturnable::returnTypeProperty).orElse(operator.parameterTypeProperty()),
+                operator.getLastParameter().map(ValueReturnable::returnTypeProperty).orElse(operator.parameterTypeProperty()),
                 operator.getFirstParameter().map(s -> s.getBody().heightProperty().add(0)).orElse(defaultHeight),
                 operator.getLastParameter().map(s -> s.getBody().heightProperty().add(0)).orElse(defaultHeight)
         );
@@ -176,18 +176,18 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
     
     private ObjectProperty<Insets> getPadding(boolean leftParameter,
                                               boolean rightParameter,
-                                              Type parent,
-                                              Set<Type> leftType,
-                                              Set<Type> rightType,
+                                              ObjectProperty<Type> parent,
+                                              ObjectProperty<Type> leftType,
+                                              ObjectProperty<Type> rightType,
                                               DoubleBinding leftHeight,
                                               DoubleBinding rightHeight) {
         DoubleBinding leftPadding = Bindings.createDoubleBinding(() -> 0.0);
         DoubleBinding rightPadding = Bindings.createDoubleBinding(() -> 0.0);
         if (leftParameter) {
-            leftPadding = calculateDistance(parent, leftType, leftHeight);
+            leftPadding = BodyUtils.calculateDistance(parent, leftType, leftHeight);
         }
         if (rightParameter) {
-            rightPadding = calculateDistance(parent, rightType, rightHeight);
+            rightPadding = BodyUtils.calculateDistance(parent, rightType, rightHeight);
         }
         ObjectProperty<Insets> insets = new SimpleObjectProperty<>();
         insets.set(new Insets(0, rightPadding.get(), 0, leftPadding.get()));
@@ -204,62 +204,6 @@ public class OperatorBody extends Body<Operator<Type, Type>> {
         return insets;
     }
     
-    /**
-     * @param parent
-     * @param childs
-     */
-    private DoubleBinding calculateDistance(Type parent, Set<Type> childs, DoubleBinding childheight) {
-        int childvalue = 4;
-        if (childs != null && childs.size() == 1) {
-            childvalue = getWeight(childs.iterator().next());
-        }
-        int parentvalue = getWeight(parent);
-        if (parentvalue >= childvalue) {
-            return childheight.multiply(0);
-        }
-        //Parent is a boolean
-        if (parent instanceof BooleanType) {
-            switch (childvalue) {
-                //Child is a number
-                case 1:
-                    return childheight.multiply(1.0 / 4.0);
-                //Child is a object
-                case 2:
-                    return childheight.multiply(1.0 / 6.0);
-                //Child is a text
-                case 3:
-                    return childheight.multiply(3.0 / 8.0);
-                //Child can be everything
-                case 4:
-                    return childheight.multiply(1.0 / 2.0);
-            }
-        } else if (parent instanceof NumberType) {
-            switch (childvalue) {
-                //Child is a object
-                case 2:
-                    return childheight.multiply(3.0 / 20.0);
-                //Child is a text
-                case 3:
-                    return childheight.multiply(1.0 / 4.0);
-                //Child can be everything
-                case 4:
-                    return childheight.multiply(1.0 / 2.0);
-            }
-        } else if (parent instanceof ObjectType) {
-            switch (childvalue) {
-                //Child is a text
-                case 3:
-                    return childheight.multiply(2.0 / 9.0);
-                //Child can be everything
-                case 4:
-                    return childheight.multiply(1.0 / 3.0);
-            }
-        } else if (parent instanceof TextType) {
-            //Child can be everything
-            return childheight.multiply(1.0 / 4.0);
-        }
-        return childheight.multiply(0);
-    }
     
     @Override
     public ObservableList<Text> toText() {

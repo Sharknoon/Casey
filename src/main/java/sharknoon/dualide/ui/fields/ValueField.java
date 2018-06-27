@@ -15,15 +15,15 @@
  */
 package sharknoon.dualide.ui.fields;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.PlaceholderBody;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  *
@@ -38,11 +38,11 @@ public class ValueField extends Pane {
     private Runnable onStatementDestroyed;
 
     public ValueField() {
-        this(null);
+        this(Type.UNDEFINED);
     }
 
-    public ValueField(Collection<? extends Type> allowedTypes) {
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedTypes, null);
+    public ValueField(Type allowedType) {
+        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedType, null);
 
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());

@@ -39,19 +39,19 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     
     private final Type returnType;
     //A map instead of a list to leave empty spaces inbetween the indexes
-    private final Set<Type> parameterTypes;
+    private final Type parameterType;
     private final int minimumParameters;
     private final int maximumParamerters;
     private final boolean isExtensible;
     
-    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType, PrimitiveType... parameterTypes) {
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType){
+        this(parent,minimumParameters,maximumParameters,isExtensible,returnType,null);
+    }
+    
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType, PrimitiveType parameterType) {
         super(parent);
         this.returnType = returnType;
-        if (parameterTypes.length > 0) {
-            this.parameterTypes = new LinkedHashSet<>(Arrays.asList(parameterTypes));
-        } else {
-            this.parameterTypes = null;//null beacause a empty list would say no parameters at all, null means every type allowed
-        }
+        this.parameterType = parameterType != null ? parameterType : Type.UNDEFINED;
         this.minimumParameters = minimumParameters;
         for (int i = 0; i < minimumParameters; i++) {
             addParameter(null);
@@ -119,13 +119,12 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         return new SimpleObjectProperty<>(returnType);
     }
     
-    /**
-     * empty set means all types are allowed
-     *
-     * @return
-     */
-    public Set<Type> getParameterTypes() {
-        return parameterTypes;
+    public Type getParameterType() {
+        return parameterType;
+    }
+    
+    public ObjectProperty parameterTypeProperty() {
+        return new SimpleObjectProperty(parameterType);
     }
     
     public OperatorType getOperatorType() {

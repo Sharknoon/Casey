@@ -22,12 +22,11 @@ import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 
 public class ValuePopUp extends PopOver {
     
-    ValuePopUp(Node ownerNode, Consumer<Statement> statementConsumer, Statement parent, Collection<? extends Type> allowedTypes, boolean allowValueCreation) {
+    ValuePopUp(Node ownerNode, Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation) {
         super();
         Consumer<Statement> newStatementConsumer = t -> {
             hide();
@@ -35,7 +34,7 @@ public class ValuePopUp extends PopOver {
                 statementConsumer.accept(t);
             }
         };
-        GridPane gridPaneRoot = new ValueBrowser(newStatementConsumer, parent, allowedTypes, allowValueCreation);
+        GridPane gridPaneRoot = new ValueBrowser(newStatementConsumer, parent, allowedType, allowValueCreation);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         setContentNode(gridPaneRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);

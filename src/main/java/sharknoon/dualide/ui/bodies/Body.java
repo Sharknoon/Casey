@@ -15,11 +15,11 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -39,9 +39,9 @@ import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -130,10 +130,10 @@ public abstract class Body<S extends Statement> extends Group {
         });
     }
     
-    Body(Collection<? extends Type> types) {
+    Body(Type type) {
         super();
         this.statement = null;
-        this.backgroundShape = typeToShapeBinding(FXCollections.observableArrayList(types == null ? List.of() : types));
+        this.backgroundShape = typeToShapeBinding(Bindings.createObjectBinding(() -> type));
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
         backgroundShape.addListener((observable, oldValue, newValue) -> {
@@ -258,25 +258,16 @@ public abstract class Body<S extends Statement> extends Group {
     }
     
     private ObjectBinding<Shape> typeToShapeBinding(ObservableObjectValue<Type> type) {
-        ObservableList<Type> list = FXCollections.observableArrayList();
-        type.addListener((observable, oldValue, newValue) -> {
-            list.set(0, newValue);
-        });
-        list.add(type.get());
-        return typeToShapeBinding(list);
-    }
-    
-    private ObjectBinding<Shape> typeToShapeBinding(ObservableList<? extends Type> types) {
         Body b = this;
         return new ObjectBinding<>() {
             
             {
-                bind(types);
+                bind(type);
             }
             
             @Override
             public void dispose() {
-                unbind(types);
+                unbind(type);
             }
             
             @Override
@@ -284,10 +275,10 @@ public abstract class Body<S extends Statement> extends Group {
                 final Shape shape;
                 double height = contentPane.getHeight();
                 double width = contentPane.getWidth();
-                if (types != null && types.size() == 1 && types.get(0) != null) {
-                    Type type = types.iterator().next();
-                    if (type.isPrimitive()) {
-                        if (type instanceof BooleanType) {
+                if (type != null && type.get() != null) {
+                    Type t = type.get();
+                    if (t.isPrimitive()) {
+                        if (t instanceof BooleanType) {
                             Polygon poly = new Polygon();
                             redrawPolygon(poly, false, height, width);
                             contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -297,21 +288,21 @@ public abstract class Body<S extends Statement> extends Group {
                                 redrawPolygon(poly, false, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                             });
                             shape = poly;
-                        } else if (type instanceof NumberType) {
+                        } else if (t instanceof NumberType) {
                             Rectangle rect = new Rectangle();
                             rect.arcHeightProperty().bind(rect.heightProperty());
                             rect.arcWidthProperty().bind(rect.heightProperty());
                             rect.heightProperty().bind(contentPane.heightProperty());
                             rect.widthProperty().bind(contentPane.widthProperty());
                             shape = rect;
-                        } else if (type instanceof TextType) {
+                        } else if (t instanceof TextType) {
                             Rectangle rect2 = new Rectangle();
                             rect2.arcHeightProperty().bind(rect2.heightProperty().divide(2));
                             rect2.arcWidthProperty().bind(rect2.heightProperty().divide(2));
                             rect2.heightProperty().bind(contentPane.heightProperty());
                             rect2.widthProperty().bind(contentPane.widthProperty());
                             shape = rect2;
-                        } else if (type instanceof VoidType) {
+                        } else if (t instanceof VoidType) {
                             Path path = new Path();
                             redrawPath(path, height, width);
                             contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -325,7 +316,7 @@ public abstract class Body<S extends Statement> extends Group {
                             //Should never occur
                             shape = new Rectangle();
                         }
-                    } else {
+                    } else if (t.isObject()) {
                         Polygon poly2 = new Polygon();
                         redrawPolygon(poly2, true, height, width);
                         contentPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -335,12 +326,19 @@ public abstract class Body<S extends Statement> extends Group {
                             redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                         });
                         shape = poly2;
+                    } else {
+                        //Body is a undefined type
+                        Rectangle rect = new Rectangle();
+                        rect.heightProperty().bind(contentPane.heightProperty());
+                        rect.widthProperty().bind(contentPane.widthProperty());
+                        shape = rect;
                     }
                 } else {
-                    Rectangle rect = new Rectangle();
-                    rect.heightProperty().bind(contentPane.heightProperty());
-                    rect.widthProperty().bind(contentPane.widthProperty());
-                    shape = rect;
+                    //No type allowed, but a type is necessary
+                    Rectangle error = new Rectangle();
+                    error.setFill(Color.RED);
+                    shape = error;
+                    Logger.error("Body is no type, should never occur");
                 }
                 shape.setFill(Color.WHITE);
                 if (b instanceof PlaceholderBody) {

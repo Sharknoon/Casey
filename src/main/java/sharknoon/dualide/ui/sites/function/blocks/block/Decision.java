@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Side;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -24,8 +23,6 @@ import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.ui.bodies.PlaceholderBody;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
-
-import java.util.List;
 
 /**
  * This is a Decision block, similar like a if clausel
@@ -75,7 +72,7 @@ public class Decision extends Block<Polygon> {
 
     @Override
     public Pane initBody() {
-        return new Pane(PlaceholderBody.createValuePlaceholderBody(List.of(PrimitiveType.BOOLEAN), null));
+        return new Pane(PlaceholderBody.createValuePlaceholderBody(PrimitiveType.BOOLEAN, null));
     }
 
 }

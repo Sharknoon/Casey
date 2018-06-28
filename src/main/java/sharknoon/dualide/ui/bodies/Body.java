@@ -16,10 +16,12 @@
 package sharknoon.dualide.ui.bodies;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ObservableObjectValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -39,12 +41,13 @@ import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.misc.MouseConsumable;
+import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Helper class
@@ -52,7 +55,11 @@ import java.util.function.Consumer;
  * @param <S> The Statement this body corresponds to
  * @author Josua Frank
  */
-public abstract class Body<S extends Statement> extends Group {
+public abstract class Body<S extends Statement> extends Group implements MouseConsumable {
+    
+    public static final ObservableList<Node> currentCloseButton = FXCollections.observableArrayList();
+    public static final ObservableList<Node> currentExtendButton = FXCollections.observableArrayList();
+    public static final ObservableList<Node> currentReduceButton = FXCollections.observableArrayList();
     
     public static Body createBody(Statement statement) {
         if (statement instanceof Operator) {
@@ -112,11 +119,11 @@ public abstract class Body<S extends Statement> extends Group {
     
     private final S statement;
     private final StackPane contentPane = new StackPane();
-    private final List<Consumer<MouseEvent>> onMouseEntered = new ArrayList<>();
-    private final List<Consumer<MouseEvent>> onMouseExited = new ArrayList<>();
     private final ObjectBinding<Shape> backgroundShape;
-    private Node previousCloseIcon;
     private List<Runnable> onDestroy;
+    private Node closeIcon;
+    private Node extendIcon;
+    private Node reduceIcon;
     
     Body(S statement) {
         super();
@@ -159,11 +166,27 @@ public abstract class Body<S extends Statement> extends Group {
         initCloseButton();
         initPlusButton();
         initMinusButton();
-        initListeners();
+        MouseConsumable.registerListeners(this, this);
     }
     
+    @Override
+    public void onMouseEntered(MouseEvent event) {
+        currentCloseButton.add(closeIcon);
+        currentExtendButton.add(extendIcon);
+        currentReduceButton.add(reduceIcon);
+    }
+    
+    @Override
+    public void onMouseExited(MouseEvent event) {
+        currentCloseButton.remove(currentCloseButton.size() - 1);
+        currentExtendButton.remove(currentExtendButton.size() - 1);
+        currentReduceButton.remove(currentReduceButton.size() - 1);
+    }
+    
+    public abstract BooleanExpression isClosingAllowed();
+    
     private void initCloseButton() {
-        Node closeIcon = Icons.get(Icon.CLOSEROUND, 25);
+        closeIcon = Icons.get(Icon.CLOSEROUND, 25);
         closeIcon.setOnMouseClicked((event) -> {
             if (statement != null) {
                 statement.destroy();
@@ -173,84 +196,40 @@ public abstract class Body<S extends Statement> extends Group {
         closeIcon.setLayoutY(0);
         closeIcon.setVisible(false);
         getChildren().add(closeIcon);
-        onMouseEntered((event) -> {
-            closeIcon.setVisible(true);
-            closeIcon.toFront();
-        });
-        onMouseExited((event) -> {
-            closeIcon.setVisible(false);
-        });
+        closeIcon.visibleProperty().bind(hoverProperty().and(isClosingAllowed()).and(BindUtils.getLast(currentCloseButton).isEqualTo(closeIcon)));
+        closeIcon.visibleProperty().addListener((ob, old, newV) -> closeIcon.toFront());
     }
+    
+    public abstract BooleanExpression isExtendingAllowed();
     
     private void initPlusButton() {
-        if (this instanceof OperatorBody) {
-            Operator operator = (Operator) getStatement().orElse(null);
-            if (operator != null && operator.isExtensible()) {
-                Node addIcon = Icons.get(Icon.PLUSROUND, 25);
-                addIcon.setOnMouseClicked((event) -> {
-                    ((OperatorBody) this).extend();
-                });
-                addIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-                addIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
-                addIcon.setVisible(false);
-                getChildren().add(addIcon);
-                onMouseEntered((event) -> {
-                    addIcon.setVisible(true);
-                    addIcon.toFront();
-                });
-                onMouseExited((event) -> {
-                    addIcon.setVisible(false);
-                });
-            }
-        }
+        extendIcon = Icons.get(Icon.PLUSROUND, 25);
+        extendIcon.setOnMouseClicked((event) -> extend());
+        extendIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+        extendIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
+        extendIcon.setVisible(false);
+        getChildren().add(extendIcon);
+        extendIcon.visibleProperty().bind(hoverProperty().and(isExtendingAllowed()).and(BindUtils.getLast(currentExtendButton).isEqualTo(extendIcon)));
+        extendIcon.visibleProperty().addListener((ob, old, newV) -> extendIcon.toFront());
     }
+    
+    public void extend() {
+    }
+    
+    public abstract BooleanExpression isReducingAllowed();
     
     private void initMinusButton() {
-        if (this instanceof OperatorBody) {
-            Operator operator = (Operator) getStatement().orElse(null);
-            if (operator != null && operator.isExtensible()) {
-                Node removeIcon = Icons.get(Icon.MINUSROUND, 25);
-                removeIcon.setOnMouseClicked((event) -> {
-                    ((OperatorBody) this).reduce();
-                });
-                removeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-                removeIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
-                removeIcon.setVisible(false);
-                getChildren().add(removeIcon);
-                onMouseEntered((event) -> {
-                    removeIcon.visibleProperty().bind(operator.parameterAmountProperty().greaterThan(operator.getMinimumParameterAmount()));
-                    removeIcon.toFront();
-                });
-                onMouseExited((event) -> {
-                    removeIcon.visibleProperty().unbind();
-                    removeIcon.setVisible(false);
-                });
-            }
-        }
+        reduceIcon = Icons.get(Icon.MINUSROUND, 25);
+        reduceIcon.setOnMouseClicked((event) -> reduce());
+        reduceIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+        reduceIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
+        reduceIcon.setVisible(false);
+        getChildren().add(reduceIcon);
+        reduceIcon.visibleProperty().bind(hoverProperty().and(isReducingAllowed()).and(BindUtils.getLast(currentReduceButton).isEqualTo(reduceIcon)));
+        reduceIcon.visibleProperty().addListener((ob, old, newV) -> reduceIcon.toFront());
     }
     
-    private void setCurrentCloseIcon(Node newCloseIcon) {
-        if (previousCloseIcon != null) {
-            previousCloseIcon.setVisible(false);
-        }
-        previousCloseIcon = newCloseIcon;
-    }
-    
-    private void onMouseEntered(Consumer<MouseEvent> event) {
-        onMouseEntered.add(event);
-    }
-    
-    private void onMouseExited(Consumer<MouseEvent> event) {
-        onMouseExited.add(event);
-    }
-    
-    private void initListeners() {
-        setOnMouseEntered((event) -> {
-            onMouseEntered.forEach(c -> c.accept(event));
-        });
-        setOnMouseExited((event) -> {
-            onMouseExited.forEach(c -> c.accept(event));
-        });
+    public void reduce() {
     }
     
     public Optional<S> getStatement() {
@@ -336,6 +315,8 @@ public abstract class Body<S extends Statement> extends Group {
                 } else {
                     //No type allowed, but a type is necessary
                     Rectangle error = new Rectangle();
+                    error.heightProperty().bind(contentPane.heightProperty());
+                    error.widthProperty().bind(contentPane.widthProperty());
                     error.setFill(Color.RED);
                     shape = error;
                     Logger.error("Body is no type, should never occur");

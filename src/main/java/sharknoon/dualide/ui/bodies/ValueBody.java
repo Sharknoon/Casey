@@ -15,9 +15,9 @@
  */
 package sharknoon.dualide.ui.bodies;
 
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -45,10 +45,6 @@ import sharknoon.dualide.logic.types.Type;
 public class ValueBody extends Body<Value> {
     
     private static final Insets MARGIN = new Insets(10);
-    
-    public static ValueBody createValueBody(Value value) {
-        return new ValueBody(value);
-    }
     
     private static Node createContentNode(Value value) {
         Type returnType = value.getReturnType();
@@ -102,7 +98,9 @@ public class ValueBody extends Body<Value> {
                 }
             });
             spinnerValue.getEditor().setPrefWidth(14);
-            spinnerValue.minWidthProperty().bind(minTextFieldWidthProperty(spinnerValue.getEditor()).add(24));//Spinner does not resize automatically like textfield :(
+            spinnerValue.setMinWidth(24);
+            DoubleBinding width = BodyUtils.minTextFieldWidthProperty(spinnerValue.getEditor()).add(24);
+            spinnerValue.minWidthProperty().bind(width);//Spinner does not resize automatically like textfield :(
             spinnerValue.setEditable(true);
             spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
             return spinnerValue;
@@ -110,7 +108,7 @@ public class ValueBody extends Body<Value> {
             TextValue val3 = (TextValue) value;
             TextField textFieldValue = new TextField();
             StackPane.setMargin(textFieldValue, MARGIN);
-            textFieldValue.prefWidthProperty().bind(minTextFieldWidthProperty(textFieldValue));
+            textFieldValue.prefWidthProperty().bind(BodyUtils.minTextFieldWidthProperty(textFieldValue));
             textFieldValue.textProperty().bindBidirectional(val3.valueProperty());
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {
@@ -126,27 +124,25 @@ public class ValueBody extends Body<Value> {
         return errorText;
     }
     
-    private static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {
-        ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
-        tf.textProperty().addListener((ov, prevText, currText) -> {
-            // Do this in a Platform.runLater because of Textfield has no padding at first time and so on
-            Platform.runLater(() -> {
-                Text text = new Text(currText);
-                text.setFont(tf.getFont()); // Set the same font, so the size is the same
-                double width = text.getLayoutBounds().getWidth() // This big is the Text in the TextField
-                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField
-                        + 2d; // Add some spacing
-                minTextFieldWidthProperty.set(width); // Set the width
-                tf.positionCaret(tf.getCaretPosition()); // If you remove this line, it flashes a little bit
-            });
-        });
-        return minTextFieldWidthProperty.getReadOnlyProperty();
-    }
-    
     ValueBody(Value value) {
         super(value);
         Node content = createContentNode(value);
         setContent(content);
+    }
+    
+    @Override
+    public BooleanExpression isClosingAllowed() {
+        return Bindings.createBooleanBinding(() -> true);
+    }
+    
+    @Override
+    public BooleanExpression isExtendingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public BooleanExpression isReducingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
     }
     
     @Override

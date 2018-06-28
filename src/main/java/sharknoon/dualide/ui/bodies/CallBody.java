@@ -58,8 +58,8 @@ import java.util.function.Consumer;
 public class CallBody extends Body<Call<?>> {
     
     private static final int DEFAULT_MARGIN = 5;
-    
-    
+    //The left shape is an icon, i use the rounded corners of the text shape to complement the icon
+    private static final ObjectProperty<Type> leftShape = new SimpleObjectProperty<>(PrimitiveType.TEXT);
     private ObservableList<Node> content;
     
     public CallBody(Call<?> statement) {
@@ -85,12 +85,59 @@ public class CallBody extends Body<Call<?>> {
         return hBoxContent;
     }
     
+    @Override
+    public BooleanExpression isClosingAllowed() {
+        return Bindings.createBooleanBinding(() -> true);
+    }
+    
+    @Override
+    public BooleanExpression isExtendingAllowed() {
+        Call<?> c = getStatement().orElse(null);
+        if (c == null) {
+            return Bindings.createBooleanBinding(() -> false);
+        }
+        return c.isExtensible();
+    }
+    
+    @Override
     public void extend() {
+        getStatement().map(Call::getCalls).ifPresent(c -> c.add(null));
+    }
+    
+    @Override
+    public BooleanExpression isReducingAllowed() {
+        Call<?> c = getStatement().orElse(null);
+        if (c == null) {
+            return Bindings.createBooleanBinding(() -> false);
+        }
+        return c.isReducible();
+    }
+    
+    @Override
+    public void reduce() {
     
     }
     
-    public void reduce() {
-    
+    @Override
+    public ObservableList<Text> toText() {
+        ObservableList<Text> text = FXCollections.observableArrayList();
+        Statement statement = getStatement().orElse(null);
+        if (statement == null) {
+            text.add(new Text("ERROR"));
+            return text;
+        }
+        if (statement instanceof FunctionCall) {
+            FunctionCall c = (FunctionCall) statement;
+            for (int i = 0; i < c.getCalls().size(); i++) {
+                //ValueReturnable function = c.getCalls().get(i);
+                //Text callText = new Text(function.getName());
+                //TODO parameter
+                //text.add(callText);
+            }
+        } else if (statement instanceof VariableCall) {
+            //TODO
+        }
+        return text;
     }
     
     private ObservableList<Node> callsToNodes(Call<?> o) {
@@ -104,16 +151,25 @@ public class CallBody extends Body<Call<?>> {
         listNode.clear();
         for (int i = 0; i < calls.size(); i++) {
             ValueReturnable call = calls.get(i);
-            ObservableList<Node> callNodes = callToNode(call);
+            if (call != null) {
+                listNode.add(callToNode(call));
+            } else {
+                ObservableList<Node> list = FXCollections.observableArrayList();
+                //TODO very unsafe
+                PlaceholderBody placeholder = createPlaceholder(calls.get(i - 1).returnTypeProperty(), list);
+                list.add(placeholder);
+                listNode.add(list);
+            }
             
             if (i < calls.size() - 1) {
-                Node arrow = Icons.get(Icon.BACKGROUND, 40);
-                callNodes.add(arrow);
+                ObservableList<Node> list = FXCollections.observableArrayList();
+                Node arrow = Icons.get(Icon.ARROWRIGHT, 40);
+                list.add(arrow);
+                listNode.add(list);
             } else if (i == calls.size() - 1) {
                 //BooleanProperty isVisible = BindUtils.getLast(calls).
             }
             //BooleanProperty rightType = BindUtils.getLast(calls);
-            listNode.add(callNodes);
         }
     }
     
@@ -147,7 +203,7 @@ public class CallBody extends Body<Call<?>> {
                     .filter(i -> i instanceof Parameter)
                     .map(i -> (Parameter) i)
                     .forEach(p -> {
-                        PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty());
+                        PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty(), nodeList);
                         bodies.put(p, placeholder);
                         nodeList.add(placeholder);
                     });
@@ -158,7 +214,7 @@ public class CallBody extends Body<Call<?>> {
                         switch (c.getFlag()) {
                             case ADDED:
                                 Parameter p = (Parameter) c.getValue();
-                                PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty());
+                                PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty(), nodeList);
                                 bodies.put(p, placeholder);
                                 nodeList.add(placeholder);
                                 break;
@@ -171,17 +227,17 @@ public class CallBody extends Body<Call<?>> {
         return nodeList;
     }
     
-    private PlaceholderBody createPlaceholder(ObjectProperty<Type> allowedType) {
+    private PlaceholderBody createPlaceholder(ObjectProperty<Type> allowedType, ObservableList<Node> contentList) {
         Call<?> call = getStatement().get();
         PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedType, call);
         
         Consumer<Statement> statementConsumer = s -> {
-            if (content.contains(body)) {
-                int index = content.indexOf(body);
-                content.set(index, s.getBody());
+            if (contentList.contains(body)) {
+                int index = contentList.indexOf(body);
+                contentList.set(index, s.getBody());
                 //call.setParameter(call.indexWithOperatorsToRegularIndex(index), s);
                 s.getBody().setOnBodyDestroyed(() -> {
-                    content.set(index, body);
+                    contentList.set(index, body);
                     //call.setParameter(call.indexWithOperatorsToRegularIndex(index), null);
                 });
             }
@@ -243,35 +299,10 @@ public class CallBody extends Body<Call<?>> {
         hBoxContent.paddingProperty().bind(ov);
     }
     
-    //The left shape is an icon, i use the rounded corners of the text shape to complement the icon
-    private static final ObjectProperty<Type> leftShape = new SimpleObjectProperty<>(PrimitiveType.TEXT);
-    
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> lastParameter) {
         DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftShape, height);
         lastParameter = lastParameter == null ? leftShape : lastParameter;
         DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, lastParameter, height);
         return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding);
-    }
-    
-    @Override
-    public ObservableList<Text> toText() {
-        ObservableList<Text> text = FXCollections.observableArrayList();
-        Statement statement = getStatement().orElse(null);
-        if (statement == null) {
-            text.add(new Text("ERROR"));
-            return text;
-        }
-        if (statement instanceof FunctionCall) {
-            FunctionCall c = (FunctionCall) statement;
-            for (int i = 0; i < c.getCalls().size(); i++) {
-                //ValueReturnable function = c.getCalls().get(i);
-                //Text callText = new Text(function.getName());
-                //TODO parameter
-                //text.add(callText);
-            }
-        } else if (statement instanceof VariableCall) {
-            //TODO
-        }
-        return text;
     }
 }

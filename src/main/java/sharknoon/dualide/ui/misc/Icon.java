@@ -27,6 +27,7 @@ import java.util.Optional;
 public enum Icon {
 
     AND,
+    ARROWRIGHT,
     BACKGROUND,
     VOID,
     BOOLEAN,

@@ -26,35 +26,8 @@ import javafx.scene.input.ScrollEvent;
  * @author Josua Frank
  */
 public interface MouseConsumable {
-
-    public default void onMousePressed(MouseEvent event) {
-    }
-
-    public default void onMouseDragged(MouseEvent event) {
-    }
-
-    public default void onMouseReleased(MouseEvent event) {
-    }
-
-    public default void onMouseClicked(MouseEvent event) {
-    }
-
-    public default void onContextMenuRequested(ContextMenuEvent event) {
-    }
-
-    public default void onMouseEntered(MouseEvent event) {
-    }
-
-    public default void onMouseExited(MouseEvent event) {
-    }
-
-    public default void onMouseMoved(MouseEvent event) {
-    }
-
-    public default void onScroll(ScrollEvent event) {
-    }
-
-    public static void registerListeners(Node node, MouseConsumable consumable) {
+    
+    static void registerListeners(Node node, MouseConsumable consumable) {
         node.setOnMousePressed(consumable::onMousePressed);
         node.setOnMouseDragged(consumable::onMouseDragged);
         node.setOnMouseReleased(consumable::onMouseReleased);
@@ -64,5 +37,32 @@ public interface MouseConsumable {
         node.setOnMouseExited(consumable::onMouseExited);
         node.setOnMouseMoved(consumable::onMouseMoved);
         node.setOnScroll(consumable::onScroll);
+    }
+    
+    default void onMousePressed(MouseEvent event) {
+    }
+    
+    default void onMouseDragged(MouseEvent event) {
+    }
+    
+    default void onMouseReleased(MouseEvent event) {
+    }
+    
+    default void onMouseClicked(MouseEvent event) {
+    }
+    
+    default void onContextMenuRequested(ContextMenuEvent event) {
+    }
+    
+    default void onMouseEntered(MouseEvent event) {
+    }
+    
+    default void onMouseExited(MouseEvent event) {
+    }
+    
+    default void onMouseMoved(MouseEvent event) {
+    }
+    
+    default void onScroll(ScrollEvent event) {
     }
 }

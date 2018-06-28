@@ -38,7 +38,7 @@ import java.util.List;
  * @param <T> The type of this statement
  * @param <CT> The child type of this statement
  */
-public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements ValueReturnable {
+public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements ValueReturnable<T> {
 
     private final transient ReadOnlyObjectWrapper<Statement<Type, Type, T>> parent = new ReadOnlyObjectWrapper<>();
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());

@@ -14,6 +14,8 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,13 +37,12 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
     public Call(Statement<Type, Type, Type> parent, VR startCall) {
         super(parent);
         lastCall = BindUtils.getLast(calls);
-        lastCall.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                newValue.returnTypeProperty().addListener((observable1, oldValue1, newValue1) -> {
-                    returnType.set(newValue1);
-                });
-                returnType.set(newValue.getReturnType());
+        lastCall.addListener((o, old, new_) -> {
+            if (new_ != null) {
+                returnType.unbind();
+                returnType.bind(new_.returnTypeProperty());
             } else {
+                returnType.unbind();
                 returnType.set(null);
             }
         });
@@ -59,6 +60,17 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
     
     public ObjectBinding<ValueReturnable<Type>> lastCallProperty() {
         return lastCall;
+    }
+    
+    public BooleanExpression isExtensible() {
+        return Bindings.createBooleanBinding(() -> {
+            Type type = returnType.get();
+            return type != null && type.getReturnType().isObject();
+        }, returnType);
+    }
+    
+    public BooleanExpression isReducible() {
+        return Bindings.size(calls).greaterThan(1);
     }
     
     @Override

@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.ui.bodies;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,7 +40,7 @@ public class PlaceholderBody extends Body {
     }
     
     public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return createValuePlaceholderBody(null, parent, statementConsumer);
+        return createValuePlaceholderBody(Type.UNDEFINED, parent, statementConsumer);
     }
     
     public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
@@ -88,7 +90,7 @@ public class PlaceholderBody extends Body {
     }
     
     private PlaceholderBody() {
-        super((Type) null);
+        super(Type.UNDEFINED);
         setOnMouseEntered((event) -> {
             setContent(Icons.get(Icon.VOID, 50));
         });
@@ -102,12 +104,27 @@ public class PlaceholderBody extends Body {
     }
     
     @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    public BooleanExpression isClosingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public BooleanExpression isExtendingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public BooleanExpression isReducingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
     }
     
     @Override
     public ObservableList<Text> toText() {
         return FXCollections.emptyObservableList();
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

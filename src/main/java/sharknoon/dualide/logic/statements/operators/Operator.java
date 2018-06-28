@@ -15,9 +15,9 @@
  */
 package sharknoon.dualide.logic.statements.operators;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -26,7 +26,9 @@ import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.Body;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -35,20 +37,20 @@ import java.util.function.Supplier;
  *             value
  * @author Josua Frank
  */
-public abstract class Operator<T extends Type, CT extends Type> extends Statement<Type, T, CT> {
+public abstract class Operator<T extends PrimitiveType, CT extends Type> extends Statement<Type, T, CT> {
     
-    private final Type returnType;
+    private final T returnType;
     //A map instead of a list to leave empty spaces inbetween the indexes
     private final Type parameterType;
     private final int minimumParameters;
     private final int maximumParamerters;
     private final boolean isExtensible;
     
-    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType){
-        this(parent,minimumParameters,maximumParameters,isExtensible,returnType,null);
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, T returnType) {
+        this(parent, minimumParameters, maximumParameters, isExtensible, returnType, null);
     }
     
-    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, PrimitiveType returnType, PrimitiveType parameterType) {
+    public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, T returnType, PrimitiveType parameterType) {
         super(parent);
         this.returnType = returnType;
         this.parameterType = parameterType != null ? parameterType : Type.UNDEFINED;
@@ -110,7 +112,7 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
     }
     
     @Override
-    public Type getReturnType() {
+    public T getReturnType() {
         return returnType;
     }
     
@@ -209,8 +211,22 @@ public abstract class Operator<T extends Type, CT extends Type> extends Statemen
         return Optional.ofNullable(childs.get(0));
     }
     
+    public ReadOnlyObjectProperty<Statement<T, CT, Type>> firstParameterProperty() {
+        ReadOnlyObjectWrapper<Statement<T, CT, Type>> wrapper = new ReadOnlyObjectWrapper<>();
+        ObjectBinding<Statement<T, CT, Type>> firstChild = Bindings.valueAt(childs, 0);
+        wrapper.bind(firstChild);
+        return wrapper.getReadOnlyProperty();
+    }
+    
     public Optional<Statement<T, CT, Type>> getLastParameter() {
         return Optional.ofNullable(childs.get(getParameterAmount() - 1));
+    }
+    
+    public ReadOnlyObjectProperty<Statement<T, CT, Type>> lastParameterProperty() {
+        ReadOnlyObjectWrapper<Statement<T, CT, Type>> wrapper = new ReadOnlyObjectWrapper<>();
+        ObjectBinding<Statement<T, CT, Type>> lastChild = Bindings.valueAt(childs, parameterAmountProperty());
+        wrapper.bind(lastChild);
+        return wrapper.getReadOnlyProperty();
     }
     
     /**

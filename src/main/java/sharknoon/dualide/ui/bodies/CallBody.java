@@ -17,11 +17,7 @@ package sharknoon.dualide.ui.bodies;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.beans.binding.*;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -36,10 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.ValueReturnable;
-import sharknoon.dualide.logic.items.Function;
-import sharknoon.dualide.logic.items.Item;
-import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.logic.items.Parameter;
+import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
 import sharknoon.dualide.logic.statements.calls.FunctionCall;
@@ -52,7 +45,6 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class CallBody extends Body<Call<?>> {
@@ -75,6 +67,8 @@ public class CallBody extends Body<Call<?>> {
         HBox hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
+    
+        bindError(call.returnTypeProperty().isNotEqualTo(call.getExpectedReturnType()));
         
         //contains nulls for empty parameter
         content = callsToNodes(call);
@@ -101,7 +95,7 @@ public class CallBody extends Body<Call<?>> {
     
     @Override
     public void extend() {
-        getStatement().map(Call::getCalls).ifPresent(c -> c.add(null));
+        getStatement().map(Statement::getChilds).ifPresent(c -> c.add(null));
     }
     
     @Override
@@ -115,7 +109,7 @@ public class CallBody extends Body<Call<?>> {
     
     @Override
     public void reduce() {
-    
+        getStatement().map(Statement::getChilds).ifPresent(c -> c.remove(c.size() - 1));
     }
     
     @Override
@@ -128,7 +122,7 @@ public class CallBody extends Body<Call<?>> {
         }
         if (statement instanceof FunctionCall) {
             FunctionCall c = (FunctionCall) statement;
-            for (int i = 0; i < c.getCalls().size(); i++) {
+            for (int i = 0; i < c.getChilds().size(); i++) {
                 //ValueReturnable function = c.getCalls().get(i);
                 //Text callText = new Text(function.getName());
                 //TODO parameter
@@ -142,21 +136,23 @@ public class CallBody extends Body<Call<?>> {
     
     private ObservableList<Node> callsToNodes(Call<?> o) {
         ObservableList<ObservableList<Node>> listNode = FXCollections.observableArrayList();
-        ObservableList<? extends ValueReturnable> calls = o.getCalls();
-        BindUtils.addListener(calls, c -> onCallChanged(listNode, calls));
+        ReadOnlyListProperty<Statement<Type, Type, Type>> childs = o.childsProperty();
+        BindUtils.addListener(childs, c -> onCallChanged(listNode, childs));
         return BindUtils.concatFromList(listNode);
     }
     
     private void onCallChanged(ObservableList<ObservableList<Node>> listNode, ObservableList<? extends ValueReturnable> calls) {
         listNode.clear();
         for (int i = 0; i < calls.size(); i++) {
-            ValueReturnable call = calls.get(i);
-            if (call != null) {
-                listNode.add(callToNode(call));
+            ValueReturnable valueReturnable = calls.get(i);
+            if (valueReturnable != null) {
+                listNode.add(callToNode(valueReturnable));
             } else {
                 ObservableList<Node> list = FXCollections.observableArrayList();
-                //TODO very unsafe
-                PlaceholderBody placeholder = createPlaceholder(calls.get(i - 1).returnTypeProperty(), list);
+                Call<?> call = getStatement().get();
+                ObjectBinding<Type> expectedReturnType = Bindings.createObjectBinding(call::getExpectedReturnType);
+                PlaceholderBody placeholder = createPlaceholder(expectedReturnType, list, b -> {
+                }, true);
                 list.add(placeholder);
                 listNode.add(list);
             }
@@ -166,10 +162,7 @@ public class CallBody extends Body<Call<?>> {
                 Node arrow = Icons.get(Icon.ARROWRIGHT, 40);
                 list.add(arrow);
                 listNode.add(list);
-            } else if (i == calls.size() - 1) {
-                //BooleanProperty isVisible = BindUtils.getLast(calls).
             }
-            //BooleanProperty rightType = BindUtils.getLast(calls);
         }
     }
     
@@ -196,14 +189,20 @@ public class CallBody extends Body<Call<?>> {
         nodeList.addAll(icon, label);
         
         if (call instanceof Function) {
-            Map<Parameter, PlaceholderBody> bodies = new HashMap<>();
+            Map<Parameter, Body> bodies = new HashMap<>();
             Function f = (Function) call;
+    
             f.getChildren()
                     .stream()
                     .filter(i -> i instanceof Parameter)
                     .map(i -> (Parameter) i)
                     .forEach(p -> {
-                        PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty(), nodeList);
+                        PlaceholderBody placeholder = createPlaceholder(
+                                p.returnTypeProperty(),
+                                nodeList,
+                                b -> bodies.put(p, b),
+                                false
+                        );
                         bodies.put(p, placeholder);
                         nodeList.add(placeholder);
                     });
@@ -214,7 +213,12 @@ public class CallBody extends Body<Call<?>> {
                         switch (c.getFlag()) {
                             case ADDED:
                                 Parameter p = (Parameter) c.getValue();
-                                PlaceholderBody placeholder = createPlaceholder(p.returnTypeProperty(), nodeList);
+                                PlaceholderBody placeholder = createPlaceholder(
+                                        p.returnTypeProperty(),
+                                        nodeList,
+                                        b -> bodies.put(p, b),
+                                        false
+                                );
                                 bodies.put(p, placeholder);
                                 nodeList.add(placeholder);
                                 break;
@@ -227,23 +231,40 @@ public class CallBody extends Body<Call<?>> {
         return nodeList;
     }
     
-    private PlaceholderBody createPlaceholder(ObjectProperty<Type> allowedType, ObservableList<Node> contentList) {
+    private PlaceholderBody createPlaceholder(ObjectExpression<Type> allowedType, ObservableList<Node> contentList, Consumer<Body> onStatementChanged, boolean onlyThisCall) {
         Call<?> call = getStatement().get();
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedType, call);
+        PlaceholderBody pb;
+        if (!onlyThisCall) {
+            pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) null);
+        } else {
+            ValueReturnable<Type> prevCall = call.getChilds().get(call.getChilds().size() - 2);
+            Type thisType = prevCall.getReturnType();
+            if (prevCall instanceof Function) {
+                pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) prevCall);
+            } else if (prevCall instanceof Variable) {
+                pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) null);
+            } else {
+                pb = null;
+            }
+        }
         
         Consumer<Statement> statementConsumer = s -> {
-            if (contentList.contains(body)) {
-                int index = contentList.indexOf(body);
-                contentList.set(index, s.getBody());
+            Body sb = s.getBody();
+            onStatementChanged.accept(sb);
+            if (contentList.contains(pb)) {
+                contentList.set(contentList.indexOf(pb), s.getBody());
                 //call.setParameter(call.indexWithOperatorsToRegularIndex(index), s);
-                s.getBody().setOnBodyDestroyed(() -> {
-                    contentList.set(index, body);
+                sb.setOnBodyDestroyed(() -> {
+                    onStatementChanged.accept(pb);
+                    if (contentList.contains(sb)) {
+                        contentList.set(contentList.indexOf(sb), pb);
+                    }
                     //call.setParameter(call.indexWithOperatorsToRegularIndex(index), null);
                 });
             }
         };
-        body.setStatementConsumer(statementConsumer);
-        return body;
+        pb.setStatementConsumer(statementConsumer);
+        return pb;
     }
     
     private ObjectProperty<Image> getIcon(ValueReturnable vr) {
@@ -266,7 +287,9 @@ public class CallBody extends Body<Call<?>> {
     
     private void onChildChange(Call<?> call, HBox hBoxContent) {
         ObjectProperty<Type> lastParameterType = new SimpleObjectProperty<>();
-        ObjectBinding<ValueReturnable<Type>> lastCallProperty = call.lastCallProperty();
+        //TODO Change to ObjectBinding<CallItem>, callitem hat das Item (Funktion / Variable
+        /*
+        ObjectBinding<ValueReturnable> lastCallProperty = call.lastChildProperty();
         BindUtils.addListener(lastCallProperty, (observable, oldValue, newValue) -> {
             if (newValue != null && newValue instanceof Function) {
                 Function f = (Function) newValue;
@@ -297,6 +320,7 @@ public class CallBody extends Body<Call<?>> {
         );
         ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
         hBoxContent.paddingProperty().bind(ov);
+        */
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> lastParameter) {

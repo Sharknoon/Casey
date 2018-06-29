@@ -19,47 +19,39 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.stream.Collectors;
 
-public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<Type, Type, Type> {
+public class Call<I extends Item & ValueReturnable> extends Statement<Type, Type, Type> {
     
-    private final ObservableList<ValueReturnable<Type>> calls = FXCollections.observableArrayList();
-    private final ObjectBinding<ValueReturnable<Type>> lastCall;
+    private final ObjectBinding<Statement<Type, Type, Type>> lastChild;
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
+    private final Type expectedReturnType;
     
-    public Call(Statement<Type, Type, Type> parent, VR startCall) {
+    public Call(Statement<Type, Type, Type> parent, Item<?, ?, ?> startCall, Type expectedReturnType) {
         super(parent);
-        lastCall = BindUtils.getLast(calls);
-        lastCall.addListener((o, old, new_) -> {
+        this.expectedReturnType = expectedReturnType;
+        lastChild = BindUtils.getLast(childs);
+        lastChild.addListener((o, old, new_) -> {
             if (new_ != null) {
                 returnType.unbind();
                 returnType.bind(new_.returnTypeProperty());
             } else {
                 returnType.unbind();
-                returnType.set(null);
+                returnType.set(Type.UNDEFINED);
             }
         });
-        
-        calls.add(startCall);
+        addCallItem(startCall);
     }
     
-    public ObservableList<ValueReturnable<Type>> getCalls() {
-        return calls;
-    }
-    
-    public ValueReturnable<Type> getLastCall() {
-        return lastCall.get();
-    }
-    
-    public ObjectBinding<ValueReturnable<Type>> lastCallProperty() {
-        return lastCall;
+    public void addCallItem(Item<?, ?, ?> item) {
+        new CallItem(this, item);
     }
     
     public BooleanExpression isExtensible() {
@@ -70,18 +62,72 @@ public abstract class Call<VR extends ValueReturnable<Type>> extends Statement<T
     }
     
     public BooleanExpression isReducible() {
-        return Bindings.size(calls).greaterThan(1);
+        return Bindings.size(childs).greaterThan(1);
     }
     
-    @Override
-    public String toString() {
-        return calls.stream().map(v -> v.getReturnType().getLanguageDependentName().get()).collect(Collectors.joining(" -> "));
+    public ObjectBinding<Statement<Type, Type, Type>> lastChildProperty() {
+        return lastChild;
     }
     
     @Override
     public Type getReturnType() {
         return returnTypeProperty().get();
     }
+    
+    @Override
+    public Value<Type> calculateResult() {
+        return getReturnType().createEmptyValue(null);
+    }
+    
+    public Type getExpectedReturnType() {
+        return expectedReturnType;
+    }
+    
+    public class CallItem<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<Type, Type, Type> {
+        
+        private final I item;
+        
+        public CallItem(Statement<Type, Type, Type> parent, I item) {
+            super(parent);
+            this.item = item;
+        }
+        
+        public I getItem() {
+            return item;
+        }
+        
+        @Override
+        public Value<Type> calculateResult() {
+            return item.getReturnType().createEmptyValue(parentProperty().get());
+        }
+        
+        @Override
+        public String toString() {
+            return item.toString();
+        }
+        
+        @Override
+        public Type getReturnType() {
+            return item.getReturnType();
+        }
+        
+        @Override
+        public ObjectProperty<Type> returnTypeProperty() {
+            return item.returnTypeProperty();
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return childs
+                .stream()
+                .map(Statement::toString)
+                .collect(Collectors.joining(" -> "));
+    }
+    
+
+    
+
     
     @Override
     public ObjectProperty<Type> returnTypeProperty() {

@@ -19,7 +19,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,6 +30,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
@@ -120,6 +123,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     private final S statement;
     private final StackPane contentPane = new StackPane();
     private final ObjectBinding<Shape> backgroundShape;
+    private BooleanProperty errorProperty = new SimpleBooleanProperty(false);
     private List<Runnable> onDestroy;
     private Node closeIcon;
     private Node extendIcon;
@@ -167,6 +171,11 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
         initPlusButton();
         initMinusButton();
         MouseConsumable.registerListeners(this, this);
+    }
+    
+    protected void bindError(BooleanExpression error) {
+        errorProperty.unbind();
+        errorProperty.bind(error);
     }
     
     @Override
@@ -295,6 +304,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                             //Should never occur
                             shape = new Rectangle();
                         }
+                        shape.setStroke(Color.BLACK);
                     } else if (t.isObject()) {
                         Polygon poly2 = new Polygon();
                         redrawPolygon(poly2, true, height, width);
@@ -305,12 +315,18 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                             redrawPolygon(poly2, true, contentPane.heightProperty().get(), contentPane.widthProperty().get());
                         });
                         shape = poly2;
+                        shape.setStroke(Color.BLACK);
                     } else {
                         //Body is a undefined type
                         Rectangle rect = new Rectangle();
                         rect.heightProperty().bind(contentPane.heightProperty());
                         rect.widthProperty().bind(contentPane.widthProperty());
                         shape = rect;
+                        shape.setStroke(Color.CRIMSON);
+                    }
+                    shape.setFill(Color.WHITE);
+                    if (b instanceof PlaceholderBody) {
+                        shape.setStroke(Color.GREY);
                     }
                 } else {
                     //No type allowed, but a type is necessary
@@ -318,15 +334,18 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                     error.heightProperty().bind(contentPane.heightProperty());
                     error.widthProperty().bind(contentPane.widthProperty());
                     error.setFill(Color.RED);
+                    error.setStroke(Color.CRIMSON);
                     shape = error;
                     Logger.error("Body is no type, should never occur");
                 }
-                shape.setFill(Color.WHITE);
-                if (b instanceof PlaceholderBody) {
-                    shape.setStroke(Color.GREY);
-                } else {
-                    shape.setStroke(Color.BLACK);
-                }
+                Paint strokeColor = shape.getStroke();
+                errorProperty.addListener((observable, oldValue, newValue) -> {
+                    if (newValue) {
+                        shape.setStroke(Color.CRIMSON);
+                    } else {
+                        shape.setStroke(strokeColor);
+                    }
+                });
                 shape.setStrokeWidth(3);
                 //shape.setStrokeType(StrokeType.INSIDE);
                 return shape;

@@ -44,19 +44,10 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     
     private transient static final ListProperty<Class> CLASSES = new SimpleListProperty<>(FXCollections.observableArrayList());
     
-    private transient final ObjectType type = new ObjectType(this);
-    private transient final FilteredList<Item<? extends Item, Class, ? extends Item>> variables = new FilteredList<>(childrenProperty(), c -> c.getType() == ItemType.VARIABLE);
-    private transient final FilteredList<Item<? extends Item, Class, ? extends Item>> functions = new FilteredList<>(childrenProperty(), c -> c.getType() == ItemType.FUNCTION);
-    
-    protected Class(Package parent, String name) {
-        superInit(parent, name);
-        CLASSES.add(this);
-    }
-    
     private static ListProperty<Class> classesProperty() {
         return CLASSES;
     }
-    
+
     /**
      * case sensitive!
      *
@@ -70,6 +61,15 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         return CLASSES.stream()
                 .filter(c -> c.getFullName().equals(fullName))
                 .findFirst();
+    }
+    
+    private transient final ObjectType type = new ObjectType(this);
+    private transient final FilteredList<Item<? extends Item, Class, ? extends Item>> variables = new FilteredList<>(childrenProperty(), c -> c.getType() == ItemType.VARIABLE);
+    private transient final FilteredList<Item<? extends Item, Class, ? extends Item>> functions = new FilteredList<>(childrenProperty(), c -> c.getType() == ItemType.FUNCTION);
+    
+    protected Class(Package parent, String name) {
+        superInit(parent, name);
+        CLASSES.add(this);
     }
     
     public ObjectType toType() {
@@ -100,14 +100,6 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
     }
     
-    public ObservableList<Item<? extends Item, Class, ? extends Item>> getVariables() {
-        return variables;
-    }
-    
-    public ObservableList<Item<? extends Item, Class, ? extends Item>> getFunctions() {
-        return functions;
-    }
-    
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         return super.getAdditionalProperties();
@@ -118,6 +110,14 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         super.setAdditionalProperties(properties);
     }
     
+    public ObservableList<Item<? extends Item, Class, ? extends Item>> getVariables() {
+        return variables;
+    }
+    
+    public ObservableList<Item<? extends Item, Class, ? extends Item>> getFunctions() {
+        return functions;
+    }
+    
     public static class ObjectType extends Type<ObjectType, ObjectValue> {
         
         private static final ListProperty<ObjectType> TYPES = new SimpleListProperty<>(BindUtils.map((ObservableList<Class>) classesProperty(), c -> c.type));
@@ -126,41 +126,38 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             private StringProperty typeName = new SimpleStringProperty();
             
             @Override
-            public void onDelete(Runnable runnable) {
-                //general cant be deleted
+            public boolean isPrimitive() {
+                return super.isPrimitive();
             }
             
             @Override
-            public boolean equals(Object obj) {
-                return super.equals(obj);
+            public boolean isObject() {
+                return super.isObject();
             }
             
             @Override
-            public int hashCode() {
-                return -1;
+            public PrimitiveType getPrimitiveType() {
+                return super.getPrimitiveType();
             }
             
             @Override
-            public String toString() {
-                return "GENERIC, DO NOT USE!";
+            public ObjectType getObjectType() {
+                return super.getObjectType();
             }
             
             @Override
-            public StringProperty getLanguageDependentName() {
-                if (typeName.get() == null) {
-                    Language.setCustom(Word.OBJECT, typeName::set);
-                }
-                return typeName;
+            public StringProperty simpleNameProperty() {
+                return fullNameProperty();
             }
             
             @Override
-            public StringProperty creationTextProperty() {
-                return super.creationTextProperty();
+            public StringProperty fullNameProperty() {
+                return new SimpleStringProperty("GENERAL");
             }
             
             @Override
-            public Icon getCreationIcon() {
-                return super.getCreationIcon();
+            public Icon getIcon() {
+                return super.getIcon();
             }
             
             @Override
@@ -174,57 +171,62 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
             
             @Override
-            public Icon getIcon() {
-                return super.getIcon();
+            public Icon getCreationIcon() {
+                return super.getCreationIcon();
             }
             
             @Override
-            public StringProperty fullNameProperty() {
-                return new SimpleStringProperty("GENERAL");
+            public StringProperty creationTextProperty() {
+                return super.creationTextProperty();
             }
             
             @Override
-            public StringProperty simpleNameProperty() {
-                return fullNameProperty();
+            public StringProperty getLanguageDependentName() {
+                if (typeName.get() == null) {
+                    Language.setCustom(Word.OBJECT, typeName::set);
+                }
+                return typeName;
             }
             
             @Override
-            public ObjectType getObjectType() {
-                return super.getObjectType();
+            public void onDelete(Runnable runnable) {
+                //general cant be deleted
             }
             
             @Override
-            public PrimitiveType getPrimitiveType() {
-                return super.getPrimitiveType();
+            public int hashCode() {
+                return -1;
             }
             
             @Override
-            public boolean isPrimitive() {
-                return super.isPrimitive();
+            public boolean equals(Object obj) {
+                return super.equals(obj);
             }
             
             @Override
-            public boolean isObject() {
-                return super.isObject();
+            public String toString() {
+                return "GENERIC, DO NOT USE!";
             }
         };
-        
+    
+        public static ListProperty<ObjectType> getAll() {
+            return TYPES;
+        }
+    
+        public static Optional<ObjectType> forName(String name) {
+            return Class.forName(name).map(Class::toType);
+        }
         private final Class clazz;
         List<Runnable> onDelete = new ArrayList<>();
         private Type selectedType;
         private StringProperty creationText;
-        private StringProperty name;
         
         ObjectType(Class clazz) {
             this.clazz = clazz;
         }
-        
-        public static ListProperty<ObjectType> getAll() {
-            return TYPES;
-        }
-        
-        public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(Class::toType);
+    
+        public Class toItem() {
+            return clazz;
         }
         
         @Override
@@ -268,6 +270,26 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         public Icon getIcon() {
             return Icon.CLASS;
         }
+    
+        @Override
+        public Icon getCreationIcon() {
+            return Icon.PLUSCLASS;
+        }
+    
+        @Override
+        public StringProperty creationTextProperty() {
+            if (creationText == null) {
+                creationText = new SimpleStringProperty();
+                Language.setCustom(Word.OBJECT_CREATION, creationText::set);
+            
+            }
+            return creationText;
+        }
+    
+        @Override
+        public StringProperty getLanguageDependentName() {
+            return simpleNameProperty();
+        }
         
         @Override
         public Optional<ObjectValue> createValue(Statement parent) {
@@ -291,28 +313,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
         
         @Override
-        public Icon getCreationIcon() {
-            return Icon.PLUSCLASS;
-        }
-        
-        @Override
-        public StringProperty creationTextProperty() {
-            if (creationText == null) {
-                creationText = new SimpleStringProperty();
-                Language.setCustom(Word.OBJECT_CREATION, creationText::set);
-                
-            }
-            return creationText;
-        }
-        
-        @Override
-        public StringProperty getLanguageDependentName() {
-            return simpleNameProperty();
-        }
-        
-        @Override
-        public String toString() {
-            return simpleNameProperty().get();
+        public void onDelete(Runnable runnable) {
+            onDelete.add(runnable);
         }
         
         @Override
@@ -338,8 +340,8 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
         
         @Override
-        public void onDelete(Runnable runnable) {
-            onDelete.add(runnable);
+        public String toString() {
+            return simpleNameProperty().get();
         }
     }
     

@@ -1,14 +1,9 @@
 package sharknoon.dualide.logic.statements.calls;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.image.Image;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
 
 /*
  * Copyright 2018 Shark Industries.
@@ -29,25 +24,15 @@ public class FunctionCall extends Call<Function> {
     
     private final Function function;
     
-    public FunctionCall(Statement<Type, Type, Type> parent, Function function) {
-        super(parent, function);
-        this.function = function;
+    public FunctionCall(Statement<Type, Type, Type> parent, Function startCall, Type expectedReturnType) {
+        super(parent, startCall, expectedReturnType);
+        this.function = startCall;
     }
     
     @Override
     public Value<Type> calculateResult() {
         return function.getReturnType().createEmptyValue(parentProperty().get());
     }
-    
-    private ObjectProperty<Image> getIcon() {
-        ObjectProperty<Icon> icon = function.getSite().tabIconProperty();
-        return Icons.iconToImageProperty(icon);
-    }
-    
-    private StringProperty getName() {
-        return function.nameProperty();
-    }
-    
     
     
 }

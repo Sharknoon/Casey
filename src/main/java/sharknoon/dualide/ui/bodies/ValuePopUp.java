@@ -17,6 +17,8 @@ package sharknoon.dualide.ui.bodies;/*
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.PopOver;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.utils.language.Language;
@@ -26,7 +28,7 @@ import java.util.function.Consumer;
 
 public class ValuePopUp extends PopOver {
     
-    ValuePopUp(Node ownerNode, Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation) {
+    ValuePopUp(Node ownerNode, Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation, Class onlyClass, Function onlyFunction) {
         super();
         Consumer<Statement> newStatementConsumer = t -> {
             hide();
@@ -34,7 +36,7 @@ public class ValuePopUp extends PopOver {
                 statementConsumer.accept(t);
             }
         };
-        GridPane gridPaneRoot = new ValueBrowser(newStatementConsumer, parent, allowedType, allowValueCreation);
+        GridPane gridPaneRoot = new ValueBrowser(newStatementConsumer, parent, allowedType, allowValueCreation, onlyClass, onlyFunction);
         getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
         setContentNode(gridPaneRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);

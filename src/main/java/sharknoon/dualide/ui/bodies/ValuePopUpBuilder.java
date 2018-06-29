@@ -1,6 +1,8 @@
 package sharknoon.dualide.ui.bodies;
 
 import javafx.scene.Node;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 
@@ -12,11 +14,13 @@ public class ValuePopUpBuilder {
         return new ValuePopUpBuilder(ownerNode, statementConsumer);
     }
     
-    private Node ownerNode;
-    private Consumer<Statement> statementConsumer;
-    private Statement parent;
-    private Type allowedType;
+    private final Node ownerNode;
+    private final Consumer<Statement> statementConsumer;
+    private Statement parent = null;
+    private Type allowedType = null;
     private boolean allowValueCreation = true;
+    private Function onlyFunction = null;
+    private Class onlyClass = null;
     
     public ValuePopUpBuilder(Node ownerNode, Consumer<Statement> statementConsumer) {
         this.ownerNode = ownerNode;
@@ -38,7 +42,17 @@ public class ValuePopUpBuilder {
         return this;
     }
     
+    public ValuePopUpBuilder showOnlyClassChilds(Class clazz) {
+        this.onlyClass = clazz;
+        return this;
+    }
+    
+    public ValuePopUpBuilder showOnlyFunctionChilds(Function fun) {
+        this.onlyFunction = fun;
+        return this;
+    }
+    
     public ValuePopUp showValuePopUp() {
-        return new ValuePopUp(ownerNode, statementConsumer, parent, allowedType, allowValueCreation);
+        return new ValuePopUp(ownerNode, statementConsumer, parent, allowedType, allowValueCreation, onlyClass, onlyFunction);
     }
 }

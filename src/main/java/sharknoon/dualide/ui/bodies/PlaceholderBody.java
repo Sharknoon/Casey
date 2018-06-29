@@ -21,6 +21,8 @@ import javafx.beans.binding.ObjectExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.text.Text;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
@@ -39,21 +41,21 @@ public class PlaceholderBody extends Body {
         return createValuePlaceholderBody(type, parent, null);
     }
     
-    public static PlaceholderBody createValuePlaceholderBody(Statement parent, Consumer<Statement> statementConsumer) {
-        return createValuePlaceholderBody(Type.UNDEFINED, parent, statementConsumer);
-    }
-    
     public static PlaceholderBody createValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {
         return new PlaceholderBody(type, parent, statementConsumer);
     }
     
-    public static PlaceholderBody createValuePlaceholderBody(ObjectExpression<Type> type, Statement parent) {
-        return new PlaceholderBody(type, parent, null);
+    public static PlaceholderBody createValuePlaceholderBody(ObjectExpression<Type> type, Statement parent, Function onlyThisFunction) {
+        return new PlaceholderBody(type, parent, null, onlyThisFunction, null);
+    }
+    
+    public static PlaceholderBody createValuePlaceholderBody(ObjectExpression<Type> type, Statement parent, Class onlyThisClass) {
+        return new PlaceholderBody(type, parent, null, null, onlyThisClass);
     }
     
     private Consumer<Statement> statementConsumer;
     
-    public PlaceholderBody(ObjectExpression<Type> type, Statement parent, Consumer<Statement> statementConsumer) {
+    public PlaceholderBody(ObjectExpression<Type> type, Statement parent, Consumer<Statement> statementConsumer, Function onlyThisFunction, Class onlyThisClass) {
         super(type);
         this.statementConsumer = statementConsumer;
         setOnMouseClicked((event) -> {
@@ -61,6 +63,8 @@ public class PlaceholderBody extends Body {
                     .create(this, this.statementConsumer)
                     .setParent(parent)
                     .setAllowedType(type.get())
+                    .showOnlyFunctionChilds(onlyThisFunction)
+                    .showOnlyClassChilds(onlyThisClass)
                     .showValuePopUp();
         });
         setOnMouseEntered((event) -> {
@@ -101,6 +105,14 @@ public class PlaceholderBody extends Body {
     
     public void setStatementConsumer(Consumer<Statement> consumer) {
         this.statementConsumer = consumer;
+    }
+    
+    /**
+     * Cant use statement -> destroy, because a placeholder has no statement (yet)
+     */
+    @Override
+    public void destroy() {
+        super.destroy();
     }
     
     @Override

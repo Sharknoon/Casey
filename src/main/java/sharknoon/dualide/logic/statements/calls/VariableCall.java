@@ -1,4 +1,5 @@
-package sharknoon.dualide.logic.statements.calls;/*
+package sharknoon.dualide.logic.statements.calls;
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +24,8 @@ public class VariableCall extends Call<Variable> {
     
     private final Variable variable;
     
-    public VariableCall(Statement<Type, Type, Type> parent, Variable startCall) {
-        super(parent, startCall);
+    public VariableCall(Statement<Type, Type, Type> parent, Variable startCall, Type expectedReturnType) {
+        super(parent, startCall, expectedReturnType);
         this.variable = startCall;
     }
     

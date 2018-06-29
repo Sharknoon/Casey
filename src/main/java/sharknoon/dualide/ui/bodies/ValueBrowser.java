@@ -18,6 +18,7 @@ import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.FunctionCall;
+import sharknoon.dualide.logic.statements.calls.VariableCall;
 import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -52,6 +53,8 @@ class ValueBrowser extends GridPane {
     private final VBox vBoxRight = new VBox();
     private final Type allowedType;
     private final boolean allowValueCreation;
+    private final Class onlyThisClass;
+    private final Function onlyThisFunction;
     private final Statement parent;
     private final Consumer<Statement> statementConsumer;
     private GridPane gp = new GridPane();
@@ -60,13 +63,21 @@ class ValueBrowser extends GridPane {
     private Node previousContent = null;
     
     
-    public ValueBrowser(Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation) {
+    ValueBrowser(Consumer<Statement> statementConsumer, Statement parent, Type allowedType, boolean allowValueCreation, Class onlyThisClass, Function onlyThisFunction) {
         super();
         this.parent = parent;
         this.statementConsumer = statementConsumer;
         this.allowedType = allowedType;
         this.allowValueCreation = allowValueCreation;
+        this.onlyThisClass = onlyThisClass;
+        this.onlyThisFunction = onlyThisFunction;
         init();
+        
+        if (onlyThisClass != null && onlyThisFunction != null) {
+            addExistingValueSelectors(false);
+            return;
+        }
+        
         //null no types allowed
         if (allowedType == null) {
             addNoTypeLabel();
@@ -74,7 +85,7 @@ class ValueBrowser extends GridPane {
             if (allowValueCreation) {
                 addNewValueSelectors();
             }
-            addExistingValueSelectors();
+            addExistingValueSelectors(true);
         }
     }
     
@@ -195,8 +206,10 @@ class ValueBrowser extends GridPane {
         gp.add(buttonCreation, 1, row);
     }
     
-    private void addExistingValueSelectors() {
-        addExistingValueSeparator();
+    private void addExistingValueSelectors(boolean withSeparator) {
+        if (withSeparator) {
+            addExistingValueSeparator();
+        }
         addValueSourceSegmentedButtons();
     }
     
@@ -210,15 +223,22 @@ class ValueBrowser extends GridPane {
         SegmentedButton segmentedButtonValueSource = new SegmentedButton();
         
         Item<?, ?, ?> i = Site.currentSelectedProperty().get();
-        boolean inClass = i != null && (i.isIn(ItemType.CLASS) || i.getType() == ItemType.CLASS);
-        boolean inFunction = i != null && (i.isIn(ItemType.FUNCTION) || i.getType() == ItemType.FUNCTION);
-        int amountButtons = 1 + (inClass ? 1 : 0) + (inFunction ? 1 : 0);
-        
-        String textStatic = Language.get(Word.VALUE_SELECTION_POPUP_STATIC_VALUES);
-        ToggleButton toggleButtonStatic = new ToggleButton(textStatic);
-        toggleButtonStatic.prefWidthProperty().bind(vBoxRight.widthProperty().divide(amountButtons));
-        toggleButtonStatic.setOnAction((event) -> setStaticContent());
-        segmentedButtonValueSource.getButtons().add(toggleButtonStatic);
+        boolean showStatic = onlyThisClass == null && onlyThisFunction == null;
+        boolean inClass = onlyThisClass != null || i != null && (i.isIn(ItemType.CLASS) || i.getType() == ItemType.CLASS);
+        boolean inFunction = onlyThisFunction != null || i != null && (i.isIn(ItemType.FUNCTION) || i.getType() == ItemType.FUNCTION);
+        int amountButtons = (showStatic ? 1 : 0) + (inClass ? 1 : 0) + (inFunction ? 1 : 0);
+    
+        vBoxRight.getChildren().add(segmentedButtonValueSource);
+        GridPane.setHgrow(segmentedButtonValueSource, Priority.ALWAYS);
+    
+        if (showStatic) {
+            String textStatic = Language.get(Word.VALUE_SELECTION_POPUP_STATIC_VALUES);
+            ToggleButton toggleButtonStatic = new ToggleButton(textStatic);
+            toggleButtonStatic.prefWidthProperty().bind(vBoxRight.widthProperty().divide(amountButtons));
+            toggleButtonStatic.setOnAction((event) -> setStaticContent());
+            segmentedButtonValueSource.getButtons().add(toggleButtonStatic);
+            toggleButtonStatic.fire();
+        }
         
         if (inClass) {
             String textThisClass = Language.get(Word.VALUE_SELECTION_POPUP_CLASS_VALUES);
@@ -226,6 +246,9 @@ class ValueBrowser extends GridPane {
             toggleButtonThisClass.prefWidthProperty().bind(vBoxRight.widthProperty().divide(amountButtons));
             toggleButtonThisClass.setOnAction((event) -> setThisClassContent());
             segmentedButtonValueSource.getButtons().add(toggleButtonThisClass);
+            if (onlyThisClass != null) {
+                toggleButtonThisClass.fire();
+            }
         }
         
         if (inFunction) {
@@ -234,12 +257,10 @@ class ValueBrowser extends GridPane {
             toggleButtonThisFunction.prefWidthProperty().bind(vBoxRight.widthProperty().divide(amountButtons));
             toggleButtonThisFunction.setOnAction((event) -> setThisFunctionContent());
             segmentedButtonValueSource.getButtons().add(toggleButtonThisFunction);
+            if (onlyThisFunction != null) {
+                toggleButtonThisFunction.fire();
+            }
         }
-        
-        vBoxRight.getChildren().add(segmentedButtonValueSource);
-        GridPane.setHgrow(segmentedButtonValueSource, Priority.ALWAYS);
-        //GridPane.setFillWidth(segmentedButtonValueSource, true);
-        toggleButtonStatic.fire();
     }
     
     private void setStaticContent() {
@@ -295,11 +316,10 @@ class ValueBrowser extends GridPane {
                         )
                         .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
                             if (i.getType() == ItemType.FUNCTION) {
-                                statementConsumer.accept(new FunctionCall(parent, (Function) i));
+                                statementConsumer.accept(new FunctionCall(parent, (Function) i, allowedType));
                             } else if (i.getType() == ItemType.VARIABLE) {
-                                //statementConsumer.accept(new VariableCall());
+                                statementConsumer.accept(new VariableCall(parent, (Variable) i, allowedType));
                             }
-                            //TODO
                         })));
             }
         });
@@ -326,28 +346,37 @@ class ValueBrowser extends GridPane {
         scrollPaneFunctionsAndVariables.setFitToWidth(true);
         VBox vBoxFunctionsAndVariables = new VBox(10);
         
-        Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
         Class currentClass = null;
-        while (currentClass == null) {
-            if (currentItem == null) {
-                return;
+        if (onlyThisClass == null) {
+            Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
+            while (currentClass == null) {
+                if (currentItem == null) {
+                    return;
+                }
+                if (currentItem.getType() == ItemType.CLASS) {
+                    currentClass = (Class) currentItem;
+                } else {
+                    currentItem = currentItem.getParent().orElse(null);
+                }
             }
-            if (currentItem.getType() == ItemType.CLASS) {
-                currentClass = (Class) currentItem;
-            } else {
-                currentItem = currentItem.getParent().orElse(null);
-            }
+        } else {
+            currentClass = onlyThisClass;
         }
         currentClass
                 .getChildren()
                 .stream()
+                .map(i -> (Item) i)
                 .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedType == Type.UNDEFINED
                         || allowedType == ((ValueReturnable) i).getReturnType()
                         || ((ValueReturnable) i).getReturnType().isObject()
                 )
-                .forEach((item) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(item, event -> {
-                    //TODO
+                .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
+                    if (i.getType() == ItemType.FUNCTION) {
+                        statementConsumer.accept(new FunctionCall(parent, (Function) i, allowedType));
+                    } else if (i.getType() == ItemType.VARIABLE) {
+                        statementConsumer.accept(new VariableCall(parent, (Variable) i, allowedType));
+                    }
                 })));
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
         
@@ -362,28 +391,35 @@ class ValueBrowser extends GridPane {
         scrollPaneVariables.setFitToWidth(true);
         VBox vBoxVariables = new VBox(10);
         
-        Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
         Function currentFunction = null;
-        while (currentFunction == null) {
-            if (currentItem == null) {
-                return;
+        if (onlyThisFunction == null) {
+            Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
+            while (currentFunction == null) {
+                if (currentItem == null) {
+                    return;
+                }
+                if (currentItem.getType() == ItemType.FUNCTION) {
+                    currentFunction = (Function) currentItem;
+                } else {
+                    currentItem = currentItem.getParent().orElse(null);
+                }
             }
-            if (currentItem.getType() == ItemType.FUNCTION) {
-                currentFunction = (Function) currentItem;
-            } else {
-                currentItem = currentItem.getParent().orElse(null);
-            }
+        } else {
+            currentFunction = onlyThisFunction;
         }
         currentFunction
                 .getChildren()
                 .stream()
+                .map(i -> (Item) i)
                 .filter(i -> i instanceof ValueReturnable)
                 .filter(i -> allowedType == Type.UNDEFINED
                         || allowedType == ((ValueReturnable) i).getReturnType()
                         || ((ValueReturnable) i).getReturnType().isObject()
                 )
-                .forEach((item) -> vBoxVariables.getChildren().add(getEntries(item, event -> {
-                    //TODO
+                .forEach((i) -> vBoxVariables.getChildren().add(getEntries(i, event -> {
+                    if (i.getType() == ItemType.VARIABLE) {
+                        statementConsumer.accept(new VariableCall(parent, (Variable) i, allowedType));
+                    }
                 })));
         scrollPaneVariables.setContent(vBoxVariables);
         

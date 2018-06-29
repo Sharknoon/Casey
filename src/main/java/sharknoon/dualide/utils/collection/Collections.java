@@ -15,30 +15,14 @@
  */
 package sharknoon.dualide.utils.collection;
 
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
-import java.util.Comparator;
-import java.util.ListIterator;
-import java.util.function.UnaryOperator;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.StreamSupport;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  *
@@ -48,7 +32,7 @@ public class Collections {
 
     /**
      * Makes a List to a unmodifiable List, which prohibites any changes.
-     * Otherwise the {@link Collections#unmodifiableList(List)} method, this
+     * Otherwise the {@link java.util.Collections#unmodifiableList(List)} method, this
      * List will <b>not</b> throw any errors if you want to change something, it
      * just does nothing.
      *
@@ -65,7 +49,7 @@ public class Collections {
 
     /**
      * Makes a Set to a unmodifiable Set, which prohibites any changes.
-     * Otherwise the {@link Collections#unmodifiableSet(Set)} method, this Set
+     * Otherwise the {@link java.util.Collections#unmodifiableSet(Set)} method, this Set
      * will <b>not</b> throw any errors if you want to change something, it just
      * does nothing.
      *
@@ -82,7 +66,7 @@ public class Collections {
 
     /**
      * Makes a Map to a unmodifiable Map, which prohibites any changes.
-     * Otherwise the {@link Collections#unmodifiableMap(Map)} method, this Map
+     * Otherwise the {@link java.util.Collections#unmodifiableMap(Map)} method, this Map
      * will <b>not</b> throw any errors if you want to change something, it just
      * does nothing.
      *
@@ -595,7 +579,7 @@ public class Collections {
 
                 @Override
                 public boolean tryAdvance(Consumer<? super Map.Entry<K, V>> action) {
-                    return action == null ? false : s.tryAdvance(entryConsumer(action));
+                    return action != null && s.tryAdvance(entryConsumer(action));
                 }
 
                 @Override

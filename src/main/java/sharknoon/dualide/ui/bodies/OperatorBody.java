@@ -28,11 +28,9 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import sharknoon.dualide.Debug;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.operators.OperatorType;
@@ -189,9 +187,8 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
             );
             text.add(op);
             if (childs.size() > 0) {
-                Text par = new Text(String.valueOf(childs.get(0)));
-                par.setFill(Color.LIGHTBLUE);
-                text.add(par);
+                ObservableList<Text> par = childs.get(0).getBody().toText();
+                text.addAll(par);
             }
         }
         text.add(bracketClose);
@@ -213,10 +210,6 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
         
         ObjectProperty<Type> firstParameterType = new SimpleObjectProperty<>();
         ObjectProperty<Type> lastParameterType = new SimpleObjectProperty<>();
-        
-        Label label = new Label();
-        label.textProperty().bind(firstParameterType.asString().concat("\n"));
-        Debug.show(label);
         
         JavaFxObservable.valuesOf(operator.childsProperty())
                 .map(l -> {

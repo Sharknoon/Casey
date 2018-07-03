@@ -20,7 +20,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import sharknoon.dualide.logic.types.PrimitiveType;
-import sharknoon.dualide.ui.bodies.PlaceholderBody;
+import sharknoon.dualide.ui.bodies.ValuePlaceholderBody;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 
@@ -72,7 +72,7 @@ public class Decision extends Block<Polygon> {
 
     @Override
     public Pane initBody() {
-        return new Pane(PlaceholderBody.createValuePlaceholderBody(PrimitiveType.BOOLEAN, null));
+        return new Pane(ValuePlaceholderBody.createValuePlaceholderBody(PrimitiveType.BOOLEAN, null));
     }
 
 }

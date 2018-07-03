@@ -27,7 +27,7 @@ import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.bodies.TypeBrowser;
+import sharknoon.dualide.ui.browsers.TypeBrowser;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.javafx.BindUtils;

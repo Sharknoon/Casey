@@ -87,10 +87,10 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
         return hBoxContent;
     }
     
-    private PlaceholderBody createPlaceholder() {
+    private ValuePlaceholderBody createPlaceholder() {
         Operator<?, ?> operator = getStatement().get();
         Type parameterType = operator.getParameterType();
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(parameterType, operator);
+        ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(parameterType, operator);
         
         Consumer<Statement> statementConsumer = s -> {
             if (content.contains(body)) {

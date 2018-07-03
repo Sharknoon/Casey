@@ -27,59 +27,63 @@ import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.Body;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * The statement is the base class for values, operators, ...
  *
- * @author Josua Frank
  * @param <PT> The parent type of this statement
- * @param <T> The type of this statement
+ * @param <T>  The type of this statement
  * @param <CT> The child type of this statement
+ * @author Josua Frank
  */
 public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements ValueReturnable<T> {
-
-    private final transient ReadOnlyObjectWrapper<Statement<Type, Type, T>> parent = new ReadOnlyObjectWrapper<>();
+    
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    private final transient ReadOnlyObjectWrapper<Statement<Type, PT, T>> parent = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Body> body = new ReadOnlyObjectWrapper<>();
-
-    public Statement(Statement<Type, Type, T> parent) {
+    private final List<Runnable> changeListeners = new ArrayList<>();
+    
+    public Statement(Statement<Type, PT, T> parent) {
+        this(parent, true);
+    }
+    
+    public Statement(Statement<Type, PT, T> parent, boolean initChilds) {
         if (parent != null) {
             this.parent.set(parent);
-            if (!(parentProperty().get() instanceof Operator)) {//Operators are managing their childs itself
+            if (!(parentProperty().get() instanceof Operator) && initChilds) {//Operators are managing their childs itself
                 parentProperty().get().childs.add((Statement) this);
             }
         }
         childs.addListener((observable, oldValue, newValue) -> onChange());
     }
-
-    public ReadOnlyObjectProperty<Statement<Type, Type, T>> parentProperty() {
+    
+    public ReadOnlyObjectProperty<Statement<Type, PT, T>> parentProperty() {
         return parent.getReadOnlyProperty();
     }
-
+    
     public ReadOnlyListProperty<Statement<T, CT, Type>> childsProperty() {
         return childs.getReadOnlyProperty();
     }
-
-    public List<Statement<T, CT, Type>> getChilds(){
-        return Collections.unmodifiableList(childs);
+    
+    public List<Statement<T, CT, Type>> getChilds() {
+        return childsProperty();
     }
-
+    
     public Body getBody() {
         if (body.get() == null) {
             body.set(Body.createBody(this));
         }
         return body.get();
     }
-
+    
     public void destroy() {
         destroy_impl();
         if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
             parentProperty().get().childs.remove(this);
         }
     }
-
+    
     private void destroy_impl() {
         childs.forEach(c -> {
             if (c != null) {
@@ -87,30 +91,31 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
             }
         });
         childs.clear();
-        getBody().destroy();
+        Body body = getBody();
+        if (body != null) {
+            body.destroy();
+        }
     }
-
+    
     protected void onChange() {
         changeListeners.forEach(Runnable::run);
         if (parentProperty().get() != null) {
             parentProperty().get().onChange();
         }
     }
-
-    private final List<Runnable> changeListeners = new ArrayList<>();
-
+    
     public void addChangeListener(Runnable onChange) {
         changeListeners.add(onChange);
     }
-
+    
     /**
      * You shouldnt need this method, use the resultproperty instead
      *
      * @return
      */
     public abstract Value<T> calculateResult();
-
+    
     @Override
     public abstract String toString();
-
+    
 }

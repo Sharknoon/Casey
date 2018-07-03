@@ -18,7 +18,7 @@ package sharknoon.dualide.ui.fields;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.bodies.PlaceholderBody;
+import sharknoon.dualide.ui.bodies.ValuePlaceholderBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,24 +26,23 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- *
  * @author Josua Frank
  */
 public class ValueField extends Pane {
-
+    
     public static ValueField DISABLED = new ValueField(true);
-
+    private final List<Consumer<Statement>> statementChangeListeners = new ArrayList<>();
     private Statement statement;
     private Consumer<Statement> onStatementSet;
     private Runnable onStatementDestroyed;
-
+    
     public ValueField() {
         this(Type.UNDEFINED);
     }
-
+    
     public ValueField(Type allowedType) {
-        PlaceholderBody body = PlaceholderBody.createValuePlaceholderBody(allowedType, null);
-
+        ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, null);
+        
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());
             s.addChangeListener(() -> {
@@ -60,30 +59,28 @@ public class ValueField extends Pane {
                 onStatementSet.accept(s);
             }
         });
-
+        
         getChildren().add(body);
     }
-
+    
     private ValueField(boolean disabled) {
-        getChildren().add(PlaceholderBody.DISABLED);
+        getChildren().add(ValuePlaceholderBody.DISABLED);
     }
-
+    
     public Optional<Statement> getStatement() {
         return Optional.ofNullable(statement);
     }
-
+    
     public void setOnStatementSet(Consumer<Statement> consumer) {
         onStatementSet = consumer;
     }
-
+    
     public void setOnStatementDestroyed(Runnable runnable) {
         onStatementDestroyed = runnable;
     }
-
-    private final List<Consumer<Statement>> statementChangeListeners = new ArrayList<>();
-
+    
     public void addStatementChangeListener(Consumer<Statement> consumer) {
         statementChangeListeners.add(consumer);
     }
-
+    
 }

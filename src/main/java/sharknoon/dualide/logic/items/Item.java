@@ -33,30 +33,11 @@ import java.util.*;
  * @author Josua Frank
  */
 public abstract class Item<I extends Item, P extends Item, C extends Item> {
-
-    private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
-    private final ReadOnlyListWrapper<C> children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
-
-    private final StringProperty name = new SimpleStringProperty("");
-    private final StringProperty comments = new SimpleStringProperty("");
-    //DO NOT CHANGE ORDER!!!
-    private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
-    private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
     
-    protected void superInit(P parent, String name) {
-        parentProperty().set(parent);
-        if (name != null) {
-            nameProperty().set(name);
-        }
-        if (parentProperty().get() != null) {
-            parentProperty().get().childrenProperty().add(this);
-        }
-    }
-
     public static <ITEM extends Item> ITEM createItem(ItemType itemType, Item parent, String name) {
         return createItem(itemType, parent, name, false);
     }
-
+    
     /**
      * can return null!!!
      *
@@ -103,10 +84,29 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         return item;
     }
     
+    private final transient ObjectProperty<P> parent = new SimpleObjectProperty<>();
+    private final ReadOnlyListWrapper<C> children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    private final StringProperty name = new SimpleStringProperty("");
+    private final StringProperty comments = new SimpleStringProperty("");
+    //DO NOT CHANGE ORDER!!!
+    private final transient ReadOnlyObjectWrapper<ItemType> itemType = new ReadOnlyObjectWrapper<>(ItemType.valueOf(this));
+    private final transient ReadOnlyObjectWrapper<Site<I>> site = new ReadOnlyObjectWrapper<>(Site.createSite(this));
+    private List<Runnable> onDestroy = new ArrayList<>();
+    
+    protected void superInit(P parent, String name) {
+        parentProperty().set(parent);
+        if (name != null) {
+            nameProperty().set(name);
+        }
+        if (parentProperty().get() != null) {
+            parentProperty().get().childrenProperty().add(this);
+        }
+    }
+    
     protected void afterInit() {
         getSite().afterInit();
     }
-
+    
     public void move(P newParent) {
         if (parentProperty().get() != null) {
             parentProperty().get().childrenProperty().remove(this);
@@ -114,41 +114,41 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         parentProperty().set(newParent);
         parentProperty().get().childrenProperty().add(this);
     }
-
+    
     public StringProperty nameProperty() {
         return name;
     }
-
+    
     public StringProperty commentsProperty() {
         return comments;
     }
-
+    
     public ObjectProperty<P> parentProperty() {
         return parent;
     }
-
+    
     public ReadOnlyObjectProperty<ItemType> itemTypeProperty() {
         return itemType.getReadOnlyProperty();
     }
-
+    
     public ReadOnlyObjectProperty<Site<I>> siteProperty() {
         return site.getReadOnlyProperty();
     }
-
+    
     public void addChildren(C children) {
         childrenProperty().add(children);
     }
-
+    
     public ReadOnlyListProperty<C> childrenProperty() {
         return children.getReadOnlyProperty();
     }
-
-    @Override
-    public String toString() {
-        return nameProperty().get();
+    
+    public void onDestroy(Runnable onDestroy) {
+        this.onDestroy.add(onDestroy);
     }
-
+    
     public void destroy() {
+        onDestroy.forEach(Runnable::run);
         var childClone = new ArrayList<>(getChildren());
         childClone.forEach(Item::destroy);
         if (parentProperty().get() != null) {
@@ -158,11 +158,11 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         parentProperty().set(null);
         childrenProperty().clear();
     }
-
+    
     protected void removeChild(C child) {
         childrenProperty().get().remove(child);
     }
-
+    
     public StringExpression fullNameProperty() {
         StringProperty sp = new SimpleStringProperty();
         if (parentProperty().get() != null) {
@@ -179,21 +179,21 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         });
         return sp;
     }
-
+    
     public Map<String, JsonNode> getAdditionalProperties() {
         return new HashMap<>();
     }
-
+    
     //to be overridden
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
-
+    
     }
-
+    
     @Override
     public int hashCode() {
         return fullNameProperty().get().hashCode();
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -208,7 +208,12 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         final Item<?, ?, ?> other = (Item<?, ?, ?>) obj;
         return this.fullNameProperty().get().equals(other.fullNameProperty().get());
     }
-
+    
+    @Override
+    public String toString() {
+        return nameProperty().get();
+    }
+    
     //Utils
     public Optional<P> getParent() {
         return Optional.ofNullable(parentProperty().get());
@@ -217,35 +222,35 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     public ObservableList<C> getChildren() {
         return childrenProperty();
     }
-
+    
     public String getName() {
         return nameProperty().get();
     }
-
+    
     public void setName(String name) {
         nameProperty().set(name);
     }
-
+    
     public String getComments() {
         return commentsProperty().get();
     }
-
+    
     public void setComments(String comments) {
         commentsProperty().set(comments);
     }
-
+    
     public ItemType getType() {
         return itemTypeProperty().get();
     }
-
+    
     public String getFullName() {
         return fullNameProperty().get();
     }
-
+    
     public Site<I> getSite() {
         return siteProperty().get();
     }
-
+    
     public boolean isIn(ItemType parentType) {
         if (!getParent().isPresent()) {
             return false;
@@ -256,5 +261,5 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
                 .isPresent()
                 || getParent().get().isIn(parentType);
     }
-
+    
 }

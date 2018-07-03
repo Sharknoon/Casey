@@ -325,7 +325,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                         shape.setStroke(Color.CRIMSON);
                     }
                     shape.setFill(Color.WHITE);
-                    if (b instanceof PlaceholderBody) {
+                    if (b instanceof ValuePlaceholderBody) {
                         shape.setStroke(Color.GREY);
                     }
                 } else {

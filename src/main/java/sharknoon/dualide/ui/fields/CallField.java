@@ -1,4 +1,4 @@
-/*
+package sharknoon.dualide.ui.fields;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sharknoon.dualide.logic;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
-import sharknoon.dualide.logic.types.Type;
-
-/**
- * @author Josua Frank
- */
-public interface ValueReturnable<T extends Type> {
-    
-    T getReturnType();
-    
-    ReadOnlyObjectProperty<T> returnTypeProperty();
-    
+public class CallField {
 }

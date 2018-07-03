@@ -17,7 +17,11 @@ package sharknoon.dualide.ui.bodies;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.beans.binding.*;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -32,9 +36,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.items.Class;
+import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
+import sharknoon.dualide.logic.statements.calls.CallItem;
 import sharknoon.dualide.logic.statements.calls.FunctionCall;
 import sharknoon.dualide.logic.statements.calls.VariableCall;
 import sharknoon.dualide.logic.types.PrimitiveType;
@@ -45,6 +52,7 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class CallBody extends Body<Call<?>> {
@@ -68,7 +76,13 @@ public class CallBody extends Body<Call<?>> {
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
     
-        bindError(call.returnTypeProperty().isNotEqualTo(call.getExpectedReturnType()));
+        boolean isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
+        bindError(Bindings.createBooleanBinding(() -> isUndefinedExpected)
+                .or(call
+                        .returnTypeProperty()
+                        .isEqualTo(call.getExpectedReturnType()))
+                .not()
+        );
         
         //contains nulls for empty parameter
         content = callsToNodes(call);
@@ -141,18 +155,20 @@ public class CallBody extends Body<Call<?>> {
         return BindUtils.concatFromList(listNode);
     }
     
-    private void onCallChanged(ObservableList<ObservableList<Node>> listNode, ObservableList<? extends ValueReturnable> calls) {
+    private void onCallChanged(ObservableList<ObservableList<Node>> listNode, ObservableList<Statement<Type, Type, Type>> calls) {
         listNode.clear();
         for (int i = 0; i < calls.size(); i++) {
-            ValueReturnable valueReturnable = calls.get(i);
-            if (valueReturnable != null) {
-                listNode.add(callToNode(valueReturnable));
+            CallItem callItem = (CallItem) calls.get(i);
+            if (callItem != null) {
+                listNode.add(callToNode(callItem));
             } else {
                 ObservableList<Node> list = FXCollections.observableArrayList();
                 Call<?> call = getStatement().get();
-                ObjectBinding<Type> expectedReturnType = Bindings.createObjectBinding(call::getExpectedReturnType);
-                PlaceholderBody placeholder = createPlaceholder(expectedReturnType, list, b -> {
-                }, true);
+                CallPlaceholderBody placeholder = createCallPlaceholder(
+                        list,
+                        b -> {
+                        },
+                        call);
                 list.add(placeholder);
                 listNode.add(list);
             }
@@ -166,9 +182,9 @@ public class CallBody extends Body<Call<?>> {
         }
     }
     
-    private ObservableList<Node> callToNode(ValueReturnable call) {
+    private ObservableList<Node> callToNode(CallItem callItem) {
         ObservableList<Node> nodeList = FXCollections.observableArrayList();
-        ObjectProperty<Image> image = getIcon(call);
+        ObjectProperty<Image> image = getIcon(callItem);
         ImageView icon = new ImageView();
         icon.setPreserveRatio(true);
         Image im = image.get();
@@ -179,7 +195,7 @@ public class CallBody extends Body<Call<?>> {
         }
         icon.imageProperty().bind(image);
         
-        StringProperty name = getName(call);
+        StringProperty name = getName(callItem);
         Label label = new Label();
         label.setMinWidth(Region.USE_PREF_SIZE);
         label.setTextFill(Color.BLACK);
@@ -188,24 +204,26 @@ public class CallBody extends Body<Call<?>> {
         
         nodeList.addAll(icon, label);
         
-        if (call instanceof Function) {
+        if (callItem.getItem().getType() == ItemType.FUNCTION) {
             Map<Parameter, Body> bodies = new HashMap<>();
-            Function f = (Function) call;
-    
+            Function f = (Function) callItem.getItem();
+            
+            Consumer<Parameter> parameterConsumer = p -> {
+                ValuePlaceholderBody placeholder = createParameterPlaceholder(
+                        p.returnTypeProperty(),
+                        nodeList,
+                        b -> bodies.put(p, b),
+                        callItem
+                );
+                bodies.put(p, placeholder);
+                nodeList.add(placeholder);
+            };
+            
             f.getChildren()
                     .stream()
                     .filter(i -> i instanceof Parameter)
                     .map(i -> (Parameter) i)
-                    .forEach(p -> {
-                        PlaceholderBody placeholder = createPlaceholder(
-                                p.returnTypeProperty(),
-                                nodeList,
-                                b -> bodies.put(p, b),
-                                false
-                        );
-                        bodies.put(p, placeholder);
-                        nodeList.add(placeholder);
-                    });
+                    .forEach(parameterConsumer);
             
             JavaFxObservable.changesOf(f.getChildren())
                     .filter(c -> c.getValue().getType() == ItemType.PARAMETER)
@@ -213,14 +231,7 @@ public class CallBody extends Body<Call<?>> {
                         switch (c.getFlag()) {
                             case ADDED:
                                 Parameter p = (Parameter) c.getValue();
-                                PlaceholderBody placeholder = createPlaceholder(
-                                        p.returnTypeProperty(),
-                                        nodeList,
-                                        b -> bodies.put(p, b),
-                                        false
-                                );
-                                bodies.put(p, placeholder);
-                                nodeList.add(placeholder);
+                                parameterConsumer.accept(p);
                                 break;
                             case REMOVED:
                                 nodeList.remove(bodies.get(c.getValue()));
@@ -231,22 +242,18 @@ public class CallBody extends Body<Call<?>> {
         return nodeList;
     }
     
-    private PlaceholderBody createPlaceholder(ObjectExpression<Type> allowedType, ObservableList<Node> contentList, Consumer<Body> onStatementChanged, boolean onlyThisCall) {
-        Call<?> call = getStatement().get();
-        PlaceholderBody pb;
-        if (!onlyThisCall) {
-            pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) null);
-        } else {
-            ValueReturnable<Type> prevCall = call.getChilds().get(call.getChilds().size() - 2);
-            Type thisType = prevCall.getReturnType();
-            if (prevCall instanceof Function) {
-                pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) prevCall);
-            } else if (prevCall instanceof Variable) {
-                pb = PlaceholderBody.createValuePlaceholderBody(allowedType, call, (Function) null);
-            } else {
-                pb = null;
-            }
-        }
+    /**
+     * @param allowedType        The allowed Type the user should be able to insert
+     * @param contentList        The contentList in which the placeholder is being set and replaced by a statement body
+     * @param onStatementChanged a body consumer, optional
+     * @return
+     */
+    private ValuePlaceholderBody createParameterPlaceholder(
+            ObjectExpression<Type> allowedType,
+            ObservableList<Node> contentList,
+            Consumer<Body> onStatementChanged,
+            Statement parent) {
+        ValuePlaceholderBody pb = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, parent);
         
         Consumer<Statement> statementConsumer = s -> {
             Body sb = s.getBody();
@@ -267,32 +274,56 @@ public class CallBody extends Body<Call<?>> {
         return pb;
     }
     
-    private ObjectProperty<Image> getIcon(ValueReturnable vr) {
-        ObjectProperty<Icon> icon;
-        if (vr instanceof Item) {
-            icon = ((Item) vr).getSite().tabIconProperty();
+    /**
+     * @param contentList        The contentList in which the placeholder is being set and replaced by a statement body
+     * @param onStatementChanged a body consumer, optional
+     * @return
+     */
+    private CallPlaceholderBody createCallPlaceholder(
+            ObservableList<Node> contentList,
+            Consumer<Body> onStatementChanged,
+            Call parent) {
+        CallPlaceholderBody placeholderBody;
+        
+        CallItem callItem = (CallItem) parent.getChilds().get(parent.getChilds().size() - 2);
+        if (callItem != null && callItem.getItem() instanceof ValueReturnable) {
+            Type returnType = ((ValueReturnable) callItem.getItem()).getReturnType();
+            ObjectType objectType = returnType.getObjectType();
+            Class c = objectType.toItem();
+            placeholderBody = CallPlaceholderBody.createCallPlaceholderBody(c, parent);
         } else {
-            icon = new SimpleObjectProperty<>(Icon.VOID);
+            return CallPlaceholderBody.DISABLED;
         }
+        
+        
+        Consumer<Statement> statementConsumer = statement -> {
+            Body statementBody = statement.getBody();
+            onStatementChanged.accept(statementBody);
+            if (contentList.contains(placeholderBody)) {
+                contentList.set(contentList.indexOf(placeholderBody), statement.getBody());
+            }
+        };
+        placeholderBody.setStatementConsumer(statementConsumer);
+        return placeholderBody;
+    }
+    
+    private ObjectProperty<Image> getIcon(CallItem vr) {
+        ObjectProperty<Icon> icon = vr.getItem().getSite().tabIconProperty();
         //evtl platform.runlater
         return Icons.iconToImageProperty(icon);
     }
     
-    private StringProperty getName(ValueReturnable vr) {
-        if (vr instanceof Item) {
-            return ((Item) vr).nameProperty();
-        }
-        return new SimpleStringProperty("ERROR");
+    private StringProperty getName(CallItem vr) {
+        return vr.getItem().nameProperty();
     }
     
     private void onChildChange(Call<?> call, HBox hBoxContent) {
         ObjectProperty<Type> lastParameterType = new SimpleObjectProperty<>();
-        //TODO Change to ObjectBinding<CallItem>, callitem hat das Item (Funktion / Variable
-        /*
-        ObjectBinding<ValueReturnable> lastCallProperty = call.lastChildProperty();
+        ObjectExpression<Statement<Type, Type, Type>> lastCallProperty = call.lastChildProperty();
         BindUtils.addListener(lastCallProperty, (observable, oldValue, newValue) -> {
-            if (newValue != null && newValue instanceof Function) {
-                Function f = (Function) newValue;
+            CallItem callItem = (CallItem) newValue;
+            if (callItem != null && callItem.getItem().getType() == ItemType.FUNCTION) {
+                Function f = (Function) callItem.getItem();
                 ObservableList<Item<? extends Item, Function, ? extends Item>> children = f.getChildren();
                 BindUtils.addListener(children, c -> {
                     Optional<ObjectProperty<Type>> type = children
@@ -305,12 +336,12 @@ public class CallBody extends Body<Call<?>> {
                         lastParameterType.bind(type.get());
                     } else {
                         lastParameterType.unbind();
-                        lastParameterType.set(null);
+                        lastParameterType.set(Type.UNDEFINED);
                     }
                 });
             } else {
                 lastParameterType.unbind();
-                lastParameterType.set(null);
+                lastParameterType.set(Type.UNDEFINED);
             }
         });
         ObjectExpression<Insets> padding = getPadding(
@@ -320,7 +351,6 @@ public class CallBody extends Body<Call<?>> {
         );
         ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
         hBoxContent.paddingProperty().bind(ov);
-        */
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> lastParameter) {

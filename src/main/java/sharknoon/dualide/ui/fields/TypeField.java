@@ -15,16 +15,17 @@
  */
 package sharknoon.dualide.ui.fields;
 
-import java.util.Collection;
-import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.bodies.TypePopUp;
+import sharknoon.dualide.ui.browsers.TypePopUp;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  *

@@ -17,8 +17,13 @@ package sharknoon.dualide.logic.statements.calls;/*
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.statements.Statement;
@@ -28,30 +33,69 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.stream.Collectors;
 
-public class Call<I extends Item & ValueReturnable> extends Statement<Type, Type, Type> {
+public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<Type, Type, Type> {
     
-    private final ObjectBinding<Statement<Type, Type, Type>> lastChild;
-    private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
+    private static final ObjectBinding<Type> UNDEFINED = Bindings.createObjectBinding(() -> Type.UNDEFINED);
+    
+    private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> lastChild = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Type> returnType = new ReadOnlyObjectWrapper<>();
     private final Type expectedReturnType;
     
     public Call(Statement<Type, Type, Type> parent, Item<?, ?, ?> startCall, Type expectedReturnType) {
         super(parent);
+        this.lastChild.bind(bindLastChild(childs));
+        this.returnType.bind(bindReturnType(lastChild));
         this.expectedReturnType = expectedReturnType;
-        lastChild = BindUtils.getLast(childs);
-        lastChild.addListener((o, old, new_) -> {
-            if (new_ != null) {
-                returnType.unbind();
-                returnType.bind(new_.returnTypeProperty());
-            } else {
-                returnType.unbind();
-                returnType.set(Type.UNDEFINED);
-            }
-        });
         addCallItem(startCall);
+        addAutoDestroyOnEmptyCallItems();
+        addAutoRemoveOfWrongCallItems();
     }
     
-    public void addCallItem(Item<?, ?, ?> item) {
+    private ObjectExpression<Statement<Type, Type, Type>> bindLastChild(ObservableList<Statement<Type, Type, Type>> childs) {
+        return BindUtils.getLast(childs);
+    }
+    
+    private ObjectExpression<Type> bindReturnType(ObjectExpression<Statement<Type, Type, Type>> lastChild) {
+        ObjectProperty<Type> returnType = new SimpleObjectProperty<>();
+        lastChild.addListener((o, old, new_) -> {
+            if (new_ != null && new_.getReturnType() != null) {
+                returnType.bind(new_.returnTypeProperty());
+            } else {
+                returnType.bind(UNDEFINED);
+            }
+        });
+        return returnType;
+    }
+    
+    private void addAutoDestroyOnEmptyCallItems() {
+        childsProperty().emptyProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                destroy();
+            }
+        });
+    }
+    
+    private void addCallItem(Item<?, ?, ?> item) {
         new CallItem(this, item);
+    }
+    
+    private void addAutoRemoveOfWrongCallItems() {
+        childsProperty().addListener((ListChangeListener<Statement<Type, Type, Type>>) c -> {
+            while (c.next()) {
+                if (c.wasPermutated()) {
+                    //Permutation not allowed!
+                    destroy();
+                } else if (c.wasUpdated()) {
+                    //Do nothing
+                } else if (c.wasRemoved() && c.getFrom() != c.getTo()) {
+                    //Do nothing when something is replaced
+                } else if (c.wasRemoved()) {
+                    childs.remove(c.getFrom(), c.getList().size() - 1);
+                } else {
+                    //Additions are great! :)
+                }
+            }
+        });
     }
     
     public BooleanExpression isExtensible() {
@@ -65,7 +109,7 @@ public class Call<I extends Item & ValueReturnable> extends Statement<Type, Type
         return Bindings.size(childs).greaterThan(1);
     }
     
-    public ObjectBinding<Statement<Type, Type, Type>> lastChildProperty() {
+    public ObjectExpression<Statement<Type, Type, Type>> lastChildProperty() {
         return lastChild;
     }
     
@@ -75,46 +119,13 @@ public class Call<I extends Item & ValueReturnable> extends Statement<Type, Type
     }
     
     @Override
+    public ReadOnlyObjectProperty<Type> returnTypeProperty() {
+        return returnType.getReadOnlyProperty();
+    }
+    
+    @Override
     public Value<Type> calculateResult() {
         return getReturnType().createEmptyValue(null);
-    }
-    
-    public Type getExpectedReturnType() {
-        return expectedReturnType;
-    }
-    
-    public class CallItem<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<Type, Type, Type> {
-        
-        private final I item;
-        
-        public CallItem(Statement<Type, Type, Type> parent, I item) {
-            super(parent);
-            this.item = item;
-        }
-        
-        public I getItem() {
-            return item;
-        }
-        
-        @Override
-        public Value<Type> calculateResult() {
-            return item.getReturnType().createEmptyValue(parentProperty().get());
-        }
-        
-        @Override
-        public String toString() {
-            return item.toString();
-        }
-        
-        @Override
-        public Type getReturnType() {
-            return item.getReturnType();
-        }
-        
-        @Override
-        public ObjectProperty<Type> returnTypeProperty() {
-            return item.returnTypeProperty();
-        }
     }
     
     @Override
@@ -125,14 +136,8 @@ public class Call<I extends Item & ValueReturnable> extends Statement<Type, Type
                 .collect(Collectors.joining(" -> "));
     }
     
-
-    
-
-    
-    @Override
-    public ObjectProperty<Type> returnTypeProperty() {
-        return returnType;
+    public Type getExpectedReturnType() {
+        return expectedReturnType;
     }
-    
     
 }

@@ -75,7 +75,7 @@ public class CallBody extends Body<Call<?>> {
         HBox hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
-    
+        
         boolean isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
         bindError(Bindings.createBooleanBinding(() -> isUndefinedExpected)
                 .or(call
@@ -129,22 +129,33 @@ public class CallBody extends Body<Call<?>> {
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        Statement statement = getStatement().orElse(null);
-        if (statement == null) {
-            text.add(new Text("ERROR"));
-            return text;
-        }
-        if (statement instanceof FunctionCall) {
-            FunctionCall c = (FunctionCall) statement;
-            for (int i = 0; i < c.getChilds().size(); i++) {
-                //ValueReturnable function = c.getCalls().get(i);
-                //Text callText = new Text(function.getName());
-                //TODO parameter
-                //text.add(callText);
-            }
-        } else if (statement instanceof VariableCall) {
-            //TODO
-        }
+        getStatement().ifPresent(call -> {
+            call.getChilds().forEach(callItem -> {
+                if (callItem == null){
+                    return;
+                }
+                Item<Item, Item, Item> item = ((CallItem) callItem).getItem();
+                Text textName = new Text();
+                textName.textProperty().bind(item.nameProperty());
+                Text textOpenBracket = new Text("(");
+                Text textCloseBracket = new Text(")");
+                BindUtils.addListener(item.getChildren(), c -> {
+                    text.addAll(textName, textOpenBracket);
+                    item.getChildren().forEach(parameter -> {
+                        if (parameter.getType() == ItemType.PARAMETER) {
+                            //Text textParameter = new Text();
+                            //textParameter.textProperty().bind(parameter.nameProperty());
+                            //text.addAll(para);
+                        }
+                    });
+                    text.add(textCloseBracket);
+                });
+                if (!callItem.equals(call.lastChildProperty().getValue())){
+                    Text textArrow = new Text(" -> ");
+                    text.add(textArrow);
+                }
+            });
+        });
         return text;
     }
     

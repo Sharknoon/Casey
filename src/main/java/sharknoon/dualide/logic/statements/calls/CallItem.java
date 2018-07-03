@@ -35,7 +35,7 @@ public class CallItem<I extends Item<?, ?, ?> & ValueReturnable> extends Stateme
         } else {
             childs.set(childs.size() - 1, this);
         }
-        item.onDestroy(() -> parent.childsProperty().remove(this));
+        item.onDestroy(parent::destroy);
     }
     
     public I getItem() {

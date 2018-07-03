@@ -15,10 +15,7 @@
  */
 package sharknoon.dualide.logic.statements;
 
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.statements.operators.Operator;
@@ -62,8 +59,8 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
         return parent.getReadOnlyProperty();
     }
     
-    public ReadOnlyListProperty<Statement<T, CT, Type>> childsProperty() {
-        return childs.getReadOnlyProperty();
+    public ListProperty<Statement<T, CT, Type>> childsProperty() {
+        return childs;
     }
     
     public List<Statement<T, CT, Type>> getChilds() {

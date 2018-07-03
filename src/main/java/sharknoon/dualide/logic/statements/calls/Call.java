@@ -48,7 +48,6 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
         this.expectedReturnType = expectedReturnType;
         addCallItem(startCall);
         addAutoDestroyOnEmptyCallItems();
-        addAutoRemoveOfWrongCallItems();
     }
     
     private ObjectExpression<Statement<Type, Type, Type>> bindLastChild(ObservableList<Statement<Type, Type, Type>> childs) {
@@ -77,25 +76,6 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
     
     private void addCallItem(Item<?, ?, ?> item) {
         new CallItem(this, item);
-    }
-    
-    private void addAutoRemoveOfWrongCallItems() {
-        childsProperty().addListener((ListChangeListener<Statement<Type, Type, Type>>) c -> {
-            while (c.next()) {
-                if (c.wasPermutated()) {
-                    //Permutation not allowed!
-                    destroy();
-                } else if (c.wasUpdated()) {
-                    //Do nothing
-                } else if (c.wasRemoved() && c.getFrom() != c.getTo()) {
-                    //Do nothing when something is replaced
-                } else if (c.wasRemoved()) {
-                    childs.remove(c.getFrom(), c.getList().size() - 1);
-                } else {
-                    //Additions are great! :)
-                }
-            }
-        });
     }
     
     public BooleanExpression isExtensible() {

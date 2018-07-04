@@ -14,28 +14,50 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.ItemType;
+import sharknoon.dualide.logic.items.Parameter;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
-public class CallItem<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<Type, Type, Type> {
+public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extends Statement<Type, Type, Type> {
     
     private final I item;
     
     public CallItem(Statement<Type, Type, Type> parent, I item) {
         super(parent, false);
         this.item = item;
+        addNecessaryParameters();
+        addToParent(parent);
+        item.onDestroy(parent::destroy);
+    }
+    
+    private void addToParent(Statement<Type, Type, Type> parent) {
         ReadOnlyListProperty<Statement<Type, Type, Type>> childs = parent.childsProperty();
         if (childs.size() == 0 || childs.get(childs.size() - 1) != null) {
             childs.add(this);
         } else {
             childs.set(childs.size() - 1, this);
         }
-        item.onDestroy(parent::destroy);
+    }
+    
+    private void addNecessaryParameters() {
+        JavaFxObservable.emitOnChanged(item.getChildren())
+                .flatMapIterable(l -> l)
+                .filter(i -> i.getType() == ItemType.PARAMETER)
+                .toList()
+                .subscribe(l ->);
+        BindUtils.addListener(item.getChildren(), c -> {
+            item.getChildren().stream()
+                    .filter(i -> i instanceof Parameter)
+                    .forEach(p -> childs.add(null));
+        });
     }
     
     public I getItem() {

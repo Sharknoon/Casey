@@ -42,17 +42,15 @@ import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
 import sharknoon.dualide.logic.statements.calls.CallItem;
-import sharknoon.dualide.logic.statements.calls.FunctionCall;
-import sharknoon.dualide.logic.statements.calls.VariableCall;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CallBody extends Body<Call<?>> {
@@ -64,19 +62,19 @@ public class CallBody extends Body<Call<?>> {
     
     public CallBody(Call<?> statement) {
         super(statement);
-        HBox contentNode = createContentNode();
+        var contentNode = createContentNode();
         onChildChange(statement, contentNode);
         setContent(contentNode);
     }
     
     private HBox createContentNode() {
-        Call<?> call = getStatement().get();
-        
-        HBox hBoxContent = new HBox();
+        var call = getStatement().get();
+    
+        var hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
-        
-        boolean isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
+    
+        var isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
         bindError(Bindings.createBooleanBinding(() -> isUndefinedExpected)
                 .or(call
                         .returnTypeProperty()
@@ -130,28 +128,36 @@ public class CallBody extends Body<Call<?>> {
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
         getStatement().ifPresent(call -> {
-            call.getChilds().forEach(callItem -> {
-                if (callItem == null){
+            call.getChilds().forEach(statement -> {
+                if (statement == null) {
                     return;
                 }
-                Item<Item, Item, Item> item = ((CallItem) callItem).getItem();
+                CallItem<?> callItem = ((CallItem) statement);
+                Item<?, ?, ?> item = callItem.getItem();
+                
                 Text textName = new Text();
                 textName.textProperty().bind(item.nameProperty());
-                Text textOpenBracket = new Text("(");
-                Text textCloseBracket = new Text(")");
-                BindUtils.addListener(item.getChildren(), c -> {
-                    text.addAll(textName, textOpenBracket);
-                    item.getChildren().forEach(parameter -> {
-                        if (parameter.getType() == ItemType.PARAMETER) {
-                            //Text textParameter = new Text();
-                            //textParameter.textProperty().bind(parameter.nameProperty());
-                            //text.addAll(para);
-                        }
-                    });
-                    text.add(textCloseBracket);
+                textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
+                text.add(textName);
+        
+                ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
+                BindUtils.addListener(childs, c -> {
+                    if (item.getType() == ItemType.FUNCTION) {
+                        Text textOpenBracket = new Text("(");
+                        textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
+                        text.add(textOpenBracket);
+                        childs.forEach(parameter -> {
+                            text.addAll(parameter.getBody().toText());
+                        });
+                        Text textCloseBracket = new Text(")");
+                        textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
+                        text.add(textCloseBracket);
+                    }
                 });
-                if (!callItem.equals(call.lastChildProperty().getValue())){
+        
+                if (!callItem.equals(call.lastChildProperty().getValue())) {
                     Text textArrow = new Text(" -> ");
+                    textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
                     text.add(textArrow);
                 }
             });
@@ -193,8 +199,9 @@ public class CallBody extends Body<Call<?>> {
         }
     }
     
-    private ObservableList<Node> callToNode(CallItem callItem) {
+    private ObservableList<Node> callToNode(CallItem<?> callItem) {
         ObservableList<Node> nodeList = FXCollections.observableArrayList();
+        
         ObjectProperty<Image> image = getIcon(callItem);
         ImageView icon = new ImageView();
         icon.setPreserveRatio(true);
@@ -215,65 +222,56 @@ public class CallBody extends Body<Call<?>> {
         
         nodeList.addAll(icon, label);
         
-        if (callItem.getItem().getType() == ItemType.FUNCTION) {
-            Map<Parameter, Body> bodies = new HashMap<>();
-            Function f = (Function) callItem.getItem();
-            
-            Consumer<Parameter> parameterConsumer = p -> {
+        BiConsumer<Statement, Integer> parameterConsumer;
+        parameterConsumer = (p, index) -> {
+            if (p == null) {
                 ValuePlaceholderBody placeholder = createParameterPlaceholder(
-                        p.returnTypeProperty(),
+                        callItem.getItem()..get(index).returnTypeProperty(),
                         nodeList,
-                        b -> bodies.put(p, b),
                         callItem
-                );
-                bodies.put(p, placeholder);
+                )
                 nodeList.add(placeholder);
-            };
+            }
+        };
+        
+        for (int i = 0; i < callItem.getChilds().size(); i++) {
             
-            f.getChildren()
-                    .stream()
-                    .filter(i -> i instanceof Parameter)
-                    .map(i -> (Parameter) i)
-                    .forEach(parameterConsumer);
-            
-            JavaFxObservable.changesOf(f.getChildren())
-                    .filter(c -> c.getValue().getType() == ItemType.PARAMETER)
-                    .subscribe(c -> {
-                        switch (c.getFlag()) {
-                            case ADDED:
-                                Parameter p = (Parameter) c.getValue();
-                                parameterConsumer.accept(p);
-                                break;
-                            case REMOVED:
-                                nodeList.remove(bodies.get(c.getValue()));
-                                break;
-                        }
-                    });
         }
+        
+        JavaFxObservable.changesOf(callItem.getChilds())
+                .subscribe(c -> {
+                    switch (c.getFlag()) {
+                        case ADDED:
+                            parameterConsumer.accept(c.getValue());
+                            break;
+                        case REMOVED:
+                            nodeList.remove(c.getValue().getBody());
+                            break;
+                    }
+                });
         return nodeList;
     }
     
     /**
-     * @param allowedType        The allowed Type the user should be able to insert
-     * @param contentList        The contentList in which the placeholder is being set and replaced by a statement body
-     * @param onStatementChanged a body consumer, optional
+     * @param allowedType The allowed Type the user should be able to insert
+     * @param contentList The contentList in which the placeholder is being set and replaced by a statement body
      * @return
      */
     private ValuePlaceholderBody createParameterPlaceholder(
             ObjectExpression<Type> allowedType,
             ObservableList<Node> contentList,
-            Consumer<Body> onStatementChanged,
             Statement parent) {
         ValuePlaceholderBody pb = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, parent);
         
         Consumer<Statement> statementConsumer = s -> {
             Body sb = s.getBody();
-            onStatementChanged.accept(sb);
+            //onStatementChanged.accept(sb);
             if (contentList.contains(pb)) {
-                contentList.set(contentList.indexOf(pb), s.getBody());
+                int index = contentList.indexOf(pb);
+                contentList.set(index, s.getBody());
                 //call.setParameter(call.indexWithOperatorsToRegularIndex(index), s);
                 sb.setOnBodyDestroyed(() -> {
-                    onStatementChanged.accept(pb);
+                    //onStatementChanged.accept(pb);
                     if (contentList.contains(sb)) {
                         contentList.set(contentList.indexOf(sb), pb);
                     }

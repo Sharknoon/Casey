@@ -15,30 +15,25 @@
  */
 package sharknoon.dualide.ui.dialogs;
 
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.stage.Stage;
+import org.apache.commons.text.StringSubstitutor;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.styles.Styles;
+import sharknoon.dualide.utils.language.Language;
+import sharknoon.dualide.utils.language.Word;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-
-import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextArea;
-import javafx.stage.Stage;
-import org.apache.commons.lang3.text.StrSubstitutor;
-import org.apache.commons.text.StringSubstitutor;
-import sharknoon.dualide.ui.misc.Icon;
-import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
 
 import static sharknoon.dualide.utils.language.Word.*;
 
@@ -540,11 +535,9 @@ public class Dialogs {
         image.ifPresent(i -> stage.getIcons().add(i));//TODO convert evtl svg to image
     }
 
-    private static final String CSSPATH = "sharknoon/dualide/ui/MainCSS.css";
-
     private static void setStyle(Dialog dialog) {
         var scene = dialog.getDialogPane().getScene();
-        scene.getStylesheets().add(CSSPATH);
+        Styles.bindStyleSheets(scene.getStylesheets());
     }
 
 }

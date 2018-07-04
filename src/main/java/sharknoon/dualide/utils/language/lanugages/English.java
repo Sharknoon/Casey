@@ -15,10 +15,10 @@
  */
 package sharknoon.dualide.utils.language.lanugages;
 
-import java.util.Locale;
-
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.Locale;
 
 /**
  * @author frank
@@ -39,6 +39,9 @@ public class English extends Language {
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Open backgroundfolder");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Background duration");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "seconds");
+        add(Word.MENUBAR_OPTIONS_STYLE_TEXT, "Style");
+        add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dark");
+        add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Bright");
         add(Word.MENUBAR_PROJECT_TEXT, "Project");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
         //ToolBar

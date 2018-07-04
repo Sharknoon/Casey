@@ -33,20 +33,21 @@ import sharknoon.dualide.logic.types.Type;
 public abstract class Value<T extends Type> extends Statement<Type, T, Type> {
     
     public static NumberValue toNumberValue(Value<NumberType> value) {
-        return (NumberValue) value;
+        return value instanceof NumberValue ? (NumberValue) value : new NumberValue(null);
     }
     
     public static TextValue toTextValue(Value<TextType> value) {
-        return (TextValue) value;
+        return value instanceof TextValue ? (TextValue) value : new TextValue(null);
     }
     
     public static BooleanValue toBooleanValue(Value<BooleanType> value) {
-        return (BooleanValue) value;
+        return value instanceof BooleanValue ? (BooleanValue) value : new BooleanValue(null);
     }
+    
     private final T type;
     
     public Value(T type, Statement parent) {
-        super(parent);
+        super(parent, false);
         this.type = type;
     }
     

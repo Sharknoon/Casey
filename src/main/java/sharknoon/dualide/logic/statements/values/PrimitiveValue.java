@@ -15,16 +15,17 @@
  */
 package sharknoon.dualide.logic.statements.values;
 
-import java.util.Objects;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
+
+import java.util.Objects;
 
 /**
  *
@@ -58,6 +59,9 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             super(PrimitiveType.NUMBER, parent);
             if (number != null) {
                 this.number.set(number);
+            }
+            if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
+                parentProperty().get().childsProperty().add(this);
             }
             this.number.addListener((observable, oldValue, newValue) -> {
                 onChange();
@@ -120,6 +124,9 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             if (text != null) {
                 this.text.set(text);
             }
+            if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
+                parentProperty().get().childsProperty().add(this);
+            }
             this.text.addListener((observable, oldValue, newValue) -> {
                 onChange();
             });
@@ -177,6 +184,9 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             if (bool != null) {
                 this.bool.set(bool);
             }
+            if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
+                parentProperty().get().childsProperty().add(this);
+            }
             this.bool.addListener((observable, oldValue, newValue) -> {
                 onChange();
             });
@@ -231,6 +241,9 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
 
         public VoidValue(Statement parent) {
             super(PrimitiveType.VOID, parent);
+            if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
+                parentProperty().get().childsProperty().add(this);
+            }
         }
 
         @Override

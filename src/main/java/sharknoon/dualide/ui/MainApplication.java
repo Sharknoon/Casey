@@ -27,6 +27,7 @@ import sharknoon.dualide.misc.Initializable;
 import sharknoon.dualide.ui.dialogs.ExceptionDialog;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.settings.Resources;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class MainApplication extends Application {
         
         Parent root = loader.load(fxmlStream);
         scene = new Scene(root);
-        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        Styles.bindStyleSheets(scene.getStylesheets());
         INITIALIZABLES.forEach(i -> i.init(scene));
     }
     

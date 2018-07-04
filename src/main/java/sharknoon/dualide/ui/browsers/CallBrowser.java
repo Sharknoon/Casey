@@ -38,8 +38,8 @@ class CallBrowser extends VBox {
     
     private void init() {
         setPadding(new Insets(25));
-        setPrefWidth(520);
-        setMaxSize(1500, 500);
+        setPrefWidth(300);
+        setMaxSize(500, 300);
         setSpacing(10);
     }
     

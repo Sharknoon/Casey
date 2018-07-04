@@ -15,7 +15,21 @@
  */
 package sharknoon.dualide.ui.background;
 
-import java.awt.Desktop;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import sharknoon.dualide.misc.Exitable;
+import sharknoon.dualide.ui.MainApplication;
+import sharknoon.dualide.ui.sites.function.UISettings;
+import sharknoon.dualide.utils.settings.Logger;
+import sharknoon.dualide.utils.settings.Resources;
+
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,23 +42,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import sharknoon.dualide.misc.Exitable;
-import sharknoon.dualide.ui.MainApplication;
-import sharknoon.dualide.ui.sites.function.UISettings;
-import sharknoon.dualide.utils.settings.Logger;
-import sharknoon.dualide.utils.settings.Resources;
-
 /**
  * @author Josua Frank
  */
 public class Background implements Exitable {
-
+    
+    public static final IntegerProperty durationProperty = new SimpleIntegerProperty();
     private static ImageView view1;
     private static ImageView view2;
     private static final List<Path> IMAGES = new ArrayList<>();
@@ -54,41 +57,11 @@ public class Background implements Exitable {
     private static ImageView toBeResizedAsSoonAsAImageIsInIt = null;
 
     public static void init(ImageView imageView1, ImageView imageView2) {
-        Background wb = new Background(imageView1, imageView2);
+        new Background(imageView1, imageView2);
     }
-
-    private Background(ImageView imageView1, ImageView imageView2) {
-        view1 = imageView1;
-        view2 = imageView2;
-        fadeToView1 = new Timeline(
-                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
-                        new KeyValue(view1.opacityProperty(), 1),
-                        new KeyValue(view2.opacityProperty(), 0)
-                )
-        );
-        fadeToView2 = new Timeline(
-                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
-                        new KeyValue(view1.opacityProperty(), 0),
-                        new KeyValue(view2.opacityProperty(), 1)
-                )
-        );
-        MainApplication.registerInitializable((scene) -> {
-            scene.widthProperty().addListener((observable, oldValue, newValue) -> {
-                stageWidth = newValue.doubleValue();
-                resizeImage(view1);
-                resizeImage(view2);
-            });
-        });
-        MainApplication.registerInitializable((scene) -> {
-            scene.heightProperty().addListener((observable, oldValue, newValue) -> {
-                stageHeight = newValue.doubleValue();
-                resizeImage(view1);
-                resizeImage(view2);
-            });
-        });
-        MainApplication.registerExitable(this);
-        reloadImages();
-        setDuration(UISettings.WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION);
+    
+    public static int getDuration() {
+        return durationProperty().get();
     }
 
     private void reloadImages() {
@@ -169,8 +142,16 @@ public class Background implements Exitable {
             }
         }
     }
-
-    public static void setDuration(int durationInSeconds) {
+    
+    public static void setDuration(int duration) {
+        durationProperty().set(duration);
+    }
+    
+    public static IntegerProperty durationProperty() {
+        return durationProperty;
+    }
+    
+    private static void changeDuration(int durationInSeconds) {
         if (imageChangingScheduler != null) {
             imageChangingScheduler.cancel(false);
         }
@@ -195,6 +176,41 @@ public class Background implements Exitable {
                 Logger.error("Could not change the background image", e);
             }
         }, 0, (long) durationInSeconds, TimeUnit.SECONDS);
+    }
+    
+    private Background(ImageView imageView1, ImageView imageView2) {
+        view1 = imageView1;
+        view2 = imageView2;
+        fadeToView1 = new Timeline(
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
+                        new KeyValue(view1.opacityProperty(), 1),
+                        new KeyValue(view2.opacityProperty(), 0)
+                )
+        );
+        fadeToView2 = new Timeline(
+                new KeyFrame(UISettings.WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION,
+                        new KeyValue(view1.opacityProperty(), 0),
+                        new KeyValue(view2.opacityProperty(), 1)
+                )
+        );
+        MainApplication.registerInitializable((scene) -> {
+            scene.widthProperty().addListener((observable, oldValue, newValue) -> {
+                stageWidth = newValue.doubleValue();
+                resizeImage(view1);
+                resizeImage(view2);
+            });
+        });
+        MainApplication.registerInitializable((scene) -> {
+            scene.heightProperty().addListener((observable, oldValue, newValue) -> {
+                stageHeight = newValue.doubleValue();
+                resizeImage(view1);
+                resizeImage(view2);
+            });
+        });
+        MainApplication.registerExitable(this);
+        reloadImages();
+        durationProperty().addListener((observable, oldValue, newValue) -> changeDuration(newValue.intValue()));
+        setDuration(UISettings.WORKSPACE_BACKGROUND_IMAGE_SHOWING_DURATION);
     }
 
     @Override

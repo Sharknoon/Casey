@@ -19,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.PopOver;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -51,7 +52,7 @@ public class TypePopUp extends PopOver {
             }
         };
         VBox vBoxRoot = withVoid ? TypeBrowser.createTypeBrowserWithVoid(newTypeConsumer, allowedTypes) : TypeBrowser.createTypeBrowser(newTypeConsumer, allowedTypes);
-        getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        Styles.bindStyleSheets(getRoot().getStylesheets());
         setContentNode(vBoxRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.TYPE_SELECTION_POPUP_TITLE));

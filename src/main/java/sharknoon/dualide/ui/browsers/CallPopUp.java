@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.PopOver;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -36,7 +37,7 @@ public class CallPopUp extends PopOver {
             }
         };
         VBox vBoxRoot = new CallBrowser(newStatementConsumer, parent, allowedItems);
-        getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        Styles.bindStyleSheets(getRoot().getStylesheets());
         setContentNode(vBoxRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.VALUE_SELECTION_POPUP_TITLE));

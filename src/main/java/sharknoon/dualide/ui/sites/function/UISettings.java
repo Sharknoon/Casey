@@ -37,12 +37,6 @@ public class UISettings {
     public static final double WORKSPACE_MAX_Y = 3000;
     //The padding inside the workspace, just for optics
     public static final double WORKSPACE_PADDING = 50;
-    //The line width of the workspace, just for optics
-    public static final double WORKSPACE_LINE_WIDTH = 3;
-    //The color of the line around the workspace, just for optics
-    public static final Color WORKSPACE_LINE_COLOR = Color.BLACK;
-    //The color of the background of the workspace
-    public static final Color WORKSPACE_BACKGROUND_COLOR = Color.rgb(0, 0, 0, 0.50);
     //The fading Duration between the background images
     public static final Duration WORKSPACE_BACKGROUND_IMAGE_FADING_DURATION = Duration.seconds(1);
     //The period of a image being in the background before being changed in seconds

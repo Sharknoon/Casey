@@ -15,14 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.welcome;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -31,28 +23,34 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.items.ItemType;
+import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
-import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.dialogs.Dialogs;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.ui.sites.SiteUtils;
+import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
-import sharknoon.dualide.ui.sites.Site;
-
-import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.serial.Serialisation;
-import sharknoon.dualide.ui.sites.SiteUtils;
 import sharknoon.dualide.utils.settings.Props;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -80,11 +78,8 @@ public class WelcomeSite extends Site<Welcome> {
         vBoxRecentProjects.setMinHeight(600);
 
         Text textRecentProjects = new Text();
-        Language.setCustom(Word.WELCOMESITE_RECENT_PROJECTS, s -> textRecentProjects.setText(s));
-        textRecentProjects.setFont(Font.font(40));
-        DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-        shadowEffect.setSpread(0.5);
-        textRecentProjects.setEffect(shadowEffect);
+        Language.setCustom(Word.WELCOMESITE_RECENT_PROJECTS, textRecentProjects::setText);
+        textRecentProjects.getStyleClass().add(StyleClasses.textWelcomeSiteRecentlyUsed.name());
 
         RecentProject.recentProjectsProperty().addListener((observable, oldValue, newValue) -> {
             refreshRecentProjects();
@@ -101,9 +96,7 @@ public class WelcomeSite extends Site<Welcome> {
 
         Button buttonCreateNewProject = SiteUtils.createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
             Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
-            if (name.isPresent()) {
-                createProject(name.get());
-            }
+            name.ifPresent(this::createProject);
         });
 
         Props.get(lastDirectoryKey).thenAccept(o -> lastDirectory = o);
@@ -151,18 +144,13 @@ public class WelcomeSite extends Site<Welcome> {
                                 VBox vBoxLastProject = new VBox(10);
                                 vBoxLastProject.setPadding(new Insets(5));
 
-                                DropShadow shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-                                shadowEffect.setSpread(0.5);
-
                                 Text textRecentProjectName = new Text();
+                                textRecentProjectName.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListTitle.name());
                                 textRecentProjectName.setText(lastProject.getName());
-                                textRecentProjectName.setFont(Font.font(30));
-                                textRecentProjectName.setEffect(shadowEffect);
 
                                 Text textRecentProjectDate = new Text();
+                                textRecentProjectDate.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListDate.name());
                                 textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
-                                textRecentProjectDate.setFont(Font.font(20));
-                                textRecentProjectDate.setEffect(shadowEffect);
 
                                 vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
 

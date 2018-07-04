@@ -24,17 +24,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
@@ -336,10 +334,7 @@ public class SiteUtils {
                 Platform.runLater(() -> icon.imageProperty().bind(Icons.iconToImageProperty(c.getSite().tabIconProperty())));
                 
                 var textName = new Text();
-                var shadowEffect = new DropShadow(10, Color.WHITESMOKE);
-                shadowEffect.setSpread(0.5);
-                textName.setEffect(shadowEffect);
-                textName.setFont(Font.font(30));
+                textName.getStyleClass().add(StyleClasses.textSiteItemName.name());
                 textName.textProperty().bindBidirectional(c.nameProperty());
                 textName.setOnMouseClicked(e -> onClick.run());
     

@@ -40,6 +40,9 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "Sekunden");
+        add(Word.MENUBAR_OPTIONS_STYLE_TEXT, "Stil");
+        add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dunkel");
+        add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Hell");
         add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar

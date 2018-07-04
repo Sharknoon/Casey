@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.ui.navigation;
 
+
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -24,110 +26,150 @@ import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.background.Background;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.ui.styles.Styles;
+import sharknoon.dualide.utils.javafx.SnapSlider;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 import sharknoon.dualide.utils.settings.Props;
 
+import java.util.EnumSet;
 import java.util.Locale;
 
 /**
  * @author Josua Frank
  */
 public class MenuBarInit {
-
+    
     private static javafx.scene.control.MenuBar menubar;
-
+    
     public static void init(javafx.scene.control.MenuBar menu) {
         menubar = menu;
         initProjectMenu();
         initOptionsMenu();
     }
-
+    
     private static void initOptionsMenu() {
         Menu menuOptions = new Menu();
-        Language.setCustom(Word.MENUBAR_OPTIONS_TEXT, s -> menuOptions.setText(s));
-        Icons.setCustom(Icon.COG, g -> menuOptions.setGraphic(g));
+        Language.setCustom(Word.MENUBAR_OPTIONS_TEXT, menuOptions::setText);
+        Icons.setCustom(Icon.COG, menuOptions::setGraphic);
+        
+        menuOptions.getItems().addAll(
+                initOptionsLanugageMenu(),
+                initOptionsBackgroundMenu(),
+                initOptionsStylesMenu()
+        );
+        
         menubar.getMenus().add(menuOptions);
-
+    }
+    
+    private static Menu initOptionsLanugageMenu() {
         Menu menuLanguage = new Menu();
-        Language.setCustom(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, s -> menuLanguage.setText(s));
-        Icons.setCustom(Icon.LANGUAGE, g -> menuLanguage.setGraphic(g));
-        menuOptions.getItems().add(menuLanguage);
-
-        Language.getAllLanguages().forEach((loc, lang) -> {
+        Language.setCustom(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, menuLanguage::setText);
+        Icons.setCustom(Icon.LANGUAGE, menuLanguage::setGraphic);
+        
+        
+        Language.getAllLanguages().forEach((locale, language) -> {
             MenuItem menuItemLanguage = new MenuItem();
             Language.setCustom(
-                    () -> loc.getDisplayLanguage(Language.getLanguage().getLocale()),
-                    s -> menuItemLanguage.setText(s));
-            Icon icon = Icon.forName(loc.getDisplayLanguage(Locale.ENGLISH));
-            Icons.setCustom(icon, g -> menuItemLanguage.setGraphic(g));
-            menuItemLanguage.setId(loc.getLanguage());
+                    () -> locale.getDisplayLanguage(locale),
+                    menuItemLanguage::setText);
+            Icon icon = Icon.forName(locale.getDisplayLanguage(Locale.ENGLISH));
+            Icons.setCustom(icon, menuItemLanguage::setGraphic);
+            menuItemLanguage.setId(locale.getLanguage());
             menuItemLanguage.setOnAction((event) -> {
                 Locale l = new Locale(menuItemLanguage.getId());
                 Language.changeLanguage(Language.forLocale(l));
             });
             menuLanguage.getItems().add(menuItemLanguage);
         });
-
+        return menuLanguage;
+    }
+    
+    private static Menu initOptionsBackgroundMenu() {
         Menu menuBackgroundImages = new Menu();
-        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, s -> menuBackgroundImages.setText(s));
-        Icons.setCustom(Icon.BACKGROUND, g -> menuBackgroundImages.setGraphic(g));
-        menuOptions.getItems().add(menuBackgroundImages);
-
+        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, menuBackgroundImages::setText);
+        Icons.setCustom(Icon.BACKGROUND, menuBackgroundImages::setGraphic);
+        
+        //Open image folder
         MenuItem menuItemOpenBackgroundFolder = new MenuItem();
-        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, s -> menuItemOpenBackgroundFolder.setText(s));
-        Icons.setCustom(Icon.LOAD, g -> menuItemOpenBackgroundFolder.setGraphic(g));
+        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, menuItemOpenBackgroundFolder::setText);
+        Icons.setCustom(Icon.LOAD, menuItemOpenBackgroundFolder::setGraphic);
         menuItemOpenBackgroundFolder.setOnAction((event) -> {
             Background.openImagesFolder();
         });
         menuBackgroundImages.getItems().add(menuItemOpenBackgroundFolder);
-
+        
+        //Set image duration
         GridPane gridPaneMenuItemBackgroundDurationContent = new GridPane();
         gridPaneMenuItemBackgroundDurationContent.setVgap(10);
         gridPaneMenuItemBackgroundDurationContent.setHgap(10);
         gridPaneMenuItemBackgroundDurationContent.setAlignment(Pos.CENTER);
-
+        
         Node nodeIcon = Icons.get(Icon.DURATION);
         gridPaneMenuItemBackgroundDurationContent.add(nodeIcon, 0, 0, 1, 2);
-
+        
         Label labelSetDurationText = new Label();
         Language.set(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, labelSetDurationText);
         gridPaneMenuItemBackgroundDurationContent.add(labelSetDurationText, 1, 0, 2, 1);
-
+        
         final String durationKey = "backgroundChangeingDuration";
-        Label labelChangingValue = new Label();
-        Slider sliderDuration = new Slider(0, 60, 1);
+        SnapSlider sliderDuration = new SnapSlider(0, 60, -1);
         sliderDuration.setMinWidth(300);
         sliderDuration.setShowTickMarks(true);
         sliderDuration.setShowTickLabels(true);
         sliderDuration.setBlockIncrement(1);
-        sliderDuration.setMinorTickCount(1);
+        sliderDuration.setMinorTickCount(9);
         sliderDuration.setMajorTickUnit(10);
+        Label labelChangingValue = new Label();
+        labelChangingValue.textProperty().bind(
+                Bindings.createLongBinding(
+                        () -> Math.round(sliderDuration.valueProperty().doubleValue()),
+                        sliderDuration.valueProperty()
+                )
+                        .asString()
+                        .concat(" " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT))
+        );
+        Background.durationProperty().bind(sliderDuration.finalValueProperty());
         sliderDuration.valueProperty().addListener((observable, oldValue, newValue) -> {
-            labelChangingValue.setText(newValue.intValue() + " " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT));
-        });
-        sliderDuration.valueChangingProperty().addListener((observable, oldValue, isChangeing) -> {
-            if (!isChangeing) {
-                Background.setDuration((int) sliderDuration.getValue());
+            if (sliderDuration.isValueChanging())
                 Props.set(durationKey, (int) sliderDuration.getValue() + "");
-            }
         });
-        Props.get(durationKey).thenAccept(s -> {
-            if (s.isPresent()) {
-                sliderDuration.setValue(Double.valueOf(s.get()));
-            }
-        });
+        Props.get(durationKey).thenAccept(os -> os.map(Double::valueOf).ifPresent(sliderDuration::setValue));
         gridPaneMenuItemBackgroundDurationContent.add(sliderDuration, 1, 1, 1, 1);
         gridPaneMenuItemBackgroundDurationContent.add(labelChangingValue, 2, 1, 1, 1);
         MenuItem menuItemSetBackgroundDuration = new CustomMenuItem(gridPaneMenuItemBackgroundDurationContent);
         menuBackgroundImages.getItems().add(menuItemSetBackgroundDuration);
+        
+        return menuBackgroundImages;
     }
-
+    
+    private static Menu initOptionsStylesMenu() {
+        Menu menuStyles = new Menu();
+        Language.setCustom(Word.MENUBAR_OPTIONS_STYLE_TEXT, menuStyles::setText);
+        Icons.setCustom(Icon.STYLE, menuStyles::setGraphic);
+        
+        ToggleGroup toggleGroupStyle = new ToggleGroup();
+        Styles currentStyle = Styles.getCurrentStyle();
+        EnumSet.allOf(Styles.class).forEach(style -> {
+            RadioMenuItem menuItemStyle = new RadioMenuItem();
+            menuItemStyle.setToggleGroup(toggleGroupStyle);
+            Language.setCustom(style.getName(), menuItemStyle::setText);
+            Icons.setCustom(style.getIcon(), menuItemStyle::setGraphic);
+            if (style == currentStyle) {
+                menuItemStyle.setSelected(true);
+            }
+            menuItemStyle.setOnAction(e -> Styles.setCurrentStyle(style));
+            menuStyles.getItems().add(menuItemStyle);
+        });
+        
+        return menuStyles;
+    }
+    
     private static void initProjectMenu() {
         Menu menuProject = new Menu();
         menuProject.setDisable(true);
-        Language.setCustom(Word.MENUBAR_PROJECT_TEXT, s -> menuProject.setText(s));
-        Icons.setCustom(Icon.PROJECT, g -> menuProject.setGraphic(g));
+        Language.setCustom(Word.MENUBAR_PROJECT_TEXT, menuProject::setText);
+        Icons.setCustom(Icon.PROJECT, menuProject::setGraphic);
         Project.currentProjectProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
                 menuProject.setDisable(true);
@@ -136,14 +178,12 @@ public class MenuBarInit {
             }
         });
         menubar.getMenus().add(menuProject);
-
+        
         MenuItem menuCloseProject = new MenuItem();
-        Language.setCustom(Word.MENUBAR_PROJECT_CLOSE_TEXT, s -> menuCloseProject.setText(s));
-        Icons.setCustom(Icon.CLOSE, g -> menuCloseProject.setGraphic(g));
+        Language.setCustom(Word.MENUBAR_PROJECT_CLOSE_TEXT, menuCloseProject::setText);
+        Icons.setCustom(Icon.CLOSE, menuCloseProject::setGraphic);
         menuCloseProject.setOnAction((event) -> {
-            Project.getCurrentProject().ifPresent(p -> {
-                p.close();
-            });
+            Project.getCurrentProject().ifPresent(Project::close);
             Welcome.getWelcome().getSite().select();
         });
         menuProject.getItems().add(menuCloseProject);

@@ -16,41 +16,35 @@
 package sharknoon.dualide.ui.sites.function;
 
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.misc.MouseConsumable;
+import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Line;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
+import sharknoon.dualide.ui.styles.StyleClasses;
 
 /**
- *
  * @author Josua Frank
  */
 public class WorkspaceSelection implements MouseConsumable {
-
+    
+    private static Rectangle createSelectionRectangle() {
+        var selectionRectangle = new Rectangle();
+        selectionRectangle.getStyleClass().add(StyleClasses.rectangleSelection.name());
+        selectionRectangle.setVisible(false);
+        return selectionRectangle;
+    }
     private final FunctionSite functionSite;
     private final Rectangle selectionRectangle;
     private double startX;
     private double startY;
-
+    private boolean secondRun;
+    
     public WorkspaceSelection(FunctionSite functionSite) {
         this.functionSite = functionSite;
         this.selectionRectangle = createSelectionRectangle();
     }
-
-    private static Rectangle createSelectionRectangle() {
-          var selectionRectangle = new Rectangle();
-        selectionRectangle.setFill(Color.LIGHTBLUE);
-        selectionRectangle.setOpacity(0.4);
-        selectionRectangle.setStrokeWidth(1);
-        selectionRectangle.setStroke(Color.BLUE);
-        selectionRectangle.setVisible(false);
-        return selectionRectangle;
-    }
-
-    private boolean secondRun;
-
+    
     @Override
     public void onMousePressed(MouseEvent event) {
         if (!secondRun) {
@@ -64,17 +58,18 @@ public class WorkspaceSelection implements MouseConsumable {
         selectionRectangle.setVisible(true);
         startX = event.getX();
         startY = event.getY();
-
+        
         selectionRectangle.setTranslateX(startX);
         selectionRectangle.setTranslateY(startY);
+        selectionRectangle.toFront();
     }
-
+    
     @Override
     public void onMouseDragged(MouseEvent event) {
-          var currentX = event.getX();
-          var currentY = event.getY();
-          var width = currentX - startX;
-          var hight = currentY - startY;
+        var currentX = event.getX();
+        var currentY = event.getY();
+        var width = currentX - startX;
+        var hight = currentY - startY;
         if (startX + width > UISettings.WORKSPACE_MAX_X) {
             width = UISettings.WORKSPACE_MAX_X - startX;
         } else if (startX + width < 0) {
@@ -85,7 +80,7 @@ public class WorkspaceSelection implements MouseConsumable {
         } else if (startY + hight < 0) {
             hight = -startY;
         }
-
+        
         double translateX;
         double translateY;
         if (width > 0) {
@@ -106,15 +101,15 @@ public class WorkspaceSelection implements MouseConsumable {
             translateY = currentY;
             hight = -hight;
         }
-
+        
         selectionRectangle.setTranslateX(translateX);
         selectionRectangle.setTranslateY(translateY);
         selectionRectangle.setWidth(width);
         selectionRectangle.setHeight(hight);
-
-        final   var finalWidth = width;
-        final   var finalHight = hight;
-
+        
+        final var finalWidth = width;
+        final var finalHight = hight;
+        
         Blocks.getAllBlocks(functionSite).forEach(b -> {
             if (b.getMinX() > translateX
                     && b.getMinY() > translateY
@@ -125,7 +120,7 @@ public class WorkspaceSelection implements MouseConsumable {
                 b.unselect();
             }
         });
-
+        
         Lines.getAllLines(functionSite).forEach(l -> {
             if (l.getMinX() > translateX
                     && l.getMinY() > translateY
@@ -137,7 +132,7 @@ public class WorkspaceSelection implements MouseConsumable {
             }
         });
     }
-
+    
     @Override
     public void onMouseReleased(MouseEvent event) {
         selectionRectangle.setVisible(false);
@@ -149,5 +144,5 @@ public class WorkspaceSelection implements MouseConsumable {
             Lines.getAllLines(functionSite).forEach(Line::unselect);
         }
     }
-
+    
 }

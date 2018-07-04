@@ -15,8 +15,12 @@
  */
 package sharknoon.dualide.logic.statements;
 
-import javafx.beans.property.*;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
@@ -63,7 +67,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
         return childs;
     }
     
-    public List<Statement<T, CT, Type>> getChilds() {
+    public ObservableList<Statement<T, CT, Type>> getChilds() {
         return childsProperty();
     }
     

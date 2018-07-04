@@ -15,19 +15,19 @@
  */
 package sharknoon.dualide.ui.sites.function;
 
-import java.util.EnumSet;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.sites.function.blocks.BlockType;
+import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.language.Language;
-import sharknoon.dualide.utils.language.Word;
+
+import java.util.EnumSet;
 
 /**
  *

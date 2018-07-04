@@ -18,7 +18,6 @@ package sharknoon.dualide.ui.navigation;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -26,11 +25,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
+import sharknoon.dualide.ui.fields.TypeField;
 import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.fields.TypeField;
-
+import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -66,7 +65,7 @@ public class ToolBarInit {
         Group vBoxGroup = new Group(center);
         BorderPane root = new BorderPane(vBoxGroup);
         Scene scene = new Scene(root);
-        scene.getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        Styles.bindStyleSheets(scene.getStylesheets());
 
         TextFlow result = new TextFlow();
         ValueField field = new ValueField();

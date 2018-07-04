@@ -1,19 +1,8 @@
-/*
- * Empty Stylesheet file.
- */
-
-.mainFxmlClass {
-
-}
-
 .root {
-    -fx-base: #3c3f41;
     -fx-font-size: 1.2em;
-    -fx-default-button: derive(-fx-accent,-55%);
-    -fx-focus-color: #d30000;
-    -fx-faint-focus-color: #d3000022;
-    -fx-accent: #a00000;
 }
+
+/*Bigger Tabs*/
 .tab-pane {
     -fx-tab-min-height: 3em;
     -fx-tab-max-height: 3em;
@@ -24,7 +13,7 @@
 }
 
 .tree-cell {
-    -fx-background: derive(-fx-base,26.4%);
+    -fx-background: derive(-fx-base, 26.4%);
 }
 
 /*Keeps the slection color when the treeview looses focus*/
@@ -60,22 +49,12 @@
     -fx-stroke-width: 1;
 }
 
-.popover > .content > .title > .text  {
+.popover > .content > .title > .text {
     -fx-text-fill: -fx-text-background-color;
 }
 
 .popover > .content > .title > .icon > .graphics > .circle {
     -fx-fill: whitesmoke;
-    -fx-effect: innershadow(gaussian, rgba(0,0,0,.2), 3, 0.5, 1.0, 1.0);
-}
-/*For the invalidation of a checkbox*/
-.check-box-incorrect:selected > .box > .mark,
-.check-box-incorrect:indeterminate  > .box > .mark {
-    /* modify mark color */
-    -fx-background-color: black;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, .2), 3, 0.5, 1.0, 1.0);
 }
 
-.check-box-incorrect > .box {
-    /* background color of unselected checkbox */
-    -fx-background-color: crimson;
-}

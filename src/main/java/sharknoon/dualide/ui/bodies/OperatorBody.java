@@ -186,10 +186,9 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
                             .orElse("ERROR")
             );
             text.add(op);
-            if (childs.size() > 0) {
-                ObservableList<Text> par = childs.get(0).getBody().toText();
-                text.addAll(par);
-            }
+            Statement<PrimitiveType, Type, Type> child = childs.size() > 0 ? childs.get(0) : null;
+            List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
+            text.addAll(par);
         }
         text.add(bracketClose);
         return text;

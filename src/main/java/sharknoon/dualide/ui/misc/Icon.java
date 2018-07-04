@@ -37,6 +37,7 @@ public enum Icon {
     COG,
     COMMENTS,
     CONCAT,
+    DARK,
     DIVIDE,
     DURATION,
     ENGLISH,
@@ -54,6 +55,7 @@ public enum Icon {
     LENGTH,
     LESSOREQUALTHAN,
     LESSTHAN,
+    LIGHT,
     LOAD,
     LOGO,
     MINUS,
@@ -78,6 +80,7 @@ public enum Icon {
     PROJECT,
     RENAME,
     SAVE,
+    STYLE,
     TEXT,
     TRASH,
     VARIABLE,
@@ -96,7 +99,7 @@ public enum Icon {
     FUNCTIONCLASS,
     FUNCTIONTEXT,
     FUNCTIONNUMBER, FUNCTIONVOID;
-
+    
     private String path;
     private boolean isSearched = false;
     

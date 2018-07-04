@@ -45,9 +45,7 @@ public class ValueField extends Pane {
         
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());
-            s.addChangeListener(() -> {
-                statementChangeListeners.forEach(l -> l.accept(s));
-            });
+            s.addChangeListener(() -> statementChangeListeners.forEach(l -> l.accept(s)));
             s.getBody().setOnBodyDestroyed(() -> {
                 getChildren().set(0, body);
                 if (onStatementDestroyed != null) {

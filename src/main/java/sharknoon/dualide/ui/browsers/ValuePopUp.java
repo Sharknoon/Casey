@@ -19,6 +19,7 @@ import javafx.scene.layout.GridPane;
 import org.controlsfx.control.PopOver;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -35,7 +36,7 @@ public class ValuePopUp extends PopOver {
             }
         };
         GridPane gridPaneRoot = new ValueBrowser(newStatementConsumer, parent, allowedType);
-        getRoot().getStylesheets().add("sharknoon/dualide/ui/MainCSS.css");
+        Styles.bindStyleSheets(getRoot().getStylesheets());
         setContentNode(gridPaneRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
         setTitle(Language.get(Word.VALUE_SELECTION_POPUP_TITLE));

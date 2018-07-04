@@ -60,9 +60,9 @@ import java.util.Optional;
  */
 public abstract class Body<S extends Statement> extends Group implements MouseConsumable {
     
-    public static final ObservableList<Node> currentCloseButton = FXCollections.observableArrayList();
-    public static final ObservableList<Node> currentExtendButton = FXCollections.observableArrayList();
-    public static final ObservableList<Node> currentReduceButton = FXCollections.observableArrayList();
+    private static final ObservableList<Node> currentCloseButton = FXCollections.observableArrayList();
+    private static final ObservableList<Node> currentExtendButton = FXCollections.observableArrayList();
+    private static final ObservableList<Node> currentReduceButton = FXCollections.observableArrayList();
     
     public static Body createBody(Statement statement) {
         if (statement instanceof Operator) {
@@ -325,7 +325,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                         shape.setStroke(Color.CRIMSON);
                     }
                     shape.setFill(Color.WHITE);
-                    if (b instanceof ValuePlaceholderBody) {
+                    if (b instanceof ValuePlaceholderBody || b instanceof CallPlaceholderBody) {
                         shape.setStroke(Color.GREY);
                     }
                 } else {

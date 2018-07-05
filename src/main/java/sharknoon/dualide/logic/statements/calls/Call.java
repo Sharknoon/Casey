@@ -22,7 +22,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Item;
@@ -37,17 +36,23 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
     
     private static final ObjectBinding<Type> UNDEFINED = Bindings.createObjectBinding(() -> Type.UNDEFINED);
     
+    private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> firstChild = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> lastChild = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Type> returnType = new ReadOnlyObjectWrapper<>();
     private final Type expectedReturnType;
     
     public Call(Statement<Type, Type, Type> parent, Item<?, ?, ?> startCall, Type expectedReturnType) {
-        super(parent);
+        initParent(parent, true);
+        this.firstChild.bind(bindFirstChild(childs));
         this.lastChild.bind(bindLastChild(childs));
         this.returnType.bind(bindReturnType(lastChild));
         this.expectedReturnType = expectedReturnType;
         addCallItem(startCall);
         addAutoDestroyOnEmptyCallItems();
+    }
+    
+    private ObjectExpression<Statement<Type, Type, Type>> bindFirstChild(ObservableList<Statement<Type, Type, Type>> childs) {
+        return Bindings.valueAt(childs, 0);
     }
     
     private ObjectExpression<Statement<Type, Type, Type>> bindLastChild(ObservableList<Statement<Type, Type, Type>> childs) {
@@ -89,8 +94,12 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
         return Bindings.size(childs).greaterThan(1);
     }
     
+    public ObjectExpression<Statement<Type, Type, Type>> firstChildProperty() {
+        return firstChild.getReadOnlyProperty();
+    }
+    
     public ObjectExpression<Statement<Type, Type, Type>> lastChildProperty() {
-        return lastChild;
+        return lastChild.getReadOnlyProperty();
     }
     
     @Override

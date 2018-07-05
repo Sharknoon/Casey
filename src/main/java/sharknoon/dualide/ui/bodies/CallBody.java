@@ -15,49 +15,40 @@ package sharknoon.dualide.ui.bodies;
  * limitations under the License.
  */
 
-import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import javafx.beans.binding.*;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.Class.ObjectType;
-import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
 import sharknoon.dualide.logic.statements.calls.CallItem;
-import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CallBody extends Body<Call<?>> {
     
     private static final int DEFAULT_MARGIN = 5;
-    //The left shape is an icon, i use the rounded corners of the text shape to complement the icon
-    private static final ObjectProperty<Type> leftShape = new SimpleObjectProperty<>(PrimitiveType.TEXT);
+    private static final ObjectProperty<Type> UNDEFINED = new SimpleObjectProperty<>(Type.UNDEFINED);
     private ObservableList<Node> content;
     
     public CallBody(Call<?> statement) {
@@ -68,7 +59,7 @@ public class CallBody extends Body<Call<?>> {
     }
     
     private HBox createContentNode() {
-        var call = getStatement().get();
+        var call = getStatement();
         
         var hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
@@ -83,7 +74,7 @@ public class CallBody extends Body<Call<?>> {
         );
         
         //contains nulls for empty parameter
-        content = callsToNodes(call);
+        content = getNodes(call);
         
         hBoxContent.setSpacing(DEFAULT_MARGIN);
         Bindings.bindContentBidirectional(hBoxContent.getChildren(), content);
@@ -98,7 +89,7 @@ public class CallBody extends Body<Call<?>> {
     
     @Override
     public BooleanExpression isExtendingAllowed() {
-        Call<?> c = getStatement().orElse(null);
+        Call<?> c = getStatement();
         if (c == null) {
             return Bindings.createBooleanBinding(() -> false);
         }
@@ -107,182 +98,68 @@ public class CallBody extends Body<Call<?>> {
     
     @Override
     public void extend() {
-        getStatement().map(Statement::getChilds).ifPresent(c -> c.add(null));
+        getStatement().getChilds().add(null);
     }
     
     @Override
     public BooleanExpression isReducingAllowed() {
-        Call<?> c = getStatement().orElse(null);
-        if (c == null) {
-            return Bindings.createBooleanBinding(() -> false);
-        }
-        return c.isReducible();
+        return getStatement().isReducible();
     }
     
     @Override
     public void reduce() {
-        getStatement().map(Statement::getChilds).ifPresent(c -> c.remove(c.size() - 1));
+        ObservableList<Statement<Type, Type, Type>> childs = getStatement().getChilds();
+        childs.remove(childs.size() - 1);
     }
     
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        getStatement().ifPresent(call -> {
-            call.getChilds().forEach(statement -> {
-                if (statement == null) {
-                    return;
-                }
-                CallItem<?> callItem = ((CallItem) statement);
-                Item<?, ?, ?> item = callItem.getItem();
-                
-                Text textName = new Text();
-                textName.textProperty().bind(item.nameProperty());
-                textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
-                text.add(textName);
-                
-                ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
-                BindUtils.addListener(childs, c -> {
-                    if (item.getType() == ItemType.FUNCTION) {
-                        Text textOpenBracket = new Text("(");
-                        textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                        text.add(textOpenBracket);
-                        childs.forEach(parameter -> {
-                            text.addAll(parameter.getBody().toText());
-                        });
-                        Text textCloseBracket = new Text(")");
-                        textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                        text.add(textCloseBracket);
-                    }
-                });
-                
-                if (!callItem.equals(call.lastChildProperty().getValue())) {
-                    Text textArrow = new Text(" -> ");
-                    textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
-                    text.add(textArrow);
-                }
-            });
+        getStatement().getChilds().forEach(statement -> {
+            if (statement == null) {
+                return;
+            }
+            CallItem<?> callItem = ((CallItem) statement);
+        
+            text.addAll(callItem.getBody().toText());
+        
+            if (!callItem.equals(getStatement().lastChildProperty().getValue())) {
+                Text textArrow = new Text(" -> ");
+                textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
+                text.add(textArrow);
+            }
         });
         return text;
     }
     
-    private ObservableList<Node> callsToNodes(Call<?> o) {
-        ObservableList<ObservableList<Node>> listNode = FXCollections.observableArrayList();
-        ReadOnlyListProperty<Statement<Type, Type, Type>> childs = o.childsProperty();
-        BindUtils.addListener(childs, c -> onCallChanged(listNode, childs));
-        return BindUtils.concatFromList(listNode);
+    private ObservableList<Node> getNodes(Call<?> o) {
+        ObservableList<Node> listNode = FXCollections.observableArrayList();
+        ReadOnlyListProperty<Statement<Type, Type, Type>> callItems = o.childsProperty();
+        BindUtils.addListener(callItems, c -> onCallChanged(listNode, callItems));
+        return listNode;
     }
     
-    private void onCallChanged(ObservableList<ObservableList<Node>> listNode, ObservableList<Statement<Type, Type, Type>> calls) {
+    private void onCallChanged(ObservableList<Node> listNode, ObservableList<Statement<Type, Type, Type>> calls) {
         listNode.clear();
         for (int i = 0; i < calls.size(); i++) {
-            CallItem callItem = (CallItem) calls.get(i);
+            CallItem<?> callItem = (CallItem<?>) calls.get(i);
             if (callItem != null) {
-                listNode.add(callToNode(callItem));
+                listNode.add(callItem.getBody());
             } else {
-                ObservableList<Node> list = FXCollections.observableArrayList();
-                Call<?> call = getStatement().get();
+                Call<?> call = getStatement();
                 CallPlaceholderBody placeholder = createCallPlaceholder(
-                        list,
+                        listNode,
                         b -> {
                         },
                         call);
-                list.add(placeholder);
-                listNode.add(list);
+                listNode.add(placeholder);
             }
             
             if (i < calls.size() - 1) {
-                ObservableList<Node> list = FXCollections.observableArrayList();
                 Node arrow = Icons.get(Icon.ARROWRIGHT, 40);
-                list.add(arrow);
-                listNode.add(list);
+                listNode.add(arrow);
             }
         }
-    }
-    
-    private ObservableList<Node> callToNode(CallItem<?> callItem) {
-        ObservableList<Node> nodeList = FXCollections.observableArrayList();
-        
-        ObjectProperty<Image> image = getIcon(callItem);
-        ImageView icon = new ImageView();
-        icon.setPreserveRatio(true);
-        Image im = image.get();
-        if (im.getWidth() > im.getHeight()) {
-            icon.setFitWidth(50);
-        } else {
-            icon.setFitHeight(50);
-        }
-        icon.imageProperty().bind(image);
-        
-        StringProperty name = getName(callItem);
-        Label label = new Label();
-        label.setMinWidth(Region.USE_PREF_SIZE);
-        label.setTextFill(Color.BLACK);
-        label.setFont(Font.font(25));
-        label.textProperty().bind(name);
-        
-        nodeList.addAll(icon, label);
-        
-        BiConsumer<Statement, Integer> parameterConsumer;
-        parameterConsumer = (p, index) -> {
-            if (p == null) {
-                ValuePlaceholderBody placeholder = createParameterPlaceholder(
-                        callItem.getReturnTypePropertyForIndex(index),
-                        nodeList,
-                        callItem
-                );
-                nodeList.set(index, placeholder);
-            } else {
-                nodeList.set(index, p.getBody());
-            }
-        };
-        
-        for (int i = 0; i < callItem.getChilds().size(); i++) {
-            parameterConsumer.accept(callItem.getChilds().get(i), i);
-        }
-        
-        JavaFxObservable.changesOf(callItem.getChilds())
-                .subscribe(c -> {
-                    switch (c.getFlag()) {
-                        case ADDED:
-                            parameterConsumer.accept(c.getValue(), callItem.getChilds().indexOf(c.getValue()));
-                            break;
-                        case REMOVED:
-                            nodeList.remove(c.getValue().getBody());
-                            break;
-                    }
-                });
-        return nodeList;
-    }
-    
-    /**
-     * @param allowedType The allowed Type the user should be able to insert
-     * @param contentList The contentList in which the placeholder is being set and replaced by a statement body
-     * @return
-     */
-    private ValuePlaceholderBody createParameterPlaceholder(
-            ObjectExpression<Type> allowedType,
-            ObservableList<Node> contentList,
-            Statement parent) {
-        ValuePlaceholderBody pb = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, parent);
-        
-        Consumer<Statement> statementConsumer = s -> {
-            Body sb = s.getBody();
-            //onStatementChanged.accept(sb);
-            if (contentList.contains(pb)) {
-                int index = contentList.indexOf(pb);
-                contentList.set(index, s.getBody());
-                //call.setParameter(call.indexWithOperatorsToRegularIndex(index), s);
-                sb.setOnBodyDestroyed(() -> {
-                    //onStatementChanged.accept(pb);
-                    if (contentList.contains(sb)) {
-                        contentList.set(contentList.indexOf(sb), pb);
-                    }
-                    //call.setParameter(call.indexWithOperatorsToRegularIndex(index), null);
-                });
-            }
-        };
-        pb.setStatementConsumer(statementConsumer);
-        return pb;
     }
     
     /**
@@ -318,56 +195,34 @@ public class CallBody extends Body<Call<?>> {
         return placeholderBody;
     }
     
-    private ObjectProperty<Image> getIcon(CallItem vr) {
-        ObjectProperty<Icon> icon = vr.getItem().getSite().tabIconProperty();
-        //evtl platform.runlater
-        return Icons.iconToImageProperty(icon);
-    }
-    
-    private StringProperty getName(CallItem vr) {
-        return vr.getItem().nameProperty();
-    }
-    
     private void onChildChange(Call<?> call, HBox hBoxContent) {
-        ObjectProperty<Type> lastParameterType = new SimpleObjectProperty<>();
-        ObjectExpression<Statement<Type, Type, Type>> lastCallProperty = call.lastChildProperty();
-        BindUtils.addListener(lastCallProperty, (observable, oldValue, newValue) -> {
-            CallItem callItem = (CallItem) newValue;
-            if (callItem != null && callItem.getItem().getType() == ItemType.FUNCTION) {
-                Function f = (Function) callItem.getItem();
-                ObservableList<Item<? extends Item, Function, ? extends Item>> children = f.getChildren();
-                BindUtils.addListener(children, c -> {
-                    Optional<ObjectProperty<Type>> type = children
-                            .stream()
-                            .filter(i -> i.getType() == ItemType.PARAMETER)
-                            .map(i -> (Parameter) i)
-                            .reduce((a, b) -> b)
-                            .map(p -> p.returnTypeProperty());
-                    if (type.isPresent()) {
-                        lastParameterType.bind(type.get());
-                    } else {
-                        lastParameterType.unbind();
-                        lastParameterType.set(Type.UNDEFINED);
-                    }
-                });
+        //On destroy
+        if (call.getChilds().isEmpty()) {
+            return;
+        }
+        ObservableValue<Type> firstChildReturnTypeProperty = BindUtils.map(call.firstChildProperty(), p -> p != null ? p.returnTypeProperty().get() : Type.UNDEFINED);
+        SimpleObjectProperty<Type> lastChildReturnTypeProperty = new SimpleObjectProperty<>();
+        call.lastChildProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                lastChildReturnTypeProperty.bind(newValue.returnTypeProperty());
             } else {
-                lastParameterType.unbind();
-                lastParameterType.set(Type.UNDEFINED);
+                lastChildReturnTypeProperty.bind(UNDEFINED);
             }
         });
+    
         ObjectExpression<Insets> padding = getPadding(
                 call.returnTypeProperty(),
                 heightProperty(),
-                lastParameterType
+                firstChildReturnTypeProperty,
+                lastChildReturnTypeProperty
         );
         ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
         hBoxContent.paddingProperty().bind(ov);
     }
     
-    private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> lastParameter) {
-        DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftShape, height);
-        lastParameter = lastParameter == null ? leftShape : lastParameter;
-        DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, lastParameter, height);
+    private ObjectExpression<Insets> getPadding(ObservableValue<Type> parent, ObservableDoubleValue height, ObservableValue<Type> firstCallItem, ObservableValue<Type> lastCallItem) {
+        DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, firstCallItem, height);
+        DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, lastCallItem, height);
         return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding);
     }
 }

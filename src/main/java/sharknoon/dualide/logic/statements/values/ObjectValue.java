@@ -17,7 +17,6 @@ package sharknoon.dualide.logic.statements.values;
 
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.operators.Operator;
 
 import java.util.Objects;
 
@@ -32,7 +31,7 @@ public class ObjectValue extends Value<ObjectType> {
     
     public ObjectValue(ObjectType type, Statement parent) {
         super(type, parent);
-        if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
+        if (parentProperty().get() != null && (parentProperty().get() instanceof Value)) {
             parentProperty().get().childsProperty().add(this);
         }
     }

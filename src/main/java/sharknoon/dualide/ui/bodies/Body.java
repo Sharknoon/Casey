@@ -35,6 +35,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.calls.Call;
+import sharknoon.dualide.logic.statements.calls.CallItem;
 import sharknoon.dualide.logic.statements.operators.Operator;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
@@ -50,7 +51,6 @@ import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Helper class
@@ -71,6 +71,8 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
             return new ValueBody((Value) statement);
         } else if (statement instanceof Call) {
             return new CallBody((Call) statement);
+        } else if (statement instanceof CallItem) {
+            return new CallItemBody((CallItem) statement);
         }
         return null;
     }
@@ -241,8 +243,8 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     public void reduce() {
     }
     
-    public Optional<S> getStatement() {
-        return Optional.ofNullable(statement);
+    public S getStatement() {
+        return statement;
     }
     
     private ObjectBinding<Shape> typeToShapeBinding(ObservableObjectValue<Type> type) {
@@ -327,6 +329,10 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                     shape.setFill(Color.WHITE);
                     if (b instanceof ValuePlaceholderBody || b instanceof CallPlaceholderBody) {
                         shape.setStroke(Color.GREY);
+                    }
+                    if (b instanceof CallItemBody) {
+                        shape.setStroke(Color.rgb(0, 0, 0, 0.3));
+                        shape.setFill(Color.rgb(0, 0, 0, 0.3));
                     }
                 } else {
                     //No type allowed, but a type is necessary

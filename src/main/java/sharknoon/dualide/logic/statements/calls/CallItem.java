@@ -14,7 +14,7 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
-import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -31,17 +31,18 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 
 public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extends Statement<Type, Type, Type> {
     
+    private static final ObjectProperty<Type> UNDEFINED = new SimpleObjectProperty<>(Type.UNDEFINED);
     private final I item;
     //Only for Funktions
     private final ObservableList<Item> parameter;
     
     public CallItem(Statement<Type, Type, Type> parent, I item) {
-        super(parent, false);
         this.item = item;
-        addNecessaryParameters();
+        this.parameter = item.getChildren().filtered(i -> i.getType() == ItemType.PARAMETER);
+        bindStatementChildrenToItemChildren();
+        initParent(parent, false);
         addToParent(parent);
         item.onDestroy(parent::destroy);
-        parameter = item.getChildren().filtered(i -> i.getType() == ItemType.PARAMETER);
     }
     
     private void addToParent(Statement<Type, Type, Type> parent) {
@@ -53,20 +54,41 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
         }
     }
     
-    private void addNecessaryParameters() {
-        BindUtils.addListener(item.getChildren(), c -> {
-            item.getChildren().stream()
-                    .filter(i -> i instanceof Parameter)
-                    .forEach(p -> childs.add(null));
+    private void bindStatementChildrenToItemChildren() {
+        BindUtils.addListener(parameter, c -> {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    for (int i = c.getFrom(); i < c.getTo(); i++) {
+                        childs.add(i, null);
+                    }
+                }
+                if (c.wasRemoved()) {
+                    //+1 because when one item is removed, getfrom and getto are the same
+                    childs.remove(c.getFrom(), c.getTo() + 1);
+                }
+            }
         });
     }
     
     public ObjectProperty<Type> getReturnTypePropertyForIndex(int index) {
         Parameter parameter = (Parameter) this.parameter.get(index);
-        if (parameter != null){
+        if (parameter != null) {
             return parameter.returnTypeProperty();
         }
         return new SimpleObjectProperty<>();
+    }
+    
+    public ObjectProperty<Type> lastParameterTypeProperty() {
+        ObjectBinding<Item> lastParameter = BindUtils.getLast(parameter);
+        ObjectProperty<Type> lastParameterReturnType = new SimpleObjectProperty<>();
+        BindUtils.addListener(lastParameter, (observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                lastParameterReturnType.bind(((Parameter) newValue).returnTypeProperty());
+            } else {
+                lastParameterReturnType.bind(UNDEFINED);
+            }
+        });
+        return lastParameterReturnType;
     }
     
     public I getItem() {

@@ -33,7 +33,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.operators.Operator;
-import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
@@ -60,7 +59,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     }
     
     private HBox createContentNode() {
-        Operator<?, ?> operator = getStatement().get();
+        Operator<?, ?> operator = getStatement();
         
         HBox hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
@@ -88,7 +87,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     }
     
     private ValuePlaceholderBody createPlaceholder() {
-        Operator<?, ?> operator = getStatement().get();
+        Operator<?, ?> operator = getStatement();
         Type parameterType = operator.getParameterType();
         ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(parameterType, operator);
         
@@ -115,18 +114,13 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     @Override
     public BooleanExpression isExtendingAllowed() {
         return Bindings.createBooleanBinding(
-                () -> getStatement()
-                        .map(Operator::isExtensible)
-                        .orElse(false)
+                () -> getStatement().isExtensible()
         );
     }
     
     @Override
     public void extend() {
-        Operator<?, ?> operator = getStatement().orElse(null);
-        if (operator == null) {
-            return;
-        }
+        Operator<?, ?> operator = getStatement();
         List<Node> extension = operator.extend(() -> Icons.get(operator.getOperatorType().getIcon(), 50));
         for (Node node : extension) {
             content.add(node == null ? createPlaceholder() : node);
@@ -135,20 +129,14 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     
     @Override
     public BooleanExpression isReducingAllowed() {
-        Operator<?, ?> operator = getStatement().orElse(null);
-        if (operator == null) {
-            return Bindings.createBooleanBinding(() -> false);
-        }
+        Operator<?, ?> operator = getStatement();
         return operator.parameterAmountProperty()
                 .greaterThan(operator.getMinimumParameterAmount());
     }
     
     @Override
     public void reduce() {
-        Operator<?, ?> operator = getStatement().orElse(null);
-        if (operator == null) {
-            return;
-        }
+        Operator<?, ?> operator = getStatement();
         int toReduce = operator.reduce();
         content.remove(content.size() - toReduce, content.size());
     }
@@ -156,7 +144,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        List<Statement<PrimitiveType, Type, Type>> childs = getStatement().map(Statement::getChilds).orElse(FXCollections.emptyObservableList());
+        List<Statement<PrimitiveType, Type, Type>> childs = getStatement().getChilds();
         Text bracketOpen = new Text("(");
         Text bracketClose = new Text(")");
         Color random = FXUtils.getRandomDifferentColor();
@@ -168,10 +156,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
                 List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
                 text.addAll(par);
                 Text op = new Text(
-                        getStatement()
-                                .map(Operator::getOperatorType)
-                                .map(OperatorType::toString)
-                                .orElse("ERROR")
+                        getStatement().getOperatorType().toString()
                 );
                 text.add(op);
             });
@@ -180,10 +165,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
             }
         } else {//op text
             Text op = new Text(
-                    getStatement()
-                            .map(Operator::getOperatorType)
-                            .map(OperatorType::toString)
-                            .orElse("ERROR")
+                    getStatement().getOperatorType().toString()
             );
             text.add(op);
             Statement<PrimitiveType, Type, Type> child = childs.size() > 0 ? childs.get(0) : null;

@@ -148,7 +148,7 @@ public class ValueBody extends Body<Value> {
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        Text par = new Text(getStatement().map(Value::toString).orElse("ERROR"));
+        Text par = new Text(String.valueOf(getStatement()));
         par.setFill(Color.LIGHTBLUE);
         text.add(par);
         return text;

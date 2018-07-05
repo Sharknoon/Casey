@@ -6,6 +6,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -33,7 +34,7 @@ public class BodyUtils {
         DEFAULT_TEXT = helper.getText();
         DEFAULT_BOUNDS_TYPE = helper.getBoundsType();
     }
-
+    
     private static int getWeight(Type type) {
         if (type instanceof VoidType) {
             return 0;
@@ -55,15 +56,18 @@ public class BodyUtils {
         return Bindings.createDoubleBinding(() -> {
             int parentWeight = getWeight(parent.getValue());
             int childWeight = getWeight(child.getValue());
+            if (parentWeight < 0) {//child is root
+                parentWeight = childWeight;
+            }
             int difference = childWeight - parentWeight;
             difference = difference < 0 ? 0 : difference;
             return (double) difference * 0.1;//0,1 because max offset is 1/2 of the height -> 1/2 / 5 = 0.1, 5 because 5 different types
         }, parent, child);
     }
     
-    public static DoubleBinding calculateDistance(ObservableValue<Type> parent, ObservableValue<Type> child, DoubleExpression childheight) {
+    public static DoubleBinding calculateDistance(ObservableValue<Type> parent, ObservableValue<Type> child, ObservableDoubleValue childheight) {
         DoubleBinding multiplier = calculateBodyHeightMultiplierForHorizontalPadding(parent, child);
-        return childheight.multiply(multiplier);
+        return DoubleExpression.doubleExpression(childheight).multiply(multiplier);
     }
     
     public static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {

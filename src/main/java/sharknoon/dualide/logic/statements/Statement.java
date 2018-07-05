@@ -45,14 +45,10 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     private final ReadOnlyObjectWrapper<Body> body = new ReadOnlyObjectWrapper<>();
     private final List<Runnable> changeListeners = new ArrayList<>();
     
-    public Statement(Statement<Type, PT, T> parent) {
-        this(parent, true);
-    }
-    
-    public Statement(Statement<Type, PT, T> parent, boolean initChilds) {
+    public void initParent(Statement<Type, PT, T> parent, boolean addChildToParent) {
         if (parent != null) {
             this.parent.set(parent);
-            if (!(parentProperty().get() instanceof Operator) && initChilds) {//Operators are managing their childs itself
+            if ((parentProperty().get() instanceof Value) && addChildToParent) {//Operators are managing their childs itself
                 parentProperty().get().childs.add((Statement) this);
             }
         }

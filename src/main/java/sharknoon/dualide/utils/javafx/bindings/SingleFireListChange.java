@@ -52,7 +52,7 @@ public class SingleFireListChange<E> extends Change<E> {
     
     @Override
     public int getTo() {
-        return 0;
+        return getList().size();
     }
     
     @Override

@@ -51,7 +51,7 @@ public abstract class Operator<T extends PrimitiveType, CT extends Type> extends
     }
     
     public Operator(Statement parent, int minimumParameters, int maximumParameters, boolean isExtensible, T returnType, PrimitiveType parameterType) {
-        super(parent);
+        initParent(parent, true);
         this.returnType = returnType;
         this.parameterType = parameterType != null ? parameterType : Type.UNDEFINED;
         this.minimumParameters = minimumParameters;

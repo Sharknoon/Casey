@@ -47,7 +47,7 @@ public abstract class Value<T extends Type> extends Statement<Type, T, Type> {
     private final T type;
     
     public Value(T type, Statement parent) {
-        super(parent, false);
+        initParent(parent, false);
         this.type = type;
     }
     

@@ -69,11 +69,11 @@ public class CallBody extends Body<Call<?>> {
     
     private HBox createContentNode() {
         var call = getStatement().get();
-    
+        
         var hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
-    
+        
         var isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
         bindError(Bindings.createBooleanBinding(() -> isUndefinedExpected)
                 .or(call
@@ -139,7 +139,7 @@ public class CallBody extends Body<Call<?>> {
                 textName.textProperty().bind(item.nameProperty());
                 textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
                 text.add(textName);
-        
+                
                 ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
                 BindUtils.addListener(childs, c -> {
                     if (item.getType() == ItemType.FUNCTION) {
@@ -154,7 +154,7 @@ public class CallBody extends Body<Call<?>> {
                         text.add(textCloseBracket);
                     }
                 });
-        
+                
                 if (!callItem.equals(call.lastChildProperty().getValue())) {
                     Text textArrow = new Text(" -> ");
                     textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
@@ -226,23 +226,25 @@ public class CallBody extends Body<Call<?>> {
         parameterConsumer = (p, index) -> {
             if (p == null) {
                 ValuePlaceholderBody placeholder = createParameterPlaceholder(
-                        callItem.getItem()..get(index).returnTypeProperty(),
+                        callItem.getReturnTypePropertyForIndex(index),
                         nodeList,
                         callItem
-                )
-                nodeList.add(placeholder);
+                );
+                nodeList.set(index, placeholder);
+            } else {
+                nodeList.set(index, p.getBody());
             }
         };
         
         for (int i = 0; i < callItem.getChilds().size(); i++) {
-            
+            parameterConsumer.accept(callItem.getChilds().get(i), i);
         }
         
         JavaFxObservable.changesOf(callItem.getChilds())
                 .subscribe(c -> {
                     switch (c.getFlag()) {
                         case ADDED:
-                            parameterConsumer.accept(c.getValue());
+                            parameterConsumer.accept(c.getValue(), callItem.getChilds().indexOf(c.getValue()));
                             break;
                         case REMOVED:
                             nodeList.remove(c.getValue().getBody());

@@ -15,8 +15,11 @@ package sharknoon.dualide.logic.statements.calls;/*
  */
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
@@ -29,6 +32,8 @@ import sharknoon.dualide.utils.javafx.BindUtils;
 public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extends Statement<Type, Type, Type> {
     
     private final I item;
+    //Only for Funktions
+    private final ObservableList<Item> parameter;
     
     public CallItem(Statement<Type, Type, Type> parent, I item) {
         super(parent, false);
@@ -36,6 +41,7 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
         addNecessaryParameters();
         addToParent(parent);
         item.onDestroy(parent::destroy);
+        parameter = item.getChildren().filtered(i -> i.getType() == ItemType.PARAMETER);
     }
     
     private void addToParent(Statement<Type, Type, Type> parent) {
@@ -48,16 +54,19 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
     }
     
     private void addNecessaryParameters() {
-        JavaFxObservable.emitOnChanged(item.getChildren())
-                .flatMapIterable(l -> l)
-                .filter(i -> i.getType() == ItemType.PARAMETER)
-                .toList()
-                .subscribe(l ->);
         BindUtils.addListener(item.getChildren(), c -> {
             item.getChildren().stream()
                     .filter(i -> i instanceof Parameter)
                     .forEach(p -> childs.add(null));
         });
+    }
+    
+    public ObjectProperty<Type> getReturnTypePropertyForIndex(int index) {
+        Parameter parameter = (Parameter) this.parameter.get(index);
+        if (parameter != null){
+            return parameter.returnTypeProperty();
+        }
+        return new SimpleObjectProperty<>();
     }
     
     public I getItem() {

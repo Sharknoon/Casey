@@ -156,7 +156,7 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        List<Statement<PrimitiveType, Type, Type>> childs = getStatement().map(Statement::getChilds).orElse(List.of());
+        List<Statement<PrimitiveType, Type, Type>> childs = getStatement().map(Statement::getChilds).orElse(FXCollections.emptyObservableList());
         Text bracketOpen = new Text("(");
         Text bracketClose = new Text(")");
         Color random = FXUtils.getRandomDifferentColor();

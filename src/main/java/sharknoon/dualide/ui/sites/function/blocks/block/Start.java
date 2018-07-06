@@ -15,13 +15,16 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Side;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
 
 /**
  * Creates a Start block, which is the entry point of a module
@@ -29,35 +32,35 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  * @author Josua Frank
  */
 public class Start extends Block {
-
+    
     public Start(FunctionSite functionSite) {
         super(functionSite);
     }
-
+    
     public Start(FunctionSite functionSite, String id) {
         super(functionSite, id);
     }
-
+    
     @Override
     public double initShapeHeight() {
         return 100;
     }
-
+    
     @Override
     public double initShapeWidth() {
         return 200;
     }
-
+    
     @Override
     public Side[] initDotOutputSides() {
         return new Side[]{Side.BOTTOM};
     }
-
+    
     @Override
     public Side[] initDotInputSides() {
         return new Side[]{};
     }
-
+    
     @Override
     public Shape initBlockShape() {
         Rectangle rectangle = new Rectangle(getWidth(), getHeight());
@@ -66,10 +69,18 @@ public class Start extends Block {
         rectangle.setFill(Color.GREEN);
         return rectangle;
     }
-
+    
     @Override
-    public Pane initBody() {
-        return null;
+    public BlockContent initBlockContent() {
+        return new StartBockContent();
     }
-
+    
+    private static class StartBockContent extends BlockContent {
+        
+        @Override
+        public ObservableList<Text> toText() {
+            return FXCollections.emptyObservableList();
+        }
+    }
+    
 }

@@ -19,12 +19,18 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Word;
+import sharknoon.dualide.utils.settings.Logger;
+import sharknoon.dualide.utils.settings.Props;
+
+import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 public enum Styles {
     dark("DarkCSS.css", Icon.DARK, Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT),
     light("LightCSS.css", Icon.LIGHT, Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT);
     
     public static final ObjectProperty<Styles> currentStyle = new SimpleObjectProperty<>(dark);
+    private static final String styleKey = "style";
     
     public static Styles getCurrentStyle() {
         return currentStyleProperty().get();
@@ -39,7 +45,28 @@ public enum Styles {
     }
     
     public static void bindStyleSheets(ObservableList<String> stylesheets) {
-        //TODO set currentstyle style from db here
+        Props.get(styleKey).thenAccept(o -> {
+            if (o.isPresent()) {
+                String styleName = o.get();
+                try {
+                    setCurrentStyle(valueOf(styleName));
+                } catch (Exception ex) {
+                    Logger.error(
+                            "Invalid style name in database: "
+                                    + styleName
+                                    + " of " +
+                                    EnumSet
+                                            .allOf(Styles.class)
+                                            .stream()
+                                            .map(Enum::name)
+                                            .collect(Collectors.joining(", ")),
+                            ex
+                    );
+                }
+            } else {
+                Props.set(styleKey, getCurrentStyle().name());
+            }
+        });
         stylesheets.addAll(
                 "sharknoon/dualide/ui/styles/GeneralCSS.css",
                 getCurrentStyle().getFullStyleSheetName()
@@ -50,6 +77,7 @@ public enum Styles {
             }
             if (newValue != null) {
                 stylesheets.add(newValue.getFullStyleSheetName());
+                Props.set(styleKey, newValue.name());
             }
         });
     }

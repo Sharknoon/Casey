@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.styles;/*
+package sharknoon.dualide.ui.sites.function.blocks;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,13 @@ package sharknoon.dualide.ui.styles;/*
  * limitations under the License.
  */
 
-public enum StyleClasses {
-    textStatementCallItemName,
-    textStatementCallItemFunctionBrackets,
-    textStatementCallItemArrow,
-    rectangleWorkspace,
-    rectangleSelection,
-    textWelcomeSiteRecentlyUsed,
-    textWelcomeSiteProjectListTitle,
-    textWelcomeSiteProjectListDate,
-    textSiteItemName,
-    textVariableSite
+import javafx.collections.ObservableList;
+import javafx.scene.Group;
+import javafx.scene.text.Text;
+
+public abstract class BlockContent extends Group {
+    
+    public abstract ObservableList<Text> toText();
+    
     
 }

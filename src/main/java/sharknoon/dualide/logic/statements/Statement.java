@@ -42,7 +42,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     private final transient ReadOnlyObjectWrapper<Statement<Type, PT, T>> parent = new ReadOnlyObjectWrapper<>();
-    private final ReadOnlyObjectWrapper<Body> body = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Body<Statement>> body = new ReadOnlyObjectWrapper<>();
     private final List<Runnable> changeListeners = new ArrayList<>();
     
     public void initParent(Statement<Type, PT, T> parent, boolean addChildToParent) {
@@ -67,7 +67,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
         return childsProperty();
     }
     
-    public Body getBody() {
+    public Body<Statement> getBody() {
         if (body.get() == null) {
             body.set(Body.createBody(this));
         }

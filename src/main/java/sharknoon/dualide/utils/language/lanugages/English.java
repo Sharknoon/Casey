@@ -24,11 +24,7 @@ import java.util.Locale;
  * @author frank
  */
 public class English extends Language {
-
-    public English() {
-        super(Locale.ENGLISH);
-    }
-
+    
     {
         add(Word.EMTPY, "");
         add(Word.RUN, "Run!");
@@ -46,6 +42,7 @@ public class English extends Language {
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
         //ToolBar
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Save");
+        add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Run");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Welcome");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Recent projects");
@@ -85,12 +82,18 @@ public class English extends Language {
         add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Comment variable");
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Rename variable");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Delete variable");
+        //ParameterSite
+        add(Word.PARAMETER_SITE_CLASS_LABEL_TEXT, "Parametertype");
+        add(Word.PARAMETER_SITE_FINAL_COMBOBOX_TEXT, "Parameter modifiable");
+        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Comment parameter");
+        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Rename parameter");
+        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Delete parameter");
         //FunctionSite
         add(Word.FUNCTION_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Comment");
         add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Rename");
         add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Delete");
         add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Add variable");
-        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT,"Add parameter");
+        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT, "Add parameter");
         add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Comment function");
         add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Rename function");
         add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Delete function");
@@ -104,9 +107,6 @@ public class English extends Language {
         add(Word.FUNCTION_SITE_FUNCTION_VARIABLES_AND_PARAMETER, "Variables and parameters of the function");
         add(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, "Parameters of the function");
         add(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, "Return of the function");
-        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Comment parameter");
-        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Rename parameter");
-        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Delete parameter");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Create new project");
@@ -244,8 +244,14 @@ public class English extends Language {
         add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive types");
         add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objecttypes");
         add(Word.TYPE_SELECTION_POPUP_TITLE, "Typeselection");
+        //VariableSelectionField
+        add(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, "Select variable...");
+        add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "No types allowed");
+        //VariableSelectionPopup
+        add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variable and parameterselection");
         //General
         add(Word.FUNCTION, "Function");
+        add(Word.PARAMETER, "Parameter");
         add(Word.CLASS, "Class");
         add(Word.PROJECT, "Project");
         add(Word.VARIABLE, "Variable");
@@ -278,5 +284,9 @@ public class English extends Language {
         add(Word.DELETE, "Delete");
         add(Word.VOID, "Void");
     }
-
+    
+    public English() {
+        super(Locale.ENGLISH);
+    }
+    
 }

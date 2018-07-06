@@ -21,15 +21,10 @@ import sharknoon.dualide.utils.language.Word;
 import java.util.Locale;
 
 /**
- *
  * @author frank
  */
 public class German extends Language {
-
-    public German() {
-        super(Locale.GERMAN);
-    }
-
+    
     {
         add(Word.EMTPY, "");
         add(Word.RUN, "Los!");
@@ -47,6 +42,7 @@ public class German extends Language {
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
+        add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Ausführen");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
@@ -86,12 +82,18 @@ public class German extends Language {
         add(Word.VARIABLE_SITE_COMMENT_BUTTON_TEXT, "Variable kommentieren");
         add(Word.VARIABLE_SITE_RENAME_BUTTON_TEXT, "Variable umbenennen");
         add(Word.VARIABLE_SITE_DELETE_BUTTON_TEXT, "Variable löschen");
+        //ParameterSite
+        add(Word.PARAMETER_SITE_CLASS_LABEL_TEXT, "Parametertyp");
+        add(Word.PARAMETER_SITE_FINAL_COMBOBOX_TEXT, "Parameter änderbar");
+        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Parameter kommentieren");
+        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Parameter umbenennen");
+        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Parameter löschen");
         //FunctionSite
         add(Word.FUNCTION_SITE_COMMENT_CHILDREN_BUTTON_TEXT, "Kommentieren");
         add(Word.FUNCTION_SITE_RENAME_CHILDREN_BUTTON_TEXT, "Umbenennen");
         add(Word.FUNCTION_SITE_DELETE_CHILDREN_BUTTON_TEXT, "Löschen");
         add(Word.FUNCTION_SITE_ADD_VARIABLE_BUTTON_TEXT, "Variable hinzufügen");
-        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT,"Parameter hinzufügen");
+        add(Word.PARAMETER_SITE_ADD_PARAMETER_BUTTON_TEXT, "Parameter hinzufügen");
         add(Word.FUNCTION_SITE_COMMENT_BUTTON_TEXT, "Funktion kommentieren");
         add(Word.FUNCTION_SITE_RENAME_BUTTON_TEXT, "Funktion umbenennen");
         add(Word.FUNCTION_SITE_DELETE_BUTTON_TEXT, "Funktion löschen");
@@ -105,9 +107,6 @@ public class German extends Language {
         add(Word.FUNCTION_SITE_FUNCTION_VARIABLES_AND_PARAMETER, "Funktionsvariablen und -parameter");
         add(Word.FUNCTION_SITE_FUNCTION_PARAMETERS, "Funktionsparameter");
         add(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, "Funktionsrückgabe");
-        add(Word.PARAMETER_SITE_COMMENT_BUTTON_TEXT, "Parameter kommentieren");
-        add(Word.PARAMETER_SITE_RENAME_BUTTON_TEXT, "Parameter umbenennen");
-        add(Word.PARAMETER_SITE_DELETE_BUTTON_TEXT, "Parameter löschen");
         //Dialogs
         ///New Project
         add(Word.NEW_PROJECT_DIALOG_TITLE, "Neues Projekt anlegen");
@@ -245,8 +244,14 @@ public class German extends Language {
         add(Word.TYPE_SELECTION_POPUP_PRIMITIVE_TYPES, "Primitive Typen");
         add(Word.TYPE_SELECTION_POPUP_OBJECT_TYPES, "Objekttypen");
         add(Word.TYPE_SELECTION_POPUP_TITLE, "Typauswahl");
+        //VariableSelectionField
+        add(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, "Variable auswählen...");
+        add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "Keine Typen erlaubt");
+        //VariableSelectionPopup
+        add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variablen- und Parameterauswahl");
         //General
         add(Word.FUNCTION, "Funktion");
+        add(Word.PARAMETER, "Parameter");
         add(Word.CLASS, "Klasse");
         add(Word.PROJECT, "Projekt");
         add(Word.VARIABLE, "Variable");
@@ -278,5 +283,9 @@ public class German extends Language {
         add(Word.LENGTH, "Länge");
         add(Word.DELETE, "Löschen");
         add(Word.VOID, "Nichts");
+    }
+    
+    public German() {
+        super(Locale.GERMAN);
     }
 }

@@ -15,13 +15,15 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.beans.property.DoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Side;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
 
 /**
  * Creates a end block which marks the end of the module
@@ -68,8 +70,16 @@ public class End extends Block<Rectangle> {
     }
 
     @Override
-    public Pane initBody() {
-        return null;
+    public BlockContent initBlockContent() {
+        return new EndBockContent();
     }
-
+    
+    private static class EndBockContent extends BlockContent {
+        
+        @Override
+        public ObservableList<Text> toText() {
+            return FXCollections.emptyObservableList();
+        }
+    }
+    
 }

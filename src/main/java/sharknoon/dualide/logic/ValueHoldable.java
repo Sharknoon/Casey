@@ -1,4 +1,4 @@
-package sharknoon.dualide.ui.styles;/*
+package sharknoon.dualide.logic;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,13 @@ package sharknoon.dualide.ui.styles;/*
  * limitations under the License.
  */
 
-public enum StyleClasses {
-    textStatementCallItemName,
-    textStatementCallItemFunctionBrackets,
-    textStatementCallItemArrow,
-    rectangleWorkspace,
-    rectangleSelection,
-    textWelcomeSiteRecentlyUsed,
-    textWelcomeSiteProjectListTitle,
-    textWelcomeSiteProjectListDate,
-    textSiteItemName,
-    textVariableSite
+import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.types.Type;
+
+public interface ValueHoldable<T extends Type> {
+    
+    default Item<Item, Item, Item> toItem() {
+        return (Item<Item, Item, Item>) this;
+    }
     
 }

@@ -25,7 +25,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -35,6 +34,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -119,9 +119,12 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     //The blockshape itself
     private final S blockShape;
     //The content of the block
-    private final Pane blockBody;
+    private final BlockContent blockContent;
+    //The pane for the blockcontent to be centered
+    private final BorderPane blockContentPane;
     //The contentPlaceholder of the block
-    private final ObservableList<Text> blockText = FXCollections.observableArrayList();
+    private final ObservableList<Text> blockText;
+    //The Text of the statement in the block
     private final TextFlow blockTextFlow;
     //The shape of the shadow of the vlock
     private final Shape predictionShadowShape;
@@ -143,6 +146,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     public double startY;
     //The current state of the block
     private boolean selected;
+    //indicator, of this block shows the text or the statement body
     private boolean showsPlaceholder = true;
     
     public Block(FunctionSite functionSite) {
@@ -157,12 +161,11 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         dotOutputSides = initDotOutputSides();
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
-        blockBody = initBody();
-        //blockText = null;//initText();
+        blockContent = initBlockContent();
+        blockContentPane = initBlockContentPane();
+        blockText = blockContent.toText();
         blockTextFlow = initTextFlow();
-        //TMP
-        blockText.add(new Text("Test 123"));
-        root.getChildren().addAll(blockShape, blockTextFlow);
+        root.getChildren().addAll(blockShape, blockTextFlow, blockContentPane);
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
         hoverBinding = initHoverListeners(blockShape, dots.keySet());
@@ -181,6 +184,19 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         });
         showContentText();
         Blocks.registerBlock(functionSite, this);
+    }
+    
+    private BorderPane initBlockContentPane() {
+        BorderPane bp = new BorderPane();
+        blockContent.setVisible(false);
+        blockContent.setScaleX(0.4);
+        blockContent.setScaleY(0.4);
+        bp.setCenter(blockContent);
+        bp.prefWidthProperty().bind(widthExpression());
+        bp.maxWidthProperty().bind(widthExpression());
+        bp.prefHeightProperty().bind(heightExpression());
+        bp.maxHeightProperty().bind(heightExpression());
+        return bp;
     }
     
     /**
@@ -221,7 +237,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     /**
      * Gets the Content for the block
      */
-    public abstract Pane initBody();
+    public abstract BlockContent initBlockContent();
     
     private TextFlow initTextFlow() {
         TextFlow result = new TextFlow();
@@ -271,9 +287,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
                 select();
             } else {
                 toggleSelection();
-            }
-            if (event.getClickCount() == 2) {
-                initBody();
             }
         }
     }
@@ -591,8 +604,9 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
             return;
         }
         showsPlaceholder = false;
-        //blockBody.setVisible(true);
+        blockContent.setVisible(true);
         blockTextFlow.setVisible(false);
+        functionSite.getLogicSite().getWs().disable();
     }
     
     private void showContentText() {
@@ -600,8 +614,9 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
             return;
         }
         showsPlaceholder = true;
-        //blockBody.setVisible(false);
+        blockContent.setVisible(false);
         blockTextFlow.setVisible(true);
+        functionSite.getLogicSite().getWs().enable();
     }
     
     @Override

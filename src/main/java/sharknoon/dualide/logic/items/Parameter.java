@@ -24,6 +24,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import sharknoon.dualide.logic.ValueHoldable;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Parameter extends Item<Parameter, Function, Item<? extends Item, Parameter, ? extends Item>> implements ValueReturnable<Type> {
+public class Parameter extends Item<Parameter, Function, Item<? extends Item, Parameter, ? extends Item>> implements ValueReturnable<Type>, ValueHoldable<Type> {
 
     private static final String TYPE = "type";
     private static final String MODIFIABLE = "modifiable";

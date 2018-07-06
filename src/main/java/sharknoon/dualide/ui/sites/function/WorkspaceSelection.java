@@ -34,11 +34,13 @@ public class WorkspaceSelection implements MouseConsumable {
         selectionRectangle.setVisible(false);
         return selectionRectangle;
     }
+    
     private final FunctionSite functionSite;
     private final Rectangle selectionRectangle;
     private double startX;
     private double startY;
     private boolean secondRun;
+    private boolean enabled;
     
     public WorkspaceSelection(FunctionSite functionSite) {
         this.functionSite = functionSite;
@@ -47,6 +49,9 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMousePressed(MouseEvent event) {
+        if (!enabled) {
+            return;
+        }
         if (!secondRun) {
             this.functionSite.getLogicSite().addInFront(selectionRectangle);
             secondRun = true;
@@ -66,6 +71,9 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMouseDragged(MouseEvent event) {
+        if (!enabled) {
+            return;
+        }
         var currentX = event.getX();
         var currentY = event.getY();
         var width = currentX - startX;
@@ -135,6 +143,9 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMouseReleased(MouseEvent event) {
+        if (!enabled) {
+            return;
+        }
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
@@ -143,6 +154,14 @@ public class WorkspaceSelection implements MouseConsumable {
             Blocks.unselectAll(functionSite);
             Lines.getAllLines(functionSite).forEach(Line::unselect);
         }
+    }
+    
+    public void disable() {
+        enabled = false;
+    }
+    
+    public void enable() {
+        enabled = true;
     }
     
 }

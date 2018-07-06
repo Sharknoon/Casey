@@ -15,15 +15,14 @@
  */
 package sharknoon.dualide.ui.fields;
 
+import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.layout.Pane;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.ValuePlaceholderBody;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @author Josua Frank
@@ -31,31 +30,27 @@ import java.util.function.Consumer;
 public class ValueField extends Pane {
     
     public static ValueField DISABLED = new ValueField(true);
-    private final List<Consumer<Statement>> statementChangeListeners = new ArrayList<>();
-    private Statement statement;
-    private Consumer<Statement> onStatementSet;
-    private Runnable onStatementDestroyed;
+    
+    private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> statement = new ReadOnlyObjectWrapper<>();
     
     public ValueField() {
         this(Type.UNDEFINED);
     }
     
     public ValueField(Type allowedType) {
+        this(new SimpleObjectProperty<>(allowedType));
+    }
+    
+    public ValueField(ObjectExpression<Type> allowedType) {
         ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, null);
         
         body.setStatementConsumer(s -> {
             getChildren().set(0, s.getBody());
-            s.addChangeListener(() -> statementChangeListeners.forEach(l -> l.accept(s)));
             s.getBody().setOnBodyDestroyed(() -> {
                 getChildren().set(0, body);
-                if (onStatementDestroyed != null) {
-                    onStatementDestroyed.run();
-                }
+                statement.set(null);
             });
-            statement = s;
-            if (onStatementSet != null) {
-                onStatementSet.accept(s);
-            }
+            statement.set(s);
         });
         
         getChildren().add(body);
@@ -65,20 +60,11 @@ public class ValueField extends Pane {
         getChildren().add(ValuePlaceholderBody.DISABLED);
     }
     
-    public Optional<Statement> getStatement() {
-        return Optional.ofNullable(statement);
+    public Statement<Type, Type, Type> getStatement() {
+        return statement.get();
     }
     
-    public void setOnStatementSet(Consumer<Statement> consumer) {
-        onStatementSet = consumer;
+    public ReadOnlyObjectProperty<Statement<Type, Type, Type>> statementProperty() {
+        return statement.getReadOnlyProperty();
     }
-    
-    public void setOnStatementDestroyed(Runnable runnable) {
-        onStatementDestroyed = runnable;
-    }
-    
-    public void addStatementChangeListener(Consumer<Statement> consumer) {
-        statementChangeListeners.add(consumer);
-    }
-    
 }

@@ -196,7 +196,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     }
 
 //    public ObservableList<Parameter> parametersProperty() {
-//        return childrenProperty().filtered(c->c.getType() == ItemType.PARAMETER).ma;
+//        return childrenProperty().filtered(c->c.getFunction() == ItemType.PARAMETER).ma;
 //    }
     
     public boolean isInClass() {

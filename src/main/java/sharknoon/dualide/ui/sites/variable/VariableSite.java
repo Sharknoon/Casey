@@ -21,11 +21,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Variable;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
@@ -33,6 +32,7 @@ import sharknoon.dualide.ui.fields.TypeField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.SiteUtils;
+import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -71,20 +71,17 @@ public class VariableSite extends Site<Variable> {
         gridPaneContent.setHgap(20);
         gridPaneContent.setAlignment(Pos.TOP_LEFT);
         gridPaneContent.setPadding(new Insets(50));
-
-        Label labelClass = new Label();
-        Language.set(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, labelClass);
-
-        gridPaneContent.addRow(0, labelClass);
+    
+        Text textType = new Text();
+        textType.getStyleClass().add(StyleClasses.textVariableSite.name());
+        Language.setCustom(Word.VARIABLE_SITE_CLASS_LABEL_TEXT, textType::setText);
+    
+        gridPaneContent.addRow(0, textType);
 
         TypeField typeField = new TypeField();
         typeField.typeProperty().bindBidirectional(getItem().returnTypeProperty());
-
-        CheckBox checkBoxFinal = new CheckBox();
-        checkBoxFinal.selectedProperty().bindBidirectional(getItem().modifiableProperty());
-        Language.set(Word.VARIABLE_SITE_FINAL_COMBOBOX_TEXT, checkBoxFinal);
-
-        gridPaneContent.addRow(1, typeField, checkBoxFinal);
+    
+        gridPaneContent.addRow(1, typeField);
 
         var scrollPaneChildren = new ScrollPane(gridPaneContent);
         scrollPaneChildren.setFitToHeight(true);

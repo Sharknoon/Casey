@@ -15,14 +15,17 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.beans.property.DoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Side;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
+import sharknoon.dualide.ui.fields.VariableField;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
@@ -71,8 +74,32 @@ public class Input extends Block<Polygon> {
     }
 
     @Override
-    public Pane initBody() {
-        return null;
+    public BlockContent initBlockContent() {
+        return new InputBlockContent();
     }
-
+    
+    private static class InputBlockContent extends BlockContent {
+        
+        VariableField variableField;
+        
+        private InputBlockContent() {
+            variableField = new VariableField();
+            getChildren().add(variableField);
+        }
+        
+        @Override
+        public ObservableList<Text> toText() {
+            Text text = new Text();
+            BindUtils.addListener(variableField.variableProperty(), (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    text.textProperty().bind(newValue.toItem().nameProperty());
+                } else {
+                    text.textProperty().unbind();
+                    text.setText("null");
+                }
+            });
+            return FXCollections.observableArrayList(text);
+        }
+    }
+    
 }

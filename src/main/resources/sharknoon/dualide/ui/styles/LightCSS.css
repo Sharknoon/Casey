@@ -48,24 +48,29 @@
  */
 .textWelcomeSiteRecentlyUsed {
     -fx-font-size: 40;
-    -fx-effect: dropshadow(three-pass-box, black, 10, 0.5, 0, 0);
-    -fx-fill: white;
 }
 
-.textWelcomeSiteProjectListTitle {
+.textWelcomeSiteProjectListTitle,
+.textSiteItemName {
     -fx-font-size: 30;
-    -fx-effect: dropshadow(three-pass-box, black, 10, 0.5, 0, 0);
-    -fx-fill: white;
 }
 
 .textWelcomeSiteProjectListDate {
     -fx-font-size: 20;
-    -fx-effect: dropshadow(three-pass-box, black, 10, 0.5, 0, 0);
-    -fx-fill: white;
 }
 
-.textSiteItemName {
-    -fx-font-size: 30;
+.textVariableSite,
+.textWelcomeSiteRecentlyUsed,
+.textWelcomeSiteProjectListTitle,
+.textSiteItemName,
+.textWelcomeSiteProjectListDate {
     -fx-effect: dropshadow(three-pass-box, black, 10, 0.5, 0, 0);
+}
+
+.textVariableSite,
+.textWelcomeSiteRecentlyUsed,
+.textWelcomeSiteProjectListTitle,
+.textSiteItemName,
+.textWelcomeSiteProjectListDate {
     -fx-fill: white;
 }

@@ -15,21 +15,11 @@
  */
 package sharknoon.dualide.ui.navigation;
 
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.ui.fields.TypeField;
-import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.ui.misc.Icons;
-import sharknoon.dualide.ui.styles.Styles;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
@@ -37,15 +27,15 @@ import sharknoon.dualide.utils.language.Word;
  * @author Josua Frank
  */
 public class ToolBarInit {
-
+    
     private static ToolBar toolBar;
-
+    
     public static void init(ToolBar buttonBar) {
         toolBar = buttonBar;
         initSaveButton();
-        initDebugButton();
+        initRunButton();
     }
-
+    
     private static void initSaveButton() {
         Button buttonSave = new Button();
         Icons.set(Icon.SAVE, buttonSave);
@@ -53,43 +43,14 @@ public class ToolBarInit {
         buttonSave.setOnAction(e -> Project.getCurrentProject().ifPresent(Project::save));
         toolBar.getItems().add(buttonSave);
     }
-
-    private static void initDebugButton() {
-        Button buttonDebug = new Button("ValuesCheck");
-        buttonDebug.setOnAction(e -> TMP());
-        toolBar.getItems().add(buttonDebug);
-    }
-
-    private static void TMP() {
-        VBox center = new VBox();
-        Group vBoxGroup = new Group(center);
-        BorderPane root = new BorderPane(vBoxGroup);
-        Scene scene = new Scene(root);
-        Styles.bindStyleSheets(scene.getStylesheets());
-
-        TextFlow result = new TextFlow();
-        ValueField field = new ValueField();
-        field.setOnStatementSet(s -> {
-            result.getChildren().clear();
-            result.getChildren().add(new Text(s.calculateResult().toString()+"\n"));
-            result.getChildren().addAll(s.getBody().toText());
+    
+    private static void initRunButton() {
+        Button buttonRun = new Button();
+        Icons.set(Icon.RUN, buttonRun);
+        Language.set(Word.TOOLBAR_BUTTON_RUN_TEXT, buttonRun);
+        buttonRun.setOnAction(e -> {
         });
-        field.setOnStatementDestroyed(() -> result.getChildren().clear());
-        field.addStatementChangeListener(s -> {
-            result.getChildren().clear();
-            result.getChildren().add(new Text(s.calculateResult().toString()+"\n"));
-            result.getChildren().addAll(s.getBody().toText());
-        });
-
-        TypeField tfield = new TypeField();
-
-        center.getChildren().addAll(field, result, tfield);
-
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.setHeight(750);
-        stage.setWidth(1200);
-        stage.show();
+        toolBar.getItems().add(buttonRun);
     }
-
+    
 }

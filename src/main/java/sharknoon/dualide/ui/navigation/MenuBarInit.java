@@ -21,6 +21,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.items.Project;
 import sharknoon.dualide.logic.items.Welcome;
 import sharknoon.dualide.ui.background.Background;
@@ -72,7 +73,8 @@ public class MenuBarInit {
             MenuItem menuItemLanguage = new MenuItem();
             Language.setCustom(
                     () -> locale.getDisplayLanguage(locale),
-                    menuItemLanguage::setText);
+                    menuItemLanguage::setText
+            );
             Icon icon = Icon.forName(locale.getDisplayLanguage(Locale.ENGLISH));
             Icons.setCustom(icon, menuItemLanguage::setGraphic);
             menuItemLanguage.setId(locale.getLanguage());
@@ -107,10 +109,11 @@ public class MenuBarInit {
         
         Node nodeIcon = Icons.get(Icon.DURATION);
         gridPaneMenuItemBackgroundDurationContent.add(nodeIcon, 0, 0, 1, 2);
-        
-        Label labelSetDurationText = new Label();
-        Language.set(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, labelSetDurationText);
-        gridPaneMenuItemBackgroundDurationContent.add(labelSetDurationText, 1, 0, 2, 1);
+    
+        Label textSetDurationText = new Label();
+        textSetDurationText.getStyleClass().setAll("menu-item");
+        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, textSetDurationText::setText);
+        gridPaneMenuItemBackgroundDurationContent.add(textSetDurationText, 1, 0, 2, 1);
         
         final String durationKey = "backgroundChangeingDuration";
         SnapSlider sliderDuration = new SnapSlider(0, 60, -1);
@@ -120,8 +123,9 @@ public class MenuBarInit {
         sliderDuration.setBlockIncrement(1);
         sliderDuration.setMinorTickCount(9);
         sliderDuration.setMajorTickUnit(10);
-        Label labelChangingValue = new Label();
-        labelChangingValue.textProperty().bind(
+        Text textChangingValue = new Text();
+        textChangingValue.getStyleClass().setAll("menu-item");
+        textChangingValue.textProperty().bind(
                 Bindings.createLongBinding(
                         () -> Math.round(sliderDuration.valueProperty().doubleValue()),
                         sliderDuration.valueProperty()
@@ -136,7 +140,7 @@ public class MenuBarInit {
         });
         Props.get(durationKey).thenAccept(os -> os.map(Double::valueOf).ifPresent(sliderDuration::setValue));
         gridPaneMenuItemBackgroundDurationContent.add(sliderDuration, 1, 1, 1, 1);
-        gridPaneMenuItemBackgroundDurationContent.add(labelChangingValue, 2, 1, 1, 1);
+        gridPaneMenuItemBackgroundDurationContent.add(textChangingValue, 2, 1, 1, 1);
         MenuItem menuItemSetBackgroundDuration = new CustomMenuItem(gridPaneMenuItemBackgroundDurationContent);
         menuBackgroundImages.getItems().add(menuItemSetBackgroundDuration);
         
@@ -147,6 +151,8 @@ public class MenuBarInit {
         Menu menuStyles = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_STYLE_TEXT, menuStyles::setText);
         Icons.setCustom(Icon.STYLE, menuStyles::setGraphic);
+    
+        final String styleKey = "style";
         
         ToggleGroup toggleGroupStyle = new ToggleGroup();
         Styles currentStyle = Styles.getCurrentStyle();
@@ -158,7 +164,10 @@ public class MenuBarInit {
             if (style == currentStyle) {
                 menuItemStyle.setSelected(true);
             }
-            menuItemStyle.setOnAction(e -> Styles.setCurrentStyle(style));
+            menuItemStyle.setOnAction(e -> {
+                Styles.setCurrentStyle(style);
+                Props.set(styleKey, style.name());
+            });
             menuStyles.getItems().add(menuItemStyle);
         });
         

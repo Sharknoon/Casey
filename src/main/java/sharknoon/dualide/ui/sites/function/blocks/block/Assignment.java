@@ -15,13 +15,26 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.fields.ValueField;
+import sharknoon.dualide.ui.fields.VariableField;
+import sharknoon.dualide.ui.misc.Icon;
+import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  * Creates a Assignment block, which executes commands
@@ -29,45 +42,107 @@ import sharknoon.dualide.ui.sites.function.blocks.Block;
  * @author Josua Frank
  */
 public class Assignment extends Block<Rectangle> {
-
+    
     public Assignment(FunctionSite functionSite) {
         super(functionSite);
     }
-
+    
     public Assignment(FunctionSite functionSite, String id) {
         super(functionSite, id);
     }
-
+    
     @Override
     public double initShapeHeight() {
         return 100;
     }
-
+    
     @Override
     public double initShapeWidth() {
         return 200;
     }
-
+    
     @Override
     public Side[] initDotOutputSides() {
         return new Side[]{Side.BOTTOM};
     }
-
+    
     @Override
     public Side[] initDotInputSides() {
         return new Side[]{Side.TOP};
     }
-
+    
     @Override
     public Rectangle initBlockShape() {
         var rectangle = new Rectangle(getWidth(), getHeight());
         rectangle.setFill(Color.WHITE);
         return rectangle;
     }
-
+    
     @Override
-    public Pane initBody() {
-        return null;
+    public BlockContent initBlockContent() {
+        return new AssignmentBlockContent();
     }
-
+    
+    private static class AssignmentBlockContent extends BlockContent {
+        
+        VariableField variableField;
+        ValueField valueField;
+        
+        private AssignmentBlockContent() {
+            variableField = new VariableField();
+            var equals = Icons.get(Icon.EQUAL);
+            ObjectProperty<Type> variableType = new SimpleObjectProperty<>();
+            BindUtils.addListener(variableField.variableProperty(), (observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    variableType.set(Type.UNDEFINED);
+                    return;
+                }
+                BindUtils.addListener(((ValueReturnable<?>) newValue).returnTypeProperty(), (observable1, oldValue1, newValue1) -> {
+                    variableType.set(newValue1 == null ? Type.UNDEFINED : newValue1);
+                });
+            });
+            valueField = new ValueField(variableType);
+            
+            var gridPaneContent = new GridPane();
+            gridPaneContent.setVgap(5);
+            gridPaneContent.setAlignment(Pos.CENTER);
+            gridPaneContent.addRow(0, variableField, equals, valueField);
+            getChildren().add(gridPaneContent);
+        }
+        
+        
+        @Override
+        public ObservableList<Text> toText() {
+            ObservableList<Text> result = FXCollections.observableArrayList();
+            BindUtils.addListener(variableField.variableProperty(), (observable, oldValue, newValue) -> {
+                Text varName = new Text();
+                if (newValue != null) {
+                    varName.textProperty().bind(newValue.toItem().nameProperty());
+                } else {
+                    varName.textProperty().unbind();
+                    varName.setText("null");
+                }
+                if (result.size() > 0) {
+                    result.set(0, varName);
+                } else {
+                    result.add(varName);
+                }
+            });
+            result.add(new Text(" = "));
+            BindUtils.addListener(valueField.statementProperty(), (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    ObservableList<Text> text = newValue.getBody().toText();
+                    BindUtils.addListener(text, c -> {
+                        result.remove(2, result.size());
+                        result.addAll(text);
+                    });
+                } else {
+                    result.remove(2, result.size());
+                    result.add(new Text("null"));
+                }
+            });
+            return result;
+        }
+    }
+    
 }

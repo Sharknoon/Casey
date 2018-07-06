@@ -15,48 +15,52 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.beans.property.DoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Side;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
+import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
+import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  * @author Josua Frank
  */
 public class Call extends Block {
-
+    
     public Call(FunctionSite functionSite) {
         super(functionSite);
     }
-
+    
     public Call(FunctionSite functionSite, String id) {
         super(functionSite, id);
     }
-
+    
     @Override
     public double initShapeHeight() {
         return 100;
     }
-
+    
     @Override
     public double initShapeWidth() {
         return 200;
     }
-
+    
     @Override
     public Side[] initDotOutputSides() {
         return new Side[]{Side.BOTTOM};
     }
-
+    
     @Override
     public Side[] initDotInputSides() {
         return new Side[]{Side.TOP};
     }
-
+    
     @Override
     public Shape initBlockShape() {
         Rectangle rectangle = new Rectangle(getWidth(), getHeight());
@@ -65,10 +69,38 @@ public class Call extends Block {
         rectangle.arcWidthProperty().bind(rectangle.arcHeightProperty());
         return rectangle;
     }
-
+    
     @Override
-    public Pane initBody() {
-        return null;
+    public BlockContent initBlockContent() {
+        return new CallBlockContent();
     }
-
+    
+    private static class CallBlockContent extends BlockContent {
+        
+        ValueField valueField;
+        
+        private CallBlockContent() {
+            valueField = new ValueField();
+            getChildren().add(valueField);
+        }
+        
+        @Override
+        public ObservableList<Text> toText() {
+            ObservableList<Text> result = FXCollections.observableArrayList();
+            BindUtils.addListener(valueField.statementProperty(), (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    ObservableList<Text> text = newValue.getBody().toText();
+                    BindUtils.addListener(text, c -> {
+                        result.clear();
+                        result.addAll(text);
+                    });
+                } else {
+                    result.clear();
+                    result.add(new Text("null"));
+                }
+            });
+            return result;
+        }
+    }
+    
 }

@@ -79,6 +79,7 @@ public enum Icon {
     PLUSVARIABLE,
     PROJECT,
     RENAME,
+    RUN,
     SAVE,
     STYLE,
     TEXT,

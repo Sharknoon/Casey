@@ -121,7 +121,7 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
     public String toString() {
         return childs
                 .stream()
-                .map(Statement::toString)
+                .map(String::valueOf)
                 .collect(Collectors.joining(" -> "));
     }
     

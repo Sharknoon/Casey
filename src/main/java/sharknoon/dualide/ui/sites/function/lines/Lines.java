@@ -15,23 +15,15 @@
  */
 package sharknoon.dualide.ui.sites.function.lines;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.MapProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.Blocks;
 import sharknoon.dualide.ui.sites.function.dots.Dot;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  *
@@ -59,6 +51,10 @@ public class Lines {
 
     public static Line getDrawingLine(FunctionSite functionSite) {
         return CURRENT_DRAWING_LINE.get(functionSite);
+    }
+    
+    public static void unselectAll(FunctionSite functionSite) {
+        getAllLines(functionSite).forEach(Line::unselect);
     }
 
     public static Stream<Line> getAllLines(FunctionSite functionSite) {

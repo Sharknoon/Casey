@@ -1,6 +1,6 @@
 package sharknoon.dualide.utils.javafx;/*
 /**
- * Testing the AggregatedObservableArrayList
+ * Testing the AggregatedObservableList
  */
 
 import javafx.beans.Observable;
@@ -10,19 +10,20 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import sharknoon.dualide.utils.javafx.bindings.AggregatedObservableList;
 
 import java.util.Comparator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AggregatedObservableListTest {
     
     
     @Test
     public void testObservableValue() {
-        final AggregatedObservableArrayList<IntegerProperty> aggregatedWrapper = new AggregatedObservableArrayList<>();
-        final ObservableList<IntegerProperty> aggregatedList = aggregatedWrapper.getAggregatedList();
+        final AggregatedObservableList<IntegerProperty> aggregatedList = new AggregatedObservableList<>();
         aggregatedList.addListener((Observable observable) -> {
             System.out.println("observable = " + observable);
         });
@@ -39,56 +40,58 @@ public class AggregatedObservableListTest {
                 new SimpleIntegerProperty(140), new SimpleIntegerProperty(150));
         
         // adding list 1 to aggregate
-        aggregatedWrapper.appendList(list1);
-        assertEquals("wrong content", "[1,2,3,4,5]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.appendList(list1);
+        assertEquals("[1,2,3,4,5]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // removing elems from list1
         list1.remove(2, 4);
-        assertEquals("wrong content", "[1,2,5]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,2,5]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // adding second List
-        aggregatedWrapper.appendList(list2);
-        assertEquals("wrong content", "[1,2,5,10,11,12,13,14,15]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.appendList(list2);
+        assertEquals("[1,2,5,10,11,12,13,14,15]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // removing elems from second List
         list2.remove(1, 3);
-        assertEquals("wrong content", "[1,2,5,10,13,14,15]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,2,5,10,13,14,15]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // replacing element in first list
         list1.set(1, new SimpleIntegerProperty(3));
-        assertEquals("wrong content", "[1,3,5,10,13,14,15]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,3,5,10,13,14,15]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // adding third List
-        aggregatedWrapper.appendList(list3);
-        assertEquals("wrong content", "[1,3,5,10,13,14,15,100,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.appendList(list3);
+        assertEquals("[1,3,5,10,13,14,15,100,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // emptying second list
         list2.clear();
-        assertEquals("wrong content", "[1,3,5,100,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,3,5,100,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // adding new elements to second list
         list2.addAll(new SimpleIntegerProperty(203), new SimpleIntegerProperty(202), new SimpleIntegerProperty(201));
-        assertEquals("wrong content", "[1,3,5,203,202,201,100,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,3,5,203,202,201,100,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // sorting list2. this results in permutation
         list2.sort(Comparator.comparing(IntegerExpression::getValue));
-        assertEquals("wrong content", "[1,3,5,201,202,203,100,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,3,5,201,202,203,100,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // removing list2 completely
-        aggregatedWrapper.removeList(list2);
-        assertEquals("wrong content", "[1,3,5,100,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.removeList(list2);
+        assertEquals("[1,3,5,100,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // updating one integer value in list 3
         SimpleIntegerProperty integer = (SimpleIntegerProperty) list3.get(0);
         integer.set(1);
-        assertEquals("wrong content", "[1,3,5,1,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        assertEquals("[1,3,5,1,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         // prepending list 2 again
-        aggregatedWrapper.prependList(list2);
-        assertEquals("wrong content", "[201,202,203,1,3,5,1,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.prependList(list2);
+        assertEquals("[201,202,203,1,3,5,1,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
         
         //swapping the first two lists
-        aggregatedWrapper.swapLists(0, 1);
-        assertEquals("wrong content", "[1,3,5,201,202,203,1,110,120,130,140,150]", aggregatedWrapper.dump(ObservableIntegerValue::get));
+        aggregatedList.swapLists(0, 1);
+        assertEquals("[1,3,5,201,202,203,1,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
+    
+        assertThrows(UnsupportedOperationException.class, () -> aggregatedList.add(new SimpleIntegerProperty()));
     }
 }

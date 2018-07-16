@@ -14,59 +14,72 @@ package sharknoon.dualide.utils.javafx.bindings;/*
  * limitations under the License.
  */
 
+import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 
 import java.util.List;
 
-/**
- * Intended to subscribe to a listener, this change is a initial change representing an addition of all items of the list
- *
- * @param <E>
- */
-public class SingleFireListChange<E> extends Change<E> {
-    boolean firstChange = true;
+public class SourceAdapterChange<E> extends ListChangeListener.Change<E> {
+    private final Change<? extends E> change;
+    private int[] perm;
     
-    /**
-     * Constructs a new Change instance on the given list.
-     *
-     * @param list The list that was changed
-     */
-    public SingleFireListChange(ObservableList list) {
+    public SourceAdapterChange(ObservableList<E> list, Change<? extends E> change) {
         super(list);
+        this.change = change;
     }
     
     @Override
     public boolean next() {
-        if (firstChange) {
-            firstChange = false;
-            return true;
-        }
-        return false;
+        perm = null;
+        return change.next();
     }
     
     @Override
     public void reset() {
-    
+        change.reset();
     }
     
     @Override
     public int getFrom() {
-        return 0;
+        return change.getFrom();
     }
     
     @Override
     public int getTo() {
-        return getList().size();
+        return change.getTo();
     }
     
     @Override
     public List<E> getRemoved() {
-        return List.of();
+        return (List<E>) change.getRemoved();
+    }
+    
+    @Override
+    public boolean wasUpdated() {
+        return change.wasUpdated();
     }
     
     @Override
     protected int[] getPermutation() {
-        return new int[0];
+        if (perm == null) {
+            if (change.wasPermutated()) {
+                final int from = change.getFrom();
+                final int n = change.getTo() - from;
+                perm = new int[n];
+                for (int i = 0; i < n; i++) {
+                    perm[i] = change.getPermutation(from + i);
+                }
+            } else {
+                perm = new int[0];
+            }
+        }
+        return perm;
     }
+    
+    @Override
+    public String toString() {
+        return change.toString();
+    }
+    
 }

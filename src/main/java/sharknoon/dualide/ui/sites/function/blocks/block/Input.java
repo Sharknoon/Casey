@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.paint.Color;
@@ -25,7 +24,6 @@ import sharknoon.dualide.ui.fields.VariableField;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
-import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  *
@@ -89,16 +87,7 @@ public class Input extends Block<Polygon> {
         
         @Override
         public ObservableList<Text> toText() {
-            Text text = new Text();
-            BindUtils.addListener(variableField.variableProperty(), (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    text.textProperty().bind(newValue.toItem().nameProperty());
-                } else {
-                    text.textProperty().unbind();
-                    text.setText("null");
-                }
-            });
-            return FXCollections.observableArrayList(text);
+            return variableField.toText();
         }
     }
     

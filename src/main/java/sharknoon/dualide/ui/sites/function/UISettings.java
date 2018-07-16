@@ -72,6 +72,8 @@ public class UISettings {
     public static final double BLOCK_PREDICTION_SHADOW_STROKE_WIDTH = BLOCK_BORDER_STROKE_WIDTH;
     //The threshold in which to toggle between a describing text and the body itself
     public static final double BLOCK_ZOOMING_BODY_THRESHOLD = 5;
+    //The padding of the blockcontent (the statements)
+    public static final double BLOCK_CONTENT_PADDING = 20;
     //
     //***Dot***
     //

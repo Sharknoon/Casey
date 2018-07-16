@@ -32,6 +32,7 @@ import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.statements.values.ObjectValue;
+import sharknoon.dualide.logic.statements.values.PrimitiveValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.BooleanValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.NumberValue;
 import sharknoon.dualide.logic.statements.values.PrimitiveValue.TextValue;
@@ -148,7 +149,17 @@ public class ValueBody extends Body<Value> {
     @Override
     public ObservableList<Text> toText() {
         ObservableList<Text> text = FXCollections.observableArrayList();
-        Text par = new Text(String.valueOf(getStatement()));
+        Text par = new Text();
+        Value value = getStatement();
+        if (value.getReturnType().isPrimitive()) {
+            PrimitiveValue pv = (PrimitiveValue) value;
+            par.textProperty().bind(pv.valueProperty().asString());
+        } else if (value.getReturnType().isObject()) {
+            ObjectValue ov = (ObjectValue) value;
+            par.textProperty().bind(ov.returnTypeProperty().asString());
+        } else {
+            par.setText("ERROR");
+        }
         par.setFill(Color.LIGHTBLUE);
         text.add(par);
         return text;

@@ -39,8 +39,8 @@ public class WorkspaceSelection implements MouseConsumable {
     private final Rectangle selectionRectangle;
     private double startX;
     private double startY;
-    private boolean secondRun;
-    private boolean enabled;
+    private boolean firstRun = true;
+    private boolean isSelecting = false;
     
     public WorkspaceSelection(FunctionSite functionSite) {
         this.functionSite = functionSite;
@@ -49,12 +49,9 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMousePressed(MouseEvent event) {
-        if (!enabled) {
-            return;
-        }
-        if (!secondRun) {
+        if (firstRun) {
             this.functionSite.getLogicSite().addInFront(selectionRectangle);
-            secondRun = true;
+            firstRun = false;
         }
         if (event.getX() < 0 || event.getX() > UISettings.WORKSPACE_MAX_X
                 || event.getY() < 0 || event.getY() > UISettings.WORKSPACE_MAX_Y) {
@@ -67,13 +64,11 @@ public class WorkspaceSelection implements MouseConsumable {
         selectionRectangle.setTranslateX(startX);
         selectionRectangle.setTranslateY(startY);
         selectionRectangle.toFront();
+        isSelecting = true;
     }
     
     @Override
     public void onMouseDragged(MouseEvent event) {
-        if (!enabled) {
-            return;
-        }
         var currentX = event.getX();
         var currentY = event.getY();
         var width = currentX - startX;
@@ -143,9 +138,6 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMouseReleased(MouseEvent event) {
-        if (!enabled) {
-            return;
-        }
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
@@ -154,14 +146,10 @@ public class WorkspaceSelection implements MouseConsumable {
             Blocks.unselectAll(functionSite);
             Lines.getAllLines(functionSite).forEach(Line::unselect);
         }
+        isSelecting = false;
     }
     
-    public void disable() {
-        enabled = false;
+    public boolean isSelecting() {
+        return isSelecting;
     }
-    
-    public void enable() {
-        enabled = true;
-    }
-    
 }

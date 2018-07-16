@@ -15,10 +15,10 @@ package sharknoon.dualide.ui.sites.function.blocks;/*
  */
 
 import javafx.collections.ObservableList;
-import javafx.scene.Group;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
-public abstract class BlockContent extends Group {
+public abstract class BlockContent extends Pane {
     
     public abstract ObservableList<Text> toText();
     

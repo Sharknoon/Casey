@@ -15,7 +15,6 @@
  */
 package sharknoon.dualide.ui.sites.function.blocks.block;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.paint.Color;
@@ -26,7 +25,6 @@ import sharknoon.dualide.ui.fields.ValueField;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.ui.sites.function.blocks.Block;
 import sharknoon.dualide.ui.sites.function.blocks.BlockContent;
-import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  * This is a Decision block, similar like a if clausel
@@ -90,20 +88,7 @@ public class Decision extends Block<Polygon> {
         
         @Override
         public ObservableList<Text> toText() {
-            ObservableList<Text> result = FXCollections.observableArrayList();
-            BindUtils.addListener(valueField.statementProperty(), (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    ObservableList<Text> text = newValue.getBody().toText();
-                    BindUtils.addListener(text, c -> {
-                        result.clear();
-                        result.addAll(text);
-                    });
-                } else {
-                    result.clear();
-                    result.add(new Text("null"));
-                }
-            });
-            return result;
+            return valueField.toText();
         }
         
     }

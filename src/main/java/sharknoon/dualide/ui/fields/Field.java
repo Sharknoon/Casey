@@ -14,5 +14,10 @@ package sharknoon.dualide.ui.fields;/*
  * limitations under the License.
  */
 
-public class CallField {
+import javafx.collections.ObservableList;
+import javafx.scene.text.Text;
+
+public interface Field {
+    
+    ObservableList<Text> toText();
 }

@@ -26,6 +26,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.fxmisc.easybind.EasyBind;
+import sharknoon.dualide.utils.javafx.bindings.AggregatedObservableList;
 import sharknoon.dualide.utils.javafx.bindings.SingleFireListChange;
 
 import java.util.function.Function;
@@ -44,7 +45,7 @@ public class BindUtils {
     }
     
     public static <T> ObservableList<T> concatFromList(ObservableList<ObservableList<T>> lists) {
-        AggregatedObservableArrayList<T> result = new AggregatedObservableArrayList<>();
+        AggregatedObservableList<T> result = new AggregatedObservableList<>();
         lists.addListener((ListChangeListener<ObservableList<T>>) c -> {
             while (c.next()) {
                 if (c.wasPermutated()) {
@@ -71,7 +72,7 @@ public class BindUtils {
         for (ObservableList<T> list : lists) {
             result.appendList(list);
         }
-        return result.getAggregatedList();
+        return result;
     }
     
     /**
@@ -82,11 +83,11 @@ public class BindUtils {
      * @return
      */
     public static <T> ObservableList<T> concatAll(ObservableList<? extends T>... lists) {
-        AggregatedObservableArrayList<T> result = new AggregatedObservableArrayList<>();
+        AggregatedObservableList<T> result = new AggregatedObservableList<>();
         for (ObservableList<? extends T> list : lists) {
             result.appendList((ObservableList<T>) list);
         }
-        return result.getAggregatedList();
+        return result;
     }
     
     public static <T> void addListener(ObservableValue<T> observable, ChangeListener<? super T> changeListener) {

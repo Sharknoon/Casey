@@ -44,25 +44,24 @@ public class FunctionSiteLogic implements MouseConsumable {
     private final FunctionSite functionSite;
     
     private final AnchorPane root = new AnchorPane();
-    private final WorkspaceSelection ws;
-    private final BlockMoving bm;
-    private final WorkspaceMoving wm;
-    private final WorkspaceZooming wz;
-    private final WorkspaceContextMenu wc;
-    private final LineDrawing ld;
+    private final WorkspaceSelection workspaceSelection;
+    private final BlockMoving blockMoving;
+    private final WorkspaceMoving workspaceMoving;
+    private final WorkspaceZooming workspaceZooming;
+    private final WorkspaceContextMenu workspaceContextMenu;
+    private final LineDrawing lineDrawing;
     private boolean initialized = false;
     private boolean startBlockAlreadyAdded = false;
+    private Rectangle workspaceBackground;
     
     public FunctionSiteLogic(FunctionSite functionSite) {
         this.functionSite = functionSite;
-        this.ws = new WorkspaceSelection(functionSite);
-        this.bm = new BlockMoving(functionSite);
-        this.wm = new WorkspaceMoving(functionSite);
-        this.wz = new WorkspaceZooming(functionSite);
-        this.wc = new WorkspaceContextMenu(functionSite);
-        this.ld = new LineDrawing(functionSite);
-    
-        MouseConsumable.registerListeners(root, this);
+        this.workspaceSelection = new WorkspaceSelection(functionSite);
+        this.blockMoving = new BlockMoving(functionSite);
+        this.workspaceMoving = new WorkspaceMoving(functionSite);
+        this.workspaceZooming = new WorkspaceZooming(functionSite);
+        this.workspaceContextMenu = new WorkspaceContextMenu(functionSite);
+        this.lineDrawing = new LineDrawing(functionSite);
     }
     
     public void addInFront(Node node) {
@@ -83,64 +82,69 @@ public class FunctionSiteLogic implements MouseConsumable {
     
     @Override
     public void onMousePressed(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)) {
-            if (event.isPrimaryButtonDown()) {
-                ws.onMousePressed(event);
-            } else if (event.isMiddleButtonDown()) {
-                wm.onMousePressed(event);
+        if (event.getTarget() == workspaceBackground) {
+            if (event.isMiddleButtonDown()) {
+                workspaceMoving.onMousePressed(event);
+            } else if (event.isPrimaryButtonDown()) {
+                workspaceSelection.onMousePressed(event);
+                Blocks.unselectAll(functionSite);
+                Lines.unselectAll(functionSite);
             }
-        } else if (Blocks.isMouseOverBlock(functionSite)) {
+        } else {
             if (event.isPrimaryButtonDown()) {
-                bm.onMousePressed(event);
+                blockMoving.onMousePressed(event);
             }
         }
-        wc.onMousePressed(event);
+        workspaceContextMenu.onMousePressed(event);
     }
     
     @Override
     public void onMouseDragged(MouseEvent event) {
-        if (!BlockMoving.isDragging(functionSite)) {
+        if (workspaceSelection.isSelecting()) {
             if (event.isPrimaryButtonDown()) {
-                ws.onMouseDragged(event);
-            } else if (event.isMiddleButtonDown()) {
-                wm.onMouseDragged(event);
+                workspaceSelection.onMouseDragged(event);
+            }
+        } else if (event.getTarget() == workspaceBackground) {
+            if (event.isMiddleButtonDown()) {
+                workspaceMoving.onMouseDragged(event);
             }
         } else {
             if (event.isPrimaryButtonDown()) {
-                bm.onMouseDragged(event);
+                blockMoving.onMouseDragged(event);
             }
         }
     }
     
     @Override
     public void onMouseReleased(MouseEvent event) {
-        if (!Blocks.isMouseOverBlock(functionSite)) {
-            ws.onMouseReleased(event);
-    
+        if (workspaceSelection.isSelecting()) {
+            workspaceSelection.onMouseReleased(event);
         } else {
-            bm.onMouseReleased(event);
+            blockMoving.onMouseReleased(event);
         }
     }
     
     @Override
     public void onContextMenuRequested(ContextMenuEvent event) {
-        wc.onContextMenuRequested(event);
+        if (event.getTarget() == workspaceBackground) {
+            workspaceContextMenu.onContextMenuRequested(event);
+        }
     }
     
     @Override
     public void onMouseMoved(MouseEvent event) {
         if (Lines.isLineDrawing(functionSite)) {
-            ld.onMouseMoved(event);
+            lineDrawing.onMouseMoved(event);
         }
     }
     
     @Override
     public void onScroll(ScrollEvent event) {
-        wz.onScroll(event);
+        workspaceZooming.onScroll(event);
     }
     
     public void onZoom(ZoomEvent event) {
-        wz.onZoom(event);
+        workspaceZooming.onZoom(event);
     }
     
     private void init() {
@@ -149,6 +153,7 @@ public class FunctionSiteLogic implements MouseConsumable {
         if (!startBlockAlreadyAdded) {
             addBlock(BlockType.START, new Point2D(-1, -1));
         }
+        MouseConsumable.registerListeners(root, this);
         initialized = true;
     }
     
@@ -226,11 +231,11 @@ public class FunctionSiteLogic implements MouseConsumable {
     }
     
     private void drawLineAroundWorkspace() {
-        Rectangle rectangleBackground = new Rectangle();
-        rectangleBackground.getStyleClass().add(StyleClasses.rectangleWorkspace.name());
-        rectangleBackground.setWidth(UISettings.WORKSPACE_MAX_X);
-        rectangleBackground.setHeight(UISettings.WORKSPACE_MAX_Y);
-        root.getChildren().add(0, rectangleBackground);
+        workspaceBackground = new Rectangle();
+        workspaceBackground.getStyleClass().add(StyleClasses.rectangleWorkspace.name());
+        workspaceBackground.setWidth(UISettings.WORKSPACE_MAX_X);
+        workspaceBackground.setHeight(UISettings.WORKSPACE_MAX_Y);
+        root.getChildren().add(0, workspaceBackground);
     }
     
     Pane getTabContentPane() {
@@ -240,27 +245,27 @@ public class FunctionSiteLogic implements MouseConsumable {
         return root;
     }
     
-    public WorkspaceSelection getWs() {
-        return ws;
+    public WorkspaceSelection getWorkspaceSelection() {
+        return workspaceSelection;
     }
     
-    public BlockMoving getBm() {
-        return bm;
+    public BlockMoving getBlockMoving() {
+        return blockMoving;
     }
     
-    public WorkspaceMoving getWm() {
-        return wm;
+    public WorkspaceMoving getWorkspaceMoving() {
+        return workspaceMoving;
     }
     
-    public WorkspaceZooming getWz() {
-        return wz;
+    public WorkspaceZooming getWorkspaceZooming() {
+        return workspaceZooming;
     }
     
-    public WorkspaceContextMenu getWc() {
-        return wc;
+    public WorkspaceContextMenu getWorkspaceContextMenu() {
+        return workspaceContextMenu;
     }
     
-    public LineDrawing getLd() {
-        return ld;
+    public LineDrawing getLineDrawing() {
+        return lineDrawing;
     }
 }

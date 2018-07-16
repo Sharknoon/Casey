@@ -29,7 +29,16 @@ import static java.util.Collections.unmodifiableSet;
  * @author frank
  */
 public class Collections {
-
+    
+    public static <E> void set(List<E> list, int index, E toAdd) {
+        if (list.size() > index && index >= 0) {
+            list.set(index, toAdd);
+        } else if (list.size() == index) {
+            list.add(toAdd);
+        }
+    }
+    
+    
     /**
      * Makes a List to a unmodifiable List, which prohibites any changes.
      * Otherwise the {@link java.util.Collections#unmodifiableList(List)} method, this

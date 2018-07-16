@@ -16,18 +16,23 @@ package sharknoon.dualide.ui.fields;/*
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.ValueHoldable;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.browsers.VariablePopUp;
 import sharknoon.dualide.ui.misc.Icons;
+import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
 
 import java.util.Optional;
 
-public class VariableField extends Button {
+public class VariableField extends Button implements Field {
     private ObjectProperty<ValueHoldable> variable = new SimpleObjectProperty<>();
+    private ObservableList<Text> texts;
     
     public VariableField() {
         this(Type.UNDEFINED);
@@ -59,5 +64,20 @@ public class VariableField extends Button {
         return variable;
     }
     
+    @Override
+    public ObservableList<Text> toText() {
+        ObservableList<Text> result = FXCollections.observableArrayList();
+        BindUtils.addListener(variableProperty(), (observable, oldValue, newValue) -> {
+            Text varName = new Text();
+            if (newValue != null) {
+                varName.textProperty().bind(newValue.toItem().nameProperty());
+            } else {
+                varName.textProperty().unbind();
+                varName.setText("null");
+            }
+            result.setAll(varName);
+        });
+        return result;
+    }
 }
 

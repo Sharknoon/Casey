@@ -1,7 +1,6 @@
-package sharknoon.dualide.utils.javafx;
+package sharknoon.dualide.utils.javafx.bindings;
 
 
-import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -14,6 +13,7 @@ import java.util.function.Function;
 /**
  * This class aggregates several other Observed Lists (sublists), observes changes on those sublists and applies those same changes to the
  * aggregated list.
+ * This class is <b>immutable</b>!
  * Inspired by:
  * - http://stackoverflow.com/questions/25705847/listchangelistener-waspermutated-block
  * - http://stackoverflow.com/questions/37524662/how-to-concatenate-observable-lists-in-javafx
@@ -22,24 +22,27 @@ import java.util.function.Function;
  *
  * @param <T>
  */
-public class AggregatedObservableArrayList<T> {
+public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<T> {
     
-    final List<ObservableList<T>> lists = new ArrayList<>();
-    final ReadOnlyListWrapper<T> aggregatedList = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    //final ReadOnlyListWrapper<T> aggregatedList;
+    private final List<ObservableList<T>> lists = new ArrayList<>();
     private final List<Integer> sizes = new ArrayList<>();
     private final List<InternalListModificationListener> listeners = new ArrayList<>();
     
-    public AggregatedObservableArrayList() {
-    
+    /**
+     * Creates a new AggregatedObservableList based on a ArrayList
+     */
+    public AggregatedObservableList() {
+        this(new ArrayList<>());
     }
     
     /**
-     * The Aggregated Observable List. This list is unmodifiable, because sorting this list would mess up the entire bookkeeping we do here.
+     * Creates a new AggregatedList based on a List
      *
-     * @return an unmodifiable view of the aggregatedList
+     * @param backingList The backing List for this AggregatedList
      */
-    public ObservableList<T> getAggregatedList() {
-        return aggregatedList.getReadOnlyProperty();
+    public AggregatedObservableList(@NotNull List<T> backingList) {
+        super(FXCollections.observableList(backingList));
     }
     
     /**
@@ -57,7 +60,7 @@ public class AggregatedObservableArrayList<T> {
         //System.out.println("list = " + list + " puttingInMap=" + list.hashCode());
         sizes.add(index, list.size());
         int startIndex = getInsertionIndex(index);
-        aggregatedList.addAll(startIndex, list);
+        getBackingList().addAll(startIndex, list);
         listeners.add(index, listener);
         assert lists.size() == sizes.size() && lists.size() == listeners.size() :
                 "lists.size=" + lists.size() + " not equal to sizes.size=" + sizes.size() + " or not equal to listeners.size=" + listeners.size();
@@ -100,7 +103,7 @@ public class AggregatedObservableArrayList<T> {
         sizes.remove(index);
         final InternalListModificationListener listener = listeners.remove(index);
         list.removeListener(listener);
-        aggregatedList.remove(startIndex, endIndex + 1); // end + 1 because end is exclusive
+        getBackingList().remove(startIndex, endIndex + 1); // end + 1 because end is exclusive
         assert lists.size() == sizes.size() && lists.size() == listeners.size() :
                 "lists.size=" + lists.size() + " not equal to sizes.size=" + sizes.size() + " or not equal to listeners.size=" + listeners.size();
     }
@@ -187,7 +190,7 @@ public class AggregatedObservableArrayList<T> {
     public String dump(Function<T, Object> function) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        aggregatedList.forEach(el -> sb.append(function.apply(el)).append(","));
+        getBackingList().forEach(el -> sb.append(function.apply(el)).append(","));
         final int length = sb.length();
         sb.replace(length - 1, length, "");
         sb.append("]");
@@ -221,15 +224,15 @@ public class AggregatedObservableArrayList<T> {
                 final int to = change.getTo();
                 //System.out.println(" startIndex=" + startIndex + " from=" + from + " to=" + to);
                 if (change.wasPermutated()) {
-                    final ArrayList<T> copy = new ArrayList<>(aggregatedList.subList(startIndex + from, startIndex + to));
+                    final ArrayList<T> copy = new ArrayList<>(getBackingList().subList(startIndex + from, startIndex + to));
                     //System.out.println("  permutating sublist=" + copy);
                     for (int oldIndex = from; oldIndex < to; oldIndex++) {
                         int newIndex = change.getPermutation(oldIndex);
-                        copy.set(newIndex - from, aggregatedList.get(startIndex + oldIndex));
+                        copy.set(newIndex - from, getBackingList().get(startIndex + oldIndex));
                     }
                     //System.out.println("  permutating done sublist=" + copy);
-                    aggregatedList.subList(startIndex + from, startIndex + to).clear();
-                    aggregatedList.addAll(startIndex + from, copy);
+                    getBackingList().subList(startIndex + from, startIndex + to).clear();
+                    getBackingList().addAll(startIndex + from, copy);
                 } else if (change.wasUpdated()) {
                     // do nothing
                 } else {
@@ -237,13 +240,13 @@ public class AggregatedObservableArrayList<T> {
                         List<? extends T> removed = change.getRemoved();
                         //System.out.println("  removed= " + removed);
                         // IMPORTANT! FROM == TO when removing items.
-                        aggregatedList.remove(startIndex + from, startIndex + from + removed.size());
+                        getBackingList().remove(startIndex + from, startIndex + from + removed.size());
                     }
                     if (change.wasAdded()) {
                         List<? extends T> added = change.getAddedSubList();
                         //System.out.println("  added= " + added);
                         //add those elements to your data
-                        aggregatedList.addAll(startIndex + from, added);
+                        getBackingList().addAll(startIndex + from, added);
                     }
                 }
             }

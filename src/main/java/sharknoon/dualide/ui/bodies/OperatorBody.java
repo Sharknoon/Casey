@@ -143,37 +143,40 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
     
     @Override
     public ObservableList<Text> toText() {
-        ObservableList<Text> text = FXCollections.observableArrayList();
-        List<Statement<PrimitiveType, Type, Type>> childs = getStatement().getChilds();
+        ObservableList<ObservableList<Text>> text = FXCollections.observableArrayList();
+        ObservableList<Statement<PrimitiveType, Type, Type>> childs = getStatement().getChilds();
         Text bracketOpen = new Text("(");
         Text bracketClose = new Text(")");
         Color random = FXUtils.getRandomDifferentColor();
         bracketOpen.setFill(random);
         bracketClose.setFill(random);
-        text.add(bracketOpen);
+        text.add(FXCollections.observableArrayList(bracketOpen));
         if (childs.size() > 1) {//infix
-            childs.forEach((child) -> {
-                List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
-                text.addAll(par);
-                Text op = new Text(
-                        getStatement().getOperatorType().toString()
-                );
-                text.add(op);
+            BindUtils.addListener(childs, c -> {
+                text.remove(1, text.size() - 1);
+                childs.forEach((child) -> {
+                    ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+                    text.add(par);
+                    Text op = new Text(
+                            getStatement().getOperatorType().toString()
+                    );
+                    text.add(FXCollections.observableArrayList(op));
+                });
+                if (childs.size() > 0) {
+                    text.remove(text.size() - 1);
+                }
             });
-            if (childs.size() > 0) {
-                text.remove(text.size() - 1);
-            }
         } else {//op text
             Text op = new Text(
                     getStatement().getOperatorType().toString()
             );
-            text.add(op);
+            text.add(FXCollections.observableArrayList(op));
             Statement<PrimitiveType, Type, Type> child = childs.size() > 0 ? childs.get(0) : null;
-            List<Text> par = child != null ? child.getBody().toText() : List.of(new Text(String.valueOf((Object) null)));
-            text.addAll(par);
+            ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+            text.add(par);
         }
-        text.add(bracketClose);
-        return text;
+        text.add(FXCollections.observableArrayList(bracketClose));
+        return BindUtils.concatFromList(text);
     }
     
     private ObservableList<Body> statementsToBody(Operator<?, ?> o) {

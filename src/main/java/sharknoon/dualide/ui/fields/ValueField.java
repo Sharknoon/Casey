@@ -15,23 +15,29 @@
  */
 package sharknoon.dualide.ui.fields;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.ValuePlaceholderBody;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 /**
  * @author Josua Frank
  */
-public class ValueField extends Pane {
+public class ValueField extends Pane implements Field {
     
     public static ValueField DISABLED = new ValueField(true);
     
     private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> statement = new ReadOnlyObjectWrapper<>();
+    private ObservableList<Text> texts;
     
     public ValueField() {
         this(Type.UNDEFINED);
@@ -66,5 +72,24 @@ public class ValueField extends Pane {
     
     public ReadOnlyObjectProperty<Statement<Type, Type, Type>> statementProperty() {
         return statement.getReadOnlyProperty();
+    }
+    
+    @Override
+    public ObservableList<Text> toText() {
+        ObservableList<Text> result = FXCollections.observableArrayList();
+        BindUtils.addListener(statementProperty(), (observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                texts = newValue.getBody().toText();
+                Bindings.bindContent(result, texts);
+            } else {
+                if (texts != null) {
+                    Bindings.unbindContent(result, texts);
+                    texts = null;
+                }
+                result.clear();
+                result.add(new Text("null"));
+            }
+        });
+        return result;
     }
 }

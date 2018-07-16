@@ -113,35 +113,10 @@ public class Assignment extends Block<Rectangle> {
         
         @Override
         public ObservableList<Text> toText() {
-            ObservableList<Text> result = FXCollections.observableArrayList();
-            BindUtils.addListener(variableField.variableProperty(), (observable, oldValue, newValue) -> {
-                Text varName = new Text();
-                if (newValue != null) {
-                    varName.textProperty().bind(newValue.toItem().nameProperty());
-                } else {
-                    varName.textProperty().unbind();
-                    varName.setText("null");
-                }
-                if (result.size() > 0) {
-                    result.set(0, varName);
-                } else {
-                    result.add(varName);
-                }
-            });
-            result.add(new Text(" = "));
-            BindUtils.addListener(valueField.statementProperty(), (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    ObservableList<Text> text = newValue.getBody().toText();
-                    BindUtils.addListener(text, c -> {
-                        result.remove(2, result.size());
-                        result.addAll(text);
-                    });
-                } else {
-                    result.remove(2, result.size());
-                    result.add(new Text("null"));
-                }
-            });
-            return result;
+            ObservableList<Text> varTexts = variableField.toText();
+            ObservableList<Text> eqalsTexts = FXCollections.observableArrayList(new Text(" = "));
+            ObservableList<Text> valueTexts = valueField.toText();
+            return BindUtils.concatAll(varTexts, eqalsTexts, valueTexts);
         }
     }
     

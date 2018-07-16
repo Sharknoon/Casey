@@ -24,6 +24,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
@@ -34,12 +35,12 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import sharknoon.dualide.ui.misc.MouseConsumable;
@@ -104,14 +105,15 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         shape.setStrokeWidth(UISettings.BLOCK_BORDER_STROKE_WIDTH);
         shape.setStrokeType(StrokeType.CENTERED);
     }
+    
     //The root pane for this block
     private final AnchorPane root = new AnchorPane();
     //An id for the Block to uniquely identify them, needed for derialisation
     private final String id;
     //The height of the block
-    private final double shapeHeight;
+    private final DoubleBinding shapeHeight;
     //The width of the block
-    private final double shapeWidth;
+    private final DoubleBinding shapeWidth;
     //The sides, of where there are output dots
     private final Side[] dotOutputSides;
     //The sides, of where there are input dots
@@ -120,8 +122,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     private final S blockShape;
     //The content of the block
     private final BlockContent blockContent;
-    //The pane for the blockcontent to be centered
-    private final BorderPane blockContentPane;
     //The contentPlaceholder of the block
     private final ObservableList<Text> blockText;
     //The Text of the statement in the block
@@ -156,16 +156,16 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     public Block(FunctionSite functionSite, String id) {
         this.functionSite = functionSite;
         this.id = id == null ? UUID.randomUUID().toString() : id;
-        shapeHeight = initShapeHeight();
-        shapeWidth = initShapeWidth();
+        shapeHeight = Bindings.createDoubleBinding(this::initShapeHeight);
+        shapeWidth = Bindings.createDoubleBinding(this::initShapeWidth);
         dotOutputSides = initDotOutputSides();
         dotInputSides = initDotInputSides();
         blockShape = initBlockShape();
         blockContent = initBlockContent();
-        blockContentPane = initBlockContentPane();
+        initBlockContentPane(blockContent);
         blockText = blockContent.toText();
         blockTextFlow = initTextFlow();
-        root.getChildren().addAll(blockShape, blockTextFlow, blockContentPane);
+        root.getChildren().addAll(blockShape, blockTextFlow, blockContent);
         dots = initDots(this, dotOutputSides, dotInputSides);
         dots.keySet().forEach(d -> root.getChildren().add(d.getShape()));
         hoverBinding = initHoverListeners(blockShape, dots.keySet());
@@ -175,7 +175,7 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         MouseConsumable.registerListeners(blockTextFlow, this);
         setStrokeProperties(blockShape);
         addDropShadowEffect(blockShape);
-        functionSite.getLogicSite().getWz().zoomFactorProperty().addListener((observable, oldValue, newValue) -> {
+        functionSite.getLogicSite().getWorkspaceZooming().zoomFactorProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.doubleValue() > UISettings.BLOCK_ZOOMING_BODY_THRESHOLD) {
                 showContentBody();
             } else {
@@ -186,17 +186,18 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         Blocks.registerBlock(functionSite, this);
     }
     
-    private BorderPane initBlockContentPane() {
-        BorderPane bp = new BorderPane();
-        blockContent.setVisible(false);
-        blockContent.setScaleX(0.4);
-        blockContent.setScaleY(0.4);
-        bp.setCenter(blockContent);
-        bp.prefWidthProperty().bind(widthExpression());
-        bp.maxWidthProperty().bind(widthExpression());
-        bp.prefHeightProperty().bind(heightExpression());
-        bp.maxHeightProperty().bind(heightExpression());
-        return bp;
+    private void initBlockContentPane(Pane contentPane) {
+        DoubleBinding contentPaneScale = Bindings.min(
+                0.4,
+                widthExpression()
+                        .subtract(UISettings.BLOCK_CONTENT_PADDING)
+                        .divide(contentPane.widthProperty())
+        );
+        contentPane.setVisible(false);
+        contentPane.scaleXProperty().bind(contentPaneScale);
+        contentPane.scaleYProperty().bind(contentPaneScale);
+        contentPane.translateXProperty().bind(widthExpression().divide(2).subtract(contentPane.widthProperty().divide(2)));
+        contentPane.translateYProperty().bind(heightExpression().divide(2).subtract(contentPane.heightProperty().divide(2)));
     }
     
     /**
@@ -242,8 +243,10 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     private TextFlow initTextFlow() {
         TextFlow result = new TextFlow();
         Bindings.bindContent(result.getChildren(), blockText);
-        result.translateXProperty().bind(widthExpression().divide(2).subtract(result.widthProperty().divide(2)));
         result.translateYProperty().bind(heightExpression().divide(2).subtract(result.heightProperty().divide(2)));
+        result.prefWidthProperty().bind(widthExpression());
+        result.maxWidthProperty().bind(widthExpression());
+        result.setTextAlignment(TextAlignment.CENTER);
         return result;
     }
     
@@ -384,22 +387,22 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
     
     @Override
     public double getWidth() {
-        return shapeWidth;
+        return widthExpression().get();
     }
     
     @Override
     public DoubleExpression widthExpression() {
-        return Bindings.createDoubleBinding(() -> shapeWidth);
+        return shapeWidth;
     }
     
     @Override
     public double getHeight() {
-        return shapeHeight;
+        return heightExpression().get();
     }
     
     @Override
     public DoubleExpression heightExpression() {
-        return Bindings.createDoubleBinding(() -> shapeHeight);
+        return shapeHeight;
     }
     
     @Override
@@ -606,7 +609,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         showsPlaceholder = false;
         blockContent.setVisible(true);
         blockTextFlow.setVisible(false);
-        functionSite.getLogicSite().getWs().disable();
     }
     
     private void showContentText() {
@@ -616,7 +618,6 @@ public abstract class Block<S extends Shape> implements Moveable, MouseConsumabl
         showsPlaceholder = true;
         blockContent.setVisible(false);
         blockTextFlow.setVisible(true);
-        functionSite.getLogicSite().getWs().enable();
     }
     
     @Override

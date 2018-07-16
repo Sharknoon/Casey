@@ -331,8 +331,8 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                         shape.setStroke(Color.GREY);
                     }
                     if (b instanceof CallItemBody) {
-                        shape.setStroke(Color.rgb(0, 0, 0, 0.3));
-                        shape.setFill(Color.rgb(0, 0, 0, 0.3));
+                        shape.setStroke(Color.TRANSPARENT);
+                        shape.setFill(Color.TRANSPARENT);
                     }
                 } else {
                     //No type allowed, but a type is necessary

@@ -42,9 +42,9 @@ import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.styles.StyleClasses;
+import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -194,8 +194,8 @@ public class CallItemBody extends Body<CallItem<?>> {
                 leftShape,
                 rightType
         );
-        ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
-        return ov;
+        //ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
+        return padding;
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> leftType, ObjectExpression<Type> rightType) {
@@ -224,26 +224,27 @@ public class CallItemBody extends Body<CallItem<?>> {
         CallItem<?> callItem = getStatement();
         
         Item<?, ?, ?> item = callItem.getItem();
-        ObservableList<Text> result = FXCollections.observableArrayList();
+        ObservableList<ObservableList<Text>> result = FXCollections.observableArrayList();
         
         Text textName = new Text();
         textName.textProperty().bind(item.nameProperty());
         textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
-        result.add(textName);
+        result.add(FXCollections.observableArrayList(textName));
         
         ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
         BindUtils.addListener(childs, c -> {
             if (item.getType() == ItemType.FUNCTION) {
+                result.remove(1, result.size());
                 Text textOpenBracket = new Text("(");
                 textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                result.add(textOpenBracket);
-                childs.forEach(parameter -> result.addAll(parameter != null ? parameter.getBody().toText() : List.of(new Text("null"))));
+                result.add(FXCollections.observableArrayList(textOpenBracket));
+                childs.forEach(parameter -> Collections.set(result, 2, parameter != null ? parameter.getBody().toText() : FXCollections.observableArrayList(new Text("null"))));
                 Text textCloseBracket = new Text(")");
                 textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                result.add(textCloseBracket);
+                result.add(FXCollections.observableArrayList(textCloseBracket));
             }
         });
-        
-        return result;
+    
+        return BindUtils.concatFromList(result);
     }
 }

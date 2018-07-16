@@ -114,22 +114,27 @@ public class CallBody extends Body<Call<?>> {
     
     @Override
     public ObservableList<Text> toText() {
-        ObservableList<Text> text = FXCollections.observableArrayList();
-        getStatement().getChilds().forEach(statement -> {
-            if (statement == null) {
-                return;
-            }
-            CallItem<?> callItem = ((CallItem) statement);
-        
-            text.addAll(callItem.getBody().toText());
-        
-            if (!callItem.equals(getStatement().lastChildProperty().getValue())) {
-                Text textArrow = new Text(" -> ");
-                textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
-                text.add(textArrow);
+        ObservableList<ObservableList<Text>> texts = FXCollections.observableArrayList();
+        ObservableList<Statement<Type, Type, Type>> childs = getStatement().getChilds();
+        BindUtils.addListener(childs, c -> {
+            texts.clear();
+            for (int i = 0; i < childs.size(); i++) {
+                Statement<Type, Type, Type> statement = childs.get(i);
+                if (statement == null) {
+                    texts.add(FXCollections.observableArrayList(new Text("null")));
+                    return;
+                }
+                CallItem<?> callItem = ((CallItem) statement);
+                ObservableList<Text> callItemTexts = callItem.getBody().toText();
+                texts.add(callItemTexts);
+                if (i < childs.size() - 1) {
+                    Text textArrow = new Text(" -> ");
+                    textArrow.getStyleClass().add(StyleClasses.textStatementCallItemArrow.name());
+                    texts.add(FXCollections.observableArrayList(textArrow));
+                }
             }
         });
-        return text;
+        return BindUtils.concatFromList(texts);
     }
     
     private ObservableList<Node> getNodes(Call<?> o) {

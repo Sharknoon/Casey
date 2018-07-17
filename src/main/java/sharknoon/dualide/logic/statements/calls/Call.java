@@ -139,7 +139,7 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
         
         String type = "CALL";
         List<JsonNode> calls = getChilds().stream()
-                .map(Statement::getAdditionalProperties)
+                .map(s -> s != null ? s.getAdditionalProperties() : null)
                 .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
                 .collect(Collectors.toList());
         

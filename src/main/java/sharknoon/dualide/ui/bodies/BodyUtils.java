@@ -49,7 +49,7 @@ public class BodyUtils {
         } else if (type instanceof UndefinedType) {
             return 5;
         }
-        return -1;
+        return 0;
     }
     
     public static DoubleBinding calculateBodyHeightMultiplierForHorizontalPadding(ObservableValue<Type> parent, ObservableValue<Type> child) {

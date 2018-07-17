@@ -115,7 +115,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             });
             b.getStatement().ifPresent(s -> {
                 var statement = new ObjectNode(JsonNodeFactory.instance);
-                //TODO
+                statement.setAll(s.getAdditionalProperties());
                 content.set(BLOCK_STATEMENT, statement);
             });
             block.set(BLOCK_CONTENT, content);

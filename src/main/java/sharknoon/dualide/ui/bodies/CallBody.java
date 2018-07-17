@@ -207,7 +207,7 @@ public class CallBody extends Body<Call<?>> {
         }
         ObservableValue<Type> firstChildReturnTypeProperty = BindUtils.map(call.firstChildProperty(), p -> p != null ? p.returnTypeProperty().get() : Type.UNDEFINED);
         SimpleObjectProperty<Type> lastChildReturnTypeProperty = new SimpleObjectProperty<>();
-        call.lastChildProperty().addListener((observable, oldValue, newValue) -> {
+        BindUtils.addListener(call.lastChildProperty(), (observable, oldValue, newValue) -> {
             if (newValue != null) {
                 lastChildReturnTypeProperty.bind(newValue.returnTypeProperty());
             } else {

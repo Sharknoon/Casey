@@ -56,6 +56,7 @@ public class OutputFrame extends Frame<Polygon> {
     @Override
     protected Pane initFrameContent(Block block) {
         valueField = new ValueField();
+        valueField.statementProperty().bindBidirectional(block.statementProperty());
         return new Pane(valueField);
     }
     

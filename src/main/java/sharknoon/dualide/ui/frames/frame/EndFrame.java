@@ -56,6 +56,7 @@ public class EndFrame extends Frame<Rectangle> {
     protected Pane initFrameContent(Block block) {
         ObjectProperty<Type> returnType = block.getFunction().returnTypeProperty();
         valueField = new ValueField(returnType);
+        valueField.statementProperty().bindBidirectional(block.statementProperty());
         return new Pane(valueField);
     }
     

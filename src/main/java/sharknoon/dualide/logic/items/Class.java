@@ -152,7 +152,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             
             @Override
             public StringProperty fullNameProperty() {
-                return new SimpleStringProperty("OBJECTTYPE");
+                return new SimpleStringProperty("OBJECT");
             }
             
             @Override

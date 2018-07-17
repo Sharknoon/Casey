@@ -278,7 +278,7 @@ public abstract class Operator<T extends PrimitiveType, CT extends Type> extends
         
         String type = getOperatorType().name();
         List<JsonNode> parameter = getChilds().stream()
-                .map(Statement::getAdditionalProperties)
+                .map(s -> s != null ? s.getAdditionalProperties() : null)
                 .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
                 .collect(Collectors.toList());
         

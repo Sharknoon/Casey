@@ -26,9 +26,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
-import sharknoon.dualide.logic.blocks.Block;
 import sharknoon.dualide.logic.blocks.BlockType;
-import sharknoon.dualide.logic.blocks.Start;
+import sharknoon.dualide.logic.blocks.Blocks;
 import sharknoon.dualide.ui.MainController;
 import sharknoon.dualide.ui.UISettings;
 import sharknoon.dualide.ui.frames.Frame;
@@ -154,8 +153,7 @@ public class FunctionSiteLogic implements MouseConsumable {
         drawLineAroundWorkspace();
         centerWorkspaceView();
         if (!startBlockAlreadyAdded) {
-            Block b = new Start(functionSite.getItem());
-            functionSite.getItem().blocksProperty().add(b);
+            Blocks.createBlock(BlockType.START, functionSite.getItem());
         }
         MouseConsumable.registerListeners(root, this);
         initialized = true;

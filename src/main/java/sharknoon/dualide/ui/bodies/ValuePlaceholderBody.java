@@ -22,6 +22,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.browsers.ValuePopUpBuilder;
 import sharknoon.dualide.ui.misc.Icon;
@@ -71,6 +72,8 @@ public class ValuePlaceholderBody extends Body {
         setOnMouseExited((event) -> {
             setContent();
         });
+    
+        visibleProperty().bind(type.isNotEqualTo(PrimitiveType.VOID));
     }
     
     public ValuePlaceholderBody(Type type, Statement parent, Consumer<Statement> statementConsumer) {

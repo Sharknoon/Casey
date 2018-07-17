@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import sharknoon.dualide.logic.statements.Statement;
+import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.ValuePlaceholderBody;
 import sharknoon.dualide.utils.javafx.BindUtils;
@@ -36,6 +37,7 @@ public class ValueField extends Pane implements Field {
     public static ValueField DISABLED = new ValueField(true);
     
     private final ObjectProperty<Statement<Type, Type, Type>> statement = new SimpleObjectProperty<>();
+    ObjectExpression<Type> allowedType;
     private ObservableList<Text> texts;
     
     public ValueField() {
@@ -55,6 +57,7 @@ public class ValueField extends Pane implements Field {
     }
     
     public ValueField(ObjectExpression<Type> allowedType, Statement<Type, Type, Type> statement) {
+        this.allowedType = allowedType;
         ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, null);
         
         statementProperty().addListener((observable, oldValue, s) -> {
@@ -102,7 +105,9 @@ public class ValueField extends Pane implements Field {
                     texts = null;
                 }
                 result.clear();
-                result.add(new Text("null"));
+                Text nullText = new Text("null");
+                nullText.visibleProperty().bind(allowedType.isNotEqualTo(PrimitiveType.VOID));
+                result.add(nullText);
             }
         });
         return result;

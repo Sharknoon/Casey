@@ -133,7 +133,7 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
         
         String type = getItem().getFullName();
         List<JsonNode> parameter = getChilds().stream()
-                .map(Statement::getAdditionalProperties)
+                .map(s -> s != null ? s.getAdditionalProperties() : null)
                 .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
                 .collect(Collectors.toList());
         

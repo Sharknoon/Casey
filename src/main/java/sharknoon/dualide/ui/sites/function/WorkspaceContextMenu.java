@@ -21,7 +21,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
-import sharknoon.dualide.logic.blocks.Block;
 import sharknoon.dualide.logic.blocks.BlockType;
 import sharknoon.dualide.logic.blocks.Blocks;
 import sharknoon.dualide.ui.UISettings;
@@ -29,6 +28,7 @@ import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.utils.language.Language;
 
 import java.util.EnumSet;
+import java.util.UUID;
 
 /**
  * @author Josua Frank
@@ -85,8 +85,7 @@ public class WorkspaceContextMenu implements MouseConsumable {
                     menuItemAddNewBlock.setId(blockType.name());
                     Language.setCustom(blockType.getContextMenuAddBlockWord(), menuItemAddNewBlock::setText);
                     menuItemAddNewBlock.setOnAction(e -> {
-                        Block block = Blocks.createBlock(blockType, functionSite.getItem());
-                        functionSite.getItem().blocksProperty().add(block);
+                        Blocks.createBlock(blockType, functionSite.getItem(), UUID.randomUUID().toString(), workspaceOrigin);
                     });
                     menu.getItems().add(menuItemAddNewBlock);
                 });

@@ -44,6 +44,7 @@ import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.styles.StyleClasses;
 import sharknoon.dualide.utils.javafx.BindUtils;
 import sharknoon.dualide.utils.javafx.bindings.AggregatedObservableList;
+import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -175,6 +176,7 @@ public class CallItemBody extends Body<CallItem<?>> {
     }
     
     private ObservableValue<Insets> bindPadding(CallItem<?> callItem) {
+    
         ObjectExpression<Type> rightType;
         if (callItem.getItem().getType() == ItemType.VARIABLE) {
             rightType = new SimpleObjectProperty<>(PrimitiveType.TEXT);
@@ -184,7 +186,7 @@ public class CallItemBody extends Body<CallItem<?>> {
         
         ReadOnlyObjectProperty<Statement<Type, Type, Type>> parent = callItem.parentProperty();
         ObjectProperty<Type> parentReturnType = new SimpleObjectProperty<>();
-        parent.addListener((observable, oldValue, newValue) -> {
+        BindUtils.addListener(parent, (observable, oldValue, newValue) -> {
             parentReturnType.bind(newValue.returnTypeProperty());
         });
         
@@ -199,6 +201,7 @@ public class CallItemBody extends Body<CallItem<?>> {
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> leftType, ObjectExpression<Type> rightType) {
+        Logger.debug("GETTING PADDING FOR parent:" + parent.get() + ", left:" + leftType.get() + ", right:" + rightType.get());
         DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftType, height);
         DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, rightType, height);
         return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding);

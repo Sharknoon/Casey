@@ -15,6 +15,7 @@
  */
 package sharknoon.dualide.logic.statements;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -29,6 +30,7 @@ import sharknoon.dualide.ui.bodies.Body;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The statement is the base class for values, operators, ...
@@ -114,5 +116,12 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     
     @Override
     public abstract String toString();
+    
+    public abstract Map<String, JsonNode> getAdditionalProperties();
+    
+    //to be overridden
+    public void setAdditionalProperties(Map<String, JsonNode> properties) {
+    
+    }
     
 }

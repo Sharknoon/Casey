@@ -64,13 +64,13 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     private static final ObservableList<Node> currentExtendButton = FXCollections.observableArrayList();
     private static final ObservableList<Node> currentReduceButton = FXCollections.observableArrayList();
     
-    public static Body createBody(Statement statement) {
+    public static Body createBody(Statement<? extends Type, ? extends Type, ? extends Type> statement) {
         if (statement instanceof Operator) {
             return new OperatorBody((Operator) statement);
         } else if (statement instanceof Value) {
             return new ValueBody((Value) statement);
         } else if (statement instanceof Call) {
-            return new CallBody((Call) statement);
+            return new CallBody((Call<?>) statement);
         } else if (statement instanceof CallItem) {
             return new CallItemBody((CallItem) statement);
         }
@@ -132,32 +132,20 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     private Node reduceIcon;
     
     Body(S statement) {
-        super();
-        this.statement = statement;
-        this.backgroundShape = typeToShapeBinding(statement.returnTypeProperty());
-        init();
-        getChildren().addAll(backgroundShape.get(), contentPane);
-        backgroundShape.addListener((observable, oldValue, newValue) -> {
-            getChildren().remove(oldValue);
-            getChildren().add(0, newValue);
-        });
+        this(statement.returnTypeProperty(), statement);
     }
     
     Body(Type type) {
-        super();
-        this.statement = null;
-        this.backgroundShape = typeToShapeBinding(Bindings.createObjectBinding(() -> type));
-        init();
-        getChildren().addAll(backgroundShape.get(), contentPane);
-        backgroundShape.addListener((observable, oldValue, newValue) -> {
-            getChildren().remove(oldValue);
-            getChildren().add(0, newValue);
-        });
+        this(Bindings.createObjectBinding(() -> type), null);
     }
     
     Body(ObjectExpression<Type> type) {
+        this(type, null);
+    }
+    
+    private Body(ObjectExpression<Type> type, S statement) {
         super();
-        this.statement = null;
+        this.statement = statement;
         this.backgroundShape = typeToShapeBinding(type);
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
@@ -169,6 +157,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     
     private void init() {
         contentPane.setMinSize(57, 57);
+        setPickOnBounds(false);
         initCloseButton();
         initPlusButton();
         initMinusButton();
@@ -248,7 +237,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     }
     
     private ObjectBinding<Shape> typeToShapeBinding(ObservableObjectValue<Type> type) {
-        Body b = this;
+        Body<? extends Statement> b = this;
         return new ObjectBinding<>() {
             
             {

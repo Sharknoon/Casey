@@ -17,8 +17,7 @@ package sharknoon.dualide.ui.fields;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,7 +35,7 @@ public class ValueField extends Pane implements Field {
     
     public static ValueField DISABLED = new ValueField(true);
     
-    private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> statement = new ReadOnlyObjectWrapper<>();
+    private final ObjectProperty<Statement<Type, Type, Type>> statement = new SimpleObjectProperty<>();
     private ObservableList<Text> texts;
     
     public ValueField() {
@@ -44,20 +43,36 @@ public class ValueField extends Pane implements Field {
     }
     
     public ValueField(Type allowedType) {
-        this(new SimpleObjectProperty<>(allowedType));
+        this(new SimpleObjectProperty<>(allowedType), null);
+    }
+    
+    public ValueField(Statement<Type, Type, Type> statement) {
+        this(new SimpleObjectProperty<>(Type.UNDEFINED), statement);
     }
     
     public ValueField(ObjectExpression<Type> allowedType) {
+        this(allowedType, null);
+    }
+    
+    public ValueField(ObjectExpression<Type> allowedType, Statement<Type, Type, Type> statement) {
         ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, null);
         
-        body.setStatementConsumer(s -> {
+        statementProperty().addListener((observable, oldValue, s) -> {
+            if (s == null) {
+                getChildren().set(0, body);
+                return;
+            }
             getChildren().set(0, s.getBody());
             s.getBody().setOnBodyDestroyed(() -> {
                 getChildren().set(0, body);
-                statement.set(null);
+                this.statement.set(null);
             });
-            statement.set(s);
         });
+        body.setStatementConsumer(this.statement::set);
+        
+        if (statement != null) {
+            statementProperty().set(statement);
+        }
         
         getChildren().add(body);
     }
@@ -70,8 +85,8 @@ public class ValueField extends Pane implements Field {
         return statement.get();
     }
     
-    public ReadOnlyObjectProperty<Statement<Type, Type, Type>> statementProperty() {
-        return statement.getReadOnlyProperty();
+    public ObjectProperty<Statement<Type, Type, Type>> statementProperty() {
+        return statement;
     }
     
     @Override

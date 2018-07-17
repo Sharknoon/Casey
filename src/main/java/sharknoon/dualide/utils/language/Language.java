@@ -15,20 +15,14 @@
  */
 package sharknoon.dualide.utils.language;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
 import javafx.scene.control.Labeled;
-import javafx.scene.control.Tooltip;
 import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.language.lanugages.English;
 import sharknoon.dualide.utils.language.lanugages.German;
 import sharknoon.dualide.utils.settings.Props;
+
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  *
@@ -171,7 +165,7 @@ public abstract class Language {
      * }
      * </pre> In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
-     * the Standard field.setValue(...) you can use the
+     * the Standard field.setVariable(...) you can use the
      * {@link #set(Word, Component)} for that).<br>
      * You set the translated string as placeholder for your textfield as
      * example.
@@ -192,7 +186,7 @@ public abstract class Language {
      *
      * In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
-     * the Standard field.setValue(...) you can use the
+     * the Standard field.setVariable(...) you can use the
      * {@link #set(Word, Component)} for that).<br>
      * You set the modified string as placeholder for your textfield as example.
      *
@@ -222,7 +216,7 @@ public abstract class Language {
      * }
      * </pre> In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you dont want to
-     * modify the word AND just want to use the Standard field.setValue(...) you
+     * modify the word AND just want to use the Standard field.setVariable(...) you
      * can use the {@link #set(Word, Component)} for that).<br>
      * You do this by modifying the string s by appending the local date as
      * example.<br>
@@ -278,14 +272,14 @@ public abstract class Language {
 
     @FunctionalInterface
     public interface StringModifier {
-
-        public String modifyString(String translatedWord);
+    
+        String modifyString(String translatedWord);
     }
 
     @FunctionalInterface
     public interface ValueSetter {
-
-        public void setValue(String value);
+    
+        void setValue(String value);
     }
 
     private static class Custom {

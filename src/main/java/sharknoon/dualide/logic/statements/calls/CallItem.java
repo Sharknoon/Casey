@@ -14,6 +14,9 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -27,7 +30,13 @@ import sharknoon.dualide.logic.items.Parameter;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.utils.javafx.BindUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extends Statement<Type, Type, Type> {
     
@@ -113,5 +122,24 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
     @Override
     public ReadOnlyObjectProperty<Type> returnTypeProperty() {
         return item.returnTypeProperty();
+    }
+    
+    private static final String typeKey = "type";
+    private static final String parameterKey = "parameter";
+    
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = new HashMap<>();
+        
+        String type = getItem().getFullName();
+        List<JsonNode> parameter = getChilds().stream()
+                .map(Statement::getAdditionalProperties)
+                .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
+                .collect(Collectors.toList());
+        
+        map.put(typeKey, TextNode.valueOf(type));
+        map.put(parameterKey, Serialisation.MAPPER.convertValue(parameter, ArrayNode.class));
+        
+        return map;
     }
 }

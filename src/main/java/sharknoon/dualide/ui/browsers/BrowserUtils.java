@@ -33,9 +33,7 @@ import sharknoon.dualide.logic.items.Class;
 import sharknoon.dualide.logic.items.*;
 import sharknoon.dualide.logic.items.Package;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.statements.calls.FunctionCall;
-import sharknoon.dualide.logic.statements.calls.ParameterCall;
-import sharknoon.dualide.logic.statements.calls.VariableCall;
+import sharknoon.dualide.logic.statements.calls.Call;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.sites.Site;
@@ -74,15 +72,7 @@ public class BrowserUtils {
      * @return
      */
     public static VBox getStatementSelector(Type allowedType, Consumer<Statement> statementConsumer, Statement parent, Collection<ItemType> allowedItems) {
-        Consumer<Item> itemConsumer = i -> {
-            if (i.getType() == ItemType.FUNCTION) {
-                statementConsumer.accept(new FunctionCall(parent, (Function) i, allowedType));
-            } else if (i.getType() == ItemType.VARIABLE) {
-                statementConsumer.accept(new VariableCall(parent, (Variable) i, allowedType));
-            } else if (i.getType() == ItemType.PARAMETER) {
-                statementConsumer.accept(new ParameterCall(parent, (Parameter) i, allowedType));
-            }
-        };
+        Consumer<Item> itemConsumer = i -> statementConsumer.accept(new Call(parent, i, allowedType));
         return getItemSelector(allowedType, itemConsumer, allowedItems);
     }
     

@@ -15,20 +15,19 @@
  */
 package sharknoon.dualide.utils.settings;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import javafx.scene.input.KeyEvent;
-import sharknoon.dualide.logic.items.Item;
+import sharknoon.dualide.logic.blocks.Block;
+import sharknoon.dualide.logic.blocks.BlockType;
 import sharknoon.dualide.logic.items.ItemType;
-import sharknoon.dualide.ui.navigation.ItemTabPane;
 import sharknoon.dualide.ui.MainApplication;
+import sharknoon.dualide.ui.frames.Frame;
+import sharknoon.dualide.ui.frames.Frames;
+import sharknoon.dualide.ui.lines.Line;
+import sharknoon.dualide.ui.lines.Lines;
 import sharknoon.dualide.ui.sites.Site;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.ui.sites.function.blocks.Block;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.blocks.block.Start;
-import sharknoon.dualide.ui.sites.function.lines.Line;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
+
+import java.util.stream.Collectors;
 
 /**
  *
@@ -58,12 +57,13 @@ public class Keyboard {
         if (currentItem != null) {
             if (currentItem.getType().equals(ItemType.FUNCTION)) {
                 var functionSite = (FunctionSite) currentItem.getSite();
-                var blocksToDelete = Blocks
-                        .getAllBlocks(functionSite)
-                        .filter(Block::isSelected)
-                        .filter(b -> b.getClass() != Start.class)
+                var framesToDelete = Frames
+                        .getAllFrames(functionSite)
+                        .filter(Frame::isSelected)
+                        .map(Frame::getBlock)
+                        .filter(f -> f.getType() != BlockType.START)
                         .collect(Collectors.toList());
-                blocksToDelete.forEach(Block::remove);
+                framesToDelete.forEach(Block::remove);
                 var linesToDelete = Lines.getAllLines(functionSite)
                         .filter(Line::isSelected)
                         .collect(Collectors.toList());

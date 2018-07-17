@@ -44,6 +44,7 @@ public abstract class Value<T extends Type> extends Statement<Type, T, Type> {
         return value instanceof BooleanValue ? (BooleanValue) value : new BooleanValue(null);
     }
     
+    //returnType
     private final T type;
     
     public Value(T type, Statement parent) {

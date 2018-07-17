@@ -31,6 +31,7 @@ public class AggregatedObservableListTest {
         final ObservableList<IntegerProperty> list1 = FXCollections.observableArrayList();
         final ObservableList<IntegerProperty> list2 = FXCollections.observableArrayList();
         final ObservableList<IntegerProperty> list3 = FXCollections.observableArrayList();
+        final ObservableList<IntegerProperty> list4 = FXCollections.observableArrayList();
         
         list1.addAll(new SimpleIntegerProperty(1), new SimpleIntegerProperty(2), new SimpleIntegerProperty(3), new SimpleIntegerProperty(4),
                 new SimpleIntegerProperty(5));
@@ -38,6 +39,8 @@ public class AggregatedObservableListTest {
                 new SimpleIntegerProperty(14), new SimpleIntegerProperty(15));
         list3.addAll(new SimpleIntegerProperty(100), new SimpleIntegerProperty(110), new SimpleIntegerProperty(120), new SimpleIntegerProperty(130),
                 new SimpleIntegerProperty(140), new SimpleIntegerProperty(150));
+        list4.addAll(new SimpleIntegerProperty(200), new SimpleIntegerProperty(210), new SimpleIntegerProperty(220), new SimpleIntegerProperty(230),
+                new SimpleIntegerProperty(240), new SimpleIntegerProperty(250));
         
         // adding list 1 to aggregate
         aggregatedList.appendList(list1);
@@ -92,6 +95,11 @@ public class AggregatedObservableListTest {
         aggregatedList.swapLists(0, 1);
         assertEquals("[1,3,5,201,202,203,1,110,120,130,140,150]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
     
-        assertThrows(UnsupportedOperationException.class, () -> aggregatedList.add(new SimpleIntegerProperty()));
+        assertThrows(UnsupportedOperationException.class, () -> aggregatedList.add(new SimpleIntegerProperty()), "Modifying should not be allowed!");
+    
+        AggregatedObservableList<IntegerProperty> anotherAggregatedList = new AggregatedObservableList<>();
+        anotherAggregatedList.appendList(list4);
+        aggregatedList.mergeWith(anotherAggregatedList);
+        assertEquals("[1,3,5,201,202,203,1,110,120,130,140,150,200,210,220,230,240,250]", aggregatedList.dump(ObservableIntegerValue::get), "wrong content");
     }
 }

@@ -42,8 +42,8 @@ import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icons;
 import sharknoon.dualide.ui.styles.StyleClasses;
-import sharknoon.dualide.utils.collection.Collections;
 import sharknoon.dualide.utils.javafx.BindUtils;
+import sharknoon.dualide.utils.javafx.bindings.AggregatedObservableList;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -238,7 +238,18 @@ public class CallItemBody extends Body<CallItem<?>> {
                 Text textOpenBracket = new Text("(");
                 textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
                 result.add(FXCollections.observableArrayList(textOpenBracket));
-                childs.forEach(parameter -> Collections.set(result, 2, parameter != null ? parameter.getBody().toText() : FXCollections.observableArrayList(new Text("null"))));
+    
+                AggregatedObservableList<Text> aggTexts2 = childs.stream()
+                        .map(p -> p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null")))
+                        .collect(AggregatedObservableList::new, AggregatedObservableList::appendList, AggregatedObservableList::mergeWith);
+    
+                AggregatedObservableList<Text> aggTexts = new AggregatedObservableList<>();
+                for (Statement<Type, Type, Type> p : childs) {
+                    ObservableList<Text> texts = p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+                    aggTexts.appendList(texts);
+                }
+                result.add(aggTexts2);
+                
                 Text textCloseBracket = new Text(")");
                 textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
                 result.add(FXCollections.observableArrayList(textCloseBracket));

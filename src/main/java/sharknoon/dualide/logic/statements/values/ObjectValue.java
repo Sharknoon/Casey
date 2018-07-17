@@ -15,15 +15,22 @@
  */
 package sharknoon.dualide.logic.statements.values;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import sharknoon.dualide.logic.items.Class.ObjectType;
 import sharknoon.dualide.logic.statements.Statement;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Josua Frank
  */
 public class ObjectValue extends Value<ObjectType> {
+    
+    private static final String typeKey = "type";
+    private static final String valueKey = "value";
     
     public static ObjectValue createObject(ObjectType type, Statement parent) {
         return new ObjectValue(type, parent);
@@ -34,6 +41,19 @@ public class ObjectValue extends Value<ObjectType> {
         if (parentProperty().get() != null && (parentProperty().get() instanceof Value)) {
             parentProperty().get().childsProperty().add(this);
         }
+    }
+    
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = new HashMap<>();
+        
+        String type = ObjectType.GENERAL.fullNameProperty().get();
+        String value = getReturnType().fullNameProperty().get();
+        
+        map.put(typeKey, TextNode.valueOf(type));
+        map.put(valueKey, TextNode.valueOf(value));
+        
+        return map;
     }
     
     @Override

@@ -17,27 +17,20 @@ package sharknoon.dualide.serial;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.items.ItemType;
 import sharknoon.dualide.logic.items.Project;
-import sharknoon.dualide.ui.dialogs.Dialogs;
 import sharknoon.dualide.utils.settings.Logger;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 
 /**
  *
@@ -49,8 +42,8 @@ public class Serialisation {
     private static final String COMMENTS = "comments";
     private static final String ITEM = "item";
     private static final String CHILDREN = "children";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    
+    public static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final Map<Item, Map<String, JsonNode>> ADDITIONAL_NODES = new HashMap<>();
 

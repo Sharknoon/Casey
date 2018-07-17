@@ -24,7 +24,6 @@ import java.util.function.Function;
  */
 public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<T> {
     
-    //final ReadOnlyListWrapper<T> aggregatedList;
     private final List<ObservableList<T>> lists = new ArrayList<>();
     private final List<Integer> sizes = new ArrayList<>();
     private final List<InternalListModificationListener> listeners = new ArrayList<>();
@@ -130,6 +129,17 @@ public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<
         } else {
             addList(firstList, lastIndex);
             addList(lastList, firstIndex);
+        }
+    }
+    
+    /**
+     * Merges this aggregatedList with another aggregated list by appending other to this list
+     *
+     * @param other The other aggregated list, to be merged with
+     */
+    public void mergeWith(AggregatedObservableList<T> other) {
+        for (ObservableList<T> list : other.lists) {
+            appendList(list);
         }
     }
     

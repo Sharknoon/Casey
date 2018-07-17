@@ -25,7 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import sharknoon.dualide.misc.Exitable;
 import sharknoon.dualide.ui.MainApplication;
-import sharknoon.dualide.ui.sites.function.UISettings;
+import sharknoon.dualide.ui.UISettings;
 import sharknoon.dualide.utils.settings.Logger;
 import sharknoon.dualide.utils.settings.Resources;
 

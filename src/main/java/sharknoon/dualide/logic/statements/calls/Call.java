@@ -14,6 +14,9 @@ package sharknoon.dualide.logic.statements.calls;/*
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
@@ -28,14 +31,19 @@ import sharknoon.dualide.logic.items.Item;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.statements.values.Value;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.utils.javafx.BindUtils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<Type, Type, Type> {
     
     private static final ObjectBinding<Type> UNDEFINED = Bindings.createObjectBinding(() -> Type.UNDEFINED);
-    
+    private static final String typeKey = "type";
+    private static final String callsKey = "calls";
     private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> firstChild = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Statement<Type, Type, Type>> lastChild = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Type> returnType = new ReadOnlyObjectWrapper<>();
@@ -114,7 +122,7 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
     
     @Override
     public Value<Type> calculateResult() {
-        return getReturnType().createEmptyValue(null);
+        return getReturnType().createEmptyValue(parentProperty().get());
     }
     
     @Override
@@ -125,8 +133,23 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
                 .collect(Collectors.joining(" -> "));
     }
     
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = new HashMap<>();
+        
+        String type = "CALL";
+        List<JsonNode> calls = getChilds().stream()
+                .map(Statement::getAdditionalProperties)
+                .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
+                .collect(Collectors.toList());
+        
+        map.put(typeKey, TextNode.valueOf(type));
+        map.put(callsKey, Serialisation.MAPPER.convertValue(calls, ArrayNode.class));
+        
+        return map;
+    }
+    
     public Type getExpectedReturnType() {
         return expectedReturnType;
     }
-    
 }

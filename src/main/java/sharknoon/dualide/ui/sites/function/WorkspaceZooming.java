@@ -20,10 +20,10 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Node;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
+import sharknoon.dualide.ui.UISettings;
 import sharknoon.dualide.ui.misc.MouseConsumable;
 import sharknoon.dualide.ui.misc.ZoomConsumable;
 

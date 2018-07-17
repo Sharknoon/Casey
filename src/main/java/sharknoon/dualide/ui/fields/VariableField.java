@@ -31,18 +31,21 @@ import sharknoon.dualide.utils.language.Word;
 import java.util.Optional;
 
 public class VariableField extends Button implements Field {
-    private ObjectProperty<ValueHoldable> variable = new SimpleObjectProperty<>();
-    private ObservableList<Text> texts;
+    private ObjectProperty<ValueHoldable<Type>> variable = new SimpleObjectProperty<>();
     
     public VariableField() {
-        this(Type.UNDEFINED);
+        this(Type.UNDEFINED, null);
     }
     
-    public VariableField(Type allowedTypes) {
+    public VariableField(ValueHoldable<Type> variable) {
+        this(Type.UNDEFINED, variable);
+    }
+    
+    public VariableField(Type allowedTypes, ValueHoldable<Type> variable) {
         Language.set(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, this);
         
         setOnAction((event) -> {
-            VariablePopUp.showVariableSelectionPopUp(this, variable::set, allowedTypes);
+            VariablePopUp.showVariableSelectionPopUp(this, this.variable::set, allowedTypes);
         });
         
         variableProperty().addListener((o, old, v) -> {
@@ -50,17 +53,21 @@ public class VariableField extends Button implements Field {
             textProperty().bind(v.toItem().nameProperty());
             graphicProperty().bind(Icons.iconToNodeProperty(v.toItem().getSite().tabIconProperty()));
         });
+        
+        if (variable != null) {
+            this.variable.set(variable);
+        }
     }
     
-    public Optional<ValueHoldable> getVariable() {
+    public Optional<ValueHoldable<Type>> getVariable() {
         return Optional.ofNullable(variableProperty().get());
     }
     
-    public void setVariable(ValueHoldable variable) {
+    public void setVariable(ValueHoldable<Type> variable) {
         variableProperty().set(variable);
     }
     
-    public ObjectProperty<ValueHoldable> variableProperty() {
+    public ObjectProperty<ValueHoldable<Type>> variableProperty() {
         return variable;
     }
     

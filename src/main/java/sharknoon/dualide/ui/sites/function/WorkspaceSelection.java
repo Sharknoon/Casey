@@ -17,10 +17,10 @@ package sharknoon.dualide.ui.sites.function;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
+import sharknoon.dualide.ui.UISettings;
+import sharknoon.dualide.ui.frames.Frames;
+import sharknoon.dualide.ui.lines.Lines;
 import sharknoon.dualide.ui.misc.MouseConsumable;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.lines.Line;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.ui.styles.StyleClasses;
 
 /**
@@ -112,8 +112,8 @@ public class WorkspaceSelection implements MouseConsumable {
         
         final var finalWidth = width;
         final var finalHight = hight;
-        
-        Blocks.getAllBlocks(functionSite).forEach(b -> {
+    
+        Frames.getAllFrames(functionSite).forEach(b -> {
             if (b.getMinX() > translateX
                     && b.getMinY() > translateY
                     && b.getMinX() + b.getWidth() < translateX + finalWidth
@@ -141,11 +141,6 @@ public class WorkspaceSelection implements MouseConsumable {
         selectionRectangle.setVisible(false);
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        if (!Blocks.isMouseOverBlock(functionSite) && !Lines.isMouseOverLine(functionSite)
-                && event.isStillSincePress()) {
-            Blocks.unselectAll(functionSite);
-            Lines.getAllLines(functionSite).forEach(Line::unselect);
-        }
         isSelecting = false;
     }
     

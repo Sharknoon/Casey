@@ -15,6 +15,8 @@
  */
 package sharknoon.dualide.logic.statements.values;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import sharknoon.dualide.logic.statements.Statement;
@@ -23,7 +25,10 @@ import sharknoon.dualide.logic.types.PrimitiveType.BooleanType;
 import sharknoon.dualide.logic.types.PrimitiveType.NumberType;
 import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
+import sharknoon.dualide.utils.jackson.JacksonUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -32,7 +37,10 @@ import java.util.Objects;
  * @param <T>
  */
 public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T> {
-
+    
+    private static final String typeKey = "type";
+    private static final String valueKey = "value";
+    
     public PrimitiveValue(T type, Statement parent) {
         super(type, parent);
     }
@@ -45,7 +53,20 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
     public abstract O getValue();
 
     public abstract ObjectProperty<O> valueProperty();
-
+    
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = new HashMap<>();
+        
+        String type = getReturnType().fullNameProperty().get();
+        JsonNode value = JacksonUtils.toNode(getValue());
+        
+        map.put(typeKey, new TextNode(type));
+        map.put(valueKey, value);
+        
+        return map;
+    }
+    
     public static NumberValue createNewNumberValue(Double value, Statement parent) {
         return new NumberValue(value, parent);
     }

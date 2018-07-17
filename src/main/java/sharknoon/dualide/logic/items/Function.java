@@ -23,17 +23,18 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.blocks.Block;
+import sharknoon.dualide.logic.blocks.BlockType;
+import sharknoon.dualide.logic.blocks.Blocks;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.ui.lines.Lines;
 import sharknoon.dualide.ui.sites.function.FunctionSite;
-import sharknoon.dualide.ui.sites.function.blocks.Block;
-import sharknoon.dualide.ui.sites.function.blocks.BlockType;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
@@ -55,12 +56,16 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     private static final String BLOCK_Y = "blockY";
     private static final String BLOCK_TYPE = "blocktype";
     private static final String BLOCK_CONNECTIONS = "blockconnections";
+    private static final String BLOCK_CONTENT = "blockcontent";
+    private static final String BLOCK_STATEMENT = "statement";
+    private static final String BLOCK_VARIABLE = "variable";
     
     static ObservableMap<Type, List<Function>> getAllReturnTypes() {
         return ALL_RETURN_TYPES;
     }
     
     private final ObjectProperty<Type> returnType = new SimpleObjectProperty<>(PrimitiveType.VOID);
+    private final ObservableList<Block> blocks = FXCollections.observableArrayList();
     
     protected Function(Item<? extends Item, ? extends Item, Function> parent, String name) {
         superInit(parent, name);
@@ -84,29 +89,37 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
         map.put(RETURNTYPE, TextNode.valueOf(typeString));
         
         var blocksNode = new ArrayNode(JsonNodeFactory.instance);
-        Blocks.getAllBlocks((FunctionSite) getSite()).forEach(b -> {
+        blocks.forEach(b -> {
             var block = new ObjectNode(JsonNodeFactory.instance);
+            //General block stuff
             block.put(BLOCK_ID, b.getId());
-            block.put(BLOCK_X, b.getMinX());
-            block.put(BLOCK_Y, b.getMinY());
+            block.put(BLOCK_X, b.getFrame().getMinX());
+            block.put(BLOCK_Y, b.getFrame().getMinY());
             block.put(BLOCK_TYPE, b.getClass().getSimpleName().toUpperCase());
-    
-            var dots = new ObjectNode(JsonNodeFactory.instance);
-            b.getOutputDots().forEach(d -> {
-                var lines = new ObjectNode(JsonNodeFactory.instance);
-                d.getLines().forEach(l -> {
-                    var inputDot = l.getInputDot();
-                    if (inputDot != null) {//Is the case when during the creation of a line the window is being closed
-                        var side = inputDot.getSide();
-                        var endblock = inputDot.getBlock();
-                        lines.put(endblock.getId(), side.name());
-                    }
+        
+            //Connections to other blocks
+            var blockConnections = new ObjectNode(JsonNodeFactory.instance);
+            b.getConnections().forEach((originSide, destinations) -> {
+                var destinationConnections = new ObjectNode(JsonNodeFactory.instance);
+                destinations.forEach((d, destSide) -> {
+                    destinationConnections.put(d.getId(), destSide.name());
                 });
-                if (lines.size() > 0) {
-                    dots.set(d.getSide().name(), lines);
-                }
+                blockConnections.set(originSide.name(), destinationConnections);
             });
-            block.set(BLOCK_CONNECTIONS, dots);
+            block.set(BLOCK_CONNECTIONS, blockConnections);
+        
+            //Blockcontent
+            var content = new ObjectNode(JsonNodeFactory.instance);
+            b.getVariable().ifPresent(vh -> {
+                content.put(BLOCK_VARIABLE, vh.toItem().getFullName());
+            });
+            b.getStatement().ifPresent(s -> {
+                var statement = new ObjectNode(JsonNodeFactory.instance);
+                //TODO
+                content.set(BLOCK_STATEMENT, statement);
+            });
+            block.set(BLOCK_CONTENT, content);
+            
             blocksNode.add(block);
         });
         map.put(BLOCKS, blocksNode);
@@ -116,7 +129,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
-        final Map<String, Block<?>> blockIDs = new HashMap<>();
+        final Map<String, Block> blockIDs = new HashMap<>();
         //<blockid<side<id,side>>
         final Map<String, Map<Side, Map<String, Side>>> blockConections = new HashMap<>();
         properties.forEach((key, value) -> {
@@ -135,13 +148,9 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                         var type = blockNode.get(BLOCK_TYPE).asText("");
                         var connections = (ObjectNode) blockNode.get(BLOCK_CONNECTIONS);
     
-                        var fs = (FunctionSite) getSite();
-                        var block = fs.getLogicSite().addBlock(
-                                BlockType.forName(type),
-                                new Point2D(x, y),
-                                id
-                        );
+                        var block = Blocks.createBlock(BlockType.forName(type), this, id, new Point2D(x, y));
                         blockIDs.put(id, block);
+    
                         connections.fields().forEachRemaining(e -> {
                             var side = e.getKey();
                             var lines = (ObjectNode) e.getValue();
@@ -171,10 +180,11 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                 try {
                     blockIDs
                             .get(originBlockId)
+                            .getFrame()
                             .getOutputDot(originSide)
                             .ifPresent(originDot -> {
                                 var destinationBlock = blockIDs.get(destinationBlockId);
-                                destinationBlock.getInputDot(destinationSide).ifPresent(destinationDot -> {
+                                destinationBlock.getFrame().getInputDot(destinationSide).ifPresent(destinationDot -> {
                                     var line = Lines.createLine((FunctionSite) getSite(), originDot);
                                     line.setEndDot(destinationDot);
                                 });
@@ -194,10 +204,10 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     public ObjectProperty<Type> returnTypeProperty() {
         return returnType;
     }
-
-//    public ObservableList<Parameter> parametersProperty() {
-//        return childrenProperty().filtered(c->c.getFunction() == ItemType.PARAMETER).ma;
-//    }
+    
+    public ObservableList<Block> blocksProperty() {
+        return blocks;
+    }
     
     public boolean isInClass() {
         return isIn(ItemType.CLASS);

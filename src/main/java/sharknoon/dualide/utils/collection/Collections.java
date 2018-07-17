@@ -549,7 +549,7 @@ public class Collections {
 
         /**
          * We need this class in addition to UnmodifiableSet as Map.Entries
-         * themselves permit modification of the backing Map via their setValue
+         * themselves permit modification of the backing Map via their setVariable
          * operation. This class is subtle: there are many possible attacks that
          * must be thwarted.
          *
@@ -706,7 +706,7 @@ public class Collections {
             /**
              * This method is overridden to protect the backing set against an
              * object with a nefarious equals function that senses that the
-             * equality-candidate is Map.Entry and calls its setValue method.
+             * equality-candidate is Map.Entry and calls its setVariable method.
              */
             @Override
             public boolean contains(Object o) {
@@ -720,7 +720,7 @@ public class Collections {
             /**
              * The next two methods are overridden to protect against an
              * unscrupulous List whose contains(Object o) method senses when o
-             * is a Map.Entry, and calls o.setValue.
+             * is a Map.Entry, and calls o.setVariable.
              */
             @Override
             public boolean containsAll(Collection<?> coll) {
@@ -751,7 +751,7 @@ public class Collections {
 
             /**
              * This "wrapper class" serves two purposes: it prevents the client
-             * from modifying the backing Map, by short-circuiting the setValue
+             * from modifying the backing Map, by short-circuiting the setVariable
              * method, and it protects the backing Map against an ill-behaved
              * Map.Entry that attempts to modify another Map Entry when asked to
              * perform an equality check.

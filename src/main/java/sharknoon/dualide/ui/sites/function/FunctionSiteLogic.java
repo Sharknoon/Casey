@@ -26,14 +26,17 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+import sharknoon.dualide.logic.blocks.Block;
+import sharknoon.dualide.logic.blocks.BlockType;
+import sharknoon.dualide.logic.blocks.Start;
 import sharknoon.dualide.ui.MainController;
+import sharknoon.dualide.ui.UISettings;
+import sharknoon.dualide.ui.frames.Frame;
+import sharknoon.dualide.ui.frames.FrameMoving;
+import sharknoon.dualide.ui.frames.Frames;
+import sharknoon.dualide.ui.lines.LineDrawing;
+import sharknoon.dualide.ui.lines.Lines;
 import sharknoon.dualide.ui.misc.MouseConsumable;
-import sharknoon.dualide.ui.sites.function.blocks.Block;
-import sharknoon.dualide.ui.sites.function.blocks.BlockMoving;
-import sharknoon.dualide.ui.sites.function.blocks.BlockType;
-import sharknoon.dualide.ui.sites.function.blocks.Blocks;
-import sharknoon.dualide.ui.sites.function.lines.LineDrawing;
-import sharknoon.dualide.ui.sites.function.lines.Lines;
 import sharknoon.dualide.ui.styles.StyleClasses;
 
 /**
@@ -45,7 +48,7 @@ public class FunctionSiteLogic implements MouseConsumable {
     
     private final AnchorPane root = new AnchorPane();
     private final WorkspaceSelection workspaceSelection;
-    private final BlockMoving blockMoving;
+    private final FrameMoving frameMoving;
     private final WorkspaceMoving workspaceMoving;
     private final WorkspaceZooming workspaceZooming;
     private final WorkspaceContextMenu workspaceContextMenu;
@@ -57,7 +60,7 @@ public class FunctionSiteLogic implements MouseConsumable {
     public FunctionSiteLogic(FunctionSite functionSite) {
         this.functionSite = functionSite;
         this.workspaceSelection = new WorkspaceSelection(functionSite);
-        this.blockMoving = new BlockMoving(functionSite);
+        this.frameMoving = new FrameMoving(functionSite);
         this.workspaceMoving = new WorkspaceMoving(functionSite);
         this.workspaceZooming = new WorkspaceZooming(functionSite);
         this.workspaceContextMenu = new WorkspaceContextMenu(functionSite);
@@ -87,12 +90,12 @@ public class FunctionSiteLogic implements MouseConsumable {
                 workspaceMoving.onMousePressed(event);
             } else if (event.isPrimaryButtonDown()) {
                 workspaceSelection.onMousePressed(event);
-                Blocks.unselectAll(functionSite);
+                Frames.unselectAll(functionSite);
                 Lines.unselectAll(functionSite);
             }
         } else {
             if (event.isPrimaryButtonDown()) {
-                blockMoving.onMousePressed(event);
+                frameMoving.onMousePressed(event);
             }
         }
         workspaceContextMenu.onMousePressed(event);
@@ -110,7 +113,7 @@ public class FunctionSiteLogic implements MouseConsumable {
             }
         } else {
             if (event.isPrimaryButtonDown()) {
-                blockMoving.onMouseDragged(event);
+                frameMoving.onMouseDragged(event);
             }
         }
     }
@@ -120,7 +123,7 @@ public class FunctionSiteLogic implements MouseConsumable {
         if (workspaceSelection.isSelecting()) {
             workspaceSelection.onMouseReleased(event);
         } else {
-            blockMoving.onMouseReleased(event);
+            frameMoving.onMouseReleased(event);
         }
     }
     
@@ -151,27 +154,27 @@ public class FunctionSiteLogic implements MouseConsumable {
         drawLineAroundWorkspace();
         centerWorkspaceView();
         if (!startBlockAlreadyAdded) {
-            addBlock(BlockType.START, new Point2D(-1, -1));
+            Block b = new Start(functionSite.getItem());
+            functionSite.getItem().blocksProperty().add(b);
         }
         MouseConsumable.registerListeners(root, this);
         initialized = true;
     }
     
-    public Block addBlock(BlockType type, Point2D origin) {
-        return addBlock(type, origin, null);
+    public void addFrame(Frame frame) {
+        addFrame(frame, new Point2D(-1, -1));
     }
     
-    public Block addBlock(BlockType type, Point2D origin, String id) {
-        if (type == BlockType.START) {
+    public void addFrame(Frame frame, Point2D origin) {
+        if (frame.getBlock().getType() == BlockType.START) {
             if (startBlockAlreadyAdded) {
-                return null;
+                return;
             }
             startBlockAlreadyAdded = true;
         }
-        var block = Blocks.createBlock(functionSite, type, id);
         if (origin.getX() < 0 || origin.getY() < 0) {
             var screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            double x = (UISettings.WORKSPACE_MAX_X / 2) - (block.getWidth() / 2);
+            double x = (UISettings.WORKSPACE_MAX_X / 2) - (frame.getWidth() / 2);
             double y = (UISettings.WORKSPACE_MAX_Y / 2) - (screenHeight / 2) + UISettings.BLOCK_GRID_SNAPPING_Y;
             origin = new Point2D(x, y);
         }
@@ -190,7 +193,7 @@ public class FunctionSiteLogic implements MouseConsumable {
         double newX = minX;
         double newY = minY;
         
-        while (!Blocks.isSpaceFree(block, newX, newY)) {
+        while (!Frames.isSpaceFree(frame, newX, newY)) {
             switch (side) {
                 case 0://Upwards
                     newY = newY - UISettings.BLOCK_GRID_SNAPPING_Y;
@@ -216,10 +219,10 @@ public class FunctionSiteLogic implements MouseConsumable {
             }
         }
         
-        block.setMinX(newX);
-        block.setMinY(newY);
-        block.addTo(root);
-        return block;
+        frame.setMinX(newX);
+        frame.setMinY(newY);
+        frame.addTo(root);
+        return;
     }
     
     private void centerWorkspaceView() {
@@ -249,8 +252,8 @@ public class FunctionSiteLogic implements MouseConsumable {
         return workspaceSelection;
     }
     
-    public BlockMoving getBlockMoving() {
-        return blockMoving;
+    public FrameMoving getFrameMoving() {
+        return frameMoving;
     }
     
     public WorkspaceMoving getWorkspaceMoving() {

@@ -15,6 +15,9 @@
  */
 package sharknoon.dualide.logic.statements.operators;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
@@ -24,12 +27,12 @@ import javafx.scene.Node;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
+import sharknoon.dualide.serial.Serialisation;
 import sharknoon.dualide.ui.bodies.Body;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @param <T>  type
@@ -39,6 +42,8 @@ import java.util.function.Supplier;
  */
 public abstract class Operator<T extends PrimitiveType, CT extends Type> extends Statement<Type, T, CT> {
     
+    private static final String typeKey = "type";
+    private static final String parameterKey = "parameter";
     private final T returnType;
     //A map instead of a list to leave empty spaces inbetween the indexes
     private final Type parameterType;
@@ -267,8 +272,23 @@ public abstract class Operator<T extends PrimitiveType, CT extends Type> extends
         return builder.append(')').toString();
     }
     
+    @Override
+    public Map<String, JsonNode> getAdditionalProperties() {
+        Map<String, JsonNode> map = new HashMap<>();
+        
+        String type = getOperatorType().name();
+        List<JsonNode> parameter = getChilds().stream()
+                .map(Statement::getAdditionalProperties)
+                .map(m -> Serialisation.MAPPER.convertValue(m, JsonNode.class))
+                .collect(Collectors.toList());
+        
+        map.put(typeKey, TextNode.valueOf(type));
+        map.put(parameterKey, Serialisation.MAPPER.convertValue(parameter, ArrayNode.class));
+        
+        return map;
+    }
+    
     public boolean isExtensible() {
         return isExtensible;
     }
-    
 }

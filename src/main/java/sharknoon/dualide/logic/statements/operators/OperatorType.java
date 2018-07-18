@@ -15,19 +15,15 @@
  */
 package sharknoon.dualide.logic.statements.operators;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.misc.Icon;
 import sharknoon.dualide.utils.language.Language;
 import sharknoon.dualide.utils.language.Word;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  *
@@ -58,30 +54,20 @@ public enum OperatorType {
     private final Word name;
     private final Icon icon;
     private final String stringRep;
-
-    private OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, PrimitiveType returnType, Word name, Icon icon, String stringRep) {
+    
+    public static Set<OperatorType> forType(Type type) {
+        if (type instanceof PrimitiveType) {
+            return OPERATOR_TYPES_BY_RETURN_TYPE.get(type);
+        }
+        return new HashSet<>();
+    }
+    
+    OperatorType(Function<Statement, Operator> creator, Class<? extends Operator> type, PrimitiveType returnType, Word name, Icon icon, String stringRep) {
         init(type, returnType);
         this.creator = creator;
         this.name = name;
         this.icon = icon;
         this.stringRep = stringRep;
-    }
-
-    private void init(Class<? extends Operator> type, PrimitiveType returnType) {
-        if (OPERATOR_TYPES_BY_CLASS == null) {
-            OPERATOR_TYPES_BY_CLASS = new HashMap<>();
-        }
-        OPERATOR_TYPES_BY_CLASS.put(type, this);
-        if (OPERATOR_TYPES_BY_RETURN_TYPE == null) {
-            OPERATOR_TYPES_BY_RETURN_TYPE = new HashMap<>();
-        }
-        if (OPERATOR_TYPES_BY_RETURN_TYPE.containsKey(returnType)) {
-            OPERATOR_TYPES_BY_RETURN_TYPE.get(returnType).add(this);
-        } else {
-            Set<OperatorType> OPERATORTYPES_FOR_RETURN_TYPE = new LinkedHashSet<>();
-            OPERATORTYPES_FOR_RETURN_TYPE.add(this);
-            OPERATOR_TYPES_BY_RETURN_TYPE.put(returnType, OPERATORTYPES_FOR_RETURN_TYPE);
-        }
     }
 
     public String getName() {
@@ -108,12 +94,22 @@ public enum OperatorType {
     public static OperatorType valueOf(Operator operator) {
         return OPERATOR_TYPES_BY_CLASS.get(operator.getClass());
     }
-
-    public static Set<OperatorType> forType(Type type) {
-        if (type instanceof PrimitiveType) {
-            return OPERATOR_TYPES_BY_RETURN_TYPE.get((PrimitiveType) type);
+    
+    private void init(Class<? extends Operator> type, PrimitiveType returnType) {
+        if (OPERATOR_TYPES_BY_CLASS == null) {
+            OPERATOR_TYPES_BY_CLASS = new HashMap<>();
         }
-        return new HashSet<>();
+        OPERATOR_TYPES_BY_CLASS.put(type, this);
+        if (OPERATOR_TYPES_BY_RETURN_TYPE == null) {
+            OPERATOR_TYPES_BY_RETURN_TYPE = new HashMap<>();
+        }
+        if (OPERATOR_TYPES_BY_RETURN_TYPE.containsKey(returnType)) {
+            OPERATOR_TYPES_BY_RETURN_TYPE.get(returnType).add(this);
+        } else {
+            Set<OperatorType> OPERATOR_TYPES_FOR_RETURN_TYPE = new LinkedHashSet<>();
+            OPERATOR_TYPES_FOR_RETURN_TYPE.add(this);
+            OPERATOR_TYPES_BY_RETURN_TYPE.put(returnType, OPERATOR_TYPES_FOR_RETURN_TYPE);
+        }
     }
 
 }

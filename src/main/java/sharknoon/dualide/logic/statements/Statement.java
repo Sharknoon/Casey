@@ -16,21 +16,33 @@
 package sharknoon.dualide.logic.statements;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.commons.lang3.EnumUtils;
 import sharknoon.dualide.logic.ValueReturnable;
+import sharknoon.dualide.logic.items.Function;
+import sharknoon.dualide.logic.items.Items;
+import sharknoon.dualide.logic.statements.calls.Call;
+import sharknoon.dualide.logic.statements.calls.CallItem;
 import sharknoon.dualide.logic.statements.operators.Operator;
+import sharknoon.dualide.logic.statements.operators.OperatorType;
 import sharknoon.dualide.logic.statements.values.Value;
+import sharknoon.dualide.logic.statements.values.ValueType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.bodies.Body;
+import sharknoon.dualide.utils.jackson.JacksonUtils;
+import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The statement is the base class for values, operators, ...
@@ -42,6 +54,42 @@ import java.util.Map;
  */
 public abstract class Statement<PT extends Type, T extends Type, CT extends Type> implements ValueReturnable<T> {
     
+    public static Statement<?, ?, ?> deserialize(Statement<?, ?, ?> parent, ObjectNode properties) {
+        try {
+            String type = properties.get("type").asText("");
+            if (EnumUtils.isValidEnum(ValueType.class, type)) {
+                Object value = JacksonUtils.fromNode(properties.get("value"));
+                return ValueType.valueOf(type).create(value, parent);
+            } else if (EnumUtils.isValidEnum(OperatorType.class, type)) {
+                Operator operator = OperatorType.valueOf(type).create(parent);
+                var parameters = (ArrayNode) properties.get("parameter");
+                parameters.elements().forEachRemaining(p -> {
+                    operator.addParameter(deserialize(operator, (ObjectNode) p));
+                });
+                return operator;
+            } else if (Objects.equals(type, "CALL")) {
+                Call<?> c = new Call(parent, Type.UNDEFINED);//TODO not undefined
+                ArrayNode calls = (ArrayNode) properties.get("calls");
+                calls.iterator().forEachRemaining(call -> {
+                    String itemType = call.get("type").asText();
+                    var itemOptional = Items.forName(itemType);//always a variable, function or parameter
+                    assert itemOptional.isPresent();
+                    var item = itemOptional.get();
+                    CallItem callItem = new CallItem(c, item, false);
+                    if (item instanceof Function) {
+                        var parameter = (ArrayNode) call.get("parameter");
+                        parameter.elements().forEachRemaining(e -> {
+                            callItem.getChilds().add(deserialize(callItem, (ObjectNode) e));
+                        });
+                    }
+                });
+                return c;
+            }
+        } catch (Exception e) {
+            Logger.error("Error during Statement deserialisation", e);
+        }
+        return null;
+    }
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     private final transient ReadOnlyObjectWrapper<Statement<Type, PT, T>> parent = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Body<Statement>> body = new ReadOnlyObjectWrapper<>();
@@ -117,11 +165,8 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     @Override
     public abstract String toString();
     
-    public abstract Map<String, JsonNode> getAdditionalProperties();
-    
     //to be overridden
-    public void setAdditionalProperties(Map<String, JsonNode> properties) {
     
-    }
+    public abstract Map<String, JsonNode> getAdditionalProperties();
     
 }

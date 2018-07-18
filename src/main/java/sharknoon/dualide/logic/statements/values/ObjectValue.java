@@ -32,6 +32,18 @@ public class ObjectValue extends Value<ObjectType> {
     private static final String typeKey = "type";
     private static final String valueKey = "value";
     
+    /**
+     * @param type
+     * @param parent
+     * @return Null for wrong type
+     */
+    public static ObjectValue createObject(String type, Statement parent) {
+        return ObjectType
+                .forName(type)
+                .map(ot -> new ObjectValue(ot, parent))
+                .orElse(null);
+    }
+    
     public static ObjectValue createObject(ObjectType type, Statement parent) {
         return new ObjectValue(type, parent);
     }
@@ -41,6 +53,16 @@ public class ObjectValue extends Value<ObjectType> {
         if (parentProperty().get() != null && (parentProperty().get() instanceof Value)) {
             parentProperty().get().childsProperty().add(this);
         }
+    }
+    
+    @Override
+    public Value<ObjectType> calculateResult() {
+        return this;
+    }
+    
+    @Override
+    public String toString() {
+        return getReturnType().simpleNameProperty().get();
     }
     
     @Override
@@ -54,16 +76,6 @@ public class ObjectValue extends Value<ObjectType> {
         map.put(valueKey, TextNode.valueOf(value));
         
         return map;
-    }
-    
-    @Override
-    public Value<ObjectType> calculateResult() {
-        return this;
-    }
-    
-    @Override
-    public String toString() {
-        return getReturnType().simpleNameProperty().get();
     }
     
     @Override

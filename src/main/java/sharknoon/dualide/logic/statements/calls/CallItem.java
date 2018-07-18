@@ -38,17 +38,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extends Statement<Type, Type, Type> {
+public class CallItem<I extends Item<? extends Item, ? extends Item, ? extends Item> & ValueReturnable> extends Statement<Type, Type, Type> {
     
     private static final ObjectProperty<Type> UNDEFINED = new SimpleObjectProperty<>(Type.UNDEFINED);
+    private static final String typeKey = "type";
+    private static final String parameterKey = "parameter";
     private final I item;
     //Only for Funktions
-    private final ObservableList<Item> parameter;
+    private final ObservableList<? extends Item> parameter;
     
     public CallItem(Statement<Type, Type, Type> parent, I item) {
+        this(parent, item, true);
+    }
+    
+    /**
+     * @param parent
+     * @param item
+     * @param prebindChildren Needed to be off for the serialisation
+     */
+    public CallItem(Statement<Type, Type, Type> parent, I item, boolean prebindChildren) {
         this.item = item;
         this.parameter = item.getChildren().filtered(i -> i.getType() == ItemType.PARAMETER);
-        bindStatementChildrenToItemChildren();
+        if (prebindChildren) {
+            bindStatementChildrenToItemChildren();
+        }
         initParent(parent, false);
         addToParent(parent);
         item.onDestroy(parent::destroy);
@@ -88,7 +101,7 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
     }
     
     public ObjectProperty<Type> lastParameterTypeProperty() {
-        ObjectBinding<Item> lastParameter = BindUtils.getLast(parameter);
+        ObjectBinding<? extends Item> lastParameter = BindUtils.getLast(parameter);
         ObjectProperty<Type> lastParameterReturnType = new SimpleObjectProperty<>();
         BindUtils.addListener(lastParameter, (observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -115,19 +128,6 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
     }
     
     @Override
-    public Type getReturnType() {
-        return item.getReturnType();
-    }
-    
-    @Override
-    public ReadOnlyObjectProperty<Type> returnTypeProperty() {
-        return item.returnTypeProperty();
-    }
-    
-    private static final String typeKey = "type";
-    private static final String parameterKey = "parameter";
-    
-    @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = new HashMap<>();
         
@@ -141,5 +141,15 @@ public class CallItem<I extends Item<Item, Item, Item> & ValueReturnable> extend
         map.put(parameterKey, Serialisation.MAPPER.convertValue(parameter, ArrayNode.class));
         
         return map;
+    }
+    
+    @Override
+    public Type getReturnType() {
+        return item.getReturnType();
+    }
+    
+    @Override
+    public ReadOnlyObjectProperty<Type> returnTypeProperty() {
+        return item.returnTypeProperty();
     }
 }

@@ -36,7 +36,7 @@ public class ValueField extends Pane implements Field {
     
     public static ValueField DISABLED = new ValueField(true);
     
-    private final ObjectProperty<Statement<Type, Type, Type>> statement = new SimpleObjectProperty<>();
+    private final ObjectProperty<Statement<?, ?, ?>> statement = new SimpleObjectProperty<>();
     ObjectExpression<Type> allowedType;
     private ObservableList<Text> texts;
     
@@ -48,7 +48,7 @@ public class ValueField extends Pane implements Field {
         this(new SimpleObjectProperty<>(allowedType), null);
     }
     
-    public ValueField(Statement<Type, Type, Type> statement) {
+    public ValueField(Statement<?, ?, ?> statement) {
         this(new SimpleObjectProperty<>(Type.UNDEFINED), statement);
     }
     
@@ -56,7 +56,7 @@ public class ValueField extends Pane implements Field {
         this(allowedType, null);
     }
     
-    public ValueField(ObjectExpression<Type> allowedType, Statement<Type, Type, Type> statement) {
+    public ValueField(ObjectExpression<Type> allowedType, Statement<?, ?, ?> statement) {
         this.allowedType = allowedType;
         ValuePlaceholderBody body = ValuePlaceholderBody.createValuePlaceholderBody(allowedType, null);
         
@@ -84,11 +84,11 @@ public class ValueField extends Pane implements Field {
         getChildren().add(ValuePlaceholderBody.DISABLED);
     }
     
-    public Statement<Type, Type, Type> getStatement() {
+    public Statement<?, ?, ?> getStatement() {
         return statement.get();
     }
     
-    public ObjectProperty<Statement<Type, Type, Type>> statementProperty() {
+    public ObjectProperty<Statement<?, ?, ?>> statementProperty() {
         return statement;
     }
     

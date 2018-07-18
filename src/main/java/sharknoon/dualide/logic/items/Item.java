@@ -18,10 +18,10 @@ package sharknoon.dualide.logic.items;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import sharknoon.dualide.ui.sites.Site;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 import java.util.*;
 
@@ -101,6 +101,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
         if (parentProperty().get() != null) {
             parentProperty().get().childrenProperty().add(this);
         }
+        Items.registerItem(this);
     }
     
     protected void afterInit() {
@@ -165,12 +166,7 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     
     public StringExpression fullNameProperty() {
         StringProperty sp = new SimpleStringProperty();
-        if (parentProperty().get() != null) {
-            sp.bind(parentProperty().get().fullNameProperty().concat(".").concat(nameProperty()));
-        } else {
-            sp.bind(nameProperty());
-        }
-        parentProperty().addListener((ObservableValue<? extends P> observable, P oldValue, P newValue) -> {
+        BindUtils.addListener(parentProperty(), (observable, oldValue, newValue) -> {
             if (parentProperty().get() != null) {
                 sp.bind(parentProperty().get().fullNameProperty().concat(".").concat(nameProperty()));
             } else {

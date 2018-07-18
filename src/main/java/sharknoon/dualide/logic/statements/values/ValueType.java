@@ -14,10 +14,39 @@ package sharknoon.dualide.logic.statements.values;/*
  * limitations under the License.
  */
 
+import sharknoon.dualide.logic.statements.Statement;
+
+import java.util.function.BiFunction;
+
 public enum ValueType {
-    NUMBERVALUE,
-    TEXTVALUE,
-    BOOLENVALUE,
-    VOIDVALUE,
-    OBJECTVALUE
+    NUMBER((val, par) -> PrimitiveValue.createNewNumberValue((double) val, par)),
+    TEXT((val, par) -> PrimitiveValue.createNewTextValue((String) val, par)),
+    BOOLEAN((val, par) -> PrimitiveValue.createNewBooleanValue((boolean) val, par)),
+    VOID((val, par) -> PrimitiveValue.createNewVoidValue(par)),
+    OBJECT((val, par) -> ObjectValue.createObject((String) val, par));
+    
+    BiFunction<Object, Statement<?, ?, ?>, Value<?>> creator;
+    
+    ValueType(BiFunction<Object, Statement<?, ?, ?>, Value<?>> creator) {
+        this.creator = creator;
+    }
+    
+    public boolean isPrimitive() {
+        return this != OBJECT;
+    }
+    
+    public boolean isObject() {
+        return this == OBJECT;
+    }
+    
+    /**
+     * Creates a new Value
+     *
+     * @param value  e.g. A Double or a Boolean, null for void
+     * @param parent The parent of this statement
+     * @return The newly created statement
+     */
+    public Value<?> create(Object value, Statement<?, ?, ?> parent) {
+        return creator.apply(value, parent);
+    }
 }

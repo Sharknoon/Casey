@@ -34,4 +34,16 @@ public class JacksonUtils {
         }
     }
     
+    public static Object fromNode(JsonNode n) {
+        if (n.isBoolean()) {
+            return n.asBoolean();
+        } else if (n.isDouble()) {
+            return n.asDouble();
+        } else if (n.isTextual()) {
+            return n.asText();
+        } else {
+            return null;
+        }
+    }
+    
 }

@@ -50,12 +50,16 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
     private final Type expectedReturnType;
     
     public Call(Statement<Type, Type, Type> parent, Item<?, ?, ?> startCall, Type expectedReturnType) {
+        this(parent, expectedReturnType);
+        new CallItem(this, startCall);
+    }
+    
+    public Call(Statement<Type, Type, Type> parent, Type expectedReturnType) {
         initParent(parent, true);
         this.firstChild.bind(bindFirstChild(childs));
         this.lastChild.bind(bindLastChild(childs));
         this.returnType.bind(bindReturnType(lastChild));
         this.expectedReturnType = expectedReturnType;
-        addCallItem(startCall);
         addAutoDestroyOnEmptyCallItems();
     }
     
@@ -85,10 +89,6 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
                 destroy();
             }
         });
-    }
-    
-    private void addCallItem(Item<?, ?, ?> item) {
-        new CallItem(this, item);
     }
     
     public BooleanExpression isExtensible() {

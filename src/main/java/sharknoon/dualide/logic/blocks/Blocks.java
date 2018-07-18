@@ -14,11 +14,17 @@ package sharknoon.dualide.logic.blocks;/*
  * limitations under the License.
  */
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Point2D;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.utils.settings.Logger;
 
+import java.util.Optional;
+
 public class Blocks {
+    
+    private static ObservableMap<String, Block> BLOCK_PER_ID = FXCollections.observableHashMap();
     
     public static Block createBlock(BlockType type, Function function) {
         return createBlock(type, function, null, new Point2D(-1, -1));
@@ -53,7 +59,12 @@ public class Blocks {
                 block = new Call(function, id, origin);
         }
         function.blocksProperty().add(block);
+        BLOCK_PER_ID.put(id, block);
         return block;
+    }
+    
+    public static Optional<Block> getBlock(String id) {
+        return Optional.ofNullable(BLOCK_PER_ID.get(id));
     }
     
 }

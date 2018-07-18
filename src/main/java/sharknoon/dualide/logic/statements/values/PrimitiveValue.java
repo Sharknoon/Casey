@@ -32,27 +32,37 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- *
- * @author Josua Frank
  * @param <T>
+ * @author Josua Frank
  */
 public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T> {
     
     private static final String typeKey = "type";
     private static final String valueKey = "value";
     
+    public static NumberValue createNewNumberValue(Double value, Statement parent) {
+        return new NumberValue(value, parent);
+    }
+    
+    public static TextValue createNewTextValue(String value, Statement parent) {
+        return new TextValue(value, parent);
+    }
+    
+    public static BooleanValue createNewBooleanValue(Boolean value, Statement parent) {
+        return new BooleanValue(value, parent);
+    }
+    
+    public static VoidValue createNewVoidValue(Statement parent) {
+        return new VoidValue(parent);
+    }
+    
     public PrimitiveValue(T type, Statement parent) {
         super(type, parent);
     }
-
     @Override
     public Value<T> calculateResult() {
         return this;
     }
-
-    public abstract O getValue();
-
-    public abstract ObjectProperty<O> valueProperty();
     
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
@@ -67,14 +77,14 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
         return map;
     }
     
-    public static NumberValue createNewNumberValue(Double value, Statement parent) {
-        return new NumberValue(value, parent);
-    }
-
+    public abstract O getValue();
+    
+    public abstract ObjectProperty<O> valueProperty();
+    
     public static class NumberValue extends PrimitiveValue<NumberType, Double> {
-
+    
         private final ObjectProperty<Double> number = new SimpleObjectProperty<>(0.0);
-
+    
         public NumberValue(Double number, Statement parent) {
             super(PrimitiveType.NUMBER, parent);
             if (number != null) {
@@ -87,31 +97,33 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
                 onChange();
             });
         }
-
+    
         public NumberValue(Statement parent) {
             this(0.0, parent);
         }
-
-        @Override
-        public String toString() {
-            return String.valueOf(number.get());
-        }
-
+    
         @Override
         public Double getValue() {
             return number.get();
         }
-
-        @Override
-        public ObjectProperty<Double> valueProperty() {
-            return number;
-        }
-
+    
         @Override
         public int hashCode() {
             return number.get().hashCode();
         }
-
+    
+        @Override
+        public String toString() {
+            return String.valueOf(number.get());
+        }
+    
+    
+        @Override
+        public ObjectProperty<Double> valueProperty() {
+            return number;
+        }
+    
+    
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -126,19 +138,14 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             final NumberValue other = (NumberValue) obj;
             return Objects.equals(this.number.get(), other.number.get());
         }
-
-        
-
+    
+    
     }
-
-    public static TextValue createNewTextValue(String value, Statement parent) {
-        return new TextValue(value, parent);
-    }
-
+    
     public static class TextValue extends PrimitiveValue<TextType, String> {
-
+        
         private final ObjectProperty<String> text = new SimpleObjectProperty<>("");
-
+        
         public TextValue(String text, Statement parent) {
             super(PrimitiveType.TEXT, parent);
             if (text != null) {
@@ -151,30 +158,31 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
                 onChange();
             });
         }
-
+        
         public TextValue(Statement parent) {
             this("", parent);
         }
-
+        
         @Override
         public String toString() {
             return String.valueOf(text.get());
         }
-
+        
         @Override
         public String getValue() {
             return text.get();
         }
-
+        
         @Override
         public ObjectProperty<String> valueProperty() {
             return text;
         }
+        
         @Override
         public int hashCode() {
             return text.get().hashCode();
         }
-
+        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -190,15 +198,11 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             return Objects.equals(this.text.get(), other.text.get());
         }
     }
-
-    public static BooleanValue createNewBooleanValue(Boolean value, Statement parent) {
-        return new BooleanValue(value, parent);
-    }
-
+    
     public static class BooleanValue extends PrimitiveValue<BooleanType, Boolean> {
-
+        
         private final ObjectProperty<Boolean> bool = new SimpleObjectProperty<>(false);
-
+        
         public BooleanValue(Boolean bool, Statement parent) {
             super(PrimitiveType.BOOLEAN, parent);
             if (bool != null) {
@@ -211,30 +215,31 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
                 onChange();
             });
         }
-
+        
         public BooleanValue(Statement parent) {
             this(false, parent);
         }
-
+        
         @Override
         public String toString() {
             return String.valueOf(bool.get());
         }
-
+        
         @Override
         public Boolean getValue() {
             return bool.get();
         }
-
+        
         @Override
         public ObjectProperty<Boolean> valueProperty() {
             return bool;
         }
+        
         @Override
         public int hashCode() {
             return bool.get().hashCode();
         }
-
+        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -250,45 +255,43 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             return Objects.equals(this.bool.get(), other.bool.get());
         }
     }
-
-    public static VoidValue createNewVoidValue(Statement parent) {
-        return new VoidValue(parent);
-    }
-
+    
     public static class VoidValue extends PrimitiveValue<VoidType, Void> {
-
+        
         private final ObjectProperty<Void> void_ = new SimpleObjectProperty<>(null);
-
+        
         public VoidValue(Statement parent) {
             super(PrimitiveType.VOID, parent);
             if (parentProperty().get() != null && (parentProperty().get() instanceof Value)) {
                 parentProperty().get().childsProperty().add(this);
             }
         }
-
+        
         @Override
         public String toString() {
             return "void";
         }
-
+        
         /**
          * returns null in the ObjectProperty
+         *
          * @return
          */
         @Override
         public Void getValue() {
             return void_.get();
         }
-
+        
         @Override
         public ObjectProperty<Void> valueProperty() {
             return void_;
         }
+        
         @Override
         public int hashCode() {
             return 42;
         }
-
+        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -300,5 +303,6 @@ public abstract class PrimitiveValue<T extends PrimitiveType, O> extends Value<T
             return getClass() == obj.getClass();
         }
     }
-
+    
+    
 }

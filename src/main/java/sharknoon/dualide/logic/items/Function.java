@@ -27,14 +27,14 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
+import sharknoon.dualide.logic.ValueHoldable;
 import sharknoon.dualide.logic.ValueReturnable;
 import sharknoon.dualide.logic.blocks.Block;
 import sharknoon.dualide.logic.blocks.BlockType;
 import sharknoon.dualide.logic.blocks.Blocks;
+import sharknoon.dualide.logic.statements.Statement;
 import sharknoon.dualide.logic.types.PrimitiveType;
 import sharknoon.dualide.logic.types.Type;
-import sharknoon.dualide.ui.lines.Lines;
-import sharknoon.dualide.ui.sites.function.FunctionSite;
 import sharknoon.dualide.utils.settings.Logger;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
             block.put(BLOCK_X, b.getFrame().getMinX());
             block.put(BLOCK_Y, b.getFrame().getMinY());
             block.put(BLOCK_TYPE, b.getClass().getSimpleName().toUpperCase());
-        
+    
             //Connections to other blocks
             var blockConnections = new ObjectNode(JsonNodeFactory.instance);
             b.getConnections().forEach((originSide, destinations) -> {
@@ -107,7 +107,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                 blockConnections.set(originSide.name(), destinationConnections);
             });
             block.set(BLOCK_CONNECTIONS, blockConnections);
-        
+    
             //Blockcontent
             var content = new ObjectNode(JsonNodeFactory.instance);
             b.getVariable().ifPresent(vh -> {
@@ -129,9 +129,9 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     
     @Override
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
-        final Map<String, Block> blockIDs = new HashMap<>();
-        //<blockid<side<id,side>>
-        final Map<String, Map<Side, Map<String, Side>>> blockConections = new HashMap<>();
+        final Map<Block, ObjectNode> connectionsMap = new HashMap<>();
+        final Map<Block, String> variablesMap = new HashMap<>();
+        final Map<Block, ObjectNode> statementMap = new HashMap<>();
         properties.forEach((key, value) -> {
             switch (key) {
                 case RETURNTYPE:
@@ -147,52 +147,45 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                         var y = blockNode.get(BLOCK_Y).asInt(0);
                         var type = blockNode.get(BLOCK_TYPE).asText("");
                         var connections = (ObjectNode) blockNode.get(BLOCK_CONNECTIONS);
-    
+                        var content = (ObjectNode) blockNode.get(BLOCK_CONTENT);
+                        
                         var block = Blocks.createBlock(BlockType.forName(type), this, id, new Point2D(x, y));
-                        blockIDs.put(id, block);
-    
-                        connections.fields().forEachRemaining(e -> {
-                            var side = e.getKey();
-                            var lines = (ObjectNode) e.getValue();
-                            if (!blockConections.containsKey(id)) {
-                                blockConections.put(id, new HashMap<>());
+                        if (connections.size() > 0) {
+                            connectionsMap.put(block, connections);
+                        }
+                        if (content.size() > 0) {
+                            if (content.has(BLOCK_VARIABLE)) {
+                                variablesMap.put(block, content.get(BLOCK_VARIABLE).asText());
                             }
-                            var sidesMap = blockConections.get(id);
-                            var s = Side.valueOf(side);
-                            if (!sidesMap.containsKey(s)) {
-                                sidesMap.put(s, new HashMap<>());
+                            if (content.has(BLOCK_STATEMENT)) {
+                                statementMap.put(block, (ObjectNode) content.get(BLOCK_STATEMENT));
                             }
-                            var linesMap = sidesMap.get(s);
-                            lines.fields().forEachRemaining(e2 -> {
-                                try {
-                                    linesMap.put(e2.getKey(), Side.valueOf(e2.getValue().asText()));
-                                } catch (Exception ex) {
-                                    Logger.error("Could not load line: " + ex);
-                                }
-                            });
-                        });
+                        }
                     }
                     break;
             }
         });
-        blockConections.forEach((originBlockId, originSides) -> {
-            originSides.forEach((originSide, lines) -> lines.forEach((destinationBlockId, destinationSide) -> {
+        connectionsMap.forEach((block, connections) -> {
+            connections.fields().forEachRemaining(connection -> {
                 try {
-                    blockIDs
-                            .get(originBlockId)
-                            .getFrame()
-                            .getOutputDot(originSide)
-                            .ifPresent(originDot -> {
-                                var destinationBlock = blockIDs.get(destinationBlockId);
-                                destinationBlock.getFrame().getInputDot(destinationSide).ifPresent(destinationDot -> {
-                                    var line = Lines.createLine((FunctionSite) getSite(), originDot);
-                                    line.setEndDot(destinationDot);
-                                });
-                            });
-                } catch (Exception e) {
-                    Logger.error("Could not load line", e);
+                    var originSide = Side.valueOf(connection.getKey());
+                    var linesToDestination = (ObjectNode) connection.getValue();
+                    linesToDestination.fields().forEachRemaining(line -> {
+                        var destinationBlock = Blocks.getBlock(line.getKey());
+                        var destinationSide = Side.valueOf(line.getValue().asText(""));
+                        assert destinationBlock.isPresent();
+                        block.addConnection(originSide, destinationBlock.get(), destinationSide);
+                    });
+                } catch (Exception ex) {
+                    Logger.error("Could not load line: " + ex);
                 }
-            }));
+            });
+        });
+        variablesMap.forEach((block, variable) -> {
+            block.setVariable((ValueHoldable) Items.forName(variable).orElse(null));
+        });
+        statementMap.forEach((block, statement) -> {
+            block.setStatement(Statement.deserialize(null, statement));
         });
     }
     

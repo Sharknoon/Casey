@@ -18,6 +18,7 @@ import sharknoon.dualide.logic.types.PrimitiveType.TextType;
 import sharknoon.dualide.logic.types.PrimitiveType.VoidType;
 import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.logic.types.Type.UndefinedType;
+import sharknoon.dualide.utils.javafx.BindUtils;
 
 public class BodyUtils {
     
@@ -72,7 +73,7 @@ public class BodyUtils {
     
     public static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {
         ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
-        tf.textProperty().addListener((ov, prevText, currText) -> {
+        BindUtils.addListener(tf.textProperty(), (ov, prevText, currText) -> {
             // Do this in a Platform.runLater because of Textfield has no padding at first time and so on
             Platform.runLater(() -> {
                 Text text = new Text(currText);

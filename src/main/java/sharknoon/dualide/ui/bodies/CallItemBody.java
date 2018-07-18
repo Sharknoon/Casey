@@ -189,22 +189,20 @@ public class CallItemBody extends Body<CallItem<?>> {
         BindUtils.addListener(parent, (observable, oldValue, newValue) -> {
             parentReturnType.bind(newValue.returnTypeProperty());
         });
-        
-        ObjectExpression<Insets> padding = getPadding(
+    
+        return getPadding(
                 parentReturnType,
                 heightProperty(),
                 leftShape,
                 rightType
         );
-        //ObservableValue<Insets> ov = BindUtils.map(padding, p -> new Insets(p.getTop() + DEFAULT_MARGIN, p.getRight() + DEFAULT_MARGIN, p.getBottom() + DEFAULT_MARGIN, p.getLeft() + DEFAULT_MARGIN));
-        return padding;
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> leftType, ObjectExpression<Type> rightType) {
         Logger.debug("GETTING PADDING FOR parent:" + parent.get() + ", left:" + leftType.get() + ", right:" + rightType.get());
         DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftType, height);
         DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, rightType, height);
-        return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding);
+        return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding, leftPadding);
     }
     
     @Override

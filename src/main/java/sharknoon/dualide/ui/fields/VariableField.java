@@ -31,17 +31,17 @@ import sharknoon.dualide.utils.language.Word;
 import java.util.Optional;
 
 public class VariableField extends Button implements Field {
-    private ObjectProperty<ValueHoldable<Type>> variable = new SimpleObjectProperty<>();
+    private ObjectProperty<ValueHoldable<?>> variable = new SimpleObjectProperty<>();
     
     public VariableField() {
         this(Type.UNDEFINED, null);
     }
     
-    public VariableField(ValueHoldable<Type> variable) {
+    public VariableField(ValueHoldable<?> variable) {
         this(Type.UNDEFINED, variable);
     }
     
-    public VariableField(Type allowedTypes, ValueHoldable<Type> variable) {
+    public VariableField(Type allowedTypes, ValueHoldable<?> variable) {
         Language.set(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, this);
         
         setOnAction((event) -> {
@@ -59,15 +59,15 @@ public class VariableField extends Button implements Field {
         }
     }
     
-    public Optional<ValueHoldable<Type>> getVariable() {
+    public Optional<ValueHoldable<?>> getVariable() {
         return Optional.ofNullable(variableProperty().get());
     }
     
-    public void setVariable(ValueHoldable<Type> variable) {
+    public void setVariable(ValueHoldable<?> variable) {
         variableProperty().set(variable);
     }
     
-    public ObjectProperty<ValueHoldable<Type>> variableProperty() {
+    public ObjectProperty<ValueHoldable<?>> variableProperty() {
         return variable;
     }
     

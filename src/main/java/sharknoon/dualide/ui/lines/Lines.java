@@ -30,9 +30,9 @@ import java.util.stream.Stream;
  * @author Josua Frank
  */
 public class Lines {
-
-    public static Line createLine(FunctionSite functionSite, Dot dot) {
-        return new Line(dot, functionSite);
+    
+    public static Line createLine(FunctionSite functionSite, Dot startDot) {
+        return new Line(startDot, functionSite);
     }
 
     private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();

@@ -112,7 +112,8 @@ public class Line implements Moveable, MouseConsumable {
         getOutputDot().getFrame().getBlock().addConnection(
                 getOutputDot().getSide(),
                 getInputDot().getFrame().getBlock(),
-                getInputDot().getSide()
+                getInputDot().getSide(),
+                false
         );
     }
     

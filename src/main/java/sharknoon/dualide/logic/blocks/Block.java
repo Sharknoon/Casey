@@ -22,9 +22,10 @@ import javafx.geometry.Side;
 import sharknoon.dualide.logic.ValueHoldable;
 import sharknoon.dualide.logic.items.Function;
 import sharknoon.dualide.logic.statements.Statement;
-import sharknoon.dualide.logic.types.Type;
 import sharknoon.dualide.ui.frames.Frame;
 import sharknoon.dualide.ui.frames.Frames;
+import sharknoon.dualide.ui.lines.Line;
+import sharknoon.dualide.ui.lines.Lines;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,16 +50,16 @@ public abstract class Block {
     //The connections to other blocks
     private final Map<Side, Map<Block, Side>> connections = new HashMap<>();
     //The optional Statement of this block
-    private ObjectProperty<Statement<Type, Type, Type>> statement = new SimpleObjectProperty<>();
+    private ObjectProperty<Statement<?, ?, ?>> statement = new SimpleObjectProperty<>();
     //The optional ValueHoldable (variable or parameter) of this block
-    private ObjectProperty<ValueHoldable<Type>> variable = new SimpleObjectProperty<>();
+    private ObjectProperty<ValueHoldable<?>> variable = new SimpleObjectProperty<>();
     
     
-    public Block(Function function, BlockType type) {
+    Block(Function function, BlockType type) {
         this(function, type, UUID.randomUUID().toString(), new Point2D(-1, -1));
     }
     
-    public Block(Function function, BlockType type, String id, Point2D origin) {
+    Block(Function function, BlockType type, String id, Point2D origin) {
         this.function = function;
         this.id = id == null ? UUID.randomUUID().toString() : id;
         this.type = type;
@@ -123,10 +124,18 @@ public abstract class Block {
     }
     
     public void addConnection(Side originSide, Block destinationBlock, Side destinationSide) {
+        addConnection(originSide, destinationBlock, destinationSide, true);
+    }
+    
+    public void addConnection(Side originSide, Block destinationBlock, Side destinationSide, boolean addToUI) {
         if (!connections.containsKey(originSide)) {
             connections.put(originSide, new HashMap<>());
         }
         connections.get(originSide).put(destinationBlock, destinationSide);
+        if (addToUI) {//In the case where the line comes from the serialisation and not from the ui
+            Line line = Lines.createLine(frame.getFunctionSite(), frame.getOutputDot(originSide).orElse(null));
+            line.setEndDot(destinationBlock.getFrame().getInputDot(destinationSide).orElse(null));
+        }
     }
     
     public void removeConnection(Side originSide, Block destinationBlock) {
@@ -136,27 +145,27 @@ public abstract class Block {
         connections.get(originSide).remove(destinationBlock);
     }
     
-    public Optional<Statement<Type, Type, Type>> getStatement() {
+    public Optional<Statement<?, ?, ?>> getStatement() {
         return Optional.ofNullable(statement.get());
     }
     
-    public void setStatement(Statement<Type, Type, Type> statement) {
+    public void setStatement(Statement<?, ?, ?> statement) {
         this.statement.set(statement);
     }
     
-    public ObjectProperty<Statement<Type, Type, Type>> statementProperty() {
+    public ObjectProperty<Statement<?, ?, ?>> statementProperty() {
         return statement;
     }
     
-    public Optional<ValueHoldable<Type>> getVariable() {
+    public Optional<ValueHoldable<?>> getVariable() {
         return Optional.ofNullable(variable.get());
     }
     
-    public void setVariable(ValueHoldable<Type> variable) {
+    public void setVariable(ValueHoldable<?> variable) {
         this.variable.set(variable);
     }
     
-    public ObjectProperty<ValueHoldable<Type>> variableProperty() {
+    public ObjectProperty<ValueHoldable<?>> variableProperty() {
         return variable;
     }
     

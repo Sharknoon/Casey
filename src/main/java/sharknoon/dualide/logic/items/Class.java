@@ -47,7 +47,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     private static ListProperty<Class> classesProperty() {
         return CLASSES;
     }
-
+    
     /**
      * case sensitive!
      *
@@ -60,7 +60,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
         return CLASSES.stream()
                 .filter(c -> c.getFullName().equals(fullName))
-                .findFirst();
+                .findAny();
     }
     
     private transient final ObjectType type = new ObjectType(this);
@@ -161,16 +161,6 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             }
             
             @Override
-            public Optional<ObjectValue> createValue(Statement parent) {
-                return super.createValue(parent);
-            }
-            
-            @Override
-            public ObjectValue createEmptyValue(Statement parent) {
-                return super.createEmptyValue(parent);
-            }
-            
-            @Override
             public Icon getCreationIcon() {
                 return super.getCreationIcon();
             }
@@ -186,6 +176,16 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
                     Language.setCustom(Word.OBJECT, typeName::set);
                 }
                 return typeName;
+            }
+    
+            @Override
+            public Optional<ObjectValue> createValue(Statement parent) {
+                return super.createValue(parent);
+            }
+    
+            @Override
+            public ObjectValue createEmptyValue(Statement parent) {
+                return super.createEmptyValue(parent);
             }
             
             @Override
@@ -214,8 +214,11 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         }
     
         public static Optional<ObjectType> forName(String name) {
-            return Class.forName(name).map(Class::toType);
+            return Items.forName(name)
+                    .filter(i -> i.getType() == ItemType.CLASS)
+                    .map(i -> ((Class) i).toType());
         }
+    
         private final Class clazz;
         List<Runnable> onDelete = new ArrayList<>();
         private Type selectedType;
@@ -281,7 +284,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
             if (creationText == null) {
                 creationText = new SimpleStringProperty();
                 Language.setCustom(Word.OBJECT_CREATION, creationText::set);
-            
+    
             }
             return creationText;
         }

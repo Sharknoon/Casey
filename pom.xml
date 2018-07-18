@@ -2,111 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>shark-industries</groupId>
-    <artifactId>DualIDE</artifactId>
+    <groupId>de.sharknoon</groupId>
+    <artifactId>Casey</artifactId>
     <version>0.1</version>
-    <packaging>jar</packaging>
 
-    <name>DualIDE</name>
+    <name>Casey</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>sharknoon.dualide.Main</mainClass>
-        <maven.compiler.source>10</maven.compiler.source>
-        <maven.compiler.target>10</maven.compiler.target>
-    </properties>
+    <modules>
+        <module>CaseyCOMPILER</module>
+        <module>CaseyIDE</module>
+    </modules>
 
-    <organization>
-        <!-- Used as the 'Vendor' for JNLP generation -->
-        <name>Shark Industries</name>
-    </organization>
 
-    <build>
-        <finalName>DualIDE</finalName>
-    </build>
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-    <dependencies>
-        <!-- To enable proper logging for some dependencies-->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- To run lua during runtime -->
-        <dependency>
-            <groupId>org.luaj</groupId>
-            <artifactId>luaj-jse</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- To play webradio streams -->
-        <dependency>
-            <groupId>net.sourceforge.jaadec</groupId>
-            <artifactId>jaad</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- database -->
-        <dependency>
-            <groupId>org.dizitart</groupId>
-            <artifactId>nitrite</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- JUnit test dependencies -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>LATEST</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Additional JavaFX controls like Popup -->
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- Additional JavaFX components like SVG-Reader -->
-        <dependency>
-            <groupId>com.github.afester.javafx</groupId>
-            <artifactId>FranzXaver</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- For filling in parameters in language strings -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <!-- for annotations like @NonNull -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>LATEST</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.reactivex.rxjava2</groupId>
-            <artifactId>rxjavafx</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>io.reactivex.rxjava2</groupId>
-            <artifactId>rxjava</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.fxmisc.easybind</groupId>
-            <artifactId>easybind</artifactId>
-            <version>LATEST</version>
-        </dependency>
-    </dependencies>
 </project>

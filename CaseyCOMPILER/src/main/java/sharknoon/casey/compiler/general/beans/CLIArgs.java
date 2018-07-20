@@ -14,18 +14,22 @@ package sharknoon.casey.compiler.general.beans;/*
  * limitations under the License.
  */
 
+import sharknoon.casey.compiler.Language;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class CLIArgs {
     final String function;
-    final String path;
-    final String language;
+    final Path caseyPath;
+    final Language language;
     final Map<String, String> parameters;
     
-    public CLIArgs(String function, String path, String language, Map<String, String> parameters) {
+    public CLIArgs(String function, String caseyPath, String language, Map<String, String> parameters) {
         this.function = function;
-        this.path = path;
-        this.language = language;
+        this.caseyPath = Paths.get(caseyPath);
+        this.language = Language.valueOf(language.toUpperCase());
         this.parameters = parameters;
     }
     
@@ -33,11 +37,15 @@ public class CLIArgs {
         return function;
     }
     
-    public String getPath() {
-        return path;
+    public Path getCaseyPath() {
+        return caseyPath;
     }
     
-    public String getLanguage() {
+    public Path getBasePath() {
+        return caseyPath.getParent();
+    }
+    
+    public Language getLanguage() {
         return language;
     }
     
@@ -49,7 +57,7 @@ public class CLIArgs {
     public String toString() {
         return "CLIArgs{" +
                 "function='" + function + '\'' +
-                ", path='" + path + '\'' +
+                ", caseyPath='" + caseyPath + '\'' +
                 ", language='" + language + '\'' +
                 ", parameters=" + parameters +
                 '}';

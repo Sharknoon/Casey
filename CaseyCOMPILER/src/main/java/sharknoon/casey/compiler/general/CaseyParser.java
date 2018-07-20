@@ -1,4 +1,5 @@
-package sharknoon.casey.compiler.general;/*
+package sharknoon.casey.compiler.general;
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +16,41 @@ package sharknoon.casey.compiler.general;/*
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sharknoon.casey.compiler.general.beans.Block;
 import sharknoon.casey.compiler.general.beans.Item;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CaseyParser {
     
+    public static Map<String, Item> NAME_TO_ITEM = new HashMap<>();
+    public static Map<Item, String> ITEM_TO_NAME = new HashMap<>();
+    public static Map<UUID, Block> NAME_TO_BLOCK = new HashMap<>();
+    public static Map<Block, UUID> BLOCK_TO_NAME = new HashMap<>();
+    
     private static List<String> ERRORS = new ArrayList<>();
     
-    public static Optional<Item> parseCasey(String path) {
-        var newPath = getPath(path);
-        if (!newPath.isPresent()) {
+    public static Optional<Item> parseCasey(Path path) {
+        if (!Files.exists(path)) {
+            onCaseyParseError("Could not find file: " + path);
             return Optional.empty();
         }
+        var newItem = getItem(path);
+        if (!newItem.isPresent()) {
+            return Optional.empty();
+        }
+        buildNameDirectories(newItem.get(), "");
+        System.out.println("[STAGE 2: CASEY-PARSING COMPLETE]");
+        return newItem;
+    }
+    
+    private static Optional<Item> getItem(Path path) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            Item item = mapper.readValue(Files.newInputStream(newPath.get()), Item.class);
+            Item item = mapper.readValue(Files.newInputStream(path), Item.class);
             if (ERRORS.isEmpty()) {
-                System.out.println("success");
                 return Optional.of(item);
             }
         } catch (Exception e) {
@@ -47,13 +60,21 @@ public class CaseyParser {
         return Optional.empty();
     }
     
-    private static Optional<Path> getPath(String path) {
-        Path newPath = Paths.get(path);
-        if (Files.exists(newPath)) {
-            return Optional.of(newPath);
+    private static void buildNameDirectories(Item i, String currentPath) {
+        currentPath = currentPath.isEmpty() ? i.name : currentPath + "." + i.name;
+        NAME_TO_ITEM.put(currentPath, i);
+        ITEM_TO_NAME.put(i, currentPath);
+        if (i.children != null) {
+            for (Item child : i.children) {
+                buildNameDirectories(child, currentPath);
+            }
         }
-        onCaseyParseError("Could not find file: " + path);
-        return Optional.empty();
+        if (i.blocks != null) {
+            for (Block block : i.blocks) {
+                NAME_TO_BLOCK.put(block.blockid, block);
+                BLOCK_TO_NAME.put(block, block.blockid);
+            }
+        }
     }
     
     public static void onCaseyParseError(String message) {

@@ -1,6 +1,6 @@
 {
   "name" : "Demo",
-  "comments" : "",
+  "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Projektkommentar</p></body></html>",
   "item" : "PROJECT",
   "id" : "d40e4a01-863b-4b23-99bf-14c8aada0d8c",
   "children" : [ {
@@ -9,17 +9,17 @@
     "item" : "PACKAGE",
     "children" : [ {
       "name" : "packet",
-      "comments" : "",
+      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Paketkommentar</p></body></html>",
       "item" : "PACKAGE",
       "children" : [ ]
     }, {
-      "name" : "class",
-      "comments" : "",
+      "name" : "clazz",
+      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Klassenkommentar</p></body></html>",
       "item" : "CLASS",
       "children" : [ ]
     }, {
       "name" : "function",
-      "comments" : "",
+      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Funktionskommentar</p></body></html>",
       "item" : "FUNCTION",
       "blocks" : [ {
         "blockid" : "08fa5a10-da92-4490-933a-c77871ba62e8",
@@ -95,7 +95,7 @@
       } ]
     }, {
       "name" : "variable",
-      "comments" : "",
+      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Variablenkommentar</p></body></html>",
       "item" : "VARIABLE",
       "type" : "TEXT",
       "children" : [ ]

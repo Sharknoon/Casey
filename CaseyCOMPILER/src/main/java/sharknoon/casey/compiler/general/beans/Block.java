@@ -32,7 +32,7 @@ public class Block {
     public BlockType blocktype;
     
     //The connections from this to other blocks
-    public Map<Side, Map<UUID, Side>> blockconnections;
+    public Map<Side, Map<UUID, Side>> blockconnections = Map.of();
     
     //The statements of this block
     public BlockContent blockcontent;

@@ -30,7 +30,7 @@ public class Item {
     public ItemType item;
     
     //The list of children of this item (required)
-    public List<Item> children;
+    public List<Item> children = List.of();
     
     //The id of this project (only for projects)
     public UUID id;
@@ -42,7 +42,7 @@ public class Item {
     public String returntype;
     
     //The list of blocks of this function (only for functions)
-    public List<Block> blocks;
+    public List<Block> blocks = List.of();
     
     @Override
     public String toString() {

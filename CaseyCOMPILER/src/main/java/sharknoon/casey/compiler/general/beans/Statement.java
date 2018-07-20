@@ -25,10 +25,10 @@ public class Statement {
     public Object value;
     
     //The parameter of this operator (only for operators)
-    public List<Statement> parameter;
+    public List<Statement> parameter = List.of();
     
     //The calls of this call (only for call)
-    public List<Call> calls;
+    public List<Call> calls = List.of();
     
     public enum StatementType {
         //Values
@@ -60,7 +60,7 @@ public class Statement {
     public static class Call {
         
         //The parameter of this function (only for functions)
-        public List<Statement> parameter;
+        public List<Statement> parameter = List.of();
         
         //The type of this call (variable, parameter or functionname)
         public String type;

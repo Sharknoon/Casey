@@ -1,4 +1,5 @@
-package sharknoon.casey.compiler.general;/*
+package sharknoon.casey.compiler.general;
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,8 +52,10 @@ public class CLIParser {
                     parameterMap.put(parameter[i], parameter[i + 1]);
                 }
             }
-            return Optional.of(new CLIArgs(function, path, language, parameterMap));
-        } catch (ParseException e) {
+            var cliargs = new CLIArgs(function, path, language, parameterMap);
+            System.out.println("[STAGE 1: COMMANDLINE-PARSING COMPLETE]");
+            return Optional.of(cliargs);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp(

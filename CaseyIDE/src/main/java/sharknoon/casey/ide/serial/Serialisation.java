@@ -103,7 +103,7 @@ public class Serialisation {
             }
         }
         if (parentItem.length < 1) {
-            ADDITIONAL_NODES.forEach((i, ad) -> i.setAdditionalProperties(ad));
+            ADDITIONAL_NODES.forEach(Item::setAdditionalProperties);
             ADDITIONAL_NODES.clear();
         }
         return Optional.ofNullable(result);

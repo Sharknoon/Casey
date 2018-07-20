@@ -15,7 +15,6 @@ package sharknoon.casey.ide.logic.items;/*
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -36,7 +35,6 @@ import java.util.Map;
 public class Parameter extends Item<Parameter, Function, Item<? extends Item, Parameter, ? extends Item>> implements ValueReturnable<Type>, ValueHoldable<Type> {
 
     private static final String TYPE = "type";
-    private static final String MODIFIABLE = "modifiable";
     private static final ObservableMap<Type, List<Parameter>> PARAMETERS = FXCollections.observableHashMap();
 
     static {
@@ -75,7 +73,6 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
             typeString = type.get().fullNameProperty().get();
         }
         map.put(TYPE, TextNode.valueOf(typeString));
-        map.put(MODIFIABLE, BooleanNode.valueOf(modifiable.get()));
         return map;
     }
 
@@ -83,9 +80,6 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
     public void setAdditionalProperties(Map<String, JsonNode> properties) {
         properties.forEach((key, value) -> {
             switch (key) {
-                case MODIFIABLE:
-                    modifiable.set(value.asBoolean(true));
-                    break;
                 case TYPE:
                     Type.valueOf(value.asText()).ifPresent(type::set);
                     break;

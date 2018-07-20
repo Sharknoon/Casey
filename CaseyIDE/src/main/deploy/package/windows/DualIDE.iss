@@ -1,17 +1,17 @@
 ;This file will be executed next to the application bundle image
-;I.e. current directory will contain folder DualIDE with application files
+;I.e. current directory will contain folder Casey with application files
 [Setup]
-AppId={{sharknoon.dualide}}
-AppName=DualIDE
+AppId={{sharknoon.casey.ide}}
+AppName=Casey
 AppVersion=0.1
-AppVerName=DualIDE 0.1
+AppVerName=Casey 0.1
 AppPublisher=Shark Industries
-AppComments=DualIDE
+AppComments=Casey
 AppCopyright=Copyright (C) 2017
 ;AppPublisherURL=http://java.com/
 ;AppSupportURL=http://java.com/
 ;AppUpdatesURL=http://java.com/
-DefaultDirName={userappdata}\DualIDE
+DefaultDirName={userappdata}\Casey
 DisableStartupPrompt=Yes
 DisableDirPage=Yes
 DisableProgramGroupPage=Yes
@@ -23,16 +23,16 @@ DefaultGroupName=Shark Industries
 LicenseFile=
 ;WinXP or above
 MinVersion=0,5.1 
-OutputBaseFilename=DualIDE-0.1
+OutputBaseFilename=Casey-0.1
 Compression=lzma
 ShowLanguageDialog=auto
 SolidCompression=yes
 PrivilegesRequired=lowest
-SetupIconFile=DualIDE\DualIDE.ico
-UninstallDisplayIcon={app}\DualIDE.ico
-UninstallDisplayName=DualIDE
+SetupIconFile=Casey\Casey.ico
+UninstallDisplayIcon={app}\Casey.ico
+UninstallDisplayName=Casey
 WizardImageStretch=No
-WizardSmallImageFile=DualIDE-setup-icon.bmp   
+WizardSmallImageFile=Casey-setup-icon.bmp
 ArchitecturesInstallIn64BitMode=x64
 
 
@@ -41,21 +41,21 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 
 [Files]
-Source: "DualIDE\DualIDE.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "DualIDE\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Casey\Casey.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Casey\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\DualIDE"; Filename: "{app}\DualIDE.exe"; IconFilename: "{app}\DualIDE.ico"; Check: returnTrue()
-Name: "{commondesktop}\DualIDE"; Filename: "{app}\DualIDE.exe";  IconFilename: "{app}\DualIDE.ico"; Check: returnFalse()
+Name: "{group}\Casey"; Filename: "{app}\Casey.exe"; IconFilename: "{app}\Casey.ico"; Check: returnTrue()
+Name: "{commondesktop}\Casey"; Filename: "{app}\Casey.exe";  IconFilename: "{app}\Casey.ico"; Check: returnFalse()
 
 
 [Run]
-Filename: "{app}\DualIDE.exe"; Parameters: "-Xappcds:generatecache"; Check: returnFalse()
-Filename: "{app}\DualIDE.exe"; Description: "{cm:LaunchProgram,DualIDE}"; Flags: nowait postinstall skipifsilent; Check: returnTrue()
-Filename: "{app}\DualIDE.exe"; Parameters: "-install -svcName ""DualIDE"" -svcDesc ""DualIDE"" -mainExe ""DualIDE.exe""  "; Check: returnFalse()
+Filename: "{app}\Casey.exe"; Parameters: "-Xappcds:generatecache"; Check: returnFalse()
+Filename: "{app}\Casey.exe"; Description: "{cm:LaunchProgram,Casey}"; Flags: nowait postinstall skipifsilent; Check: returnTrue()
+Filename: "{app}\Casey.exe"; Parameters: "-install -svcName ""Casey"" -svcDesc ""Casey"" -mainExe ""Casey.exe""  "; Check: returnFalse()
 
 [UninstallRun]
-Filename: "{app}\DualIDE.exe "; Parameters: "-uninstall -svcName DualIDE -stopOnUninstall"; Check: returnFalse()
+Filename: "{app}\Casey.exe "; Parameters: "-uninstall -svcName Casey -stopOnUninstall"; Check: returnFalse()
 
 [Code]
 function returnTrue(): Boolean;

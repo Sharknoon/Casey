@@ -14,5 +14,57 @@ package sharknoon.casey.compiler.general.beans;/*
  * limitations under the License.
  */
 
+import java.util.List;
+
 public class Statement {
+    
+    //The type of the statement (required)
+    public StatementType type;
+    
+    //The value of this value (only for number, boolean, text and object)
+    public Object value;
+    
+    //The parameter of this operator (only for operators)
+    public List<Statement> parameter;
+    
+    //The calls of this call (only for call)
+    public List<Call> calls;
+    
+    public enum StatementType {
+        //Values
+        NUMBER,
+        BOOLEAN,
+        TEXT,
+        OBJECT,
+        //Operators
+        ADD,
+        AND,
+        CONCAT,
+        DIVIDE,
+        EQUALS,
+        GREATEROREQUALTHAN,
+        GREATERTHAN,
+        LENGTH,
+        LESSOREQUALTHAN,
+        LESSTHAN,
+        MODULO,
+        MULTIPLY,
+        NOTEQUALS,
+        NOT,
+        OR,
+        SUBTRACT,
+        //Call
+        CALL
+    }
+    
+    public static class Call {
+        
+        //The parameter of this function (only for functions)
+        public List<Statement> parameter;
+        
+        //The type of this call (variable, parameter or functionname)
+        public String type;
+        
+    }
+    
 }

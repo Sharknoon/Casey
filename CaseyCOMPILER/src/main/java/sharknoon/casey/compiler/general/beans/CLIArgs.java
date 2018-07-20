@@ -19,11 +19,13 @@ import java.util.Map;
 public class CLIArgs {
     final String function;
     final String path;
+    final String language;
     final Map<String, String> parameters;
     
-    public CLIArgs(String function, String path, Map<String, String> parameters) {
+    public CLIArgs(String function, String path, String language, Map<String, String> parameters) {
         this.function = function;
         this.path = path;
+        this.language = language;
         this.parameters = parameters;
     }
     
@@ -35,6 +37,10 @@ public class CLIArgs {
         return path;
     }
     
+    public String getLanguage() {
+        return language;
+    }
+    
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -44,6 +50,7 @@ public class CLIArgs {
         return "CLIArgs{" +
                 "function='" + function + '\'' +
                 ", path='" + path + '\'' +
+                ", language='" + language + '\'' +
                 ", parameters=" + parameters +
                 '}';
     }

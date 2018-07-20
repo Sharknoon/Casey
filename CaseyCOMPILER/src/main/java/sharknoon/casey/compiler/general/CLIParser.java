@@ -15,11 +15,14 @@ package sharknoon.casey.compiler.general;/*
  */
 
 import org.apache.commons.cli.*;
+import sharknoon.casey.compiler.Language;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CLIParser {
     
@@ -40,12 +43,15 @@ public class CLIParser {
             CommandLine cmd = parser.parse(options, args);
             String path = cmd.getOptionValue("p");
             String function = cmd.getOptionValue("f");
+            String language = cmd.getOptionValue("l");
             String[] parameter = cmd.getOptionValues("pa");
             Map<String, String> parameterMap = new HashMap<>();
-            for (int i = 0; i + 1 < parameter.length; i += 2) {
-                parameterMap.put(parameter[i], parameter[i + 1]);
+            if (parameter != null) {
+                for (int i = 0; i + 1 < parameter.length; i += 2) {
+                    parameterMap.put(parameter[i], parameter[i + 1]);
+                }
             }
-            return Optional.of(new CLIArgs(function, path, parameterMap));
+            return Optional.of(new CLIArgs(function, path, language, parameterMap));
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             HelpFormatter formatter = new HelpFormatter();
@@ -79,6 +85,18 @@ public class CLIParser {
                 .required()
                 .desc("The main function to be started with")
                 .build();
+    
+        Option language = Option.builder("l")
+                .longOpt("language")
+                .hasArg()
+                .argName("name")
+                .required()
+                .desc("The language this project should be compiled to (" +
+                        Arrays.stream(Language.values())
+                                .map(Enum::name)
+                                .collect(Collectors.joining(", ")) + ")"
+                )
+                .build();
         
         Option parameters = Option.builder("pa")
                 .longOpt("parameter")
@@ -90,6 +108,7 @@ public class CLIParser {
         
         options.addOption(path);
         options.addOption(function);
+        options.addOption(language);
         options.addOption(parameters);
         
         return options;

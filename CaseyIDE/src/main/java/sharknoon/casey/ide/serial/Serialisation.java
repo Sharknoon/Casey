@@ -113,7 +113,7 @@ public class Serialisation {
         ObjectNode object = MAPPER.createObjectNode();
         object.put(NAME, item.getName());
         object.put(COMMENTS, item.getComments());
-        object.put(ITEM, item.getType().name().toLowerCase());
+        object.put(ITEM, item.getType().name().toUpperCase());
         object.setAll(item.getAdditionalProperties());
 
         ArrayNode array = object.putArray(CHILDREN);

@@ -14,8 +14,6 @@ package sharknoon.casey.compiler.general.beans;/*
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -31,11 +29,11 @@ public class Item {
     //The type of this item (required)
     public ItemType item;
     
-    //The id of this item (required)
-    public UUID id;
-    
     //The list of children of this item (required)
     public List<Item> children;
+    
+    //The id of this project (only for projects)
+    public UUID id;
     
     //The type of this variable or parameter (only for variables and parameters)
     public String type;
@@ -46,32 +44,18 @@ public class Item {
     //The list of blocks of this function (only for functions)
     public List<Block> blocks;
     
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    @JsonProperty("comments")
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-    
-    @JsonProperty("item")
-    public void setItem(String item) {
-        try {
-            this.item = ItemType.valueOf(item.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            //TODO ERROR
-        }
-    }
-    
-    @JsonProperty("id")
-    public void setId(String id) {
-        try {
-            this.id = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            //TODO Error
-        }
+    @Override
+    public String toString() {
+        return "Item{" +
+                "name='" + name + '\'' +
+                ", comments='" + comments + '\'' +
+                ", item=" + item +
+                ", children= size=" + (children != null ? children.size() : 0) +
+                ", id=" + id +
+                ", type='" + type + '\'' +
+                ", returntype='" + returntype + '\'' +
+                ", blocks= size=" + (blocks != null ? blocks.size() : 0) +
+                '}';
     }
     
     public enum ItemType {
@@ -82,5 +66,4 @@ public class Item {
         PARAMETER,
         CLASS
     }
-    
 }

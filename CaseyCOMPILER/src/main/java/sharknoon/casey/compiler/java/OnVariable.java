@@ -14,68 +14,57 @@ package sharknoon.casey.compiler.java;/*
  * limitations under the License.
  */
 
-import com.squareup.javapoet.*;
-import org.apache.commons.lang3.EnumUtils;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
 
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import java.util.Optional;
 
 public class OnVariable {
     
-    private static List<VariableType> variableTypes;
     
     public static void accept(CLIArgs args, Path currentPath, Item item) {
         if (item == null) {
-            System.err.println("Variable itself not specified " + currentPath);
+            System.err.println("Variable itself not specified: " + currentPath);
+            return;
         }
         if (item.name == null) {
-            System.err.println("Name of variable not specified " + currentPath);
+            System.err.println("Name of variable not specified: " + ItemUtils.getFullName(item));
+            return;
         }
         if (item.type == null) {
-            System.err.println("Type of variable not specified " + currentPath);
+            System.err.println("Type of variable not specified: " + ItemUtils.getFullName(item));
+            return;
         }
-        
+    
+        String typeNameString = item.type;
+        Optional<TypeName> optionalTypeName = ItemUtils.getTypeName(typeNameString);
+        if (!optionalTypeName.isPresent()) {
+            return;
+        }
+        TypeName typeName = optionalTypeName.get();
         String className = item.name;
-        if (variableTypes == null) {
-            variableTypes = EnumUtils.getEnumList(VariableType.class);
-        }
-        if (EnumUtils.isValidEnum(VariableType.class, item.type)) {
-            VariableType varType = VariableType.valueOf(item.type);
-            TypeName typeName;
-            switch (varType) {
-                case BOOLEAN:
-                    typeName = TypeName.BOOLEAN;
-                    break;
-                case NUMBER:
-                    typeName = TypeName.DOUBLE;
-                    break;
-                case TEXT:
-                    typeName = ClassName.bestGuess("java.lang.String");
-                    break;
-                default:
-                    System.err.println("Could not determine Variable type");
-                    typeName = null;
-            }
+    
+        try {
             FieldSpec field = FieldSpec.builder(typeName, className)
+                    .addJavadoc(ItemUtils.getJavaDoc(args, item))
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .initializer(ItemUtils.getFieldInitializer(typeName))
                     .build();
             TypeSpec clazz = TypeSpec.classBuilder(className)
                     .addModifiers(Modifier.PUBLIC)
                     .addField(field)
                     .build();
-            JavaFile varFile = JavaFile.builder(currentPath.toString().replace("\\", "."), clazz)//TODO better solution
+            JavaFile varFile = JavaFile.builder(ItemUtils.pathToClassPath(currentPath), clazz)
                     .build();
-            try {
-                varFile.writeTo(Paths.get(""));
-            } catch (IOException e) {
-                System.err.println("Could not write class for variable " + item + ": " + e);
-            }
-            
+            varFile.writeTo(args.getBasePath());
+        } catch (Exception e) {
+            System.err.println("Could not write class for variable " + ItemUtils.getFullName(item) + ": " + e);
         }
     }
 }

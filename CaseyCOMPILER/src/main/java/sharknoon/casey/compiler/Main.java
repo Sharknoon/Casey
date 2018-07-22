@@ -27,16 +27,19 @@ public class Main {
         if (!cliArgs.isPresent()) {
             return;
         }
+        System.out.println("[STAGE 1: COMMANDLINE-PARSING COMPLETE]");
         var item = CaseyParser.parseCasey(cliArgs.get().getCaseyPath());
         if (!item.isPresent()) {
             return;
         }
+        System.out.println("[STAGE 2: CASEY-PARSING COMPLETE]");
         switch (cliArgs.get().getLanguage()) {
             case JAVA:
                 Java.convert(cliArgs.get(), item.get());
                 break;
             //TODO maybe add more languages
         }
+        System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
     }
     
     

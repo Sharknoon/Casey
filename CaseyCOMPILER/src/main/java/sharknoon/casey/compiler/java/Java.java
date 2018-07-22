@@ -18,11 +18,12 @@ import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Java {
     
     public static void convert(CLIArgs args, Item item) {
-        convert(args, args.getBasePath(), item);
+        convert(args, Paths.get(""), item);
     }
     
     public static void convert(CLIArgs args, Path currentPath, Item item) {
@@ -37,7 +38,7 @@ public class Java {
                 OnClass.accept(args, currentPath, item);
                 break;
             case FUNCTION:
-                
+                OnFunction.accept(args, currentPath, item);
                 break;
             case VARIABLE:
                 OnVariable.accept(args, currentPath, item);

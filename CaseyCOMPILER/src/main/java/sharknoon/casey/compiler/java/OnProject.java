@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +44,7 @@ public class OnProject {
                 System.err.println("The id of the project is not specified");
                 return;
             }
-            Path projectFolder = currentPath.resolve(Paths.get(item.name));
+            Path projectFolder = args.getBasePath().resolve(Paths.get(item.name));
             if (Files.exists(projectFolder)) {
                 FileUtils.forceDelete(projectFolder.toFile());
             }
@@ -55,19 +54,9 @@ public class OnProject {
                     Stream.of(item.id).map(Object::toString).collect(Collectors.toList()),
                     StandardCharsets.UTF_8
             );
-            if (item.comments != null && !item.comments.isEmpty()) {
-                Files.write(
-                        projectFolder.resolve("comments.txt"),
-                        Stream.of(item.comments)
-                                .map(c -> c.split("\\r?\\n"))
-                                .map(Arrays::stream)
-                                .flatMap(s -> s)
-                                .collect(Collectors.toList()),
-                        StandardCharsets.UTF_8
-                );
-            }
+            ItemUtils.writeComments(args, item, projectFolder);
             for (Item child : item.children) {
-                Java.convert(args, projectFolder, child);
+                Java.convert(args, currentPath.resolve(Paths.get(item.name)), child);
             }
         } catch (Exception e) {
             System.err.println("Error during output directory cleanup: " + e);

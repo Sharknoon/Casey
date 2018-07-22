@@ -52,8 +52,8 @@ public class CLIParser {
                     parameterMap.put(parameter[i], parameter[i + 1]);
                 }
             }
-            var cliargs = new CLIArgs(function, path, language, parameterMap);
-            System.out.println("[STAGE 1: COMMANDLINE-PARSING COMPLETE]");
+            boolean ignoreComments = cmd.hasOption("i");
+            var cliargs = new CLIArgs(function, path, language, parameterMap, ignoreComments);
             return Optional.of(cliargs);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -108,11 +108,17 @@ public class CLIParser {
                 .valueSeparator()
                 .desc("The parameters of the main function, if the function has some")
                 .build();
+    
+        Option ignoreComments = Option.builder("i")
+                .longOpt("ignorecomments")
+                .desc("Ignores the comments to improve parsing speed")
+                .build();
         
         options.addOption(path);
         options.addOption(function);
         options.addOption(language);
         options.addOption(parameters);
+        options.addOption(ignoreComments);
         
         return options;
     }

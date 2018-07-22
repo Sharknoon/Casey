@@ -19,6 +19,7 @@ public enum VariableType {
     TEXT,
     NUMBER,
     BOOLEAN,
+    VOID,
     OBJECT
     
 }

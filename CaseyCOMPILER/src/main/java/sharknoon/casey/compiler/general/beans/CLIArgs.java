@@ -23,26 +23,40 @@ import java.util.Map;
 public class CLIArgs {
     final String function;
     final Path caseyPath;
+    final transient Path basePath;
     final Language language;
     final Map<String, String> parameters;
+    final boolean ignoreComments;
     
-    public CLIArgs(String function, String caseyPath, String language, Map<String, String> parameters) {
+    public CLIArgs(String function, String caseyPath, String language, Map<String, String> parameters, boolean ignoreComments) {
         this.function = function;
         this.caseyPath = Paths.get(caseyPath);
+        this.basePath = this.caseyPath.getParent() != null ? this.caseyPath.getParent() : Paths.get("");
         this.language = Language.valueOf(language.toUpperCase());
         this.parameters = parameters;
+        this.ignoreComments = ignoreComments;
     }
     
     public String getFunction() {
         return function;
     }
     
+    /**
+     * The path to the .casey file, including the .casey file
+     *
+     * @return
+     */
     public Path getCaseyPath() {
         return caseyPath;
     }
     
+    /**
+     * The base path, the folder in which the .casey file is located
+     *
+     * @return
+     */
     public Path getBasePath() {
-        return caseyPath.getParent();
+        return basePath;
     }
     
     public Language getLanguage() {
@@ -51,6 +65,10 @@ public class CLIArgs {
     
     public Map<String, String> getParameters() {
         return parameters;
+    }
+    
+    public boolean getIgnoreComments() {
+        return ignoreComments;
     }
     
     @Override

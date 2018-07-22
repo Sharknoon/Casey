@@ -21,7 +21,10 @@ import sharknoon.casey.compiler.general.beans.Item;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class CaseyParser {
     
@@ -30,11 +33,9 @@ public class CaseyParser {
     public static Map<UUID, Block> NAME_TO_BLOCK = new HashMap<>();
     public static Map<Block, UUID> BLOCK_TO_NAME = new HashMap<>();
     
-    private static List<String> ERRORS = new ArrayList<>();
-    
     public static Optional<Item> parseCasey(Path path) {
         if (!Files.exists(path)) {
-            onCaseyParseError("Could not find file: " + path);
+            System.err.println("Could not find file: " + path);
             return Optional.empty();
         }
         var newItem = getItem(path);
@@ -42,7 +43,6 @@ public class CaseyParser {
             return Optional.empty();
         }
         buildNameDirectories(newItem.get(), "");
-        System.out.println("[STAGE 2: CASEY-PARSING COMPLETE]");
         return newItem;
     }
     
@@ -50,13 +50,10 @@ public class CaseyParser {
         ObjectMapper mapper = new ObjectMapper();
         try {
             Item item = mapper.readValue(Files.newInputStream(path), Item.class);
-            if (ERRORS.isEmpty()) {
-                return Optional.of(item);
-            }
+            return Optional.of(item);
         } catch (Exception e) {
-            onCaseyParseError("Could not parse item: " + e);
+            System.err.println("Could not parse item: " + e);
         }
-        ERRORS.forEach(System.out::println);
         return Optional.empty();
     }
     
@@ -75,10 +72,6 @@ public class CaseyParser {
                 BLOCK_TO_NAME.put(block, block.blockid);
             }
         }
-    }
-    
-    public static void onCaseyParseError(String message) {
-        ERRORS.add(message);
     }
     
 }

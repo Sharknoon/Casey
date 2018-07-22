@@ -13,11 +13,6 @@
       "item" : "PACKAGE",
       "children" : [ ]
     }, {
-      "name" : "clazz",
-      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Klassenkommentar</p></body></html>",
-      "item" : "CLASS",
-      "children" : [ ]
-    }, {
       "name" : "function",
       "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Funktionskommentar</p></body></html>",
       "item" : "FUNCTION",
@@ -78,17 +73,45 @@
         "blocktype" : "END",
         "blockconnections" : { },
         "blockcontent" : { }
+      }, {
+        "blockid" : "a7b2fc2f-7809-454f-be2d-882df1fd4a7a",
+        "blockX" : 2050.0,
+        "blockY" : 1050.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "ba4dd8c1-c992-453b-84ea-fcdf95524fbf" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "BOOLEAN",
+            "value" : false
+          }
+        }
+      }, {
+        "blockid" : "ba4dd8c1-c992-453b-84ea-fcdf95524fbf",
+        "blockX" : 2050.0,
+        "blockY" : 1250.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : { },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "OBJECT",
+            "value" : "Demo.root.Clazz"
+          }
+        }
       } ],
       "returntype" : "VOID",
       "children" : [ {
         "name" : "funvar",
-        "comments" : "",
+        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>funvar comment</p></body></html>",
         "item" : "VARIABLE",
         "type" : "TEXT",
         "children" : [ ]
       }, {
         "name" : "funpar",
-        "comments" : "",
+        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>funpar comment</p></body></html>",
         "item" : "PARAMETER",
         "type" : "TEXT",
         "children" : [ ]
@@ -97,8 +120,33 @@
       "name" : "variable",
       "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Variablenkommentar</p></body></html>",
       "item" : "VARIABLE",
-      "type" : "TEXT",
+      "type" : "Demo.root.Clazz",
       "children" : [ ]
+    }, {
+      "name" : "Clazz",
+      "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Klassenkommentar</p></body></html>",
+      "item" : "CLASS",
+      "children" : [ {
+        "name" : "classfun",
+        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Kommentar einer Funktion in einer Klasse</p></body></html>",
+        "item" : "FUNCTION",
+        "blocks" : [ {
+          "blockid" : "16da79cb-48ef-4e01-bba9-6cc3148bf9cd",
+          "blockX" : 2350.0,
+          "blockY" : 1050.0,
+          "blocktype" : "START",
+          "blockconnections" : { },
+          "blockcontent" : { }
+        } ],
+        "returntype" : "Demo.root.Clazz",
+        "children" : [ ]
+      }, {
+        "name" : "classvar",
+        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Kommentar einer Variable in einer Klasse</p></body></html>",
+        "item" : "VARIABLE",
+        "type" : "Demo.root.Clazz",
+        "children" : [ ]
+      } ]
     } ]
   } ]
 }

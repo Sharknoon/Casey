@@ -57,6 +57,11 @@ public class Statement {
         CALL
     }
     
+    @Override
+    public String toString() {
+        return type != null ? type.name() : "ERROR";
+    }
+    
     public static class Call {
         
         //The parameter of this function (only for functions)

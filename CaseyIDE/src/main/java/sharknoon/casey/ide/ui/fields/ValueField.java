@@ -29,6 +29,8 @@ import sharknoon.casey.ide.logic.types.Type;
 import sharknoon.casey.ide.ui.bodies.ValuePlaceholderBody;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
 
+import java.util.Objects;
+
 /**
  * @author Josua Frank
  */
@@ -72,6 +74,17 @@ public class ValueField extends Pane implements Field {
             });
         });
         body.setStatementConsumer(this.statement::set);
+    
+        //In the case the allowed type changes but there is a statement associated to it, delete it
+        allowedType.addListener((observable, oldValue, at) -> {
+            if (at == null) {//Whatever is at the value, it can stay there (Undefined Type)
+                return;
+            }
+            Statement<?, ?, ?> currentS = statementProperty().get();
+            if (currentS != null && !Objects.equals(currentS.returnTypeProperty().get(), at)) {
+                statementProperty().set(null);
+            }
+        });
         
         if (statement != null) {
             statementProperty().set(statement);

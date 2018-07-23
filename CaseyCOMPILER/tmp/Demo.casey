@@ -13,7 +13,7 @@
       "item" : "PACKAGE",
       "children" : [ ]
     }, {
-      "name" : "function",
+      "name" : "fibonacciRecursive",
       "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Funktionskommentar</p></body></html>",
       "item" : "FUNCTION",
       "blocks" : [ {
@@ -23,29 +23,21 @@
         "blocktype" : "START",
         "blockconnections" : {
           "BOTTOM" : {
-            "c187cd56-2f9f-4720-89aa-8f8084c53f7d" : "TOP"
+            "9ec2905e-5c3b-4714-8589-17b33ce09b8c" : "TOP"
           }
         },
         "blockcontent" : { }
       }, {
-        "blockid" : "35f4b10b-6078-4f46-b932-2c68d7d0a2a9",
-        "blockX" : 2350.0,
-        "blockY" : 1450.0,
-        "blocktype" : "END",
-        "blockconnections" : { },
-        "blockcontent" : { }
-      }, {
-        "blockid" : "c187cd56-2f9f-4720-89aa-8f8084c53f7d",
+        "blockid" : "9ec2905e-5c3b-4714-8589-17b33ce09b8c",
         "blockX" : 2350.0,
         "blockY" : 1150.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
           "RIGHT" : {
-            "1ea24ad6-1d25-4563-9e54-4127c8d39666" : "TOP",
-            "35f4b10b-6078-4f46-b932-2c68d7d0a2a9" : "TOP"
+            "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
           },
           "LEFT" : {
-            "35f4b10b-6078-4f46-b932-2c68d7d0a2a9" : "TOP"
+            "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
           }
         },
         "blockcontent" : {
@@ -53,67 +45,123 @@
             "parameter" : [ {
               "calls" : [ {
                 "parameter" : [ ],
-                "type" : "Demo.root.function.funvar"
+                "type" : "Demo.root.fibonacciRecursive.fib"
               } ],
               "type" : "CALL"
             }, {
+              "type" : "NUMBER",
+              "value" : 0.0
+            } ],
+            "type" : "LESS_OR_EQUAL_THAN"
+          }
+        }
+      }, {
+        "blockid" : "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298",
+        "blockX" : 2650.0,
+        "blockY" : 1350.0,
+        "blocktype" : "END",
+        "blockconnections" : { },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "NUMBER",
+            "value" : 0.0
+          }
+        }
+      }, {
+        "blockid" : "03b39930-08a5-466b-a967-3fbb3b9ee63a",
+        "blockX" : 2050.0,
+        "blockY" : 1350.0,
+        "blocktype" : "DECISION",
+        "blockconnections" : {
+          "RIGHT" : {
+            "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
+          },
+          "LEFT" : {
+            "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "parameter" : [ {
               "calls" : [ {
                 "parameter" : [ ],
-                "type" : "Demo.root.function.funpar"
+                "type" : "Demo.root.fibonacciRecursive.fib"
               } ],
               "type" : "CALL"
+            }, {
+              "type" : "NUMBER",
+              "value" : 1.0
             } ],
             "type" : "EQUALS"
           }
         }
       }, {
-        "blockid" : "1ea24ad6-1d25-4563-9e54-4127c8d39666",
-        "blockX" : 2650.0,
-        "blockY" : 1250.0,
+        "blockid" : "2acbf108-0758-491a-bef0-16c5389e14ef",
+        "blockX" : 2350.0,
+        "blockY" : 1550.0,
         "blocktype" : "END",
         "blockconnections" : { },
-        "blockcontent" : { }
-      }, {
-        "blockid" : "a7b2fc2f-7809-454f-be2d-882df1fd4a7a",
-        "blockX" : 2050.0,
-        "blockY" : 1050.0,
-        "blocktype" : "OUTPUT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "ba4dd8c1-c992-453b-84ea-fcdf95524fbf" : "TOP"
-          }
-        },
         "blockcontent" : {
           "statement" : {
-            "type" : "BOOLEAN",
-            "value" : false
+            "type" : "NUMBER",
+            "value" : 1.0
           }
         }
       }, {
-        "blockid" : "ba4dd8c1-c992-453b-84ea-fcdf95524fbf",
-        "blockX" : 2050.0,
-        "blockY" : 1250.0,
-        "blocktype" : "OUTPUT",
+        "blockid" : "bc0d317b-626c-402d-a0e1-f47365e30a17",
+        "blockX" : 1750.0,
+        "blockY" : 1550.0,
+        "blocktype" : "END",
         "blockconnections" : { },
         "blockcontent" : {
           "statement" : {
-            "type" : "OBJECT",
-            "value" : "Demo.root.Clazz"
+            "parameter" : [ {
+              "calls" : [ {
+                "parameter" : [ {
+                  "parameter" : [ {
+                    "calls" : [ {
+                      "parameter" : [ ],
+                      "type" : "Demo.root.fibonacciRecursive.fib"
+                    } ],
+                    "type" : "CALL"
+                  }, {
+                    "type" : "NUMBER",
+                    "value" : 2.0
+                  } ],
+                  "type" : "SUBTRACT"
+                } ],
+                "type" : "Demo.root.fibonacciRecursive"
+              } ],
+              "type" : "CALL"
+            }, {
+              "calls" : [ {
+                "parameter" : [ {
+                  "parameter" : [ {
+                    "calls" : [ {
+                      "parameter" : [ ],
+                      "type" : "Demo.root.fibonacciRecursive.fib"
+                    } ],
+                    "type" : "CALL"
+                  }, {
+                    "type" : "NUMBER",
+                    "value" : 1.0
+                  } ],
+                  "type" : "SUBTRACT"
+                } ],
+                "type" : "Demo.root.fibonacciRecursive"
+              } ],
+              "type" : "CALL"
+            } ],
+            "type" : "ADD"
           }
         }
       } ],
-      "returntype" : "VOID",
+      "returntype" : "NUMBER",
       "children" : [ {
-        "name" : "funvar",
-        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>funvar comment</p></body></html>",
-        "item" : "VARIABLE",
-        "type" : "TEXT",
-        "children" : [ ]
-      }, {
-        "name" : "funpar",
-        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>funpar comment</p></body></html>",
+        "name" : "fib",
+        "comments" : "",
         "item" : "PARAMETER",
-        "type" : "TEXT",
+        "type" : "NUMBER",
         "children" : [ ]
       } ]
     }, {
@@ -145,6 +193,94 @@
         "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Kommentar einer Variable in einer Klasse</p></body></html>",
         "item" : "VARIABLE",
         "type" : "Demo.root.Clazz",
+        "children" : [ ]
+      } ]
+    }, {
+      "name" : "testfunktion",
+      "comments" : "",
+      "item" : "FUNCTION",
+      "blocks" : [ {
+        "blockid" : "e8a7b873-2096-4141-9732-8a598d82f310",
+        "blockX" : 2350.0,
+        "blockY" : 950.0,
+        "blocktype" : "START",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "37b4474e-f4c4-454d-ba0e-ca050b486ee8" : "TOP"
+          }
+        },
+        "blockcontent" : { }
+      }, {
+        "blockid" : "37b4474e-f4c4-454d-ba0e-ca050b486ee8",
+        "blockX" : 2250.0,
+        "blockY" : 1150.0,
+        "blocktype" : "CALL",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "a140a8f8-260a-4e01-a249-94a89fa00b88" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "calls" : [ {
+              "parameter" : [ {
+                "type" : "NUMBER",
+                "value" : 42.0
+              } ],
+              "type" : "Demo.root.fibonacciRecursive"
+            } ],
+            "type" : "CALL"
+          }
+        }
+      }, {
+        "blockid" : "a140a8f8-260a-4e01-a249-94a89fa00b88",
+        "blockX" : 2250.0,
+        "blockY" : 1350.0,
+        "blocktype" : "ASSIGNMENT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "7fa1620b-52d8-4033-b2fe-a5d783a6b359" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.variable",
+          "statement" : {
+            "type" : "OBJECT",
+            "value" : "Demo.root.Clazz"
+          }
+        }
+      }, {
+        "blockid" : "7fa1620b-52d8-4033-b2fe-a5d783a6b359",
+        "blockX" : 2350.0,
+        "blockY" : 1550.0,
+        "blocktype" : "INPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "002a0912-a605-4915-a00a-68400bc9d0a9" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.testfunktion.text"
+        }
+      }, {
+        "blockid" : "002a0912-a605-4915-a00a-68400bc9d0a9",
+        "blockX" : 2450.0,
+        "blockY" : 1750.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : { },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "TEXT",
+            "value" : "Ausgabeeeeee"
+          }
+        }
+      } ],
+      "returntype" : "VOID",
+      "children" : [ {
+        "name" : "text",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "TEXT",
         "children" : [ ]
       } ]
     } ]

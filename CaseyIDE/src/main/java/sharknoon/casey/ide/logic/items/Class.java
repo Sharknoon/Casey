@@ -124,6 +124,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         public static ObjectType GENERAL = new ObjectType(null) {
             
             private StringProperty typeName = new SimpleStringProperty();
+            private Type selectedType;
             
             @Override
             public boolean isPrimitive() {
@@ -180,7 +181,18 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     
             @Override
             public Optional<ObjectValue> createValue(Statement parent) {
-                return super.createValue(parent);
+                TypeBrowser browser = TypeBrowser.createOnlyObjectTypebrowser(t -> selectedType = t, null);
+                browser.setMinHeight(200);
+                return Dialogs
+                        .showCustomInputDialog(
+                                Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
+                                Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
+                                Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
+                                Icon.CLASS,
+                                browser,
+                                p -> selectedType
+                        )
+                        .map(o -> new ObjectValue(o.getObjectType(), parent));
             }
     
             @Override
@@ -221,7 +233,6 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
     
         private final Class clazz;
         List<Runnable> onDelete = new ArrayList<>();
-        private Type selectedType;
         private StringProperty creationText;
         
         ObjectType(Class clazz) {
@@ -296,18 +307,7 @@ public class Class extends Item<Class, Package, Item<? extends Item, Class, ? ex
         
         @Override
         public Optional<ObjectValue> createValue(Statement parent) {
-            TypeBrowser browser = TypeBrowser.createOnlyObjectTypebrowser(t -> selectedType = t, null);
-            browser.setMinHeight(200);
-            return Dialogs
-                    .showCustomInputDialog(
-                            Word.NEW_OBJECT_VALUE_DIALOG_TITLE,
-                            Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT,
-                            Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT,
-                            Icon.CLASS,
-                            browser,
-                            p -> selectedType
-                    )
-                    .map(o -> new ObjectValue(o.getObjectType(), parent));
+            return Optional.of(createEmptyValue(parent));
         }
         
         @Override

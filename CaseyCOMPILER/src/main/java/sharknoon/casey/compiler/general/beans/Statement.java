@@ -30,6 +30,11 @@ public class Statement {
     //The calls of this call (only for call)
     public List<Call> calls = List.of();
     
+    @Override
+    public String toString() {
+        return type != null ? type.name() : "ERROR";
+    }
+    
     public enum StatementType {
         //Values
         NUMBER,
@@ -42,14 +47,14 @@ public class Statement {
         CONCAT,
         DIVIDE,
         EQUALS,
-        GREATEROREQUALTHAN,
-        GREATERTHAN,
+        GREATER_OR_EQUAL_THAN,
+        GREATER_THAN,
         LENGTH,
-        LESSOREQUALTHAN,
-        LESSTHAN,
+        LESS_OR_EQUAL_THAN,
+        LESS_THAN,
         MODULO,
         MULTIPLY,
-        NOTEQUALS,
+        NOT_EQUALS,
         NOT,
         OR,
         SUBTRACT,
@@ -57,19 +62,21 @@ public class Statement {
         CALL
     }
     
-    @Override
-    public String toString() {
-        return type != null ? type.name() : "ERROR";
-    }
-    
     public static class Call {
         
         //The parameter of this function (only for functions)
         public List<Statement> parameter = List.of();
-        
-        //The type of this call (variable, parameter or functionname)
+    
+        //The type of this call (variable-, parameter- or functionname)
         public String type;
-        
+    
+        @Override
+        public String toString() {
+            return "Call{" +
+                    "parameter=" + parameter +
+                    ", type='" + type + '\'' +
+                    '}';
+        }
     }
     
 }

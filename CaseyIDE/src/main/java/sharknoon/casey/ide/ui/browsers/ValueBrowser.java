@@ -40,7 +40,6 @@ class ValueBrowser extends GridPane {
     private GridPane gp = new GridPane();
     private int row = 0;
     private int size = -1;
-    private Node previousContent = null;
     
     
     ValueBrowser(Consumer<Statement> statementConsumer, Statement parent, Type allowedType) {
@@ -103,16 +102,7 @@ class ValueBrowser extends GridPane {
     }
     
     private void addNewPrimitiveValueSelector(PrimitiveType type) {
-        if (!vBoxLeft.getChildren().contains(gp)) {
-            gp.setHgap(10);
-            gp.setVgap(10);
-            gp.setAlignment(Pos.TOP_LEFT);
-            ColumnConstraints col0 = new ColumnConstraints();
-            ColumnConstraints col1 = new ColumnConstraints();
-            col1.setHgrow(Priority.ALWAYS);
-            gp.getColumnConstraints().addAll(col0, col1);
-            vBoxLeft.getChildren().add(gp);
-        }
+        checkIfGridpaneContainsLeftVBox();
         if (size < 0) {
             size = allowedType == Type.UNDEFINED ? PrimitiveType.getAll().size() : 1;
         }
@@ -150,6 +140,7 @@ class ValueBrowser extends GridPane {
     }
     
     private void addNewObjectValueSelectors() {
+        checkIfGridpaneContainsLeftVBox();
         if (row > 0) {
             Separator separator = new Separator();
             gp.add(separator, 1, row - 1);
@@ -162,11 +153,32 @@ class ValueBrowser extends GridPane {
         
         Button buttonCreation = new Button(ObjectType.GENERAL.creationTextProperty().get(), Icons.get(ObjectType.GENERAL.getCreationIcon()));
         buttonCreation.setOnAction((event) -> {
-            Optional<ObjectValue> t = ObjectType.GENERAL.createValue(parent);
+            Optional<ObjectValue> t;
+            if (allowedType == Type.UNDEFINED) {
+                t = ObjectType.GENERAL.createValue(parent);
+            } else if (allowedType.isObject()) {
+                t = ((ObjectType) allowedType).createValue(parent);
+            } else {
+                t = Optional.empty();
+            }
             t.ifPresent(statementConsumer::accept);
         });
         gp.add(buttonCreation, 1, row);
     }
+    
+    private void checkIfGridpaneContainsLeftVBox() {
+        if (!vBoxLeft.getChildren().contains(gp)) {
+            gp.setHgap(10);
+            gp.setVgap(10);
+            gp.setAlignment(Pos.TOP_LEFT);
+            ColumnConstraints col0 = new ColumnConstraints();
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setHgrow(Priority.ALWAYS);
+            gp.getColumnConstraints().addAll(col0, col1);
+            vBoxLeft.getChildren().add(gp);
+        }
+    }
+    
     
     private void addExistingValueSelectors() {
         vBoxRight = BrowserUtils.getStatementSelector(allowedType, statementConsumer, parent, List.of(ItemType.FUNCTION, ItemType.VARIABLE, ItemType.PARAMETER));

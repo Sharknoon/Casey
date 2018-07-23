@@ -36,10 +36,11 @@ public class Main {
         switch (cliArgs.get().getLanguage()) {
             case JAVA:
                 Java.convert(cliArgs.get(), item.get());
+                System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
+                
                 break;
             //TODO maybe add more languages
         }
-        System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
     }
     
     

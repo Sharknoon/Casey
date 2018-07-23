@@ -6,6 +6,8 @@ import com.squareup.javapoet.CodeBlock.Builder;
 import org.apache.commons.lang3.EnumUtils;
 import org.jsoup.Jsoup;
 import sharknoon.casey.compiler.general.CaseyParser;
+import sharknoon.casey.compiler.general.beans.Block;
+import sharknoon.casey.compiler.general.beans.Block.BlockType;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
 import sharknoon.casey.compiler.general.beans.Item.ItemType;
@@ -24,8 +26,8 @@ import java.util.stream.Stream;
 
 public class ItemUtils {
     
+    static final TypeName STRING_TYPE_NAME = ClassName.get("java.lang", "String");
     private static final String EMPTY = "";
-    private static final TypeName STRING_TYPE_NAME = ClassName.get("java.lang", "String");
     private static final List<Modifier> FUNCTION_ALONE_MODIFIERS = List.of(Modifier.PUBLIC, Modifier.STATIC);
     private static final List<Modifier> FUNCTION_IN_CLASS_MODIFIERS = List.of(Modifier.PUBLIC);
     
@@ -90,7 +92,7 @@ public class ItemUtils {
         try {
             if (item.comments != null && !item.comments.isEmpty()) {
                 Files.write(
-                        path.resolve("comments.txt"),
+                        path.resolve("comments.html"),
                         Stream.of(item.comments)
                                 .map(c -> c.split("\\r?\\n"))
                                 .map(Arrays::stream)
@@ -233,7 +235,11 @@ public class ItemUtils {
         for (CodeBlock variable : variables) {
             variablesAndBlocksBuilder.add(variable);
         }
-        //TODO blocks
+        for (Block block : functionItem.blocks) {
+            if (block.blocktype == BlockType.START) {
+                variablesAndBlocksBuilder.add(OnBlock.accept(args, block));
+            }
+        }
         CodeBlock variablesAndBlocks = variablesAndBlocksBuilder.build();
         
         try {
@@ -300,7 +306,11 @@ public class ItemUtils {
         }
         StringBuilder builder = new StringBuilder();
         for (Item child : item.children) {
-            if (child == null || child.item == null || child.name == null || child.comments == null) {
+            if (child == null
+                    || child.item == null
+                    || child.name == null
+                    || child.comments == null
+                    || child.comments.isEmpty()) {
                 continue;
             }
             if (!ItemType.PARAMETER.equals(child.item)) {

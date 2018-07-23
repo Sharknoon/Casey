@@ -92,6 +92,10 @@ public class ValuePlaceholderBody extends Body {
         setOnMouseExited((event) -> {
             setContent();
         });
+    
+        if (type == PrimitiveType.VOID) {
+            setVisible(false);
+        }
     }
     
     private ValuePlaceholderBody() {

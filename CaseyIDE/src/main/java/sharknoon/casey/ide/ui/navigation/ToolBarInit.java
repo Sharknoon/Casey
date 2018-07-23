@@ -15,11 +15,16 @@
  */
 package sharknoon.casey.ide.ui.navigation;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import sharknoon.casey.ide.logic.items.Item;
+import sharknoon.casey.ide.logic.items.ItemType;
 import sharknoon.casey.ide.logic.items.Project;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.sites.Site;
 import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
 
@@ -41,6 +46,7 @@ public class ToolBarInit {
         Icons.set(Icon.SAVE, buttonSave);
         Language.set(Word.TOOLBAR_BUTTON_SAVE_TEXT, buttonSave);
         buttonSave.setOnAction(e -> Project.getCurrentProject().ifPresent(Project::save));
+        buttonSave.disableProperty().bind(Project.currentProjectProperty().isNull());
         toolBar.getItems().add(buttonSave);
     }
     
@@ -50,6 +56,13 @@ public class ToolBarInit {
         Language.set(Word.TOOLBAR_BUTTON_RUN_TEXT, buttonRun);
         buttonRun.setOnAction(e -> {
         });
+        ObjectProperty<Item<?, ?, ?>> currentSite = Site.currentSelectedProperty();
+        buttonRun.disableProperty().bind(
+                Bindings.createObjectBinding(
+                        () -> currentSite.get() != null ? currentSite.get().getType() : ItemType.VARIABLE,
+                        currentSite
+                ).isNotEqualTo(ItemType.FUNCTION)
+        );
         toolBar.getItems().add(buttonRun);
     }
     

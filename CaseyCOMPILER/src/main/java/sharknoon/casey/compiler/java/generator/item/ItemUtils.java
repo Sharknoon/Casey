@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;
+package sharknoon.casey.compiler.java.generator.item;
 
 import com.google.common.collect.Streams;
 import com.squareup.javapoet.*;
@@ -11,6 +11,7 @@ import sharknoon.casey.compiler.general.beans.Block.BlockType;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
 import sharknoon.casey.compiler.general.beans.Item.ItemType;
+import sharknoon.casey.compiler.java.generator.block.OnBlock;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 
 public class ItemUtils {
     
-    static final TypeName STRING_TYPE_NAME = ClassName.get("java.lang", "String");
+    public static final TypeName STRING_TYPE_NAME = ClassName.get("java.lang", "String");
     private static final String EMPTY = "";
     private static final List<Modifier> FUNCTION_ALONE_MODIFIERS = List.of(Modifier.PUBLIC, Modifier.STATIC);
     private static final List<Modifier> FUNCTION_IN_CLASS_MODIFIERS = List.of(Modifier.PUBLIC);
@@ -66,10 +67,10 @@ public class ItemUtils {
     }
     
     /**
-     * Converts a Path to a directory to a Java-Classpath
+     * Converts a Path to a directory to a JavaGenerator-Classpath
      *
      * @param path The Path to be converted
-     * @return The Java-Classpath
+     * @return The JavaGenerator-Classpath
      */
     static String pathToClassPath(Path path) {
         return Streams.stream(path.iterator())
@@ -134,7 +135,7 @@ public class ItemUtils {
      * @param typeNameString The full name of the item
      * @return The typename or a empty Optional
      */
-    static Optional<TypeName> getTypeName(String typeNameString) {
+    public static Optional<TypeName> getTypeName(String typeNameString) {
         TypeName typeName = null;
         //If is primitive or String
         if (EnumUtils.isValidEnum(VariableType.class, typeNameString)) {
@@ -166,6 +167,42 @@ public class ItemUtils {
             System.err.println("Could not determine type for " + typeNameString);
         }
         return Optional.ofNullable(typeName);
+    }
+    
+    /**
+     * Returns a CodeBlock for a name of a function. If the function is static,
+     * it returns name.name and imports the class, otherwise returns name,
+     * IMPORTANT, the brackets needed to be added seperatly
+     *
+     * @param function
+     * @return
+     */
+    public static CodeBlock getFunctionName(Item function) {
+        return getVariableOrFunctionName(function, CaseyParser.STATIC_FUNCTIONS);
+    }
+    
+    /**
+     * Returns a CodeBlock for a name of a variable. If the variable is static,
+     * it returns name.name and imports the class, otherwise returns name
+     *
+     * @param variable
+     * @return
+     */
+    public static CodeBlock getVariableName(Item variable) {
+        return getVariableOrFunctionName(variable, CaseyParser.STATIC_VARIABLES);
+    }
+    
+    private static CodeBlock getVariableOrFunctionName(Item item, List<Item> items) {
+        if (items.contains(item)) {
+            Optional<TypeName> typeName = ItemUtils.getTypeName(ItemUtils.getFullName(item));
+            if (!typeName.isPresent()) {
+                System.err.println("TypeName for " + String.valueOf(item.item).toLowerCase() + " " + ItemUtils.getFullName(item) + " could not be determined");
+                return null;
+            }
+            return CodeBlock.of("$T." + item.name, typeName.get());
+        } else {
+            return CodeBlock.of(item.name);
+        }
     }
     
     /**
@@ -237,7 +274,12 @@ public class ItemUtils {
         }
         for (Block block : functionItem.blocks) {
             if (block.blocktype == BlockType.START) {
-                variablesAndBlocksBuilder.add(OnBlock.accept(args, block));
+                CodeBlock codeBlock = OnBlock.accept(args, block);
+                if (codeBlock == null) {
+                    //System.err.println("Something in the function " + getFullName(functionItem) + " went wrong");
+                    return Optional.empty();
+                }
+                variablesAndBlocksBuilder.add(codeBlock);
             }
         }
         CodeBlock variablesAndBlocks = variablesAndBlocksBuilder.build();

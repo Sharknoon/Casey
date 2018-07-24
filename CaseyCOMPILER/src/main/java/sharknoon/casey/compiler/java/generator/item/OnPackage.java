@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator.item;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@ package sharknoon.casey.compiler.java;/*
 
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
+import sharknoon.casey.compiler.java.generator.JavaGenerator;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,13 +26,14 @@ import java.nio.file.Path;
  */
 public class OnPackage {
     
-    public static void accept(CLIArgs args, Path currentPath, Item item) {
+    public static boolean accept(CLIArgs args, Path currentPath, Item item) {
         if (item == null) {
             System.err.println("The package itself is not specified: " + currentPath);
-            return;
+            return false;
         }
         if (item.name == null) {
             System.err.println("The name of the package is not specified: " + currentPath);
+            return false;
         }
         Path relativePath = currentPath.resolve(item.name);
         Path fullPackagePath = args.getBasePath().resolve(relativePath);
@@ -39,11 +41,17 @@ public class OnPackage {
             Files.createDirectories(fullPackagePath);
             ItemUtils.writeComments(args, item, fullPackagePath);
             for (Item child : item.children) {
-                Java.convert(args, relativePath, child);
+                boolean success = JavaGenerator.generateJava(args, relativePath, child);
+                if (!success) {
+                    return false;
+                }
             }
         } catch (Exception e) {
             System.err.println("Error during package folder creation on " + currentPath + ": " + e);
+            e.printStackTrace();
+            return false;
         }
+        return true;
     }
     
 }

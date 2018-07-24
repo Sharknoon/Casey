@@ -17,7 +17,8 @@ package sharknoon.casey.compiler;
 
 import sharknoon.casey.compiler.general.CLIParser;
 import sharknoon.casey.compiler.general.CaseyParser;
-import sharknoon.casey.compiler.java.Java;
+import sharknoon.casey.compiler.java.compiler.JavaCompiler;
+import sharknoon.casey.compiler.java.generator.JavaGenerator;
 
 public class Main {
     
@@ -25,21 +26,42 @@ public class Main {
     public static void main(String[] args) {
         var cliArgs = CLIParser.parseCommandLine(args);
         if (!cliArgs.isPresent()) {
+            System.err.println("[STAGE 1: COMMANDLINE-PARSING FAILED]");
             return;
         }
         System.out.println("[STAGE 1: COMMANDLINE-PARSING COMPLETE]");
+        //---------------------
         var item = CaseyParser.parseCasey(cliArgs.get().getCaseyPath());
         if (!item.isPresent()) {
+            System.err.println("[STAGE 2: CASEY-PARSING FAILED]");
             return;
         }
         System.out.println("[STAGE 2: CASEY-PARSING COMPLETE]");
+        //---------------------
+        boolean success = false;
         switch (cliArgs.get().getLanguage()) {
             case JAVA:
-                Java.convert(cliArgs.get(), item.get());
-                System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
-                
+                success = JavaGenerator.generateJava(cliArgs.get(), item.get());
                 break;
             //TODO maybe add more languages
+        }
+        if (success) {
+            System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
+        } else {
+            System.err.println("[STAGE 3: CODE-GENERATION FAILED]");
+        }
+        //---------------------
+        success = false;
+        switch (cliArgs.get().getLanguage()) {
+            case JAVA:
+                success = JavaCompiler.compile(cliArgs.get().getFunctionPath());
+                break;
+            //TODO maybe add more languages
+        }
+        if (success) {
+            System.out.println("[STAGE 3: CODE-COMPILATION COMPLETE]");
+        } else {
+            System.err.println("[STAGE 3: CODE-COMPILATION FAILED]");
         }
     }
     

@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator.item;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

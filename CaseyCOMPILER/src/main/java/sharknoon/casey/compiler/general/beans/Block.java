@@ -39,14 +39,7 @@ public class Block {
     
     @Override
     public String toString() {
-        return "Block{" +
-                "blockid=" + blockid +
-                ", blockX=" + blockX +
-                ", blockY=" + blockY +
-                ", blocktype=" + blocktype +
-                ", blockconnections= size=" + (blockconnections != null ? blockconnections.size() : 0) +
-                ", blockcontent=" + blockcontent +
-                '}';
+        return blocktype + " (" + blockid + ")";
     }
     
     public enum BlockType {

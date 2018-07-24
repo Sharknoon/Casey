@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,37 +16,34 @@ package sharknoon.casey.compiler.java;/*
 
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
+import sharknoon.casey.compiler.java.generator.item.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Java {
+public class JavaGenerator {
     
-    public static void convert(CLIArgs args, Item item) {
-        convert(args, Paths.get(""), item);
+    public static boolean generateJava(CLIArgs args, Item item) {
+        return generateJava(args, Paths.get(""), item);
     }
     
-    public static void convert(CLIArgs args, Path currentPath, Item item) {
+    public static boolean generateJava(CLIArgs args, Path currentPath, Item item) {
         switch (item.item) {
             case PROJECT:
-                OnProject.accept(args, currentPath, item);
-                break;
+                return OnProject.accept(args, currentPath, item);
             case PACKAGE:
-                OnPackage.accept(args, currentPath, item);
-                break;
+                return OnPackage.accept(args, currentPath, item);
             case CLASS:
-                OnClass.accept(args, currentPath, item);
-                break;
+                return OnClass.accept(args, currentPath, item);
             case FUNCTION:
-                OnFunction.accept(args, currentPath, item);
-                break;
+                return OnFunction.accept(args, currentPath, item);
             case VARIABLE:
-                OnVariable.accept(args, currentPath, item);
-                break;
+                return OnVariable.accept(args, currentPath, item);
             case PARAMETER:
                 System.err.println("Parameters not allowed outside of functions");
-                break;
+                return false;
         }
+        return false;
     }
     
 }

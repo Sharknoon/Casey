@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class CLIArgs {
     final String function;
+    final transient Path functionPath;
     final Path caseyPath;
     final transient Path basePath;
     final Language language;
@@ -32,6 +33,7 @@ public class CLIArgs {
         this.function = function;
         this.caseyPath = Paths.get(caseyPath);
         this.basePath = this.caseyPath.getParent() != null ? this.caseyPath.getParent() : Paths.get("");
+        this.functionPath = basePath.resolve(function.replace('.', '/'));
         this.language = Language.valueOf(language.toUpperCase());
         this.parameters = parameters;
         this.ignoreComments = ignoreComments;
@@ -39,6 +41,10 @@ public class CLIArgs {
     
     public String getFunction() {
         return function;
+    }
+    
+    public Path getFunctionPath() {
+        return functionPath;
     }
     
     /**

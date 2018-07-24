@@ -33,11 +33,11 @@
         "blockY" : 1150.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "RIGHT" : {
-            "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
-          },
           "LEFT" : {
             "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
+          },
+          "RIGHT" : {
+            "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
           }
         },
         "blockcontent" : {
@@ -73,11 +73,11 @@
         "blockY" : 1350.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "RIGHT" : {
-            "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
-          },
           "LEFT" : {
             "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
+          },
+          "RIGHT" : {
+            "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
           }
         },
         "blockcontent" : {
@@ -183,6 +183,17 @@
           "blockX" : 2350.0,
           "blockY" : 1050.0,
           "blocktype" : "START",
+          "blockconnections" : {
+            "BOTTOM" : {
+              "33befbbf-e2a7-4f46-8d44-8dfbc05702c1" : "TOP"
+            }
+          },
+          "blockcontent" : { }
+        }, {
+          "blockid" : "33befbbf-e2a7-4f46-8d44-8dfbc05702c1",
+          "blockX" : 2450.0,
+          "blockY" : 1250.0,
+          "blocktype" : "END",
           "blockconnections" : { },
           "blockcontent" : { }
         } ],
@@ -267,13 +278,24 @@
         "blockX" : 2450.0,
         "blockY" : 1750.0,
         "blocktype" : "OUTPUT",
-        "blockconnections" : { },
+        "blockconnections" : {
+          "BOTTOM" : {
+            "38e14682-0ed1-4a65-87e0-0518a363b7d9" : "TOP"
+          }
+        },
         "blockcontent" : {
           "statement" : {
             "type" : "TEXT",
             "value" : "Ausgabeeeeee"
           }
         }
+      }, {
+        "blockid" : "38e14682-0ed1-4a65-87e0-0518a363b7d9",
+        "blockX" : 2550.0,
+        "blockY" : 1950.0,
+        "blocktype" : "END",
+        "blockconnections" : { },
+        "blockcontent" : { }
       } ],
       "returntype" : "VOID",
       "children" : [ {

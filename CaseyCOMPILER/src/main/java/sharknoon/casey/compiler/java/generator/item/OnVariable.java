@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator.item;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,24 +28,24 @@ import java.util.Optional;
 public class OnVariable {
     
     
-    public static void accept(CLIArgs args, Path currentPath, Item item) {
+    public static boolean accept(CLIArgs args, Path currentPath, Item item) {
         if (item == null) {
             System.err.println("Variable itself not specified: " + currentPath);
-            return;
+            return false;
         }
         if (item.name == null) {
             System.err.println("Name of variable not specified: " + ItemUtils.getFullName(item));
-            return;
+            return false;
         }
         if (item.type == null) {
             System.err.println("Type of variable not specified: " + ItemUtils.getFullName(item));
-            return;
+            return false;
         }
     
         String typeNameString = item.type;
         Optional<TypeName> optionalTypeName = ItemUtils.getTypeName(typeNameString);
         if (!optionalTypeName.isPresent()) {
-            return;
+            return false;
         }
         TypeName typeName = optionalTypeName.get();
         String className = item.name;
@@ -65,6 +65,8 @@ public class OnVariable {
             varFile.writeTo(args.getBasePath());
         } catch (Exception e) {
             System.err.println("Could not write class for variable " + ItemUtils.getFullName(item) + ": " + e);
+            return false;
         }
+        return true;
     }
 }

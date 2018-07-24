@@ -18,13 +18,11 @@ package sharknoon.casey.compiler.general;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sharknoon.casey.compiler.general.beans.Block;
 import sharknoon.casey.compiler.general.beans.Item;
+import sharknoon.casey.compiler.general.beans.Item.ItemType;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class CaseyParser {
     
@@ -32,6 +30,8 @@ public class CaseyParser {
     public static Map<Item, String> ITEM_TO_NAME = new HashMap<>();
     public static Map<UUID, Block> NAME_TO_BLOCK = new HashMap<>();
     public static Map<Block, UUID> BLOCK_TO_NAME = new HashMap<>();
+    public static List<Item> STATIC_VARIABLES = new ArrayList<>();
+    public static List<Item> STATIC_FUNCTIONS = new ArrayList<>();
     
     public static Optional<Item> parseCasey(Path path) {
         if (!Files.exists(path)) {
@@ -42,7 +42,7 @@ public class CaseyParser {
         if (!newItem.isPresent()) {
             return Optional.empty();
         }
-        buildNameDirectories(newItem.get(), "");
+        buildNameDirectories(newItem.get(), null, "");
         return newItem;
     }
     
@@ -57,13 +57,20 @@ public class CaseyParser {
         return Optional.empty();
     }
     
-    private static void buildNameDirectories(Item i, String currentPath) {
+    private static void buildNameDirectories(Item i, Item p, String currentPath) {
         currentPath = currentPath.isEmpty() ? i.name : currentPath + "." + i.name;
         NAME_TO_ITEM.put(currentPath, i);
         ITEM_TO_NAME.put(i, currentPath);
+        if (p != null && p.item == ItemType.PACKAGE) {
+            if (i.item == ItemType.VARIABLE) {
+                STATIC_VARIABLES.add(i);
+            } else if (i.item == ItemType.FUNCTION) {
+                STATIC_FUNCTIONS.add(i);
+            }
+        }
         if (i.children != null) {
-            for (Item child : i.children) {
-                buildNameDirectories(child, currentPath);
+            for (Item c : i.children) {
+                buildNameDirectories(c, i, currentPath);
             }
         }
         if (i.blocks != null) {

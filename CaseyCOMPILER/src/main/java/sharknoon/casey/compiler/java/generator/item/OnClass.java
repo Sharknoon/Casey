@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator.item;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,19 +27,25 @@ import java.util.Optional;
 
 public class OnClass {
     
-    public static void accept(CLIArgs args, Path currentPath, Item item) {
+    public static boolean accept(CLIArgs args, Path currentPath, Item item) {
         if (item == null) {
             System.err.println("Class itself not specified " + currentPath);
-            return;
+            return false;
         }
         if (item.name == null) {
             System.err.println("Name of class not specified " + currentPath);
-            return;
+            return false;
         }
-    
+        
         String itemName = item.name;
         List<FieldSpec> variables = getVariables(args, item);
+        if (variables == null) {
+            return false;
+        }
         List<MethodSpec> functions = getFunctions(args, item);
+        if (functions == null) {
+            return false;
+        }
         
         try {
             TypeSpec clazz = TypeSpec.classBuilder(itemName)
@@ -52,15 +58,21 @@ public class OnClass {
             classFile.writeTo(args.getBasePath());
         } catch (Exception e) {
             System.err.println("Error during class creation in " + currentPath + ": " + e);
+            return false;
         }
+        return true;
     }
     
     private static List<MethodSpec> getFunctions(CLIArgs args, Item item) {
         List<MethodSpec> functions = new ArrayList<>();
         for (Item child : item.children) {
+            if (!ItemType.FUNCTION.equals(child.item)) {
+                continue;
+            }
             Optional<MethodSpec> optionalFunction = ItemUtils.getFunction(args, child, false);
             if (!optionalFunction.isPresent()) {
-                return functions;
+                System.err.println("Could not create object function " + child.name + " in " + ItemUtils.getFullName(item));
+                return null;
             }
             MethodSpec function = optionalFunction.get();
             functions.add(function);
@@ -73,28 +85,28 @@ public class OnClass {
         for (Item child : item.children) {
             if (child == null) {
                 System.err.println("Variable of class itself not specified: " + ItemUtils.getFullName(item));
-                return variables;
+                return null;
             }
             if (child.item == null) {
                 System.err.println("Type of class item not specified: " + ItemUtils.getFullName(child));
-                return variables;
+                return null;
             }
             if (!ItemType.VARIABLE.equals(child.item)) {
                 continue;
             }
             if (child.name == null) {
                 System.err.println("Name of variable of class not specified: " + ItemUtils.getFullName(child));
-                return variables;
+                return null;
             }
             if (child.type == null) {
                 System.err.println("Type of variable of class not specified: " + ItemUtils.getFullName(child));
-                return variables;
+                return null;
             }
             
             String typeNameString = child.type;
             Optional<TypeName> optionalTypeName = ItemUtils.getTypeName(typeNameString);
             if (!optionalTypeName.isPresent()) {
-                return variables;
+                return null;
             }
             TypeName typeName = optionalTypeName.get();
             String className = child.name;
@@ -108,6 +120,7 @@ public class OnClass {
                 variables.add(variable);
             } catch (Exception e) {
                 System.err.println("Could not write class for variable " + ItemUtils.getFullName(child) + ": " + e);
+                return null;
             }
         }
         return variables;

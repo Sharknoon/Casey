@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;
+package sharknoon.casey.compiler.java.generator.item;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -18,26 +18,25 @@ import java.util.stream.Collectors;
 public class OnFunction {
     
     
-    public static void accept(CLIArgs args, Path currentPath, Item item) {
+    public static boolean accept(CLIArgs args, Path currentPath, Item item) {
         Optional<MethodSpec> optionalFunction = ItemUtils.getFunction(args, item, true);
         if (!optionalFunction.isPresent()) {
-            return;
+            System.err.println("Could not create static function " + ItemUtils.getFullName(item));
+            return false;
         }
         String className = item.name;
         List<MethodSpec> methods = new ArrayList<>();
         MethodSpec function = optionalFunction.get();
         methods.add(function);
-        boolean isMainMethod = false;
-        MethodSpec mainMethod = null;
+        
         if (ItemUtils.isMainMethod(args, item)) {
-            isMainMethod = true;
             Map<String, String> parameters = args.getParameters();
             List<String> paramterValuesInRightOrder = item.children.stream()
                     .filter(i -> i.item == ItemType.PARAMETER)
-                    .map(i -> {
-                        String parameterName = i.name;
-                        if (parameters.containsKey(parameterName)) {
-                            return parameters.get(parameterName);
+                    .map(i -> i.name)
+                    .map(n -> {
+                        if (parameters.containsKey(n)) {
+                            return parameters.get(n);
                         } else {
                             System.err.println("Function "
                                     + ItemUtils.getFullName(item)
@@ -54,12 +53,12 @@ public class OnFunction {
                         }
                     })
                     .collect(Collectors.toList());
-        
+            
             if (paramterValuesInRightOrder.contains(null)) {
-                return;
+                return false;
             }
-        
-            mainMethod = MethodSpec.methodBuilder("main")
+            
+            MethodSpec mainMethod = MethodSpec.methodBuilder("main")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(String[].class, "args")
                     .addStatement(className + "." + className + "(" + paramterValuesInRightOrder.stream().collect(Collectors.joining(", ")) + ")")
@@ -77,7 +76,9 @@ public class OnFunction {
             varFile.writeTo(args.getBasePath());
         } catch (Exception e) {
             System.err.println("Could not create function " + ItemUtils.getFullName(item) + ": " + e);
+            return false;
         }
+        return true;
     }
     
 }

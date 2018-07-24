@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.java;/*
+package sharknoon.casey.compiler.java.generator.item;/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,8 @@ package sharknoon.casey.compiler.java;/*
 import org.apache.commons.io.FileUtils;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
+import sharknoon.casey.compiler.general.beans.Item.ItemType;
+import sharknoon.casey.compiler.java.generator.JavaGenerator;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,19 +32,23 @@ import java.util.stream.Stream;
  */
 public class OnProject {
     
-    public static void accept(CLIArgs args, Path currentPath, Item item) {
+    public static boolean accept(CLIArgs args, Path currentPath, Item item) {
         try {
             if (item == null) {
                 System.err.println("The project itself is not specified");
-                return;
+                return false;
+            }
+            if (item.item != ItemType.PROJECT) {
+                System.err.println("The top item is not a project");
+                return false;
             }
             if (item.name == null) {
                 System.err.println("The name of the project is not specified");
-                return;
+                return false;
             }
             if (item.id == null) {
                 System.err.println("The id of the project is not specified");
-                return;
+                return false;
             }
             Path projectFolder = args.getBasePath().resolve(Paths.get(item.name));
             if (Files.exists(projectFolder)) {
@@ -56,10 +62,15 @@ public class OnProject {
             );
             ItemUtils.writeComments(args, item, projectFolder);
             for (Item child : item.children) {
-                Java.convert(args, currentPath.resolve(Paths.get(item.name)), child);
+                boolean success = JavaGenerator.generateJava(args, currentPath.resolve(Paths.get(item.name)), child);
+                if (!success) {
+                    return false;
+                }
             }
         } catch (Exception e) {
             System.err.println("Error during output directory cleanup: " + e);
+            return false;
         }
+        return true;
     }
 }

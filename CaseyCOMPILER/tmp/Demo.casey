@@ -33,11 +33,11 @@
         "blockY" : 1150.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "LEFT" : {
-            "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
-          },
           "RIGHT" : {
             "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
+          },
+          "LEFT" : {
+            "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
           }
         },
         "blockcontent" : {
@@ -73,11 +73,11 @@
         "blockY" : 1350.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "LEFT" : {
-            "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
-          },
           "RIGHT" : {
             "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
+          },
+          "LEFT" : {
+            "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
           }
         },
         "blockcontent" : {
@@ -206,129 +206,236 @@
         "children" : [ ]
       } ]
     }, {
-      "name" : "testfunktion",
+      "name" : "fibonacciUI",
       "comments" : "",
       "item" : "FUNCTION",
       "blocks" : [ {
         "blockid" : "e8a7b873-2096-4141-9732-8a598d82f310",
-        "blockX" : 2350.0,
-        "blockY" : 950.0,
+        "blockX" : 2550.0,
+        "blockY" : 250.0,
         "blocktype" : "START",
         "blockconnections" : {
           "BOTTOM" : {
-            "7634efa8-59a7-4af7-81d3-449d255854b3" : "TOP"
+            "d5f22c05-6ed1-49a1-a1a7-c1aef26f5038" : "TOP"
           }
         },
         "blockcontent" : { }
       }, {
-        "blockid" : "7fa1620b-52d8-4033-b2fe-a5d783a6b359",
-        "blockX" : 2350.0,
-        "blockY" : 1550.0,
-        "blocktype" : "INPUT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "002a0912-a605-4915-a00a-68400bc9d0a9" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "variable" : "Demo.root.testfunktion.text"
-        }
+        "blockid" : "38e14682-0ed1-4a65-87e0-0518a363b7d9",
+        "blockX" : 2250.0,
+        "blockY" : 1650.0,
+        "blocktype" : "END",
+        "blockconnections" : { },
+        "blockcontent" : { }
       }, {
-        "blockid" : "002a0912-a605-4915-a00a-68400bc9d0a9",
-        "blockX" : 2450.0,
-        "blockY" : 1750.0,
+        "blockid" : "d5f22c05-6ed1-49a1-a1a7-c1aef26f5038",
+        "blockX" : 2550.0,
+        "blockY" : 450.0,
         "blocktype" : "OUTPUT",
         "blockconnections" : {
           "BOTTOM" : {
+            "22c6e732-1280-4110-b7ba-900eb3e9b8da" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "TEXT",
+            "value" : "Geben Sie eine Fibonacci Zahl ein"
+          }
+        }
+      }, {
+        "blockid" : "22c6e732-1280-4110-b7ba-900eb3e9b8da",
+        "blockX" : 2550.0,
+        "blockY" : 650.0,
+        "blocktype" : "INPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "d2c3efa3-1fe5-467d-b64c-56c3d11cb347" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.fibonacciUI.fib"
+        }
+      }, {
+        "blockid" : "d2c3efa3-1fe5-467d-b64c-56c3d11cb347",
+        "blockX" : 2550.0,
+        "blockY" : 850.0,
+        "blocktype" : "ASSIGNMENT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "39d042b5-d442-4793-ba0c-85053b0c7cd0" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.fibonacciUI.ergebnis",
+          "statement" : {
+            "calls" : [ {
+              "parameter" : [ {
+                "calls" : [ {
+                  "parameter" : [ ],
+                  "type" : "Demo.root.fibonacciUI.fib"
+                } ],
+                "type" : "CALL"
+              } ],
+              "type" : "Demo.root.fibonacciRecursive"
+            } ],
+            "type" : "CALL"
+          }
+        }
+      }, {
+        "blockid" : "39d042b5-d442-4793-ba0c-85053b0c7cd0",
+        "blockX" : 2550.0,
+        "blockY" : 1050.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "3c96851e-450c-4bea-98bd-9b953a71bd71" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "parameter" : [ {
+              "type" : "TEXT",
+              "value" : "Ergebnis: "
+            }, {
+              "calls" : [ {
+                "parameter" : [ ],
+                "type" : "Demo.root.fibonacciUI.ergebnis"
+              } ],
+              "type" : "CALL"
+            }, {
+              "type" : "TEXT",
+              "value" : " Möchten Sie noch eine Zahl eingeben? (ja/nein)"
+            } ],
+            "type" : "CONCAT"
+          }
+        }
+      }, {
+        "blockid" : "3c96851e-450c-4bea-98bd-9b953a71bd71",
+        "blockX" : 2550.0,
+        "blockY" : 1250.0,
+        "blocktype" : "INPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "d537921c-d82a-43c0-afdd-f51646ce0ad3" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.fibonacciUI.input"
+        }
+      }, {
+        "blockid" : "d537921c-d82a-43c0-afdd-f51646ce0ad3",
+        "blockX" : 2550.0,
+        "blockY" : 1450.0,
+        "blocktype" : "DECISION",
+        "blockconnections" : {
+          "RIGHT" : {
+            "d5f22c05-6ed1-49a1-a1a7-c1aef26f5038" : "TOP"
+          },
+          "LEFT" : {
             "38e14682-0ed1-4a65-87e0-0518a363b7d9" : "TOP"
           }
         },
         "blockcontent" : {
           "statement" : {
             "parameter" : [ {
-              "type" : "TEXT",
-              "value" : "Du hasch eingegeben: "
-            }, {
               "calls" : [ {
                 "parameter" : [ ],
-                "type" : "Demo.root.testfunktion.text"
+                "type" : "Demo.root.fibonacciUI.input"
               } ],
               "type" : "CALL"
-            } ],
-            "type" : "CONCAT"
-          }
-        }
-      }, {
-        "blockid" : "38e14682-0ed1-4a65-87e0-0518a363b7d9",
-        "blockX" : 2550.0,
-        "blockY" : 1950.0,
-        "blocktype" : "END",
-        "blockconnections" : { },
-        "blockcontent" : { }
-      }, {
-        "blockid" : "29c2dc8e-90d3-44c9-9afb-9d0ac203620f",
-        "blockX" : 2350.0,
-        "blockY" : 1150.0,
-        "blocktype" : "INPUT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "f2b19347-6a8b-419a-a3bd-2dc40c316f94" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "variable" : "Demo.root.testfunktion.text"
-        }
-      }, {
-        "blockid" : "f2b19347-6a8b-419a-a3bd-2dc40c316f94",
-        "blockX" : 2350.0,
-        "blockY" : 1350.0,
-        "blocktype" : "OUTPUT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "7fa1620b-52d8-4033-b2fe-a5d783a6b359" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "statement" : {
-            "parameter" : [ {
-              "type" : "TEXT",
-              "value" : "Erschde Eingabe: "
             }, {
-              "calls" : [ {
-                "parameter" : [ ],
-                "type" : "Demo.root.testfunktion.text"
-              } ],
-              "type" : "CALL"
+              "type" : "TEXT",
+              "value" : "ja"
             } ],
-            "type" : "CONCAT"
-          }
-        }
-      }, {
-        "blockid" : "7634efa8-59a7-4af7-81d3-449d255854b3",
-        "blockX" : 2050.0,
-        "blockY" : 1150.0,
-        "blocktype" : "OUTPUT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "29c2dc8e-90d3-44c9-9afb-9d0ac203620f" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "statement" : {
-            "type" : "TEXT",
-            "value" : "test"
+            "type" : "EQUALS"
           }
         }
       } ],
       "returntype" : "VOID",
       "children" : [ {
-        "name" : "text",
+        "name" : "input",
         "comments" : "",
         "item" : "VARIABLE",
         "type" : "TEXT",
         "children" : [ ]
       }, {
         "name" : "ergebnis",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "NUMBER",
+        "children" : [ ]
+      }, {
+        "name" : "fib",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "NUMBER",
+        "children" : [ ]
+      } ]
+    }, {
+      "name" : "fibtest",
+      "comments" : "",
+      "item" : "FUNCTION",
+      "blocks" : [ {
+        "blockid" : "ab7dc65a-28bf-4676-bfe9-39cfe52a7b5d",
+        "blockX" : 2350.0,
+        "blockY" : 1050.0,
+        "blocktype" : "START",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "77218802-6a74-42ad-8d8a-bfcd45b19b0d" : "TOP"
+          }
+        },
+        "blockcontent" : { }
+      }, {
+        "blockid" : "77218802-6a74-42ad-8d8a-bfcd45b19b0d",
+        "blockX" : 2350.0,
+        "blockY" : 1250.0,
+        "blocktype" : "INPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "91ff5253-b350-4374-9fff-20bdde23077d" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.fibtest.fibb"
+        }
+      }, {
+        "blockid" : "91ff5253-b350-4374-9fff-20bdde23077d",
+        "blockX" : 2350.0,
+        "blockY" : 1450.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "03f4e38d-1d21-42b2-8a17-be7edecbdf85" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "calls" : [ {
+              "parameter" : [ {
+                "calls" : [ {
+                  "parameter" : [ ],
+                  "type" : "Demo.root.fibtest.fibb"
+                } ],
+                "type" : "CALL"
+              } ],
+              "type" : "Demo.root.fibonacciRecursive"
+            } ],
+            "type" : "CALL"
+          }
+        }
+      }, {
+        "blockid" : "03f4e38d-1d21-42b2-8a17-be7edecbdf85",
+        "blockX" : 2450.0,
+        "blockY" : 1650.0,
+        "blocktype" : "END",
+        "blockconnections" : { },
+        "blockcontent" : { }
+      } ],
+      "returntype" : "VOID",
+      "children" : [ {
+        "name" : "fibb",
         "comments" : "",
         "item" : "VARIABLE",
         "type" : "NUMBER",

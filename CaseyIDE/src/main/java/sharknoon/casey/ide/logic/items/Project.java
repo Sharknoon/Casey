@@ -346,7 +346,7 @@ public class Project extends Item<Project, Item, Package> {
     }
     
     public CompletableFuture<Void> run(Consumer<String> statusProperty) {
-        requestSaveFile();
+        save();
         Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
         if (saveFile.get() != null && currentItem != null) {
             //TODO parameter check

@@ -216,33 +216,10 @@
         "blocktype" : "START",
         "blockconnections" : {
           "BOTTOM" : {
-            "a140a8f8-260a-4e01-a249-94a89fa00b88" : "TOP"
+            "7634efa8-59a7-4af7-81d3-449d255854b3" : "TOP"
           }
         },
         "blockcontent" : { }
-      }, {
-        "blockid" : "a140a8f8-260a-4e01-a249-94a89fa00b88",
-        "blockX" : 2250.0,
-        "blockY" : 1150.0,
-        "blocktype" : "ASSIGNMENT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "b0be61a2-2a9d-4ad3-a932-bd741c80e546" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "variable" : "Demo.root.testfunktion.ergebnis",
-          "statement" : {
-            "calls" : [ {
-              "parameter" : [ {
-                "type" : "NUMBER",
-                "value" : 10.0
-              } ],
-              "type" : "Demo.root.fibonacciRecursive"
-            } ],
-            "type" : "CALL"
-          }
-        }
       }, {
         "blockid" : "7fa1620b-52d8-4033-b2fe-a5d783a6b359",
         "blockX" : 2350.0,
@@ -289,9 +266,22 @@
         "blockconnections" : { },
         "blockcontent" : { }
       }, {
-        "blockid" : "b0be61a2-2a9d-4ad3-a932-bd741c80e546",
-        "blockX" : 2650.0,
-        "blockY" : 1250.0,
+        "blockid" : "29c2dc8e-90d3-44c9-9afb-9d0ac203620f",
+        "blockX" : 2350.0,
+        "blockY" : 1150.0,
+        "blocktype" : "INPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "f2b19347-6a8b-419a-a3bd-2dc40c316f94" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "variable" : "Demo.root.testfunktion.text"
+        }
+      }, {
+        "blockid" : "f2b19347-6a8b-419a-a3bd-2dc40c316f94",
+        "blockX" : 2350.0,
+        "blockY" : 1350.0,
         "blocktype" : "OUTPUT",
         "blockconnections" : {
           "BOTTOM" : {
@@ -300,11 +290,33 @@
         },
         "blockcontent" : {
           "statement" : {
-            "calls" : [ {
-              "parameter" : [ ],
-              "type" : "Demo.root.testfunktion.ergebnis"
+            "parameter" : [ {
+              "type" : "TEXT",
+              "value" : "Erschde Eingabe: "
+            }, {
+              "calls" : [ {
+                "parameter" : [ ],
+                "type" : "Demo.root.testfunktion.text"
+              } ],
+              "type" : "CALL"
             } ],
-            "type" : "CALL"
+            "type" : "CONCAT"
+          }
+        }
+      }, {
+        "blockid" : "7634efa8-59a7-4af7-81d3-449d255854b3",
+        "blockX" : 2050.0,
+        "blockY" : 1150.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "29c2dc8e-90d3-44c9-9afb-9d0ac203620f" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "type" : "TEXT",
+            "value" : "test"
           }
         }
       } ],

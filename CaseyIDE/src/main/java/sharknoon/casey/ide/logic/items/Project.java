@@ -46,8 +46,8 @@ import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,6 +83,7 @@ public class Project extends Item<Project, Item, Package> {
         String javaCommand = optionalJavaCommand.get();
         Optional<Path> optionalCaseyCompiler = Resources.getFile("sharknoon/casey/ide/CaseyCOMPILER.jar", true);
         if (!optionalCaseyCompiler.isPresent()) {
+            Logger.error("Casey-Compiler not found");
             return false;
         }
         String caseyCompiler = optionalCaseyCompiler.get().toAbsolutePath().toString();
@@ -148,17 +149,16 @@ public class Project extends Item<Project, Item, Package> {
         String mainClassFile = mainItem.getFullName();
         
         try {
-            CommandLine commandLine = new CommandLine(javaCommand);
-            commandLine.addArgument("-cp");
-            commandLine.addArgument(classpath);
-            commandLine.addArgument(mainClassFile);
-            
-            DefaultExecutor executor = new DefaultExecutor();
+            ProcessBuilder pb = new ProcessBuilder(javaCommand, "-cp", classpath, mainClassFile);
             
             ObjectProperty<Text> outAndErr = new SimpleObjectProperty<>();
     
+            Process start = pb.start();
+            InputStream outputFromProcess = start.getInputStream();
+            InputStream errorFromProcess = start.getErrorStream();
+            OutputStream inputForProcess = start.getOutputStream();
     
-            LogOutputStream outStream = new LogOutputStream() {
+            LogOutputStream out = new LogOutputStream() {
                 @Override
                 protected void processLine(String line, int logLevel) {
                     Text text = new Text(line + "\n");
@@ -166,49 +166,56 @@ public class Project extends Item<Project, Item, Package> {
                     System.out.println(line);
                 }
             };
-            LogOutputStream errStream = new LogOutputStream() {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    outputFromProcess.transferTo(out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+    
+            LogOutputStream err = new LogOutputStream() {
                 @Override
                 protected void processLine(String line, int logLevel) {
                     Text text = new Text(line + "\n");
                     text.setFill(Color.RED);
                     outAndErr.set(text);
-                    System.err.println(line);
+                    System.out.println(line);
                 }
+            };
+            CompletableFuture.runAsync(() -> {
+                try {
+                    errorFromProcess.transferTo(err);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            Consumer<String> in = s -> {
+                CompletableFuture.runAsync(() -> {
+                    System.out.println("Writing " + s);
+                    try {
+                        inputForProcess.write((s + "\n").getBytes(StandardCharsets.UTF_8));
+                        inputForProcess.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             };
     
-            PipedInputStream input = new PipedInputStream();
-            PipedOutputStream output = new PipedOutputStream(input);
-            Consumer<String> in = s -> {
-                //CompletableFuture.runAsync(() -> {
-                try {
-                    System.out.println("Writing " + s);
-                    output.write((s + "\n").getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    Logger.error("Could not redirect Input to process", e);
-                }
-                //});
-            };
     
             Platform.runLater(() -> s = showInputOutputWindow(title, icon, in, outAndErr));
     
-            executor.setStreamHandler(new PumpStreamHandler(outStream, errStream, System.in));
-    
-            try {
-                int result = executor.execute(commandLine);
-                return result == 0;
-            } catch (Exception e) {
-                System.err.println("Error running the Java Program: " + e);
-                e.printStackTrace();
-                return false;
-            } finally {
-                if (s != null) {
-                    Platform.runLater(() -> s.close());
-                }
-            }
+            start.waitFor();
+            return start.exitValue() == 0;
         } catch (Exception e) {
             System.err.println("Error running the Java Program: " + e);
             e.printStackTrace();
             return false;
+        } finally {
+            if (s != null) {
+                Platform.runLater(() -> s.close());
+            }
         }
     }
     
@@ -267,10 +274,11 @@ public class Project extends Item<Project, Item, Package> {
                 String javaPathString = javaPath.toString();
                 return Optional.of(javaPathString);
             } catch (Exception e) {
-                System.err.println("Could not find Java-Home");
+                Logger.error("Could not find Java-Home");
                 return Optional.empty();
             }
         }
+        Logger.error("Could not find Java-Home");
         return Optional.empty();
     }
     

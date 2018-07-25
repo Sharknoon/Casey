@@ -41,69 +41,19 @@ import static sharknoon.casey.ide.utils.language.Word.*;
  * @author Josua Frank
  */
 public class Dialogs {
-
-    public interface DialogTypes {
-    }
-
-    public enum TextInputs implements DialogTypes {
-        NEW_PROJECT_DIALOG,
-        NEW_PACKAGE_DIALOG,
-        NEW_CLASS_DIALOG,
-        NEW_FUNCTION_DIALOG,
-        NEW_VARIABLE_DIALOG,
-        RENAME_PACKAGE_DIALOG,
-        RENAME_CLASS_DIALOG,
-        RENAME_PROJECT_DIALOG,
-        RENAME_FUNCTION_DIALOG,
-        RENAME_VARIABLE_DIALOG,
-        NEW_TEXT_VALUE,
-        NEW_PARAMETER_DIALOG,
-        RENAME_PARAMETER_DIALOG
-    }
-
-    public enum NumberInputs implements DialogTypes {
-        NEW_NUMBER_VALUE
-    }
-
-    public enum BooleanInputs implements DialogTypes {
-        NEW_BOOLEAN_VALUE
-    }
-
-    public enum Confirmations implements DialogTypes {
-        DELETE_PACKAGE_DIALOG,
-        DELETE_PROJECT_DIALOG,
-        DELETE_CLASS_DIALOG,
-        DELETE_FUNCTION_DIALOG,
-        DELETE_VARIABLE_DIALOG,
-        DELETE_PARAMETER_DIALOG
-    }
-
-    public enum TextEditors implements DialogTypes {
-        COMMENT_PACKAGE_DIALOG,
-        COMMENT_PROJECT_DIALOG,
-        COMMENT_CLASS_DIALOG,
-        COMMENT_FUNCTION_DIALOG,
-        COMMENT_VARIABLE_DIALOG,
-        COMMENT_PARAMETER_DIALOG
-    }
-
-    public enum Errors implements DialogTypes {
-        PROJECT_CORRUPT_DIALOG,
-        TYPE_IN_USE_DIALOG
-    }
-
+    
     public static Optional<String> showTextInputDialog(TextInputs type) {
         return showTextInputDialog(type, null);
     }
-
+    
     public static Optional<String> showTextInputDialog(TextInputs type, Map<String, String> variables) {
         return showTextInputDialog(type, null, variables);
     }
-
+    
     public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenValues, Map<String, String> variables) {
         return showTextInputDialog(type, null, forbiddenValues, variables);
     }
-
+    
     public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables) {
         switch (type) {
             case NEW_PROJECT_DIALOG:
@@ -226,19 +176,19 @@ public class Dialogs {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<Double> showNumberInputDialog(NumberInputs type) {
         return showNumberInputDialog(type, null);
     }
-
+    
     public static Optional<Double> showNumberInputDialog(NumberInputs type, Map<String, String> variables) {
         return showNumberInputDialog(type, null, variables);
     }
-
+    
     public static Optional<Double> showNumberInputDialog(NumberInputs type, Set<Double> forbiddenValues, Map<String, String> variables) {
         return showNumberInputDialog(type, null, forbiddenValues, variables);
     }
-
+    
     public static Optional<Double> showNumberInputDialog(NumberInputs type, Double defaultValue, Set<Double> forbiddenValues, Map<String, String> variables) {
         switch (type) {
             case NEW_NUMBER_VALUE:
@@ -253,19 +203,19 @@ public class Dialogs {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type) {
         return showBooleanInputDialog(type, null);
     }
-
+    
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Map<String, String> variables) {
         return showBooleanInputDialog(type, null, variables);
     }
-
+    
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Boolean forbiddenValue, Map<String, String> variables) {
         return showBooleanInputDialog(type, null, forbiddenValue, variables);
     }
-
+    
     public static Optional<Boolean> showBooleanInputDialog(BooleanInputs type, Boolean defaultValue, Boolean forbiddenValue, Map<String, String> variables) {
         switch (type) {
             case NEW_BOOLEAN_VALUE:
@@ -280,11 +230,11 @@ public class Dialogs {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<Boolean> showConfirmationDialog(Confirmations type) {
-        return showConfirmationDialog(type,null);
+        return showConfirmationDialog(type, null);
     }
-
+    
     public static Optional<Boolean> showConfirmationDialog(Confirmations type, Map<String, String> variables) {
         switch (type) {
             case DELETE_PACKAGE_DIALOG:
@@ -332,11 +282,11 @@ public class Dialogs {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<String> showTextEditorDialog(TextEditors type, String defaultValue) {
         return showTextEditorDialog(type, defaultValue, null);
     }
-
+    
     public static Optional<String> showTextEditorDialog(TextEditors type, String defaultValue, Map<String, String> variables) {
         switch (type) {
             case COMMENT_PACKAGE_DIALOG:
@@ -384,11 +334,11 @@ public class Dialogs {
         }
         return Optional.empty();
     }
-
+    
     public static void showErrorDialog(Errors type, Exception exception) {
         showErrorDialog(type, exception, null);
     }
-
+    
     public static void showErrorDialog(Errors type, Exception exception, Map<String, String> variables) {
         switch (type) {
             case PROJECT_CORRUPT_DIALOG:
@@ -410,7 +360,7 @@ public class Dialogs {
                         variables);
         }
     }
-
+    
     private static Optional<String> showTextInputDialog(Word title, Word headerText, Word contentText, Icon icon, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables) {
         AdvancedTextInputDialog dialog = new AdvancedTextInputDialog(defaultValue, forbiddenValues);
         dialog.setTitle(fill(Language.get(title), variables));
@@ -420,7 +370,7 @@ public class Dialogs {
         setStyle(dialog);
         return dialog.showAndWait();
     }
-
+    
     private static Optional<Double> showNumberInputDialog(Word title, Word headerText, Word contentText, Icon icon, Double defaultValue, Set<Double> forbiddenValues, Map<String, String> variables) {
         AdvancedNumberInputDialog dialog = new AdvancedNumberInputDialog(defaultValue, forbiddenValues);
         dialog.setTitle(fill(Language.get(title), variables));
@@ -430,7 +380,7 @@ public class Dialogs {
         setStyle(dialog);
         return dialog.showAndWait();
     }
-
+    
     private static Optional<Boolean> showBooleanInputDialog(Word title, Word headerText, Word contentText, Icon icon, Boolean defaultValue, Boolean forbiddenValue, Map<String, String> variables) {
         AdvancedBooleanInputDialog dialog = new AdvancedBooleanInputDialog(defaultValue, forbiddenValue);
         dialog.setTitle(fill(Language.get(title), variables));
@@ -440,7 +390,7 @@ public class Dialogs {
         setStyle(dialog);
         return dialog.showAndWait();
     }
-
+    
     private static Optional<Boolean> showConfirmationDialog(Word title, Word headerText, Word conentText, Icon icon, Map<String, String> variables) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle(fill(Language.get(title), variables));
@@ -458,7 +408,7 @@ public class Dialogs {
             return Optional.of(false);
         }
     }
-
+    
     private static Optional<String> showTextEditorDialog(Word title, Word headerText, Icon icon, String defaultValue, Map<String, String> variables) {
         TextEditorDialog dialog = new TextEditorDialog(defaultValue);
         dialog.setTitle(fill(Language.get(title), variables));
@@ -467,51 +417,51 @@ public class Dialogs {
         setStyle(dialog);
         return dialog.showAndWait();
     }
-
+    
     private static void showErrorDialog(Word title, Word headerText, Word contentText, Icon icon, Exception exception, Map<String, String> variables) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(fill(Language.get(title), variables));
         alert.setHeaderText(fill(Language.get(headerText), variables));
         alert.setContentText(fill(Language.get(contentText), variables));
-
+        
         if (exception != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             exception.printStackTrace(pw);
             String exceptionText = sw.toString();
-
+            
             TextArea textArea = new TextArea(exceptionText);
             textArea.setEditable(false);
             textArea.setWrapText(true);
             textArea.setMaxWidth(Double.MAX_VALUE);
             textArea.setMaxHeight(Double.MAX_VALUE);
-
+            
             alert.getDialogPane().setExpandableContent(textArea);
         }
-
+        
         setIcon(icon, alert);
         setStyle(alert);
         alert.showAndWait();
     }
-
+    
     public static <T, N extends Node> Optional<T> showCustomInputDialog(Word title, Word headerText, Word contentText, Icon icon, N content, Function<N, T> converter) {
         return showCustomInputDialog(title, headerText, contentText, icon, content, converter, null);
     }
-
+    
     public static <T, N extends Node> Optional<T> showCustomInputDialog(Word title, Word headerText, Word contentText, Icon icon, N content, Function<N, T> converter, Map<String, String> variables) {
         Dialog<T> dialog = new Dialog<>();
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));
         dialog.setContentText(fill(Language.get(contentText), variables));
-
+        
         DialogPane dp = dialog.getDialogPane();
-
+        
         dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
+        
         dp.setContent(content);
-
-        Platform.runLater(() -> content.requestFocus());
-
+        
+        Platform.runLater(content::requestFocus);
+        
         dialog.setResultConverter((dialogButton) -> {
             ButtonData data
                     = dialogButton == null ? null : dialogButton.getButtonData();
@@ -519,25 +469,98 @@ public class Dialogs {
                     ? converter.apply(content)
                     : null;
         });
-
+        
         setIcon(icon, dialog);
         setStyle(dialog);
         return dialog.showAndWait();
     }
-
-    private static String fill(String toInsertIn, Map<String,String> variables) {
+    
+    public static void showCustionOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content) {
+        showCustionOutputDialog(title, headerText, contentText, icon, content, null);
+    }
+    
+    public static void showCustionOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content, Map<String, String> variables) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle(fill(Language.get(title), variables));
+        dialog.setHeaderText(fill(Language.get(headerText), variables));
+        dialog.setContentText(fill(Language.get(contentText), variables));
+        
+        DialogPane dp = dialog.getDialogPane();
+        
+        dp.getButtonTypes().addAll(ButtonType.OK);
+        
+        dp.setContent(content);
+        
+        Platform.runLater(content::requestFocus);
+        
+        setIcon(icon, dialog);
+        setStyle(dialog);
+        dialog.showAndWait();
+    }
+    
+    private static String fill(String toInsertIn, Map<String, String> variables) {
         return StringSubstitutor.replace(toInsertIn, variables);
     }
-
+    
     private static void setIcon(Icon icon, Dialog dialog) {
         var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
         var image = Icons.getImage(icon);
         image.ifPresent(i -> stage.getIcons().add(i));//TODO convert evtl svg to image
     }
-
+    
     private static void setStyle(Dialog dialog) {
         var scene = dialog.getDialogPane().getScene();
         Styles.bindStyleSheets(scene.getStylesheets());
     }
-
+    
+    public enum TextInputs implements DialogTypes {
+        NEW_PROJECT_DIALOG,
+        NEW_PACKAGE_DIALOG,
+        NEW_CLASS_DIALOG,
+        NEW_FUNCTION_DIALOG,
+        NEW_VARIABLE_DIALOG,
+        RENAME_PACKAGE_DIALOG,
+        RENAME_CLASS_DIALOG,
+        RENAME_PROJECT_DIALOG,
+        RENAME_FUNCTION_DIALOG,
+        RENAME_VARIABLE_DIALOG,
+        NEW_TEXT_VALUE,
+        NEW_PARAMETER_DIALOG,
+        RENAME_PARAMETER_DIALOG
+    }
+    
+    public enum NumberInputs implements DialogTypes {
+        NEW_NUMBER_VALUE
+    }
+    
+    public enum BooleanInputs implements DialogTypes {
+        NEW_BOOLEAN_VALUE
+    }
+    
+    public enum Confirmations implements DialogTypes {
+        DELETE_PACKAGE_DIALOG,
+        DELETE_PROJECT_DIALOG,
+        DELETE_CLASS_DIALOG,
+        DELETE_FUNCTION_DIALOG,
+        DELETE_VARIABLE_DIALOG,
+        DELETE_PARAMETER_DIALOG
+    }
+    
+    public enum TextEditors implements DialogTypes {
+        COMMENT_PACKAGE_DIALOG,
+        COMMENT_PROJECT_DIALOG,
+        COMMENT_CLASS_DIALOG,
+        COMMENT_FUNCTION_DIALOG,
+        COMMENT_VARIABLE_DIALOG,
+        COMMENT_PARAMETER_DIALOG
+    }
+    
+    public enum Errors implements DialogTypes {
+        PROJECT_CORRUPT_DIALOG,
+        TYPE_IN_USE_DIALOG
+    }
+    
+    public interface DialogTypes {
+    }
+    
 }

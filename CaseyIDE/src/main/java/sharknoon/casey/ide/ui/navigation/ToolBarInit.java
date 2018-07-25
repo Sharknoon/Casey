@@ -15,12 +15,12 @@
  */
 package sharknoon.casey.ide.ui.navigation;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
@@ -32,6 +32,10 @@ import sharknoon.casey.ide.ui.misc.Icons;
 import sharknoon.casey.ide.ui.sites.Site;
 import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * @author Josua Frank
@@ -59,13 +63,23 @@ public class ToolBarInit {
     private static void initRunButton() {
         Button buttonRun = new Button();
         Label labelRunStatus = new Label();
-        StringProperty propertyRunStatusText = labelRunStatus.textProperty();
+        labelRunStatus.visibleProperty().bind(running);
+        Consumer<String> statusConsumer = s -> {
+            Platform.runLater(() -> {
+                labelRunStatus.setText(s);
+            });
+        };
         Icons.set(Icon.RUN, buttonRun);
         Language.set(Word.TOOLBAR_BUTTON_RUN_TEXT, buttonRun);
         buttonRun.setOnAction(e -> {
-            running.setValue(true);
-            Project.getCurrentProject().ifPresent(p -> p.run(propertyRunStatusText));
-            running.setValue(false);
+            running.set(true);
+            labelRunStatus.setText("");
+            Optional<Project> currentProject = Project.getCurrentProject();
+            if (currentProject.isPresent()) {
+                Project p = currentProject.get();
+                CompletableFuture<Void> finished = p.run(statusConsumer);
+                finished.thenRun(() -> running.set(false));
+            }
         });
         ObjectProperty<Item<?, ?, ?>> currentSite = Site.currentSelectedProperty();
         BooleanBinding enabledBinding =

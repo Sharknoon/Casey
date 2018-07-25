@@ -33,11 +33,11 @@
         "blockY" : 1150.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "RIGHT" : {
-            "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
-          },
           "LEFT" : {
             "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
+          },
+          "RIGHT" : {
+            "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
           }
         },
         "blockcontent" : {
@@ -73,11 +73,11 @@
         "blockY" : 1350.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "RIGHT" : {
-            "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
-          },
           "LEFT" : {
             "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
+          },
+          "RIGHT" : {
+            "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
           }
         },
         "blockcontent" : {

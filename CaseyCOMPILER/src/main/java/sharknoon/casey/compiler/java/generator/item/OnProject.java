@@ -62,7 +62,7 @@ public class OnProject {
             );
             ItemUtils.writeComments(args, item, projectFolder);
             for (Item child : item.children) {
-                boolean success = JavaGenerator.generateJava(args, currentPath.resolve(Paths.get(item.name)), child);
+                boolean success = JavaGenerator.generate(args, currentPath.resolve(Paths.get(item.name)), child);
                 if (!success) {
                     return false;
                 }

@@ -14,15 +14,18 @@ package sharknoon.casey.compiler.java.compiler;/*
  * limitations under the License.
  */
 
+import sharknoon.casey.compiler.general.beans.CLIArgs;
+
 import javax.tools.ToolProvider;
-import java.nio.file.Path;
 
 public class JavaCompiler {
     
-    public static boolean compile(Path mainClass) {
+    public static boolean compile(CLIArgs args) {
         try {
+            String classpath = args.getBasePath().toAbsolutePath().toString();
+            String mainClassJavaFile = args.getFunctionPath().toAbsolutePath().toString();
             javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            int result = compiler.run(null, null, null, mainClass.toString());
+            int result = compiler.run(null, null, null, "-cp", classpath, mainClassJavaFile);
             if (result == 0) {
                 return true;
             }
@@ -31,6 +34,5 @@ public class JavaCompiler {
         }
         return false;
     }
-    
     
 }

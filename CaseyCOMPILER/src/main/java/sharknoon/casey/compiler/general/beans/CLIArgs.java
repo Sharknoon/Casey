@@ -33,7 +33,7 @@ public class CLIArgs {
         this.function = function;
         this.caseyPath = Paths.get(caseyPath);
         this.basePath = this.caseyPath.getParent() != null ? this.caseyPath.getParent() : Paths.get("");
-        this.functionPath = basePath.resolve(function.replace('.', '/'));
+        this.functionPath = basePath.resolve(function.replace('.', '/') + ".java");
         this.language = Language.valueOf(language.toUpperCase());
         this.parameters = parameters;
         this.ignoreComments = ignoreComments;
@@ -43,6 +43,11 @@ public class CLIArgs {
         return function;
     }
     
+    /**
+     * The path to the main class .java file (base path + function path + '.java')
+     *
+     * @return
+     */
     public Path getFunctionPath() {
         return functionPath;
     }

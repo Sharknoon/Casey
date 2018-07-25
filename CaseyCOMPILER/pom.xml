@@ -6,16 +6,54 @@
 
     <groupId>de.sharknoon</groupId>
     <artifactId>CaseyCOMPILER</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
-    <name>CaseyCOMPILER</name>
+    <name>${project.artifactId}</name>
 
     <properties>
+        <mainCompilerClass>sharknoon.casey.compiler.Main</mainCompilerClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>sharknoon.casey.ide.Main</mainClass>
         <maven.compiler.source>10</maven.compiler.source>
         <maven.compiler.target>10</maven.compiler.target>
     </properties>
+
+    <build>
+        <finalName>${project.name}-${project.version}</finalName>
+        <plugins>
+            <!-- For building jars -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${mainCompilerClass}</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+            <!-- for running the Project -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>${mainCompilerClass}</mainClass>
+                    <arguments>
+                        <argument>-p</argument>
+                        <argument>tmp/Demo.casey</argument>
+                        <argument>-l</argument>
+                        <argument>java</argument>
+                        <argument>-f</argument>
+                        <argument>Demo.root.testfunktion</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
@@ -54,6 +92,11 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-exec</artifactId>
             <version>LATEST</version>
         </dependency>
     </dependencies>

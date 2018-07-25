@@ -34,7 +34,11 @@ public class OnBlock {
         }
         switch (block.blocktype) {
             case START:
-                onStartBlock(args, block);
+                CodeBlock startBlock = onStartBlock(args, block);
+                if (startBlock == null) {
+                    return EMPTY;
+                }
+                builder.add(startBlock);
                 break;
             case END:
                 CodeBlock endBlock = onEndBlock(args, block);
@@ -82,17 +86,17 @@ public class OnBlock {
         return builder.build();
     }
     
-    private static void onStartBlock(CLIArgs args, Block block) {
+    private static CodeBlock onStartBlock(CLIArgs args, Block block) {
         if (block == null) {
             System.err.println("The Start block is null");
-            return;
+            return null;
         }
         Block nextBlock = getNextBlock(block);
         if (nextBlock == null) {
             System.err.println("The Start-Block " + block + " has no next Block");
-            return;
+            return null;
         }
-        accept(args, nextBlock);
+        return accept(args, nextBlock);
     }
     
     private static CodeBlock onEndBlock(CLIArgs args, Block block) {
@@ -102,7 +106,7 @@ public class OnBlock {
         }
         BlockContent blockcontent = block.blockcontent;
         if (blockcontent == null) {
-            
+            System.err.println("End Block has no Content");
             return null;
         }
         Statement returnStatement = blockcontent.statement;

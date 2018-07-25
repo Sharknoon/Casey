@@ -33,11 +33,11 @@
         "blockY" : 1150.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "LEFT" : {
-            "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
-          },
           "RIGHT" : {
             "6b8ba111-bc4d-4d2d-be7c-e1ca628d9298" : "TOP"
+          },
+          "LEFT" : {
+            "03b39930-08a5-466b-a967-3fbb3b9ee63a" : "TOP"
           }
         },
         "blockcontent" : {
@@ -73,11 +73,11 @@
         "blockY" : 1350.0,
         "blocktype" : "DECISION",
         "blockconnections" : {
-          "LEFT" : {
-            "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
-          },
           "RIGHT" : {
             "2acbf108-0758-491a-bef0-16c5389e14ef" : "TOP"
+          },
+          "LEFT" : {
+            "bc0d317b-626c-402d-a0e1-f47365e30a17" : "TOP"
           }
         },
         "blockcontent" : {
@@ -195,15 +195,14 @@
           "blockY" : 1250.0,
           "blocktype" : "END",
           "blockconnections" : { },
-          "blockcontent" : { }
+          "blockcontent" : {
+            "statement" : {
+              "type" : "OBJECT",
+              "value" : "Demo.root.Clazz"
+            }
+          }
         } ],
         "returntype" : "Demo.root.Clazz",
-        "children" : [ ]
-      }, {
-        "name" : "classvar",
-        "comments" : "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"><p>Kommentar einer Variable in einer Klasse</p></body></html>",
-        "item" : "VARIABLE",
-        "type" : "Demo.root.Clazz",
         "children" : [ ]
       } ]
     }, {
@@ -217,47 +216,31 @@
         "blocktype" : "START",
         "blockconnections" : {
           "BOTTOM" : {
-            "37b4474e-f4c4-454d-ba0e-ca050b486ee8" : "TOP"
+            "a140a8f8-260a-4e01-a249-94a89fa00b88" : "TOP"
           }
         },
         "blockcontent" : { }
       }, {
-        "blockid" : "37b4474e-f4c4-454d-ba0e-ca050b486ee8",
+        "blockid" : "a140a8f8-260a-4e01-a249-94a89fa00b88",
         "blockX" : 2250.0,
         "blockY" : 1150.0,
-        "blocktype" : "CALL",
+        "blocktype" : "ASSIGNMENT",
         "blockconnections" : {
           "BOTTOM" : {
-            "a140a8f8-260a-4e01-a249-94a89fa00b88" : "TOP"
+            "b0be61a2-2a9d-4ad3-a932-bd741c80e546" : "TOP"
           }
         },
         "blockcontent" : {
+          "variable" : "Demo.root.testfunktion.ergebnis",
           "statement" : {
             "calls" : [ {
               "parameter" : [ {
                 "type" : "NUMBER",
-                "value" : 42.0
+                "value" : 10.0
               } ],
               "type" : "Demo.root.fibonacciRecursive"
             } ],
             "type" : "CALL"
-          }
-        }
-      }, {
-        "blockid" : "a140a8f8-260a-4e01-a249-94a89fa00b88",
-        "blockX" : 2250.0,
-        "blockY" : 1350.0,
-        "blocktype" : "ASSIGNMENT",
-        "blockconnections" : {
-          "BOTTOM" : {
-            "7fa1620b-52d8-4033-b2fe-a5d783a6b359" : "TOP"
-          }
-        },
-        "blockcontent" : {
-          "variable" : "Demo.root.variable",
-          "statement" : {
-            "type" : "OBJECT",
-            "value" : "Demo.root.Clazz"
           }
         }
       }, {
@@ -285,8 +268,17 @@
         },
         "blockcontent" : {
           "statement" : {
-            "type" : "TEXT",
-            "value" : "Ausgabeeeeee"
+            "parameter" : [ {
+              "type" : "TEXT",
+              "value" : "Du hasch eingegeben: "
+            }, {
+              "calls" : [ {
+                "parameter" : [ ],
+                "type" : "Demo.root.testfunktion.text"
+              } ],
+              "type" : "CALL"
+            } ],
+            "type" : "CONCAT"
           }
         }
       }, {
@@ -296,6 +288,25 @@
         "blocktype" : "END",
         "blockconnections" : { },
         "blockcontent" : { }
+      }, {
+        "blockid" : "b0be61a2-2a9d-4ad3-a932-bd741c80e546",
+        "blockX" : 2650.0,
+        "blockY" : 1250.0,
+        "blocktype" : "OUTPUT",
+        "blockconnections" : {
+          "BOTTOM" : {
+            "7fa1620b-52d8-4033-b2fe-a5d783a6b359" : "TOP"
+          }
+        },
+        "blockcontent" : {
+          "statement" : {
+            "calls" : [ {
+              "parameter" : [ ],
+              "type" : "Demo.root.testfunktion.ergebnis"
+            } ],
+            "type" : "CALL"
+          }
+        }
       } ],
       "returntype" : "VOID",
       "children" : [ {
@@ -303,6 +314,12 @@
         "comments" : "",
         "item" : "VARIABLE",
         "type" : "TEXT",
+        "children" : [ ]
+      }, {
+        "name" : "ergebnis",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "NUMBER",
         "children" : [ ]
       } ]
     } ]

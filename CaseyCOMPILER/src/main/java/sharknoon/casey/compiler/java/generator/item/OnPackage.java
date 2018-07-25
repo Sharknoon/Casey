@@ -41,7 +41,7 @@ public class OnPackage {
             Files.createDirectories(fullPackagePath);
             ItemUtils.writeComments(args, item, fullPackagePath);
             for (Item child : item.children) {
-                boolean success = JavaGenerator.generateJava(args, relativePath, child);
+                boolean success = JavaGenerator.generate(args, relativePath, child);
                 if (!success) {
                     return false;
                 }

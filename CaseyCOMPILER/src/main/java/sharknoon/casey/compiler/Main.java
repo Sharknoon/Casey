@@ -22,26 +22,30 @@ import sharknoon.casey.compiler.java.generator.JavaGenerator;
 
 public class Main {
     
-    
     public static void main(String[] args) {
+        int success = go(args);
+        System.exit(success);
+    }
+    
+    public static int go(String[] args) {
         var cliArgs = CLIParser.parseCommandLine(args);
         if (!cliArgs.isPresent()) {
             System.err.println("[STAGE 1: COMMANDLINE-PARSING FAILED]");
-            return;
+            return 1;
         }
         System.out.println("[STAGE 1: COMMANDLINE-PARSING COMPLETE]");
         //---------------------
         var item = CaseyParser.parseCasey(cliArgs.get().getCaseyPath());
         if (!item.isPresent()) {
             System.err.println("[STAGE 2: CASEY-PARSING FAILED]");
-            return;
+            return 2;
         }
         System.out.println("[STAGE 2: CASEY-PARSING COMPLETE]");
         //---------------------
         boolean success = false;
         switch (cliArgs.get().getLanguage()) {
             case JAVA:
-                success = JavaGenerator.generateJava(cliArgs.get(), item.get());
+                success = JavaGenerator.generate(cliArgs.get(), item.get());
                 break;
             //TODO maybe add more languages
         }
@@ -49,20 +53,23 @@ public class Main {
             System.out.println("[STAGE 3: CODE-GENERATION COMPLETE]");
         } else {
             System.err.println("[STAGE 3: CODE-GENERATION FAILED]");
+            return 3;
         }
         //---------------------
         success = false;
         switch (cliArgs.get().getLanguage()) {
             case JAVA:
-                success = JavaCompiler.compile(cliArgs.get().getFunctionPath());
+                success = JavaCompiler.compile(cliArgs.get());
                 break;
             //TODO maybe add more languages
         }
         if (success) {
-            System.out.println("[STAGE 3: CODE-COMPILATION COMPLETE]");
+            System.out.println("[STAGE 4: CODE-COMPILATION COMPLETE]");
         } else {
-            System.err.println("[STAGE 3: CODE-COMPILATION FAILED]");
+            System.err.println("[STAGE 4: CODE-COMPILATION FAILED]");
+            return 4;
         }
+        return 0;
     }
     
     

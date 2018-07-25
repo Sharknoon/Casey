@@ -23,11 +23,11 @@ import java.nio.file.Paths;
 
 public class JavaGenerator {
     
-    public static boolean generateJava(CLIArgs args, Item item) {
-        return generateJava(args, Paths.get(""), item);
+    public static boolean generate(CLIArgs args, Item item) {
+        return generate(args, Paths.get(""), item);
     }
     
-    public static boolean generateJava(CLIArgs args, Path currentPath, Item item) {
+    public static boolean generate(CLIArgs args, Path currentPath, Item item) {
         switch (item.item) {
             case PROJECT:
                 return OnProject.accept(args, currentPath, item);

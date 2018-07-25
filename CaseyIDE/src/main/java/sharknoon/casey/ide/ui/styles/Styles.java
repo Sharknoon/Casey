@@ -66,19 +66,19 @@ public enum Styles {
             } else {
                 Props.set(styleKey, getCurrentStyle().name());
             }
-        });
-        stylesheets.addAll(
-                "sharknoon/casey/ide/ui/styles/GeneralCSS.css",
-                getCurrentStyle().getFullStyleSheetName()
-        );
-        currentStyleProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != null) {
-                stylesheets.remove(oldValue.getFullStyleSheetName());
-            }
-            if (newValue != null) {
-                stylesheets.add(newValue.getFullStyleSheetName());
-                Props.set(styleKey, newValue.name());
-            }
+            stylesheets.addAll(
+                    "sharknoon/casey/ide/ui/styles/GeneralCSS.css",
+                    getCurrentStyle().getFullStyleSheetName()
+            );
+            currentStyleProperty().addListener((observable, oldValue, newValue) -> {
+                if (oldValue != null) {
+                    stylesheets.remove(oldValue.getFullStyleSheetName());
+                }
+                if (newValue != null) {
+                    stylesheets.add(newValue.getFullStyleSheetName());
+                    Props.set(styleKey, newValue.name());
+                }
+            });
         });
     }
     

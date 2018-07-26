@@ -161,7 +161,7 @@ public class ItemUtils {
             int lastPointIndex = typeNameString.lastIndexOf(".");
             typeName = ClassName.get(
                     typeNameString.substring(0, lastPointIndex),
-                    typeNameString.substring(lastPointIndex + 1, typeNameString.length())
+                    typeNameString.substring(lastPointIndex + 1)
             );
         } else {
             System.err.println("Could not determine type for " + typeNameString);
@@ -276,7 +276,7 @@ public class ItemUtils {
             if (block.blocktype == BlockType.START) {
                 CodeBlock codeBlock = OnBlock.accept(args, block);
                 if (codeBlock == null) {
-                    //System.err.println("Something in the function " + getFullName(functionItem) + " went wrong");
+                    System.err.println("Something in the function " + getFullName(functionItem) + " went wrong");
                     return Optional.empty();
                 }
                 variablesAndBlocksBuilder.add(codeBlock);

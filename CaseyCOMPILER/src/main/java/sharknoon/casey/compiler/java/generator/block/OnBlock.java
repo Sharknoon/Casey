@@ -20,65 +20,63 @@ import java.util.UUID;
 
 public class OnBlock {
     
-    private static final CodeBlock EMPTY = CodeBlock.of("");
-    
     public static CodeBlock accept(CLIArgs args, Block block) {
         Builder builder = CodeBlock.builder();
         if (block == null) {
             System.err.println("The Block to be processed is null");
-            return EMPTY;
+            return null;
         }
         if (block.blocktype == null) {
             System.err.println("The Type of the block " + block + " is null");
-            return EMPTY;
+            return null;
         }
         switch (block.blocktype) {
             case START:
                 CodeBlock startBlock = onStartBlock(args, block);
                 if (startBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(startBlock);
                 break;
             case END:
                 CodeBlock endBlock = onEndBlock(args, block);
                 if (endBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(endBlock);
                 break;
             case DECISION:
                 CodeBlock decisionBlock = onDecisionBlock(args, block);
                 if (decisionBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(decisionBlock);
                 break;
             case CALL:
                 CodeBlock callBlock = onCallBlock(args, block);
                 if (callBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(callBlock);
                 break;
             case ASSIGNMENT:
                 CodeBlock assignmentBlock = onAssignmentBlock(args, block);
                 if (assignmentBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(assignmentBlock);
                 break;
             case INPUT:
                 CodeBlock inputBlock = onInputBlock(args, block);
                 if (inputBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(inputBlock);
                 break;
             case OUTPUT:
                 CodeBlock outputBlock = onOutputBlock(args, block);
                 if (outputBlock == null) {
-                    return EMPTY;
+                    return null;
                 }
                 builder.add(outputBlock);
                 break;
@@ -101,7 +99,7 @@ public class OnBlock {
     
     private static CodeBlock onEndBlock(CLIArgs args, Block block) {
         if (block == null) {
-            
+            System.err.println("The End block itself is not specified");
             return null;
         }
         BlockContent blockcontent = block.blockcontent;
@@ -111,7 +109,6 @@ public class OnBlock {
         }
         Statement returnStatement = blockcontent.statement;
         if (returnStatement == null) {
-            
             return CodeBlock
                     .builder()
                     .addStatement("return")
@@ -154,20 +151,19 @@ public class OnBlock {
             System.err.println("DecisionBlock " + block + " has no next Blocks");
             return null;
         }
-        if (trueBlock == null) {
-            System.err.println("DecisionBlock " + block + " has no next Block");
-            return null;
-        }
-        CodeBlock whenTrue = accept(args, trueBlock);
-        if (whenTrue == null) {
-            //System.err.println("The Block for the True-Decision is null");
-            return null;
+        CodeBlock whenTrue = null;
+        if (trueBlock != null) {
+            whenTrue = accept(args, trueBlock);
+            if (whenTrue == null) {
+                System.err.println("The Block for the True-Decision is null");
+                return null;
+            }
         }
         CodeBlock whenFalse = null;
         if (falseBlock != null) {
             whenFalse = accept(args, falseBlock);
             if (whenFalse == null) {
-                //blockSystem.err.println("The Block for the False-Decision is null");
+                System.err.println("The Block for the False-Decision is null");
                 return null;
             }
         }
@@ -193,12 +189,12 @@ public class OnBlock {
     
     private static CodeBlock onCallBlock(CLIArgs args, Block block) {
         if (block == null) {
-            
+            System.err.println("The Call-Block itself is not specified");
             return null;
         }
         BlockContent blockcontent = block.blockcontent;
         if (blockcontent == null) {
-            
+            System.err.println("The content of the Call-Block is not specified");
             return null;
         }
         Statement callStatement = blockcontent.statement;
@@ -208,17 +204,17 @@ public class OnBlock {
         }
         CodeBlock callCode = OnStatement.accept(args, callStatement);
         if (callCode == null) {
-            System.err.println("The Statement for this CallBlock is null");
+            System.err.println("The Statement for this Call-Block is null");
             return null;
         }
         Block nextBlock = getNextBlock(block);
         if (nextBlock == null) {
-            System.err.println("The CallBlock " + block + " has no next Block");
+            System.err.println("The Call-Block " + block + " has no next Block");
             return null;
         }
         CodeBlock nextCode = accept(args, nextBlock);
         if (nextCode == null) {
-            //System.err.println("The following Code for this CallBlock is null");
+            System.err.println("The following Code for this Call-Block is null");
             return null;
         }
         return CodeBlock
@@ -230,12 +226,12 @@ public class OnBlock {
     
     private static CodeBlock onAssignmentBlock(CLIArgs args, Block block) {
         if (block == null) {
-            
+            System.err.println("The Assignment-Block itself is not specified");
             return null;
         }
         BlockContent blockcontent = block.blockcontent;
         if (blockcontent == null) {
-            
+            System.err.println("The Content of this Assignment-Block is empty");
             return null;
         }
         String assignmentVariable = blockcontent.variable;
@@ -375,12 +371,12 @@ public class OnBlock {
     
     private static Block getNextBlock(Block block) {
         if (block.blockconnections == null || block.blockconnections.isEmpty()) {
-            //System.err.println("Could not get the connections for the block " + block);
+            System.err.println("Could not get the connections for the block " + block);
             return null;
         }
         Map<UUID, Side> destination = block.blockconnections.values().iterator().next();
         if (destination == null || destination.isEmpty()) {
-            //System.err.println("The destinations of this block connections are empty, cant get next block " + block);
+            System.err.println("The destinations of this block connections are null, cant get next block " + block);
             return null;
         }
         UUID next = destination.keySet().iterator().next();
@@ -393,12 +389,12 @@ public class OnBlock {
     
     private static Block getDecisionConditionBlock(Block block, Side right) {
         if (block.blockconnections == null || block.blockconnections.isEmpty()) {
-            //System.err.println("Could not get the connections for the block " + block);
+            System.err.println("Could not get the connections for the block " + block);
             return null;
         }
         Map<UUID, Side> destination = block.blockconnections.get(right);
         if (destination.isEmpty()) {
-            //System.err.println("The destinations of this block connections are empty, cant get next block " + block);
+            System.err.println("The destinations of this block connections are null, cant get next block " + block);
             return null;
         }
         UUID next = destination.keySet().iterator().next();

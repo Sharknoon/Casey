@@ -56,7 +56,7 @@ public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<
         lists.add(index, list);
         final InternalListModificationListener listener = new InternalListModificationListener(list);
         list.addListener(listener);
-        //System.out.println("list = " + list + " puttingInMap=" + list.hashCode());
+        System.out.println("list = " + list + " puttingInMap=" + list.hashCode());
         sizes.add(index, list.size());
         int startIndex = getInsertionIndex(index);
         getBackingList().addAll(startIndex, list);
@@ -171,15 +171,15 @@ public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<
      */
     private int getStartIndex(@NotNull ObservableList<T> list) {
         int startIndex = 0;
-        //System.out.println("=== searching startIndex of " + list);
+        System.out.println("=== searching startIndex of " + list);
         assert lists.size() == sizes.size() : "lists.size=" + lists.size() + " not equal to sizes.size=" + sizes.size();
         final int listIndex = lists.indexOf(list);
         for (int i = 0; i < listIndex; i++) {
             final Integer size = sizes.get(i);
             startIndex += size;
-            //System.out.println(" startIndex = " + startIndex + " added=" + size);
+            System.out.println(" startIndex = " + startIndex + " added=" + size);
         }
-        //System.out.println("startIndex = " + startIndex);
+        System.out.println("startIndex = " + startIndex);
         return startIndex;
     }
     
@@ -228,19 +228,19 @@ public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<
             final int startIndex = getStartIndex(list);
             final int index = lists.indexOf(list);
             final int newSize = changedList.size();
-            //System.out.println("onChanged for list=" + list + " aggregate=" + aggregatedList);
+            System.out.println("onChanged for list=" + list + " aggregate=" + aggregatedList);
             while (change.next()) {
                 final int from = change.getFrom();
                 final int to = change.getTo();
-                //System.out.println(" startIndex=" + startIndex + " from=" + from + " to=" + to);
+                System.out.println(" startIndex=" + startIndex + " from=" + from + " to=" + to);
                 if (change.wasPermutated()) {
                     final ArrayList<T> copy = new ArrayList<>(getBackingList().subList(startIndex + from, startIndex + to));
-                    //System.out.println("  permutating sublist=" + copy);
+                    System.out.println("  permutating sublist=" + copy);
                     for (int oldIndex = from; oldIndex < to; oldIndex++) {
                         int newIndex = change.getPermutation(oldIndex);
                         copy.set(newIndex - from, getBackingList().get(startIndex + oldIndex));
                     }
-                    //System.out.println("  permutating done sublist=" + copy);
+                    System.out.println("  permutating done sublist=" + copy);
                     getBackingList().subList(startIndex + from, startIndex + to).clear();
                     getBackingList().addAll(startIndex + from, copy);
                 } else if (change.wasUpdated()) {
@@ -248,22 +248,22 @@ public class AggregatedObservableList<T> extends UnmodifiableObservableListImpl<
                 } else {
                     if (change.wasRemoved()) {
                         List<? extends T> removed = change.getRemoved();
-                        //System.out.println("  removed= " + removed);
+                        System.out.println("  removed= " + removed);
                         // IMPORTANT! FROM == TO when removing items.
                         getBackingList().remove(startIndex + from, startIndex + from + removed.size());
                     }
                     if (change.wasAdded()) {
                         List<? extends T> added = change.getAddedSubList();
-                        //System.out.println("  added= " + added);
+                        System.out.println("  added= " + added);
                         //add those elements to your data
                         getBackingList().addAll(startIndex + from, added);
                     }
                 }
             }
             // update the size of the list in the map
-            //System.out.println("list = " + list + " puttingInMap=" + list.hashCode());
+            System.out.println("list = " + list + " puttingInMap=" + list.hashCode());
             sizes.set(index, newSize);
-            //System.out.println("listSizesMap = " + sizes);
+            System.out.println("listSizesMap = " + sizes);
         }
         
     }

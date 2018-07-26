@@ -43,7 +43,7 @@ import java.util.Set;
  * @author Josua Frank
  */
 public class Dot {
-
+    
     private final Polygon polygon;
     private final Frame<?> frame;
     private final ObservableSet<Line> lines = FXCollections.observableSet();
@@ -59,7 +59,7 @@ public class Dot {
         this.frame = frame;
         this.isInput = isInput;
         this.functionSite = frame.getFunctionSite();
-
+    
         double s = UISettings.DOT_SIZE;
         polygon = new Polygon(
                 -s, -s,
@@ -107,11 +107,11 @@ public class Dot {
                 break;
         }
     }
-
+    
     public void show() {
         var opacityStart = new KeyValue(polygon.opacityProperty(), polygon.getOpacity());
         var opacityEnd = new KeyValue(polygon.opacityProperty(), 1);
-
+        
         showTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
                 new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
@@ -122,11 +122,11 @@ public class Dot {
             showTimeline.play();
         });
     }
-
+    
     public void hide() {
         var opacityStart = new KeyValue(polygon.opacityProperty(), polygon.getOpacity());
         var opacityEnd = new KeyValue(polygon.opacityProperty(), 0);
-
+        
         hideTimeline.getKeyFrames().setAll(
                 new KeyFrame(Duration.ZERO, opacityStart),
                 new KeyFrame(UISettings.DOTS_MOVING_DURATION, opacityEnd)
@@ -137,7 +137,7 @@ public class Dot {
             hideTimeline.play();
         });
     }
-
+    
     /**
      * relative to the scene
      *
@@ -146,11 +146,11 @@ public class Dot {
     public double getCenterX() {
         return frame.getMinX() + polygon.getTranslateX();
     }
-
+    
     public DoubleExpression centerXExpression() {
         return frame.minXExpression().add(polygon.translateXProperty());
     }
-
+    
     /**
      * relative to the scene
      *
@@ -159,12 +159,15 @@ public class Dot {
     public double getCenterY() {
         return frame.getMinY() + polygon.getTranslateY();
     }
-
+    
     public DoubleExpression centerYExpression() {
         return frame.minYExpression().add(polygon.translateYProperty());
     }
-
+    
     public void onMouseClicked(MouseEvent event) {
+        if (lines.size() > 0) {
+            return;
+        }
         if (!Lines.isLineDrawing(functionSite)) {
             var line = Lines.createLine(functionSite, this);
             lines.add(line);
@@ -185,37 +188,37 @@ public class Dot {
     public Frame getFrame() {
         return frame;
     }
-
+    
     public void removeLine(Line line) {
         lines.remove(line);
     }
-
+    
     public boolean hasLines() {
         return !lines.isEmpty();
     }
-
+    
     public boolean hasNoLines() {
         return !hasLines();
     }
-
+    
     public Set<Line> getLines() {
         return lines;
     }
-
+    
     public Side getSide() {
         return side;
     }
-
+    
     public boolean isInputDot() {
         return isInput;
     }
-
+    
     public void addLine(Line line) {
         lines.add(line);
     }
-
+    
     public Shape getShape() {
         return polygon;
     }
-
+    
 }

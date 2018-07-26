@@ -780,6 +780,38 @@
         "type" : "NUMBER",
         "children" : [ ]
       } ]
+    }, {
+      "name" : "testfunktion",
+      "comments" : "",
+      "item" : "FUNCTION",
+      "blocks" : [ {
+        "blockid" : "2f5837c5-c509-4829-a84a-81a251b750ec",
+        "blockX" : 2350.0,
+        "blockY" : 1050.0,
+        "blocktype" : "START",
+        "blockconnections" : { },
+        "blockcontent" : { }
+      } ],
+      "returntype" : "VOID",
+      "children" : [ {
+        "name" : "textvar",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "TEXT",
+        "children" : [ ]
+      }, {
+        "name" : "numbervar",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "NUMBER",
+        "children" : [ ]
+      }, {
+        "name" : "boolvar",
+        "comments" : "",
+        "item" : "VARIABLE",
+        "type" : "BOOLEAN",
+        "children" : [ ]
+      } ]
     } ]
   } ]
 }

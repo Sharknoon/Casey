@@ -142,10 +142,11 @@ public class Line implements Moveable, MouseConsumable {
     
     public void remove() {
         Dot outputDot = getOutputDot();
-        if (outputDot != null) {
+        Dot inputDot = getInputDot();
+        if (outputDot != null && inputDot != null) {
             outputDot.getFrame().getBlock().removeConnection(
                     outputDot.getSide(),
-                    getInputDot().getFrame().getBlock()
+                    inputDot.getFrame().getBlock()
             );
         }
         functionSite.getLogicSite().remove(line);

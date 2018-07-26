@@ -67,6 +67,18 @@ public abstract class Operator<T extends PrimitiveType, CT extends Type> extends
         this.isExtensible = isExtensible;
     }
     
+    public void destroyParameter(Statement<T, CT, Type> parameter) {
+        if (parameter != null) {
+            for (int i = 0; i < childs.size(); i++) {
+                var child = childs.get(i);
+                if (child == parameter) {
+                    setParameter(i, null);
+                    return;
+                }
+            }
+        }
+    }
+    
     public void addParameter(Statement<T, CT, Type> parameter) {
         if (parameter != null) {//If the parameter is null, add it to the end, if not, replace the first null value
             for (int i = 0; i < childs.size(); i++) {

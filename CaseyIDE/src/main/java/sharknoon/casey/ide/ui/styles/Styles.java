@@ -23,40 +23,50 @@ import sharknoon.casey.ide.utils.settings.Logger;
 import sharknoon.casey.ide.utils.settings.Props;
 
 import java.util.EnumSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public enum Styles {
     dark("DarkCSS.css", Icon.DARK, Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT),
     light("LightCSS.css", Icon.LIGHT, Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT);
     
-    public static final ObjectProperty<Styles> currentStyle = new SimpleObjectProperty<>(dark);
+    public static final Styles defaultStyle = dark;
+    public static final ObjectProperty<Styles> currentStyle = new SimpleObjectProperty<>();
     private static final String styleKey = "style";
     
-    public static Styles getCurrentStyle() {
-        return currentStyleProperty().get();
+    public static CompletableFuture<Styles> getCurrentStyle() {
+        if (currentStyle.get() == null) {
+            return initCurrentStyle().thenApply((v) -> currentStyle.get());
+        } else {
+            return CompletableFuture.completedFuture(currentStyleProperty().get());
+        }
     }
     
     public static void setCurrentStyle(Styles style) {
-        currentStyleProperty().set(style);
+        if (currentStyle.get() == null) {
+            initCurrentStyle().thenRun(() -> currentStyle.set(style));
+        } else {
+            currentStyleProperty().set(style);
+        }
     }
     
     public static ObjectProperty<Styles> currentStyleProperty() {
+        if (currentStyle.get() == null) {
+            initCurrentStyle().join();
+        }
         return currentStyle;
     }
     
-    public static void bindStyleSheets(ObservableList<String> stylesheets) {
-        Props.get(styleKey).thenAccept(o -> {
-            if (o.isPresent()) {
-                String styleName = o.get();
+    public static CompletableFuture<Void> initCurrentStyle() {
+        return Props.get(styleKey).thenAccept(s -> {
+            if (s.isPresent()) {
+                String styleName = s.get();
                 try {
-                    setCurrentStyle(valueOf(styleName));
+                    currentStyle.set(valueOf(styleName));
                 } catch (Exception ex) {
                     Logger.error(
-                            "Invalid style name in database: "
-                                    + styleName
-                                    + " of " +
-                                    EnumSet
-                                            .allOf(Styles.class)
+                            "Invalid style name in database: " + styleName + " of " +
+                                    EnumSet.allOf(Styles.class)
                                             .stream()
                                             .map(Enum::name)
                                             .collect(Collectors.joining(", ")),
@@ -64,21 +74,33 @@ public enum Styles {
                     );
                 }
             } else {
-                Props.set(styleKey, getCurrentStyle().name());
+                Props.set(styleKey, defaultStyle.name());
+                currentStyle.set(defaultStyle);
             }
-            stylesheets.addAll(
-                    "sharknoon/casey/ide/ui/styles/GeneralCSS.css",
-                    getCurrentStyle().getFullStyleSheetName()
-            );
-            currentStyleProperty().addListener((observable, oldValue, newValue) -> {
-                if (oldValue != null) {
-                    stylesheets.remove(oldValue.getFullStyleSheetName());
-                }
+            currentStyle.addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    stylesheets.add(newValue.getFullStyleSheetName());
                     Props.set(styleKey, newValue.name());
+                } else {
+                    Logger.error("New Style is null, using the default dark theme");
+                    Props.set(styleKey, defaultStyle.name());
+                    currentStyle.set(defaultStyle);
                 }
             });
+        });
+    }
+    
+    public static void bindStyleSheets(ObservableList<String> stylesheets) {
+        getCurrentStyle().thenAccept(s -> stylesheets.addAll(
+                "sharknoon/casey/ide/ui/styles/GeneralCSS.css",
+                s.getFullStyleSheetName()
+        ));
+        currentStyleProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null) {
+                stylesheets.remove(oldValue.getFullStyleSheetName());
+            }
+            if (newValue != null) {
+                stylesheets.add(newValue.getFullStyleSheetName());
+            }
         });
     }
     

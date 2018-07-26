@@ -151,31 +151,37 @@ public class OperatorBody extends Body<Operator<PrimitiveType, Type>> {
         bracketOpen.setFill(random);
         bracketClose.setFill(random);
         text.add(FXCollections.observableArrayList(bracketOpen));
+        text.add(FXCollections.observableArrayList(bracketClose));
         if (childs.size() > 1) {//infix
             BindUtils.addListener(childs, c -> {
                 text.remove(1, text.size() - 1);
-                childs.forEach((child) -> {
+                if (childs.size() > 0) {
+                    var child = childs.get(0);
                     ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
-                    text.add(par);
+                    text.add(text.size() - 1, par);
+                }
+                for (int i = 1; i < childs.size(); i++) {
                     Text op = new Text(
                             getStatement().getOperatorType().toString()
                     );
-                    text.add(FXCollections.observableArrayList(op));
-                });
-                if (childs.size() > 0) {
-                    text.remove(text.size() - 1);
+                    text.add(text.size() - 1, FXCollections.observableArrayList(op));
+                    var child = childs.get(i);
+                    ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+                    text.add(text.size() - 1, par);
                 }
             });
         } else {//op text
-            Text op = new Text(
-                    getStatement().getOperatorType().toString()
-            );
-            text.add(FXCollections.observableArrayList(op));
-            Statement<PrimitiveType, Type, Type> child = childs.size() > 0 ? childs.get(0) : null;
-            ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
-            text.add(par);
+            BindUtils.addListener(childs, c -> {
+                text.remove(1, text.size() - 1);
+                Text op = new Text(
+                        getStatement().getOperatorType().toString()
+                );
+                text.add(text.size() - 1, FXCollections.observableArrayList(op));
+                Statement<PrimitiveType, Type, Type> child = childs.size() > 0 ? childs.get(0) : null;
+                ObservableList<Text> par = child != null ? child.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+                text.add(text.size() - 1, par);
+            });
         }
-        text.add(FXCollections.observableArrayList(bracketClose));
         return BindUtils.concatFromList(text);
     }
     

@@ -33,10 +33,12 @@ public class OnFunction {
             Map<String, String> parameters = args.getParameters();
             List<String> paramterValuesInRightOrder = item.children.stream()
                     .filter(i -> i.item == ItemType.PARAMETER)
-                    .map(i -> i.name)
                     .map(n -> {
-                        if (parameters.containsKey(n)) {
-                            return parameters.get(n);
+                        if (parameters.containsKey(n.name)) {
+                            if ("TEXT".equals(n.type)) {
+                                return "\"" + parameters.get(n.name) + "\"";
+                            }
+                            return parameters.get(n.name);
                         } else {
                             System.err.println("Function "
                                     + ItemUtils.getFullName(item)

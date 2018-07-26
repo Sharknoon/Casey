@@ -21,9 +21,12 @@ import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -51,12 +54,12 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Josua Frank
@@ -75,7 +78,50 @@ public class Project extends Item<Project, Item, Package> {
         return currentProject;
     }
     
-    public static boolean compile(Consumer<String> consumer, String... commands) {
+    public static void showErrorWindow(Map<String, Boolean> lines) {
+        TextFlow textFlow = new TextFlow();
+        lines.forEach((line, error) -> {
+            Text text = new Text(line + "\n");
+            if (error) {
+                text.setFill(Color.RED);
+            }
+            textFlow.getChildren().add(text);
+        });
+        Dialogs.showCustionOutputDialog(
+                Word.COMPILER_ERROR_TITLE,
+                Word.COMPILER_ERROR_HEADER_TEXT,
+                Word.COMPILER_ERROR_CONTENT_TEXT,
+                Icon.ERROR,
+                textFlow);
+    }
+    
+    public static Optional<String> getJavaHomeDirectory() {
+        String javaHome = System.getProperty("java.home", "");
+        
+        if (!javaHome.isEmpty()) {
+            try {
+                Path javaPath = Paths.get(javaHome).resolve("bin").resolve("java");
+                String javaPathString = javaPath.toString();
+                return Optional.of(javaPathString);
+            } catch (Exception e) {
+                Logger.error("Could not find Java-Home");
+                return Optional.empty();
+            }
+        }
+        Logger.error("Could not find Java-Home");
+        return Optional.empty();
+    }
+    
+    private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
+    private Process process;
+    private String id;
+    
+    protected Project(Welcome parent, String name) {
+        superInit(parent, name);
+        init();
+    }
+    
+    public boolean compile(Consumer<String> consumer, List<String> commands) {
         Optional<String> optionalJavaCommand = getJavaHomeDirectory();
         if (!optionalJavaCommand.isPresent()) {
             return false;
@@ -94,8 +140,8 @@ public class Project extends Item<Project, Item, Package> {
             CommandLine commandLine = new CommandLine(javaCommand);
             commandLine.addArgument("-jar");
             commandLine.addArgument(caseyCompiler);
-            commandLine.addArguments(commands);
-    
+            commandLine.addArguments(commands.toArray(new String[0]));
+            
             LogOutputStream outStream = new LogOutputStream() {
                 @Override
                 protected void processLine(String line, int logLevel) {
@@ -136,7 +182,7 @@ public class Project extends Item<Project, Item, Package> {
      * @param mainItem The item which should be executed
      * @return
      */
-    public static Boolean execute(Path basePath, Item mainItem) {
+    public Boolean execute(Path basePath, Item mainItem) {
         String title = mainItem.getName();
         Icon icon = mainItem.getSite().getTabIcon();
         
@@ -153,11 +199,11 @@ public class Project extends Item<Project, Item, Package> {
             
             ObjectProperty<Text> outAndErr = new SimpleObjectProperty<>();
     
-            Process start = pb.start();
-            InputStream outputFromProcess = start.getInputStream();
-            InputStream errorFromProcess = start.getErrorStream();
-            OutputStream inputForProcess = start.getOutputStream();
-    
+            process = pb.start();
+            InputStream outputFromProcess = process.getInputStream();
+            InputStream errorFromProcess = process.getErrorStream();
+            OutputStream inputForProcess = process.getOutputStream();
+            
             LogOutputStream out = new LogOutputStream() {
                 @Override
                 protected void processLine(String line, int logLevel) {
@@ -166,14 +212,14 @@ public class Project extends Item<Project, Item, Package> {
                     System.out.println(line);
                 }
             };
-            CompletableFuture.runAsync(() -> {
+            new Thread(() -> {
                 try {
                     outputFromProcess.transferTo(out);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            });
-    
+            }, "ProcessOutputListenerThread").start();
+            
             LogOutputStream err = new LogOutputStream() {
                 @Override
                 protected void processLine(String line, int logLevel) {
@@ -183,16 +229,17 @@ public class Project extends Item<Project, Item, Package> {
                     System.out.println(line);
                 }
             };
-            CompletableFuture.runAsync(() -> {
+            new Thread(() -> {
                 try {
                     errorFromProcess.transferTo(err);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            });
-            
+            }, "ProcessErrorListenerThread").start();
+    
+            ExecutorService pool = Executors.newCachedThreadPool();
             Consumer<String> in = s -> {
-                CompletableFuture.runAsync(() -> {
+                pool.submit(() -> {
                     System.out.println("Writing " + s);
                     try {
                         inputForProcess.write((s + "\n").getBytes(StandardCharsets.UTF_8));
@@ -206,8 +253,8 @@ public class Project extends Item<Project, Item, Package> {
     
             Platform.runLater(() -> s = showInputOutputWindow(title, icon, in, outAndErr));
     
-            start.waitFor();
-            return start.exitValue() == 0;
+            process.waitFor();
+            return process.exitValue() == 0;
         } catch (Exception e) {
             System.err.println("Error running the Java Program: " + e);
             e.printStackTrace();
@@ -219,7 +266,7 @@ public class Project extends Item<Project, Item, Package> {
         }
     }
     
-    public static Stage showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine) {
+    public Stage showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine) {
         BorderPane root = new BorderPane();
         
         TextFlow outputs = new TextFlow();
@@ -243,51 +290,13 @@ public class Project extends Item<Project, Item, Package> {
         newWindow.setTitle(title);
         newWindow.getIcons().add(Icons.getImage(icon).orElse(null));
         newWindow.setScene(newScene);
-        //newWindow.setOnCloseRequest();
+        newWindow.setOnCloseRequest(event -> {
+            if (process != null) {
+                process.destroy();
+            }
+        });
         newWindow.show();
         return newWindow;
-    }
-    
-    public static void showErrorWindow(Map<String, Boolean> lines) {
-        TextFlow textFlow = new TextFlow();
-        lines.forEach((line, error) -> {
-            Text text = new Text(line + "\n");
-            if (error) {
-                text.setFill(Color.RED);
-            }
-            textFlow.getChildren().add(text);
-        });
-        Dialogs.showCustionOutputDialog(
-                Word.COMPILER_ERROR_TITLE,
-                Word.COMPILER_ERROR_HEADER_TEXT,
-                Word.COMPILER_ERROR_CONTENT_TEXT,
-                Icon.ERROR,
-                textFlow);
-    }
-    
-    public static Optional<String> getJavaHomeDirectory() {
-        String javaHome = System.getProperty("java.home", "");
-        
-        if (!javaHome.isEmpty()) {
-            try {
-                Path javaPath = Paths.get(javaHome).resolve("bin").resolve("java");
-                String javaPathString = javaPath.toString();
-                return Optional.of(javaPathString);
-            } catch (Exception e) {
-                Logger.error("Could not find Java-Home");
-                return Optional.empty();
-            }
-        }
-        Logger.error("Could not find Java-Home");
-        return Optional.empty();
-    }
-    
-    private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
-    private String id;
-    
-    protected Project(Welcome parent, String name) {
-        superInit(parent, name);
-        init();
     }
     
     private void init() {
@@ -349,17 +358,78 @@ public class Project extends Item<Project, Item, Package> {
         save();
         Item<?, ?, ?> currentItem = Site.currentSelectedProperty().get();
         if (saveFile.get() != null && currentItem != null) {
-            //TODO parameter check
+            if (!(currentItem instanceof Function)) {
+                //Shouldn't happen
+                return CompletableFuture.completedFuture(null);
+            }
+            Function f = (Function) currentItem;
+            Map<String, String> parameterValues = requestParameters(f);
+            if (parameterValues == null) {
+                //User canceled the input
+                return CompletableFuture.completedFuture(null);
+            }
             Path caseyFile = saveFile.get();
             Path basePath = saveFile.get().getParent();
             return CompletableFuture.runAsync(() -> {
-                boolean success = compile(statusProperty, "-l", "java", "-p", caseyFile.toString(), "-f", currentItem.getFullName());
+                List<String> commands = new ArrayList<>();
+                commands.add("-l");
+                commands.add("java");
+                commands.add("-p");
+                commands.add(String.valueOf(caseyFile));
+                commands.add("-f");
+                commands.add(currentItem.getFullName());
+                if (parameterValues.size() > 0) {
+                    commands.add("-pa");
+                }
+                parameterValues
+                        .entrySet()
+                        .stream()
+                        .map(e -> e.getKey() + "=" + e.getValue())
+                        .forEach(commands::add);
+                boolean success = compile(statusProperty, commands);
                 if (success) {
                     execute(basePath, currentItem);
                 }
             });
         }
         return CompletableFuture.completedFuture(null);
+    }
+    
+    private Map<String, String> requestParameters(Function f) {
+        GridPane root = new GridPane();
+        root.setHgap(10);
+        root.setVgap(5);
+        
+        List<TextField> textFields = f.getChildren().stream()
+                .filter(c -> c.getType() == ItemType.PARAMETER)
+                .map(p -> (Parameter) p)
+                .map(p -> {
+                    Label labelParameterName = new Label(p.getName());
+                    TextField textFieldParameterValue = new TextField();
+                    textFieldParameterValue.setId(p.getName());
+                    textFieldParameterValue.setPromptText(p.getReturnType().createEmptyValue(null).toString());
+                    root.addRow(root.getRowCount(), labelParameterName, textFieldParameterValue);
+                    return textFieldParameterValue;
+                })
+                .collect(Collectors.toList());
+        
+        if (textFields.isEmpty()) {
+            return Map.of();
+        }
+        
+        Optional<GridPane> result = Dialogs.showCustomInputDialog(
+                Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_TITLE,
+                Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_HEADER_TEXT,
+                Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_CONTENT_TEXT,
+                Icon.PARAMETER,
+                root,
+                gridPane -> gridPane);
+        
+        if (result.isPresent()) {
+            return textFields.stream().collect(Collectors.toMap(Node::getId, textField -> textField.getText().isEmpty() ? textField.getPromptText() : textField.getText()));
+        } else {
+            return null;
+        }
     }
     
     public void requestSaveFile() {

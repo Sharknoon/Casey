@@ -17,6 +17,7 @@ package sharknoon.casey.ide.logic.statements;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
@@ -64,7 +65,11 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
                 Operator operator = OperatorType.valueOf(type).create(parent);
                 var parameters = (ArrayNode) properties.get("parameter");
                 parameters.elements().forEachRemaining(p -> {
-                    operator.addParameter(deserialize(operator, (ObjectNode) p));
+                    if (p instanceof NullNode) {
+                        operator.addParameter(null);
+                    } else {
+                        operator.addParameter(deserialize(operator, (ObjectNode) p));
+                    }
                 });
                 return operator;
             } else if (Objects.equals(type, "CALL")) {
@@ -79,7 +84,11 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
                     if (item instanceof Function) {
                         var parameter = (ArrayNode) call.get("parameter");
                         parameter.elements().forEachRemaining(e -> {
-                            callItem.getChilds().add(deserialize(callItem, (ObjectNode) e));
+                            if (e instanceof NullNode) {
+                                callItem.getChilds().add(null);
+                            } else {
+                                callItem.getChilds().add(deserialize(callItem, (ObjectNode) e));
+                            }
                         });
                     }
                 });
@@ -90,6 +99,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
         }
         return null;
     }
+    
     protected final ReadOnlyListWrapper<Statement<T, CT, Type>> childs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     private final transient ReadOnlyObjectWrapper<Statement<Type, PT, T>> parent = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Body<Statement>> body = new ReadOnlyObjectWrapper<>();
@@ -126,8 +136,14 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
     
     public void destroy() {
         destroy_impl();
-        if (parentProperty().get() != null && !(parentProperty().get() instanceof Operator)) {
-            parentProperty().get().childs.remove(this);
+        var parent = parentProperty().get();
+        if (parent != null) {
+            if (!(parent instanceof Operator)) {
+                parent.childs.remove(this);
+            } else {
+                Operator o = (Operator) parent;
+                o.destroyParameter(this);
+            }
         }
     }
     

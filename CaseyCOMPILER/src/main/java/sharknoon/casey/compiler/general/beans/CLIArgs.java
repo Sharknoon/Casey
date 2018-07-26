@@ -21,13 +21,13 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public class CLIArgs {
-    final String function;
-    final transient Path functionPath;
-    final Path caseyPath;
-    final transient Path basePath;
-    final Language language;
-    final Map<String, String> parameters;
-    final boolean ignoreComments;
+    private final String function;
+    private final transient Path functionPath;
+    private final Path caseyPath;
+    private final transient Path basePath;
+    private final Language language;
+    private final Map<String, String> parameters;
+    private final boolean ignoreComments;
     
     public CLIArgs(String function, String caseyPath, String language, Map<String, String> parameters, boolean ignoreComments) {
         this.function = function;

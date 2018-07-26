@@ -71,7 +71,8 @@ public class FunctionSiteLogic implements MouseConsumable {
     }
     
     public void addInBack(Node node) {
-        root.getChildren().add(0, node);
+        //index 0 is the workspacebackground
+        root.getChildren().add(1, node);
     }
     
     public void remove(Node node) {
@@ -89,8 +90,6 @@ public class FunctionSiteLogic implements MouseConsumable {
                 workspaceMoving.onMousePressed(event);
             } else if (event.isPrimaryButtonDown()) {
                 workspaceSelection.onMousePressed(event);
-                Frames.unselectAll(functionSite);
-                Lines.unselectAll(functionSite);
             }
         } else {
             if (event.isPrimaryButtonDown()) {

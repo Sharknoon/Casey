@@ -68,7 +68,16 @@ public class Variable extends Item<Variable, Item<? extends Item, ? extends Item
     static Map<Type, List<Variable>> getAllVariables() {
         return VARIABLES;
     }
-
+    
+    @Override
+    public void destroy() {
+        super.destroy();
+        Type returnType = getReturnType();
+        if (returnType != null && VARIABLES.containsKey(returnType)) {
+            VARIABLES.get(returnType).remove(this);
+        }
+    }
+    
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();

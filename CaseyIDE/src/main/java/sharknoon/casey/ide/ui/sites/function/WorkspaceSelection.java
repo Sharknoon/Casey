@@ -49,6 +49,8 @@ public class WorkspaceSelection implements MouseConsumable {
     
     @Override
     public void onMousePressed(MouseEvent event) {
+        Frames.unselectAll(functionSite);
+        Lines.unselectAll(functionSite);
         if (firstRun) {
             this.functionSite.getLogicSite().addInFront(selectionRectangle);
             firstRun = false;
@@ -131,6 +133,7 @@ public class WorkspaceSelection implements MouseConsumable {
                     && l.getMinY() + l.getHeight() < translateY + finalHight) {
                 l.select();
             } else {
+                //TODO bugfix flickering of lines
                 l.unselect();
             }
         });

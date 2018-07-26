@@ -81,6 +81,15 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
     }
     
     @Override
+    public void destroy() {
+        super.destroy();
+        Type returnType = getReturnType();
+        if (returnType != null && ALL_RETURN_TYPES.containsKey(returnType)) {
+            ALL_RETURN_TYPES.get(returnType).remove(this);
+        }
+    }
+    
+    @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();
         String typeString = returnType.get() != null

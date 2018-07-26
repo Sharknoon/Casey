@@ -99,7 +99,7 @@ public class UISettings {
     //The color of the selection shadow
     public static final Color LINE_SELECTION_SHADOW_COLOR = Color.CORNFLOWERBLUE;
     //The value how sharp the curves should be
-    public static final double LINE_CONTROL_OFFSET = 150;
+    public static final double LINE_CONTROL_OFFSET = 100;
     //
     //***General
     //

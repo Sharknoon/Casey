@@ -34,7 +34,9 @@ import sharknoon.casey.ide.utils.language.Word;
 import sharknoon.casey.ide.utils.settings.Props;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Josua Frank
@@ -151,24 +153,22 @@ public class MenuBarInit {
         Menu menuStyles = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_STYLE_TEXT, menuStyles::setText);
         Icons.setCustom(Icon.STYLE, menuStyles::setGraphic);
-    
-        final String styleKey = "style";
         
         ToggleGroup toggleGroupStyle = new ToggleGroup();
-        Styles currentStyle = Styles.getCurrentStyle();
+        Map<Styles, RadioMenuItem> items = new HashMap<>();
         EnumSet.allOf(Styles.class).forEach(style -> {
             RadioMenuItem menuItemStyle = new RadioMenuItem();
+            items.put(style, menuItemStyle);
             menuItemStyle.setToggleGroup(toggleGroupStyle);
             Language.setCustom(style.getName(), menuItemStyle::setText);
             Icons.setCustom(style.getIcon(), menuItemStyle::setGraphic);
-            if (style == currentStyle) {
-                menuItemStyle.setSelected(true);
-            }
-            menuItemStyle.setOnAction(e -> {
-                Styles.setCurrentStyle(style);
-                Props.set(styleKey, style.name());
-            });
+            menuItemStyle.setOnAction(e -> Styles.setCurrentStyle(style));
             menuStyles.getItems().add(menuItemStyle);
+        });
+        Styles.getCurrentStyle().thenAccept(s -> {
+            if (items.containsKey(s)) {
+                items.get(s).setSelected(true);
+            }
         });
         
         return menuStyles;

@@ -64,7 +64,16 @@ public class Parameter extends Item<Parameter, Function, Item<? extends Item, Pa
     static Map<Type, List<Parameter>> getAllParameters() {
         return PARAMETERS;
     }
-
+    
+    @Override
+    public void destroy() {
+        super.destroy();
+        Type returnType = getReturnType();
+        if (returnType != null && PARAMETERS.containsKey(returnType)) {
+            PARAMETERS.get(returnType).remove(this);
+        }
+    }
+    
     @Override
     public Map<String, JsonNode> getAdditionalProperties() {
         Map<String, JsonNode> map = super.getAdditionalProperties();

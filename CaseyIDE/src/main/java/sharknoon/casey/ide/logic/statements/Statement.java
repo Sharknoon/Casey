@@ -29,6 +29,8 @@ import org.apache.commons.lang3.EnumUtils;
 import sharknoon.casey.ide.logic.ValueReturnable;
 import sharknoon.casey.ide.logic.items.Function;
 import sharknoon.casey.ide.logic.items.Items;
+import sharknoon.casey.ide.logic.items.Parameter;
+import sharknoon.casey.ide.logic.items.Variable;
 import sharknoon.casey.ide.logic.statements.calls.Call;
 import sharknoon.casey.ide.logic.statements.calls.CallItem;
 import sharknoon.casey.ide.logic.statements.operators.Operator;
@@ -81,7 +83,7 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
                     assert itemOptional.isPresent();
                     var item = itemOptional.get();
                     CallItem callItem = new CallItem(c, item, false);
-                    if (item instanceof Function) {
+                    if (item instanceof Function || item instanceof Variable || item instanceof Parameter) {//Calls
                         var parameter = (ArrayNode) call.get("parameter");
                         parameter.elements().forEachRemaining(e -> {
                             if (e instanceof NullNode) {

@@ -162,6 +162,7 @@ public class Project extends Item<Project, Item, Package> {
             
             DefaultExecutor executor = new DefaultExecutor();
             executor.setStreamHandler(new PumpStreamHandler(outStream, errStream));
+            Logger.debug("Executing \"" + String.join(" ", commandLine.toStrings()) + "\" in Working Directory \"" + executor.getWorkingDirectory() + "\"");
             
             int result = executor.execute(commandLine);
             return result == 0;
@@ -196,6 +197,7 @@ public class Project extends Item<Project, Item, Package> {
         
         try {
             ProcessBuilder pb = new ProcessBuilder(javaCommand, "-cp", classpath, mainClassFile);
+            Logger.debug("Executing \"" + String.join(" ", pb.command()) + "\" in Working Directory \"" + pb.directory() + "\"");
             
             ObjectProperty<Text> outAndErr = new SimpleObjectProperty<>();
     
@@ -240,7 +242,6 @@ public class Project extends Item<Project, Item, Package> {
             ExecutorService pool = Executors.newCachedThreadPool();
             Consumer<String> in = s -> {
                 pool.submit(() -> {
-                    System.out.println("Writing " + s);
                     try {
                         inputForProcess.write((s + "\n").getBytes(StandardCharsets.UTF_8));
                         inputForProcess.flush();

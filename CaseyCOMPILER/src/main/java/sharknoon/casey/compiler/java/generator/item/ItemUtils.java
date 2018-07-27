@@ -267,6 +267,11 @@ public class ItemUtils {
         String functionName = functionItem.name;
         List<ParameterSpec> parameters = ItemUtils.getParameters(functionItem);
         String parameterJavaDoc = getParameterJavaDoc(args, functionItem);
+        //TMP
+        if (functionItem.name.equalsIgnoreCase("fibonacciIterative")) {
+            System.out.println();
+        }
+        //ENDTMP
         List<CodeBlock> variables = getVariables(args, functionItem);
         Builder variablesAndBlocksBuilder = CodeBlock.builder();
         for (CodeBlock variable : variables) {
@@ -378,7 +383,7 @@ public class ItemUtils {
                 return variables;
             }
             if (!ItemType.VARIABLE.equals(child.item)) {
-                return variables;
+                continue;
             }
             if (child.name == null) {
                 System.err.println("Name of variable not specified: " + ItemUtils.getFullName(child));

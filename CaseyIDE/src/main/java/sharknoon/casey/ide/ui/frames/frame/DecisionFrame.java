@@ -16,20 +16,45 @@ package sharknoon.casey.ide.ui.frames.frame;/*
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.geometry.Side;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import sharknoon.casey.ide.logic.blocks.Block;
 import sharknoon.casey.ide.logic.types.PrimitiveType;
+import sharknoon.casey.ide.ui.dots.Dot;
 import sharknoon.casey.ide.ui.fields.ValueField;
 import sharknoon.casey.ide.ui.frames.Frame;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DecisionFrame extends Frame<Polygon> {
     private ValueField valueField;
     
     public DecisionFrame(Block block, Point2D origin) {
         super(block, origin);
+    }
+    
+    @Override
+    protected Map<Dot, Boolean> initDots(Frame frame, Side[] outputSides, Side[] inputSides) {
+        Map<Dot, Boolean> result = new HashMap<>();
+        for (var outputSide : outputSides) {
+            var dot = new Dot(outputSide, frame, false);
+            if (outputSide == Side.RIGHT) {
+                dot.getShape().setFill(Color.GREEN);
+            } else if (outputSide == Side.LEFT) {
+                dot.getShape().setFill(Color.RED);
+            }
+            result.put(dot, true);
+        }
+        for (var dotInputSide : inputSides) {
+            var dot = new Dot(dotInputSide, frame, true);
+            result.put(dot, false);
+        }
+        return Collections.unmodifiableMap(result);
     }
     
     @Override

@@ -24,6 +24,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import sharknoon.casey.ide.logic.items.Item;
 import sharknoon.casey.ide.logic.items.ItemType;
 import sharknoon.casey.ide.logic.items.Project;
@@ -71,6 +72,7 @@ public class ToolBarInit {
         };
         Icons.set(Icon.RUN, buttonRun);
         Language.set(Word.TOOLBAR_BUTTON_RUN_TEXT, buttonRun);
+        Language.setCustom(Word.TOOLBAR_BUTTON_RUN_TOOLTIP, s -> buttonRun.setTooltip(new Tooltip(s)));
         buttonRun.setOnAction(e -> {
             running.set(true);
             labelRunStatus.setText("");

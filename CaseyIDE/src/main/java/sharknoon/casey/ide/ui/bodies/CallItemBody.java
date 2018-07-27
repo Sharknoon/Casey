@@ -239,17 +239,22 @@ public class CallItemBody extends Body<CallItem<?>> {
                 Text textOpenBracket = new Text("(");
                 textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
                 result.add(FXCollections.observableArrayList(textOpenBracket));
-    
-                AggregatedObservableList<Text> aggTexts2 = childs.stream()
-                        .map(p -> p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null")))
-                        .collect(AggregatedObservableList::new, AggregatedObservableList::appendList, AggregatedObservableList::mergeWith);
-    
+
+//                AggregatedObservableList<Text> aggTexts2 = childs.stream()
+//                        .map(p -> p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null")))
+//                        .collect(AggregatedObservableList::new, AggregatedObservableList::appendList, AggregatedObservableList::mergeWith);
+                
                 AggregatedObservableList<Text> aggTexts = new AggregatedObservableList<>();
-                for (Statement<Type, Type, Type> p : childs) {
+                for (int i = 0; i < childs.size(); i++) {
+                    var p = childs.get(i);
                     ObservableList<Text> texts = p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
                     aggTexts.appendList(texts);
+                    if (i < childs.size() - 1) {
+                        ObservableList<Text> delimiter = FXCollections.observableArrayList(new Text(", "));
+                        aggTexts.appendList(delimiter);
+                    }
                 }
-                result.add(aggTexts2);
+                result.add(aggTexts);
                 
                 Text textCloseBracket = new Text(")");
                 textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());

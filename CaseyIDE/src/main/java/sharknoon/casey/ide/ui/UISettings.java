@@ -84,7 +84,7 @@ public class UISettings {
     //The Color of the output dots around the block
     public static final Color DOT_OUTPUT_COLOR = Color.BLUE;
     //The size of the dots around the block
-    public static final double DOT_SIZE = 8;
+    public static final double DOT_SIZE = 15;//8
     //
     //***Line***
     //

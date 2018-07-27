@@ -323,13 +323,18 @@ public class OnStatement {
                 builder.add(item.name);
             } else if (item.item == ItemType.FUNCTION) {
                 builder.add("$L(", ItemUtils.getFunctionName(item));
-                for (Statement parameter : call.parameter) {
-                    CodeBlock parameterCodeBlock = accept(args, parameter);
-                    if (parameterCodeBlock == null) {
+                List<Statement> parameters = call.parameter;
+                for (int i = 0; i < parameters.size(); i++) {
+                    Statement parameter = parameters.get(i);
+                    CodeBlock parametersCodeBlock = accept(args, parameter);
+                    if (parametersCodeBlock == null) {
                         System.err.println("Parameter " + parameter + " is null");
                         return null;
                     }
-                    builder.add(parameterCodeBlock);
+                    builder.add(parametersCodeBlock);
+                    if (i < parameters.size() - 1) {
+                        builder.add(", ");
+                    }
                 }
                 builder.add(")");
             } else {

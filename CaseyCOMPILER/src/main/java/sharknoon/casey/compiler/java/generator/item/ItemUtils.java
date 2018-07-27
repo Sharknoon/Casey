@@ -267,11 +267,6 @@ public class ItemUtils {
         String functionName = functionItem.name;
         List<ParameterSpec> parameters = ItemUtils.getParameters(functionItem);
         String parameterJavaDoc = getParameterJavaDoc(args, functionItem);
-        //TMP
-        if (functionItem.name.equalsIgnoreCase("fibonacciIterative")) {
-            System.out.println();
-        }
-        //ENDTMP
         List<CodeBlock> variables = getVariables(args, functionItem);
         Builder variablesAndBlocksBuilder = CodeBlock.builder();
         for (CodeBlock variable : variables) {

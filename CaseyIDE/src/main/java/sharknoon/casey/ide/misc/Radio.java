@@ -34,12 +34,11 @@ import java.util.concurrent.Executors;
 /**
  * This class can decode an AAC stream from an Shoutcast/Icecast server. This is
  * useful for webradios like DUFM
- *
  */
 public class Radio implements Exitable {
-
+    
     private final static ExecutorService SERVICE = Executors.newCachedThreadPool();
-
+    
     /**
      * Starts a new radio, which starts playing rightaway
      *
@@ -49,12 +48,12 @@ public class Radio implements Exitable {
     public static Radio start(RadioStations station) {
         return Radio.start(station.getURL());
     }
-
+    
     /**
      * Starts a new radio, which starts playing rightaway
      *
      * @param url The url of a shoutcast or icecast server, from which the radio
-     * should be played
+     *            should be played
      * @return A instance of {@link Radio} to control the volume, etc
      */
     public static Radio start(String url) {
@@ -62,24 +61,30 @@ public class Radio implements Exitable {
         r.start();
         return r;
     }
-
+    
+    private static boolean formatChanged(AudioFormat af, SampleBuffer buf) {
+        return af.getSampleRate() != buf.getSampleRate()
+                || af.getChannels() != buf.getChannels()
+                || af.getSampleSizeInBits() != buf.getBitsPerSample()
+                || af.isBigEndian() != buf.isBigEndian();
+    }
     final String url;
     SourceDataLine line = null;
     //keeps the radio running while true
     boolean radioRunning = true;
-
+    
     private Radio(String url) {
         this.url = url;
         MainApplication.registerExitable(this);
     }
-
+    
     /**
      * Stops the radio immediatly
      */
     public void stop() {
         radioRunning = false;
     }
-
+    
     /**
      * Controls the volume of the radio
      *
@@ -91,10 +96,10 @@ public class Radio implements Exitable {
         }
         if (line != null) {
             FloatControl control = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-            control.setValue(((control.getMaximum() - control.getMinimum()) * vol) + control.getMinimum());
+            control.setValue(control.getMinimum() + ((control.getMaximum() - control.getMinimum()) * vol));
         }
     }
-
+    
     /**
      * Starts this radio immediatly
      */
@@ -103,7 +108,7 @@ public class Radio implements Exitable {
         SERVICE.submit(() -> {
             line = null;
             final SampleBuffer buf = new SampleBuffer();
-
+    
             byte[] b;
             try {
                 //read response (skip header)
@@ -113,15 +118,15 @@ public class Radio implements Exitable {
                 do {
                     x = br.readLine();
                 } while (x != null && !x.trim().equals(""));
-
+    
                 final ADTSDemultiplexer adts = new ADTSDemultiplexer(in);
                 AudioFormat aufmt = new AudioFormat(adts.getSampleFrequency(), 16, adts.getChannelCount(), true, true);
                 final Decoder dec = new Decoder(adts.getDecoderSpecificInfo());
-
+    
                 while (radioRunning) {
                     b = adts.readNextFrame();
                     dec.decodeFrame(b, buf);
-
+        
                     if (line != null && formatChanged(line.getFormat(), buf)) {
                         //format has changed (e.g. SBR has started)
                         line.stop();
@@ -159,14 +164,7 @@ public class Radio implements Exitable {
             }
         });
     }
-
-    private static boolean formatChanged(AudioFormat af, SampleBuffer buf) {
-        return af.getSampleRate() != buf.getSampleRate()
-                || af.getChannels() != buf.getChannels()
-                || af.getSampleSizeInBits() != buf.getBitsPerSample()
-                || af.isBigEndian() != buf.isBigEndian();
-    }
-
+    
     /**
      * Shuts down the radio threadpool (radio needs extra threads because it is
      * always playing at the background)

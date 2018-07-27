@@ -81,7 +81,7 @@ public abstract class Frame<S extends Shape> implements Moveable, MouseConsumabl
         shape.setEffect(dropShadow);
     }
     
-    private static Map<Dot, Boolean> initDots(Frame frame, Side[] outputSides, Side[] inputSides) {
+    protected Map<Dot, Boolean> initDots(Frame frame, Side[] outputSides, Side[] inputSides) {
         Map<Dot, Boolean> result = new HashMap<>();
         for (var outputSide : outputSides) {
             var dot = new Dot(outputSide, frame, false);

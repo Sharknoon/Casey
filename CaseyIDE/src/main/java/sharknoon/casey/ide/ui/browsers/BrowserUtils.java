@@ -224,9 +224,13 @@ public class BrowserUtils {
                         || allowedType == ((ValueReturnable) i).getReturnType()
                         || ((ValueReturnable) i).getReturnType().isObject()
                 )
-                .forEach((Item<? extends Item, sharknoon.casey.ide.logic.items.Class, ? extends Item> i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
+                .forEach(i -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
                     itemConsumer.accept(i);
                 })));
+//        Stream.of(currentClass)
+//                .forEach(c -> {
+//                    vBoxFunctionsAndVariables.getChildren().add(getEntries(c, e -> itemConsumer.accept(c)));
+//                });
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
         
         vBoxRoot.getChildren().remove(previousContent.get());

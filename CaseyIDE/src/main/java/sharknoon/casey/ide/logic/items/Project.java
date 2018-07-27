@@ -68,7 +68,7 @@ public class Project extends Item<Project, Item, Package> {
     
     private static final String ID = "id";
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
-    private static Stage s = null;
+    private static Runnable onProgramFinish = null;
     
     public static Optional<Project> getCurrentProject() {
         return Optional.ofNullable(currentProject.get());
@@ -252,8 +252,8 @@ public class Project extends Item<Project, Item, Package> {
             };
     
     
-            Platform.runLater(() -> s = showInputOutputWindow(title, icon, in, outAndErr));
-    
+            Platform.runLater(() -> onProgramFinish = showInputOutputWindow(title, icon, in, outAndErr));
+            
             process.waitFor();
             return process.exitValue() == 0;
         } catch (Exception e) {
@@ -261,13 +261,13 @@ public class Project extends Item<Project, Item, Package> {
             e.printStackTrace();
             return false;
         } finally {
-            if (s != null) {
-                Platform.runLater(() -> s.close());
+            if (onProgramFinish != null) {
+                onProgramFinish.run();
             }
         }
     }
     
-    public Stage showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine) {
+    public Runnable showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine) {
         BorderPane root = new BorderPane();
         
         TextFlow outputs = new TextFlow();
@@ -296,8 +296,12 @@ public class Project extends Item<Project, Item, Package> {
                 process.destroy();
             }
         });
+        Text textProgramEnded = new Text(Language.get(Word.INPUT_OUTPUT_WINDOW_PROGRAM_ENDED));
         newWindow.show();
-        return newWindow;
+        return () -> Platform.runLater(() -> {
+            outputs.getChildren().add(textProgramEnded);
+            inputs.setOnAction(event -> newWindow.close());
+        });
     }
     
     private void init() {

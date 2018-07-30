@@ -248,10 +248,8 @@ public class SiteUtils {
             var iconButtonGraphic = getAddChildrenIcon(allowedChildrenType);
             var dialogAddChildren = getAddChildrenDialog(allowedChildrenType);
             var buttonAddChildren = createButton(wordButtonText, iconButtonGraphic, (t) -> {
-                Optional<String> name = Dialogs.showTextInputDialog(dialogAddChildren, item.getSite().getForbittenChildNames(), null);
-                if (name.isPresent()) {
-                    Item.createItem(allowedChildrenType, item, name.get(), true);
-                }
+                Optional<String> name = Dialogs.showTextInputDialog(dialogAddChildren, item.getSite().getForbittenChildNames(), null, "([A-Za-z_])+");
+                name.ifPresent(s -> Item.createItem(allowedChildrenType, item, s, true));
             });
             buttonRow.add(buttonAddChildren);
         }
@@ -260,18 +258,14 @@ public class SiteUtils {
         var dialogComment = getCommentDialog(item.getType());
         var buttonComment = createButton(wordComment, Icon.COMMENTS, (t) -> {
             Optional<String> comments = Dialogs.showTextEditorDialog(dialogComment, item.getComments());
-            if (comments.isPresent()) {
-                item.setComments(comments.get());
-            }
+            comments.ifPresent(item::setComments);
         }, false, true);
         buttonRow.add(buttonComment);
         var wordRename = getRenameWord(item.getType());
         var dialogRename = getRenameDialog(item.getType());
         var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(dialogRename, item.getName(), item.getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()), null);
-            if (name.isPresent()) {
-                item.setName(name.get());
-            }
+            Optional<String> name = Dialogs.showTextInputDialog(dialogRename, item.getName(), item.getParent().map(p -> p.getSite().getForbittenChildNames()).orElse(Set.of()), null, "([A-Za-z_])+");
+            name.ifPresent(item::setName);
         }, false, true);
         buttonRow.add(buttonRename);
         var wordDelete = getDeleteWord(item.getType());
@@ -352,7 +346,7 @@ public class SiteUtils {
                 }, false, true);
     
                 var buttonRename = createButton(wordRename, Icon.RENAME, (t) -> {
-                    Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()), null);
+                    Optional<String> name = Dialogs.showTextInputDialog(dialogRename, c.getName(), item.getSite().getForbittenChildNames(c.getName()), null, "([A-Za-z_])+");
                     name.ifPresent(c::setName);
                 }, false, true);
     

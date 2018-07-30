@@ -32,10 +32,14 @@ public class VariablePopUp extends PopOver {
     }
     
     public static void showVariableSelectionPopUp(Node ownerNode, Consumer<ValueHoldable> variableConsumer, Type allowedType) {
-        new VariablePopUp(ownerNode, variableConsumer, allowedType);
+        showVariableSelectionPopUp(ownerNode, variableConsumer, allowedType, false);
     }
     
-    private VariablePopUp(Node ownerNode, Consumer<ValueHoldable> variableConsumer, Type allowedType) {
+    public static void showVariableSelectionPopUp(Node ownerNode, Consumer<ValueHoldable> variableConsumer, Type allowedType, boolean onlyPrimitives) {
+        new VariablePopUp(ownerNode, variableConsumer, allowedType, onlyPrimitives);
+    }
+    
+    private VariablePopUp(Node ownerNode, Consumer<ValueHoldable> variableConsumer, Type allowedType, boolean onlyPrimitives) {
         super();
         Consumer<ValueHoldable> newVariableConsumer = t -> {
             hide();
@@ -43,7 +47,7 @@ public class VariablePopUp extends PopOver {
                 variableConsumer.accept(t);
             }
         };
-        VBox vBoxRoot = VariableBrowser.createVariableBrowser(newVariableConsumer, allowedType);
+        VBox vBoxRoot = VariableBrowser.createVariableBrowser(newVariableConsumer, allowedType, onlyPrimitives);
         Styles.bindStyleSheets(getRoot().getStylesheets());
         setContentNode(vBoxRoot);
         setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);

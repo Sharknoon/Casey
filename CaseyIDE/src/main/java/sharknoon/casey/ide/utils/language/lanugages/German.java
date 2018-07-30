@@ -43,6 +43,7 @@ public class German extends Language {
         //ToolBar
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
         add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Ausführen");
+        add(Word.TOOLBAR_BUTTON_RUN_TOOLTIP, "Paketfunktionen ausgeführen");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
@@ -249,6 +250,15 @@ public class German extends Language {
         add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "Keine Typen erlaubt");
         //VariableSelectionPopup
         add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variablen- und Parameterauswahl");
+        //Compiler Window
+        add(Word.COMPILER_ERROR_TITLE, "Kompilierfehler");
+        add(Word.COMPILER_ERROR_HEADER_TEXT, "Fehler während des Kompilierens");
+        add(Word.COMPILER_ERROR_CONTENT_TEXT, "Leider ist ein Fehler während des Kompilierens des Programmes aufgetreten");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_TITLE, "Parameter");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_HEADER_TEXT, "Bitte ergänzen Sie die fehlenden Parameterwerte");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_CONTENT_TEXT, "Parameterwerte");
+        //Run Window
+        add(Word.INPUT_OUTPUT_WINDOW_PROGRAM_ENDED, "Programm beendet. Zum Schließen eine beliebige Taste drücken...");
         //General
         add(Word.FUNCTION, "Funktion");
         add(Word.PARAMETER, "Parameter");

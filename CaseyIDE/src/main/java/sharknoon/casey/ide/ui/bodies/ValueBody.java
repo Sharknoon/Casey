@@ -15,9 +15,9 @@
  */
 package sharknoon.casey.ide.ui.bodies;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -56,6 +56,7 @@ public class ValueBody extends Body<Value> {
             checkBoxValue.setPadding(new Insets(5, 0, 5, 5));//Don't ask me why, it works! (makes a non-text checkbox a sqare pane
             checkBoxValue.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             checkBoxValue.selectedProperty().bindBidirectional(val.valueProperty());
+            Platform.runLater(checkBoxValue::requestFocus);
             return checkBoxValue;
         } else if (returnType == PrimitiveType.NUMBER) {
             NumberValue val2 = (NumberValue) value;
@@ -100,17 +101,19 @@ public class ValueBody extends Body<Value> {
             });
             spinnerValue.getEditor().setPrefWidth(14);
             spinnerValue.setMinWidth(24);
-            DoubleBinding width = BodyUtils.minTextFieldWidthProperty(spinnerValue.getEditor()).add(24);
-            spinnerValue.minWidthProperty().bind(width);//Spinner does not resize automatically like textfield :(
             spinnerValue.setEditable(true);
             spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
+//            DoubleBinding width = BodyUtils.bindWidthToText(spinnerValue.getEditor()).add(24);
+//            spinnerValue.minWidthProperty().bind(width);//Spinner does not resize automatically like textfield :( //TODO
+            Platform.runLater(spinnerValue::requestFocus);
             return spinnerValue;
         } else if (returnType == PrimitiveType.TEXT) {
             TextValue val3 = (TextValue) value;
             TextField textFieldValue = new TextField();
             StackPane.setMargin(textFieldValue, MARGIN);
-            textFieldValue.prefWidthProperty().bind(BodyUtils.minTextFieldWidthProperty(textFieldValue));
             textFieldValue.textProperty().bindBidirectional(val3.valueProperty());
+            BodyUtils.bindWidthToText(textFieldValue);
+            Platform.runLater(textFieldValue::requestFocus);
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {
             ObjectValue val4 = (ObjectValue) value;

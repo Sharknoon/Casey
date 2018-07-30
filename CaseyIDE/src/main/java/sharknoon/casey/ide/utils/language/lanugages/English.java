@@ -43,6 +43,7 @@ public class English extends Language {
         //ToolBar
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Save");
         add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Run");
+        add(Word.TOOLBAR_BUTTON_RUN_TOOLTIP, "Run package function");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Welcome");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Recent projects");
@@ -249,6 +250,15 @@ public class English extends Language {
         add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "No types allowed");
         //VariableSelectionPopup
         add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variable and parameterselection");
+        //Compiler Window
+        add(Word.COMPILER_ERROR_TITLE, "Compileerror");
+        add(Word.COMPILER_ERROR_HEADER_TEXT, "An error occurred during compiling");
+        add(Word.COMPILER_ERROR_CONTENT_TEXT, "Unfortunately a error occurred during the compiling of this program");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_TITLE, "Parameter");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_HEADER_TEXT, "Please enter the missing prameter values");
+        add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_CONTENT_TEXT, "Parameter values");
+        //Run Window
+        add(Word.INPUT_OUTPUT_WINDOW_PROGRAM_ENDED, "Program has ended. To close this window, press any key...");
         //General
         add(Word.FUNCTION, "Function");
         add(Word.PARAMETER, "Parameter");

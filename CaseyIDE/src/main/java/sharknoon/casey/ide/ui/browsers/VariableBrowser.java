@@ -33,20 +33,24 @@ import java.util.function.Consumer;
 public class VariableBrowser extends VBox {
     
     public static VariableBrowser createVariableBrowser(Consumer<ValueHoldable> variableConsumer, Type allowedType) {
-        return new VariableBrowser(variableConsumer, allowedType);
+        return createVariableBrowser(variableConsumer, allowedType, false);
+    }
+    
+    public static VariableBrowser createVariableBrowser(Consumer<ValueHoldable> variableConsumer, Type allowedType, boolean onlyPrimitives) {
+        return new VariableBrowser(variableConsumer, allowedType, onlyPrimitives);
     }
     
     private final Consumer<ValueHoldable> variableConsumer;
     private final Type allowedType;
     
-    private VariableBrowser(Consumer<ValueHoldable> variableConsumer, Type allowedType) {
+    private VariableBrowser(Consumer<ValueHoldable> variableConsumer, Type allowedType, boolean onlyPrimitives) {
         this.variableConsumer = variableConsumer;
         this.allowedType = allowedType;
         init();
         if (allowedType == null) {
             addNoTypeLabel();
         } else {
-            addVariableBrowser();
+            addVariableBrowser(onlyPrimitives);
         }
     }
     
@@ -67,7 +71,7 @@ public class VariableBrowser extends VBox {
         getChildren().add(labelNoType);
     }
     
-    private void addVariableBrowser() {
+    private void addVariableBrowser(boolean onlyPrimitives) {
         Consumer<Item> itemConsumer = i -> {
             if (i instanceof ValueHoldable) {
                 variableConsumer.accept((ValueHoldable) i);
@@ -75,7 +79,7 @@ public class VariableBrowser extends VBox {
                 Logger.error("Could not cast variable from browser");
             }
         };
-        var root = BrowserUtils.getItemSelector(allowedType, itemConsumer, List.of(ItemType.PARAMETER, ItemType.VARIABLE));
+        var root = BrowserUtils.getItemSelector(allowedType, itemConsumer, List.of(ItemType.PARAMETER, ItemType.VARIABLE), onlyPrimitives);
         getChildren().add(root);
     }
 }

@@ -51,10 +51,14 @@ public class Dialogs {
     }
     
     public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenValues, Map<String, String> variables) {
-        return showTextInputDialog(type, null, forbiddenValues, variables);
+        return showTextInputDialog(type, null, forbiddenValues, variables, null);
     }
     
-    public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables) {
+    public static Optional<String> showTextInputDialog(TextInputs type, Set<String> forbiddenValues, Map<String, String> variables, String allowedInputRegex) {
+        return showTextInputDialog(type, null, forbiddenValues, variables, allowedInputRegex);
+    }
+    
+    public static Optional<String> showTextInputDialog(TextInputs type, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables, String allowedInputRegex) {
         switch (type) {
             case NEW_PROJECT_DIALOG:
                 return showTextInputDialog(
@@ -64,7 +68,8 @@ public class Dialogs {
                         Icon.PLUSPROJECT,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_PACKAGE_DIALOG:
                 return showTextInputDialog(
                         NEW_PACKAGE_DIALOG_TITLE,
@@ -73,7 +78,8 @@ public class Dialogs {
                         Icon.PLUSPACKAGE,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_CLASS_DIALOG:
                 return showTextInputDialog(
                         NEW_CLASS_DIALOG_TITLE,
@@ -82,7 +88,8 @@ public class Dialogs {
                         Icon.PLUSCLASS,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_FUNCTION_DIALOG:
                 return showTextInputDialog(
                         NEW_FUNCTION_DIALOG_TITLE,
@@ -91,7 +98,8 @@ public class Dialogs {
                         Icon.PLUSFUNCTION,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_VARIABLE_DIALOG:
                 return showTextInputDialog(
                         NEW_VARIABLE_DIALOG_TITLE,
@@ -100,7 +108,8 @@ public class Dialogs {
                         Icon.PLUSVARIABLE,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_PACKAGE_DIALOG:
                 return showTextInputDialog(
                         RENAME_PACKAGE_DIALOG_TITLE,
@@ -109,7 +118,8 @@ public class Dialogs {
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_CLASS_DIALOG:
                 return showTextInputDialog(
                         RENAME_CLASS_DIALOG_TITLE,
@@ -118,7 +128,8 @@ public class Dialogs {
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_PROJECT_DIALOG:
                 return showTextInputDialog(
                         RENAME_PROJECT_DIALOG_TITLE,
@@ -127,7 +138,8 @@ public class Dialogs {
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_FUNCTION_DIALOG:
                 return showTextInputDialog(
                         RENAME_FUNCTION_DIALOG_TITLE,
@@ -136,7 +148,8 @@ public class Dialogs {
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_VARIABLE_DIALOG:
                 return showTextInputDialog(
                         RENAME_VARIABLE_DIALOG_TITLE,
@@ -145,7 +158,8 @@ public class Dialogs {
                         Icon.RENAME,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_TEXT_VALUE:
                 return showTextInputDialog(
                         NEW_TEXT_VALUE_DIALOG_TITLE,
@@ -154,7 +168,8 @@ public class Dialogs {
                         Icon.TEXT,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case NEW_PARAMETER_DIALOG:
                 return showTextInputDialog(
                         NEW_PARAMETER_VALUE_DIALOG_TITLE,
@@ -163,7 +178,8 @@ public class Dialogs {
                         Icon.VARIABLE,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
             case RENAME_PARAMETER_DIALOG:
                 return showTextInputDialog(
                         RENAME_PARAMETER_VALUE_DIALOG_TITLE,
@@ -172,7 +188,8 @@ public class Dialogs {
                         Icon.VARIABLE,
                         defaultValue,
                         forbiddenValues,
-                        variables);
+                        variables,
+                        allowedInputRegex);
         }
         return Optional.empty();
     }
@@ -361,8 +378,8 @@ public class Dialogs {
         }
     }
     
-    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word contentText, Icon icon, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables) {
-        AdvancedTextInputDialog dialog = new AdvancedTextInputDialog(defaultValue, forbiddenValues);
+    private static Optional<String> showTextInputDialog(Word title, Word headerText, Word contentText, Icon icon, String defaultValue, Set<String> forbiddenValues, Map<String, String> variables, String regex) {
+        AdvancedTextInputDialog dialog = new AdvancedTextInputDialog(defaultValue, forbiddenValues, regex);
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));
         dialog.setContentText(fill(Language.get(contentText), variables));

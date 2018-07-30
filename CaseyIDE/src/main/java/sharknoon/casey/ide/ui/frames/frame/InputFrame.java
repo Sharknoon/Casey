@@ -55,7 +55,7 @@ public class InputFrame extends Frame<Polygon> {
     
     @Override
     protected Pane initFrameContent(Block block) {
-        variableField = new VariableField();
+        variableField = new VariableField(true);
         variableField.variableProperty().bindBidirectional(block.variableProperty());
         return new Pane(variableField);
     }

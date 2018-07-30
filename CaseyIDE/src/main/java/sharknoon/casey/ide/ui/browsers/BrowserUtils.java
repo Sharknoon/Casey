@@ -42,6 +42,7 @@ import sharknoon.casey.ide.utils.language.Word;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class BrowserUtils {
     
@@ -77,6 +78,10 @@ public class BrowserUtils {
     }
     
     public static VBox getItemSelector(Type allowedType, Consumer<Item> itemConsumer, Collection<ItemType> allowedItems) {
+        return getItemSelector(allowedType, itemConsumer, allowedItems, false);
+    }
+    
+    public static VBox getItemSelector(Type allowedType, Consumer<Item> itemConsumer, Collection<ItemType> allowedItems, boolean onlyPrimitives) {
         VBox root = new VBox();
         root.setSpacing(10);
         
@@ -92,14 +97,14 @@ public class BrowserUtils {
         String textStatic = Language.get(Word.VALUE_SELECTION_POPUP_STATIC_VALUES);
         ToggleButton toggleButtonStatic = new ToggleButton(textStatic);
         toggleButtonStatic.prefWidthProperty().bind(root.widthProperty().divide(amountButtons));
-        toggleButtonStatic.setOnAction((event) -> setStaticContent(root, itemConsumer, allowedType, previousContent, allowedItems));
+        toggleButtonStatic.setOnAction((event) -> setStaticContent(root, itemConsumer, allowedType, previousContent, allowedItems, onlyPrimitives));
         segmentedButtonValueSource.getButtons().add(toggleButtonStatic);
         
         if (inClass) {
             String textThisClass = Language.get(Word.VALUE_SELECTION_POPUP_CLASS_VALUES);
             ToggleButton toggleButtonThisClass = new ToggleButton(textThisClass);
             toggleButtonThisClass.prefWidthProperty().bind(root.widthProperty().divide(amountButtons));
-            toggleButtonThisClass.setOnAction((event) -> setThisClassContent(root, itemConsumer, allowedType, previousContent, allowedItems));
+            toggleButtonThisClass.setOnAction((event) -> setThisClassContent(root, itemConsumer, allowedType, previousContent, allowedItems, onlyPrimitives));
             segmentedButtonValueSource.getButtons().add(toggleButtonThisClass);
         }
         
@@ -107,7 +112,7 @@ public class BrowserUtils {
             String textThisFunction = Language.get(Word.VALUE_SELECTION_POPUP_FUNCTION_VALUES);
             ToggleButton toggleButtonThisFunction = new ToggleButton(textThisFunction);
             toggleButtonThisFunction.prefWidthProperty().bind(root.widthProperty().divide(amountButtons));
-            toggleButtonThisFunction.setOnAction((event) -> setThisFunctionContent(root, itemConsumer, allowedType, previousContent, allowedItems));
+            toggleButtonThisFunction.setOnAction((event) -> setThisFunctionContent(root, itemConsumer, allowedType, previousContent, allowedItems, onlyPrimitives));
             segmentedButtonValueSource.getButtons().add(toggleButtonThisFunction);
         }
         
@@ -120,7 +125,7 @@ public class BrowserUtils {
     }
     
     
-    private static void setStaticContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems) {
+    private static void setStaticContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems, boolean onlyPrimitives) {
         GridPane gridPanePackagesFunctionsAndVariables = new GridPane();
         gridPanePackagesFunctionsAndVariables.setHgap(10);
         ColumnConstraints col1 = new ColumnConstraints();
@@ -162,18 +167,11 @@ public class BrowserUtils {
         breadCrumbBarNavigation.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             vBoxFunctionsAndVariables.getChildren().clear();
             if (newValue != null) {
-                newValue
+                Stream<Item> children = newValue
                         .getChildren()
                         .stream()
-                        .map(TreeItem::getValue)
-                        .filter(i -> allowedItems == null || allowedItems.contains(i.getType()))
-                        .filter(i -> allowedType == Type.UNDEFINED
-                                || allowedType == ((ValueReturnable) i).getReturnType()
-                                || ((ValueReturnable) i).getReturnType().isObject()
-                        )
-                        .forEach((i) -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
-                            itemConsumer.accept(i);
-                        })));
+                        .map(TreeItem::getValue);
+                build(children, allowedItems, allowedType, onlyPrimitives, itemConsumer, vBoxFunctionsAndVariables);
             }
         });
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
@@ -198,7 +196,7 @@ public class BrowserUtils {
         }
     }
     
-    private static void setThisClassContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems) {
+    private static void setThisClassContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems, boolean onlyPrimitives) {
         ScrollPane scrollPaneFunctionsAndVariables = new ScrollPane();
         scrollPaneFunctionsAndVariables.setFitToHeight(true);
         scrollPaneFunctionsAndVariables.setFitToWidth(true);
@@ -216,21 +214,12 @@ public class BrowserUtils {
                 currentItem = currentItem.getParent().orElse(null);
             }
         }
-        currentClass
+        var children = currentClass
                 .getChildren()
                 .stream()
-                .filter(i -> allowedItems == null || allowedItems.contains(i.getType()))
-                .filter(i -> allowedType == Type.UNDEFINED
-                        || allowedType == ((ValueReturnable) i).getReturnType()
-                        || ((ValueReturnable) i).getReturnType().isObject()
-                )
-                .forEach(i -> vBoxFunctionsAndVariables.getChildren().add(getEntries(i, event -> {
-                    itemConsumer.accept(i);
-                })));
-//        Stream.of(currentClass)
-//                .forEach(c -> {
-//                    vBoxFunctionsAndVariables.getChildren().add(getEntries(c, e -> itemConsumer.accept(c)));
-//                });
+                .map(i -> (Item) i);
+        build(children, allowedItems, allowedType, onlyPrimitives, itemConsumer, vBoxFunctionsAndVariables);
+        
         scrollPaneFunctionsAndVariables.setContent(vBoxFunctionsAndVariables);
         
         vBoxRoot.getChildren().remove(previousContent.get());
@@ -238,7 +227,7 @@ public class BrowserUtils {
         vBoxRoot.getChildren().add(scrollPaneFunctionsAndVariables);
     }
     
-    private static void setThisFunctionContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems) {
+    private static void setThisFunctionContent(VBox vBoxRoot, Consumer<Item> itemConsumer, Type allowedType, ObjectProperty<Node> previousContent, Collection<ItemType> allowedItems, boolean onlyPrimitives) {
         ScrollPane scrollPaneVariables = new ScrollPane();
         scrollPaneVariables.setFitToHeight(true);
         scrollPaneVariables.setFitToWidth(true);
@@ -256,22 +245,36 @@ public class BrowserUtils {
                 currentItem = currentItem.getParent().orElse(null);
             }
         }
-        currentFunction
+        var children = currentFunction
                 .getChildren()
                 .stream()
-                .filter(i -> allowedItems == null || allowedItems.contains(i.getType()))
-                .filter(i -> allowedType == Type.UNDEFINED
-                        || allowedType == ((ValueReturnable) i).getReturnType()
-                        || ((ValueReturnable) i).getReturnType().isObject()
-                )
-                .forEach((i) -> vBoxVariables.getChildren().add(getEntries(i, event -> {
-                    itemConsumer.accept(i);
-                })));
+                .map(i -> (Item) i);
+        build(children, allowedItems, allowedType, onlyPrimitives, itemConsumer, vBoxVariables);
+        
         scrollPaneVariables.setContent(vBoxVariables);
         
         vBoxRoot.getChildren().remove(previousContent.get());
         previousContent.set(scrollPaneVariables);
         vBoxRoot.getChildren().add(scrollPaneVariables);
+    }
+    
+    private static void build(Stream<Item> children, Collection<ItemType> allowedItems, Type allowedType, boolean onlyPrimitives, Consumer<Item> itemConsumer, Pane nodeToAddTo) {
+        children
+                .filter(i -> allowedItems == null || allowedItems.contains(i.getType()))
+                .filter(i -> {
+                            //If only primitive values are accepted, e.g. for the input on a input block
+                            if (onlyPrimitives && !((ValueReturnable) i).getReturnType().isPrimitive()) return false;
+                            //If every type is allowed
+                            if (allowedType == Type.UNDEFINED) return true;
+                            //If the returntype matches the allowed type
+                            if (allowedType == ((ValueReturnable) i).getReturnType()) return true;
+                            //If this is a object, because objects can have functions and variables with the correct return type
+                            return !onlyPrimitives && ((ValueReturnable) i).getReturnType().isObject();
+                        }
+                )
+                .forEach(i -> nodeToAddTo.getChildren().add(getEntries(i, event -> {
+                    itemConsumer.accept(i);
+                })));
     }
     
 }

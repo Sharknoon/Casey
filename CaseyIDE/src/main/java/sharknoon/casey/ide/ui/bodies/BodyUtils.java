@@ -1,11 +1,8 @@
 package sharknoon.casey.ide.ui.bodies;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
@@ -18,7 +15,6 @@ import sharknoon.casey.ide.logic.types.PrimitiveType.TextType;
 import sharknoon.casey.ide.logic.types.PrimitiveType.VoidType;
 import sharknoon.casey.ide.logic.types.Type;
 import sharknoon.casey.ide.logic.types.Type.UndefinedType;
-import sharknoon.casey.ide.utils.javafx.BindUtils;
 
 public class BodyUtils {
     
@@ -71,22 +67,29 @@ public class BodyUtils {
         return DoubleExpression.doubleExpression(childheight).multiply(multiplier);
     }
     
-    public static ReadOnlyDoubleProperty minTextFieldWidthProperty(TextField tf) {
-        ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
-        BindUtils.addListener(tf.textProperty(), (ov, prevText, currText) -> {
-            // Do this in a Platform.runLater because of Textfield has no padding at first time and so on
-            Platform.runLater(() -> {
-                Text text = new Text(currText);
+    public static void bindWidthToText(TextField tf) {
+        tf.textProperty().addListener((observable, oldValue, newValue) -> {
+            Text text = new Text(newValue);
                 text.setFont(tf.getFont()); // Set the same font, so the size is the same
                 double width = text.getLayoutBounds().getWidth() // This big is the Text in the TextField
-                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField
+                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField (mostly 7)
                         + 2d; // Add some spacing
-                minTextFieldWidthProperty.set(width); // Set the width
-                tf.positionCaret(tf.getCaretPosition()); // If you remove this line, it flashes a little bit
-            });
+            tf.setPrefWidth(width); // Set the width
         });
-        return minTextFieldWidthProperty.getReadOnlyProperty();
+//        ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
+//        BindUtils.addListener(tf.textProperty(), (ov, prevText, currText) -> {
+//            // Do this in a Platform.runLater because of Textfield has no padding at first time and so on
+//            Platform.runLater(() -> {
+//                Text text = new Text(currText);
+//                text.setFont(tf.getFont()); // Set the same font, so the size is the same
+//                double width = text.getLayoutBounds().getWidth() // This big is the Text in the TextField
+//                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField (mostly 7)
+//                        + 2d; // Add some spacing
+//                minTextFieldWidthProperty.set(width); // Set the width
+//                tf.positionCaret(tf.getCaretPosition()); // If you remove this line, it flashes a little bit
+//            });
+//        });
+//        return minTextFieldWidthProperty.getReadOnlyProperty();
     }
-    
     
 }

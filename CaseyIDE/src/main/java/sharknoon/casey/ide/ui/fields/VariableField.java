@@ -34,18 +34,22 @@ public class VariableField extends Button implements Field {
     private ObjectProperty<ValueHoldable<?>> variable = new SimpleObjectProperty<>();
     
     public VariableField() {
-        this(Type.UNDEFINED, null);
+        this(null);
+    }
+    
+    public VariableField(boolean onlyPrmitives) {
+        this(Type.UNDEFINED, null, onlyPrmitives);
     }
     
     public VariableField(ValueHoldable<?> variable) {
-        this(Type.UNDEFINED, variable);
+        this(Type.UNDEFINED, variable, false);
     }
     
-    public VariableField(Type allowedTypes, ValueHoldable<?> variable) {
+    public VariableField(Type allowedTypes, ValueHoldable<?> variable, boolean onlyPrimitives) {
         Language.set(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, this);
         
         setOnAction((event) -> {
-            VariablePopUp.showVariableSelectionPopUp(this, this.variable::set, allowedTypes);
+            VariablePopUp.showVariableSelectionPopUp(this, this.variable::set, allowedTypes, onlyPrimitives);
         });
         
         variableProperty().addListener((o, old, v) -> {

@@ -22,42 +22,69 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import sharknoon.casey.ide.utils.javafx.BindUtils;
 
 import java.util.Collections;
 import java.util.Set;
 
 public class AdvancedTextInputDialog extends Dialog<String> {
-
+    
     private final GridPane grid;
     private final Label label;
     private final TextField textField;
     private final String defaultValue;
     private final Set<String> forbiddenValues;
-
+    
     public AdvancedTextInputDialog() {
         this("");
     }
-
+    
     public AdvancedTextInputDialog(String defaultValue) {
         this(defaultValue, null);
     }
-
+    
     public AdvancedTextInputDialog(String defaultValue, Set<String> forbiddenValues) {
+        this(defaultValue, forbiddenValues, null);
+    }
+    
+    public AdvancedTextInputDialog(String defaultValue, Set<String> forbiddenValues, String regex) {
         final DialogPane dialogPane = getDialogPane();
-
+        
         this.forbiddenValues = forbiddenValues != null
                 ? forbiddenValues
                 : Collections.emptySet();
-
+        
         // -- textfield
         this.textField = new TextField();
         this.textField.setMaxWidth(Double.MAX_VALUE);
         if (defaultValue != null) {
             this.textField.setText(defaultValue);
         }
+        GridPane.setHgrow(textField, Priority.ALWAYS);
+        GridPane.setFillWidth(textField, true);
+        
+        // -- label
+        label = createContentLabel(dialogPane.getContentText());
+        label.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        label.textProperty().bind(dialogPane.contentTextProperty());
+        
+        this.defaultValue = defaultValue;
+        
+        this.grid = new GridPane();
+        this.grid.setHgap(10);
+        this.grid.setMaxWidth(Double.MAX_VALUE);
+        this.grid.setAlignment(Pos.CENTER_LEFT);
+        
+        dialogPane.contentTextProperty().addListener(o -> updateGrid());
+        
+        //setTitle(ControlResources.getString("Dialog.confirm.title"));
+        //dialogPane.setHeaderText(ControlResources.getString("Dialog.confirm.header"));
+        dialogPane.getStyleClass().add("text-input-dialog");
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
         if (forbiddenValues != null) {
-            this.textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (forbiddenValues.contains(newValue)) {
+            BindUtils.addListener(textField.textProperty(), (observable, oldValue, newValue) -> {
+                if (forbiddenValues.contains(newValue) || (regex != null && !newValue.matches(regex))) {
                     this.textField.setStyle("-fx-text-fill: #FF0000;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
                 } else {
@@ -66,48 +93,27 @@ public class AdvancedTextInputDialog extends Dialog<String> {
                 }
             });
         }
-        GridPane.setHgrow(textField, Priority.ALWAYS);
-        GridPane.setFillWidth(textField, true);
-
-        // -- label
-        label = createContentLabel(dialogPane.getContentText());
-        label.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        label.textProperty().bind(dialogPane.contentTextProperty());
-
-        this.defaultValue = defaultValue;
-
-        this.grid = new GridPane();
-        this.grid.setHgap(10);
-        this.grid.setMaxWidth(Double.MAX_VALUE);
-        this.grid.setAlignment(Pos.CENTER_LEFT);
-
-        dialogPane.contentTextProperty().addListener(o -> updateGrid());
-
-        //setTitle(ControlResources.getString("Dialog.confirm.title"));
-        //dialogPane.setHeaderText(ControlResources.getString("Dialog.confirm.header"));
-        dialogPane.getStyleClass().add("text-input-dialog");
-        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
+        
         updateGrid();
-
+        
         setResultConverter((dialogButton) -> {
             ButtonData data = dialogButton == null ? null : dialogButton.getButtonData();
             return data == ButtonData.OK_DONE ? textField.getText() : null;
         });
     }
-
+    
     public final TextField getEditor() {
         return textField;
     }
-
+    
     public final String getDefaultValue() {
         return defaultValue;
     }
-
+    
     public final Set<String> getForbiddenValues() {
         return forbiddenValues;
     }
-
+    
     private static Label createContentLabel(String text) {
         Label label = new Label(text);
         label.setMaxWidth(Double.MAX_VALUE);
@@ -117,15 +123,15 @@ public class AdvancedTextInputDialog extends Dialog<String> {
         label.setPrefWidth(360);
         return label;
     }
-
+    
     private void updateGrid() {
         grid.getChildren().clear();
-
+        
         grid.add(label, 0, 0);
         grid.add(textField, 1, 0);
         getDialogPane().setContent(grid);
-
+        
         Platform.runLater(() -> textField.requestFocus());
     }
-
+    
 }

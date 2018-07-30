@@ -51,7 +51,7 @@ public abstract class Language {
             Locale localeFromSystem = Locale.forLanguageTag(languageTagFromSystem);
             Locale.setDefault(localeFromSystem);
             currentLanguage = LANGUAGES.getOrDefault(localeFromSystem, ENGLISH);
-            Props.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
+            Props.set(LANGUAGE_PROPERTY_KEY, LANGUAGES.getOrDefault(localeFromSystem, ENGLISH).getLanguageTag());
         } else {//If a language has already been set, either manually or through a previous run
             Locale localeFromDB = Locale.forLanguageTag(languageTagFromDB.get());
             Locale.setDefault(localeFromDB);
@@ -116,7 +116,7 @@ public abstract class Language {
     
     /**
      * Returns a word in the language og the user User
-     * {@link #set(dhbw.clippinggorilla.languages.Word, com.vaadin.ui.Component)}
+     * {@link #set(Word, Labeled)}
      * to set a specific Components Text<br>
      * It is deprecated because changing the Language doesnt automatically
      * change
@@ -170,7 +170,7 @@ public abstract class Language {
      * </pre> In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
      * the Standard field.setVariable(...) you can use the
-     * {@link #set(Word, Component)} for that).<br>
+     * {@link #set(Word, Labeled)} for that).<br>
      * You set the translated string as placeholder for your textfield as
      * example.
      *
@@ -191,7 +191,7 @@ public abstract class Language {
      * In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you just want to use
      * the Standard field.setVariable(...) you can use the
-     * {@link #set(Word, Component)} for that).<br>
+     * {@link #set(Word, Labeled)} for that).<br>
      * You set the modified string as placeholder for your textfield as example.
      *
      * @param supplier
@@ -221,7 +221,7 @@ public abstract class Language {
      * </pre> In this Example you have a Textfield.<br>
      * You want to set a specific Text as Placeholder (If you dont want to
      * modify the word AND just want to use the Standard field.setVariable(...) you
-     * can use the {@link #set(Word, Component)} for that).<br>
+     * can use the {@link #set(Word, Labeled)} for that).<br>
      * You do this by modifying the string s by appending the local date as
      * example.<br>
      * In the end you set the modified string as placeholder for your textfield

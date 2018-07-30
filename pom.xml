@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.sharknoon</groupId>
     <artifactId>Casey</artifactId>
-    <version>0.1</version>
+    <version>1.0</version>
 
-    <name>Casey</name>
+    <packaging>pom</packaging>
+
+    <properties>
+        <mainClass>${mainIDEClass}</mainClass>
+        <mainCOMPILERClass>sharknoon.casey.compiler.Main</mainCOMPILERClass>
+        <mainIDEClass>sharknoon.casey.ide.Main</mainIDEClass>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>10</maven.compiler.source>
+        <maven.compiler.target>10</maven.compiler.target>
+    </properties>
 
     <modules>
         <module>CaseyCOMPILER</module>
         <module>CaseyIDE</module>
     </modules>
 
+    <build>
+        <plugins>
+            <!-- For building jars -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${mainClass}</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

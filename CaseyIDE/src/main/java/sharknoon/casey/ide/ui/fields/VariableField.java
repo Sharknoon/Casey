@@ -54,8 +54,16 @@ public class VariableField extends Button implements Field {
         
         variableProperty().addListener((o, old, v) -> {
             Language.unset(this);
-            textProperty().bind(v.toItem().nameProperty());
-            graphicProperty().bind(Icons.iconToNodeProperty(v.toItem().getSite().tabIconProperty()));
+            if (v != null) {
+                textProperty().bind(v.toItem().nameProperty());
+                graphicProperty().bind(Icons.iconToNodeProperty(v.toItem().getSite().tabIconProperty()));
+                v.toItem().onDestroy(() -> this.variable.set(null));
+            } else {
+                textProperty().unbind();
+                Language.set(Word.VARIABLE_SELECTION_FIELD_SELECT_VARIABLE, this);
+                graphicProperty().unbind();
+                setGraphic(null);
+            }
         });
         
         if (variable != null) {

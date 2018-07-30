@@ -67,29 +67,23 @@ public class BodyUtils {
         return DoubleExpression.doubleExpression(childheight).multiply(multiplier);
     }
     
-    public static void bindWidthToText(TextField tf) {
-        tf.textProperty().addListener((observable, oldValue, newValue) -> {
-            Text text = new Text(newValue);
-                text.setFont(tf.getFont()); // Set the same font, so the size is the same
-                double width = text.getLayoutBounds().getWidth() // This big is the Text in the TextField
-                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField (mostly 7)
-                        + 2d; // Add some spacing
-            tf.setPrefWidth(width); // Set the width
-        });
-//        ReadOnlyDoubleWrapper minTextFieldWidthProperty = new ReadOnlyDoubleWrapper();
-//        BindUtils.addListener(tf.textProperty(), (ov, prevText, currText) -> {
-//            // Do this in a Platform.runLater because of Textfield has no padding at first time and so on
-//            Platform.runLater(() -> {
-//                Text text = new Text(currText);
-//                text.setFont(tf.getFont()); // Set the same font, so the size is the same
-//                double width = text.getLayoutBounds().getWidth() // This big is the Text in the TextField
-//                        + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField (mostly 7)
-//                        + 2d; // Add some spacing
-//                minTextFieldWidthProperty.set(width); // Set the width
-//                tf.positionCaret(tf.getCaretPosition()); // If you remove this line, it flashes a little bit
-//            });
-//        });
-//        return minTextFieldWidthProperty.getReadOnlyProperty();
+    public static void bindWidthToText(TextField tf, int toAdd) {
+        tf.prefWidthProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> calculateWidth(tf),
+                        tf.textProperty(),
+                        tf.fontProperty(),
+                        tf.paddingProperty()
+                ).add(toAdd)
+        );
+    }
+    
+    private static double calculateWidth(TextField tf) {
+        Text text = new Text(tf.getText());
+        text.setFont(tf.getFont()); // Set the same font, so the size is the same
+        return text.getLayoutBounds().getWidth() // This big is the Text in the TextField
+                + tf.getPadding().getLeft() + tf.getPadding().getRight() // Add the padding of the TextField (mostly 7)
+                + 2d; // Add some spacing
     }
     
 }

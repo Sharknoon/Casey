@@ -3,28 +3,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.sharknoon</groupId>
     <artifactId>CaseyIDE</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>CaseyIDE</name>
+    <parent>
+        <groupId>de.sharknoon</groupId>
+        <artifactId>Casey</artifactId>
+        <version>1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>sharknoon.casey.ide.sharknoon.casey.compiler.Main</mainClass>
-        <maven.compiler.source>10</maven.compiler.source>
-        <maven.compiler.target>10</maven.compiler.target>
+        <mainClass>${mainIDEClass}</mainClass>
     </properties>
 
-    <organization>
-        <!-- Used as the 'Vendor' for JNLP generation -->
-        <name>Shark Industries</name>
-    </organization>
-
-    <build>
-        <finalName>CaseyIDE</finalName>
-    </build>
     <repositories>
         <repository>
             <id>central</id>
@@ -32,6 +25,7 @@
             <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
+
     <dependencies>
         <!-- To enable proper logging for some dependencies-->
         <dependency>
@@ -56,7 +50,7 @@
             <artifactId>jaad</artifactId>
             <version>LATEST</version>
         </dependency>
-        <!-- database -->
+        <!-- Database -->
         <dependency>
             <groupId>org.dizitart</groupId>
             <artifactId>nitrite</artifactId>
@@ -99,6 +93,7 @@
             <version>LATEST</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Reactive Programming library to assist JavaFX -->
         <dependency>
             <groupId>io.reactivex.rxjava2</groupId>
             <artifactId>rxjavafx</artifactId>
@@ -109,21 +104,23 @@
             <artifactId>rxjava</artifactId>
             <version>LATEST</version>
         </dependency>
+        <!-- Additional Bindings for JavaFX -->
         <dependency>
             <groupId>org.fxmisc.easybind</groupId>
             <artifactId>easybind</artifactId>
             <version>LATEST</version>
         </dependency>
+        <!-- Execution for the external Compiler jar -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-exec</artifactId>
             <version>LATEST</version>
         </dependency>
+        <!-- IO-Utilities e.g. for deleting a full directory -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.5</version>
-            <scope>compile</scope>
+            <version>LATEST</version>
         </dependency>
     </dependencies>
 </project>

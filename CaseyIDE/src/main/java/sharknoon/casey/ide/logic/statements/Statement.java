@@ -66,13 +66,17 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
             } else if (EnumUtils.isValidEnum(OperatorType.class, type)) {
                 Operator operator = OperatorType.valueOf(type).create(parent);
                 var parameters = (ArrayNode) properties.get("parameter");
-                parameters.elements().forEachRemaining(p -> {
+                if (parameters.size() == 2) {
+                    System.out.println("debugpoint");
+                }
+                for (int i = 0; i < parameters.size(); i++) {
+                    var p = parameters.get(i);
                     if (p instanceof NullNode) {
-                        operator.addParameter(null);
+                        operator.setParameter(i, null);
                     } else {
-                        operator.addParameter(deserialize(operator, (ObjectNode) p));
+                        operator.setParameter(i, deserialize(operator, (ObjectNode) p));
                     }
-                });
+                }
                 return operator;
             } else if (Objects.equals(type, "CALL")) {
                 Call<?> c = new Call(parent, Type.UNDEFINED);//TODO not undefined

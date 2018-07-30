@@ -103,8 +103,7 @@ public class ValueBody extends Body<Value> {
             spinnerValue.setMinWidth(24);
             spinnerValue.setEditable(true);
             spinnerValue.getValueFactory().valueProperty().bindBidirectional(val2.valueProperty());
-//            DoubleBinding width = BodyUtils.bindWidthToText(spinnerValue.getEditor()).add(24);
-//            spinnerValue.minWidthProperty().bind(width);//Spinner does not resize automatically like textfield :( //TODO
+            BodyUtils.bindWidthToText(spinnerValue.getEditor(), 24);
             Platform.runLater(spinnerValue::requestFocus);
             return spinnerValue;
         } else if (returnType == PrimitiveType.TEXT) {
@@ -112,7 +111,7 @@ public class ValueBody extends Body<Value> {
             TextField textFieldValue = new TextField();
             StackPane.setMargin(textFieldValue, MARGIN);
             textFieldValue.textProperty().bindBidirectional(val3.valueProperty());
-            BodyUtils.bindWidthToText(textFieldValue);
+            BodyUtils.bindWidthToText(textFieldValue, 0);
             Platform.runLater(textFieldValue::requestFocus);
             return textFieldValue;
         } else if (returnType instanceof ObjectType) {

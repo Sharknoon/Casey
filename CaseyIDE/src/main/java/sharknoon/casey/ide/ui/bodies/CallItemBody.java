@@ -29,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -68,6 +69,14 @@ public class CallItemBody extends Body<CallItem<?>> {
         hBoxContent.paddingProperty().bind(bindPadding(getStatement()));
         Bindings.bindContent(hBoxContent.getChildren(), getNodes());
         return hBoxContent;
+    }
+    
+    @Override
+    public void onMouseEntered(MouseEvent event) {
+    }
+    
+    @Override
+    public void onMouseExited(MouseEvent event) {
     }
     
     private ObservableList<Node> getNodes() {

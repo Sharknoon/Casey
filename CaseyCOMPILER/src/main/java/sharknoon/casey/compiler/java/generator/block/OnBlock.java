@@ -255,6 +255,9 @@ public class OnBlock {
             System.err.println("The Assignment of Block " + block + " is not a correct Statement");
             return null;
         }
+        if (variableName.toString().equals(assignmentStatementCodeBlock.toString())) {
+            variableName = CodeBlock.of("this.$L", variableName);
+        }
         Block nextBlock = getNextBlock(block);
         if (nextBlock == null) {
             System.err.println("The Block " + block + " has no next Block");

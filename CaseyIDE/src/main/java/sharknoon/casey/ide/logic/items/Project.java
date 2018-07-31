@@ -24,6 +24,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -276,7 +277,10 @@ public class Project extends Item<Project, Item, Package> {
                 Platform.runLater(() -> outputs.getChildren().add(newValue));
             }
         });
-        root.setCenter(outputs);
+        ScrollPane sc = new ScrollPane(outputs);
+        sc.setPannable(true);
+        outputs.heightProperty().addListener(o -> sc.setVvalue(1));
+        root.setCenter(sc);
         
         TextField inputs = new TextField();
         inputs.setOnAction(ae -> {
@@ -417,9 +421,11 @@ public class Project extends Item<Project, Item, Package> {
                     return textFieldParameterValue;
                 })
                 .collect(Collectors.toList());
-        
+    
         if (textFields.isEmpty()) {
             return Map.of();
+        } else {
+            Platform.runLater(() -> textFields.get(0).requestFocus());
         }
         
         Optional<GridPane> result = Dialogs.showCustomInputDialog(

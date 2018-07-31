@@ -109,11 +109,22 @@ public abstract class Item<I extends Item, P extends Item, C extends Item> {
     }
     
     public void move(P newParent) {
+    
+        System.out.println("MOVING " + toString() + " to " + newParent);
         if (parentProperty().get() != null) {
             parentProperty().get().childrenProperty().remove(this);
         }
         parentProperty().set(newParent);
         parentProperty().get().childrenProperty().add(this);
+    }
+    
+    public boolean canMoveTo(P newParent) {
+        return newParent != null &&//Null check
+                this != newParent &&//Same check
+                (newParent.getType() == ItemType.PACKAGE || newParent.getType() == ItemType.PROJECT) &&//Parent needs to be a package or a project
+                (getType() != ItemType.PROJECT && getType() != ItemType.WELCOME) &&//Projects and welcome cant be moved
+                !isIn(ItemType.CLASS) &&//Functions , variables and parameter cant be moved
+                !isIn(ItemType.FUNCTION);//dito
     }
     
     public StringProperty nameProperty() {

@@ -49,6 +49,7 @@ public class OnClass {
         
         try {
             TypeSpec clazz = TypeSpec.classBuilder(itemName)
+                    .addModifiers(Modifier.PUBLIC)
                     .addJavadoc(ItemUtils.getJavaDoc(args, item))
                     .addFields(variables)
                     .addMethods(functions)

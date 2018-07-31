@@ -67,7 +67,6 @@ public class Dot {
                 0, s
         );
         polygon.setFill(isInput ? UISettings.DOT_INPUT_COLOR : UISettings.DOT_OUTPUT_COLOR);
-        polygon.setPickOnBounds(true);
         showingBinding = Bindings.isNotEmpty(lines).or(polygon.hoverProperty()).or(frame.getShape().hoverProperty());
         showingBinding.addListener((observable, oldValue, newValue) -> {
             if (newValue) {

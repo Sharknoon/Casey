@@ -66,9 +66,6 @@ public abstract class Statement<PT extends Type, T extends Type, CT extends Type
             } else if (EnumUtils.isValidEnum(OperatorType.class, type)) {
                 Operator operator = OperatorType.valueOf(type).create(parent);
                 var parameters = (ArrayNode) properties.get("parameter");
-                if (parameters.size() == 2) {
-                    System.out.println("debugpoint");
-                }
                 for (int i = 0; i < parameters.size(); i++) {
                     var p = parameters.get(i);
                     if (p instanceof NullNode) {

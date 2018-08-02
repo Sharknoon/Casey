@@ -24,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import sharknoon.casey.ide.logic.items.Project;
 import sharknoon.casey.ide.logic.items.Welcome;
+import sharknoon.casey.ide.misc.Updater;
 import sharknoon.casey.ide.ui.background.Background;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
@@ -31,12 +32,12 @@ import sharknoon.casey.ide.ui.styles.Styles;
 import sharknoon.casey.ide.utils.javafx.SnapSlider;
 import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
-import sharknoon.casey.ide.utils.settings.Props;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author Josua Frank
@@ -57,35 +58,46 @@ public class MenuBarInit {
         Icons.setCustom(Icon.COG, menuOptions::setGraphic);
         
         menuOptions.getItems().addAll(
-                initOptionsLanugageMenu(),
+                initOptionsLanguageMenu(),
                 initOptionsBackgroundMenu(),
-                initOptionsStylesMenu()
+                initOptionsStylesMenu(),
+                initOptionsUpdateMenu()
         );
         
         menubar.getMenus().add(menuOptions);
     }
     
-    private static Menu initOptionsLanugageMenu() {
+    private static Menu initOptionsLanguageMenu() {
         Menu menuLanguage = new Menu();
         Language.setCustom(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, menuLanguage::setText);
         Icons.setCustom(Icon.LANGUAGE, menuLanguage::setGraphic);
         
-        
+        ToggleGroup toggleGroupLanguage = new ToggleGroup();
+        Map<Language, RadioMenuItem> radioMenuItems = new HashMap<>();
         Language.getAllLanguages().forEach((locale, language) -> {
-            MenuItem menuItemLanguage = new MenuItem();
+            RadioMenuItem menuItemLanguage = new RadioMenuItem();
             Language.setCustom(
                     () -> locale.getDisplayLanguage(locale),
                     menuItemLanguage::setText
             );
             Icon icon = Icon.forName(locale.getDisplayLanguage(Locale.ENGLISH));
             Icons.setCustom(icon, menuItemLanguage::setGraphic);
-            menuItemLanguage.setId(locale.getLanguage());
+            menuItemLanguage.setToggleGroup(toggleGroupLanguage);
+            //menuItemLanguage.setId(locale.getLanguage());
             menuItemLanguage.setOnAction((event) -> {
-                Locale l = new Locale(menuItemLanguage.getId());
-                Language.changeLanguage(Language.forLocale(l));
+                //Locale l = new Locale(menuItemLanguage.getId());
+                Language.changeLanguage(language);
             });
+            radioMenuItems.put(language, menuItemLanguage);
             menuLanguage.getItems().add(menuItemLanguage);
         });
+        Consumer<Language> set = l -> {
+            if (radioMenuItems.containsKey(l)) {
+                radioMenuItems.get(l).setSelected(true);
+            }
+        };
+        Language.addLanguageChangeListener(set);
+        set.accept(Language.getLanguage());
         return menuLanguage;
     }
     
@@ -102,6 +114,15 @@ public class MenuBarInit {
             Background.openImagesFolder();
         });
         menuBackgroundImages.getItems().add(menuItemOpenBackgroundFolder);
+    
+        //Reload image folder
+        MenuItem menuItemReloadBackgroundImages = new MenuItem();
+        Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_RELOAD_IMAGES, menuItemReloadBackgroundImages::setText);
+        Icons.setCustom(Icon.RELOAD, menuItemReloadBackgroundImages::setGraphic);
+        menuItemReloadBackgroundImages.setOnAction(event -> {
+            Background.reloadImages();
+        });
+        menuBackgroundImages.getItems().add(menuItemReloadBackgroundImages);
         
         //Set image duration
         GridPane gridPaneMenuItemBackgroundDurationContent = new GridPane();
@@ -116,8 +137,8 @@ public class MenuBarInit {
         textSetDurationText.getStyleClass().setAll("menu-item");
         Language.setCustom(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, textSetDurationText::setText);
         gridPaneMenuItemBackgroundDurationContent.add(textSetDurationText, 1, 0, 2, 1);
-        
-        final String durationKey = "backgroundChangeingDuration";
+    
+    
         SnapSlider sliderDuration = new SnapSlider(0, 60, -1);
         sliderDuration.setMinWidth(300);
         sliderDuration.setShowTickMarks(true);
@@ -136,11 +157,7 @@ public class MenuBarInit {
                         .concat(" " + Language.get(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT))
         );
         Background.durationProperty().bind(sliderDuration.finalValueProperty());
-        sliderDuration.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (sliderDuration.isValueChanging())
-                Props.set(durationKey, (int) sliderDuration.getValue() + "");
-        });
-        Props.get(durationKey).thenAccept(os -> os.map(Double::valueOf).ifPresent(sliderDuration::setValue));
+    
         gridPaneMenuItemBackgroundDurationContent.add(sliderDuration, 1, 1, 1, 1);
         gridPaneMenuItemBackgroundDurationContent.add(textChangingValue, 2, 1, 1, 1);
         MenuItem menuItemSetBackgroundDuration = new CustomMenuItem(gridPaneMenuItemBackgroundDurationContent);
@@ -172,6 +189,16 @@ public class MenuBarInit {
         });
         
         return menuStyles;
+    }
+    
+    private static MenuItem initOptionsUpdateMenu() {
+        MenuItem menuItemUpdate = new MenuItem();
+        Language.setCustom(Word.MENUBAR_OPTIONS_UPDATE_TEXT, menuItemUpdate::setText);
+        Icons.setCustom(Icon.UPDATE, menuItemUpdate::setGraphic);
+        
+        menuItemUpdate.setOnAction(e -> Updater.checkForUpdates());
+        
+        return menuItemUpdate;
     }
     
     private static void initProjectMenu() {

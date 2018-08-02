@@ -408,7 +408,7 @@ public class Dialogs {
         return dialog.showAndWait();
     }
     
-    private static Optional<Boolean> showConfirmationDialog(Word title, Word headerText, Word conentText, Icon icon, Map<String, String> variables) {
+    public static Optional<Boolean> showConfirmationDialog(Word title, Word headerText, Word conentText, Icon icon, Map<String, String> variables) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle(fill(Language.get(title), variables));
         alert.setHeaderText(fill(Language.get(headerText), variables));

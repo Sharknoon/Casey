@@ -23,6 +23,7 @@ import org.dizitart.no2.Cursor;
 import org.dizitart.no2.Document;
 import org.dizitart.no2.NitriteCollection;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -30,14 +31,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author Josua Frank
  */
 public class Props {
-
+    
     private static final NitriteCollection COLLECTION;
     private static final ObservableMap<String, Object> OBSERVABLE_DOCUMENT;
-
+    
     static {
         COLLECTION = Database.getCollection("ideProps").join();
         final Document tmpDoc;
@@ -54,26 +54,33 @@ public class Props {
             COLLECTION.update(tmpDoc);
         });
     }
-
+    
     public static void set(String key, String value) {
         CompletableFuture.runAsync(() -> {
             OBSERVABLE_DOCUMENT.put(key, value);
         });
     }
-
+    
     public static CompletableFuture<Optional<String>> get(String key) {
         return CompletableFuture.supplyAsync(() -> {
             Object result = OBSERVABLE_DOCUMENT.get(key);
             return result != null ? Optional.of(result.toString()) : Optional.empty();
         });
     }
-
+    
+    public static CompletableFuture<String> getOrDefault(String key, String defaultValue) {
+        return CompletableFuture.supplyAsync(() -> {
+            Object result = OBSERVABLE_DOCUMENT.getOrDefault(key, defaultValue);
+            return Objects.toString(result);
+        });
+    }
+    
     public static CompletableFuture<String> remove(String key) {
         return CompletableFuture.supplyAsync(() -> {
             return OBSERVABLE_DOCUMENT.remove(key).toString();
         });
     }
-
+    
     public static CompletableFuture<Set<String>> getAll(Predicate<String> keyfilter) {
         return CompletableFuture.supplyAsync(() -> {
             return OBSERVABLE_DOCUMENT
@@ -84,11 +91,11 @@ public class Props {
                     .collect(Collectors.toSet());
         });
     }
-
+    
     public static void addListener(InvalidationListener listener) {
         OBSERVABLE_DOCUMENT.addListener(listener);
     }
-
+    
     public static void addListener(MapChangeListener<? super String, ? super String> listener) {
         OBSERVABLE_DOCUMENT.addListener((MapChangeListener<? super String, ? super Object>) listener);
     }

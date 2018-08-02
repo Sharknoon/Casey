@@ -24,6 +24,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import sharknoon.casey.ide.logic.items.Item;
 import sharknoon.casey.ide.logic.items.Welcome;
+import sharknoon.casey.ide.misc.Updater;
 import sharknoon.casey.ide.ui.background.Background;
 import sharknoon.casey.ide.ui.navigation.ItemTabPane;
 import sharknoon.casey.ide.ui.navigation.ItemTreeView;
@@ -72,6 +73,7 @@ public class MainController implements Initializable {
         ItemTreeView.init(treeView);
         ItemTabPane.init(tabPane);
         Keyboard.init();
+        Updater.init();
         Welcome.getWelcome().getSite().select();
     }
 

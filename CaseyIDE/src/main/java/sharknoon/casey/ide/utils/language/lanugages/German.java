@@ -33,11 +33,13 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, "Sprache");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Hintergrund");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Öffne Hintergrundordner");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_RELOAD_IMAGES, "Hintergrundbilder aktualisieren");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Hintergrunddauer");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "Sekunden");
         add(Word.MENUBAR_OPTIONS_STYLE_TEXT, "Stil");
         add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dunkel");
         add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Hell");
+        add(Word.MENUBAR_OPTIONS_UPDATE_TEXT, "Auf Aktualisierungen überprüfen");
         add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar
@@ -250,10 +252,10 @@ public class German extends Language {
         add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "Keine Typen erlaubt");
         //VariableSelectionPopup
         add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variablen- und Parameterauswahl");
-        //Compiler Window
-        add(Word.COMPILER_ERROR_TITLE, "Kompilierfehler");
-        add(Word.COMPILER_ERROR_HEADER_TEXT, "Fehler während des Kompilierens");
-        add(Word.COMPILER_ERROR_CONTENT_TEXT, "Leider ist ein Fehler während des Kompilierens des Programmes aufgetreten");
+        //Jar-Error Window
+        add(Word.EXECUTOR_ERROR_TITLE, "Java Ausführungsfehler");
+        add(Word.EXECUTOR_ERROR_HEADER_TEXT, "Fehler während des Ausführens einer Java-Datei");
+        add(Word.EXECUTOR_ERROR_CONTENT_TEXT, "Leider ist ein Fehler während des Ausführens einer Java-Datei aufgetreten");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_TITLE, "Parameter");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_HEADER_TEXT, "Bitte ergänzen Sie die fehlenden Parameterwerte");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_CONTENT_TEXT, "Parameterwerte");

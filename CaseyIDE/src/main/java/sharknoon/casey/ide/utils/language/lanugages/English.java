@@ -33,11 +33,13 @@ public class English extends Language {
         add(Word.MENUBAR_OPTIONS_LANGUAGE_TEXT, "Lanuage");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_TEXT, "Background");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_OPEN_FOLDER_TEXT, "Open backgroundfolder");
+        add(Word.MENUBAR_OPTIONS_BACKGROUND_RELOAD_IMAGES, "Reload images");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_TEXT, "Background duration");
         add(Word.MENUBAR_OPTIONS_BACKGROUND_SET_DURATION_SECONDS_TEXT, "seconds");
         add(Word.MENUBAR_OPTIONS_STYLE_TEXT, "Style");
         add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dark");
         add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Bright");
+        add(Word.MENUBAR_OPTIONS_UPDATE_TEXT, "Check for Updates");
         add(Word.MENUBAR_PROJECT_TEXT, "Project");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
         //ToolBar
@@ -250,10 +252,10 @@ public class English extends Language {
         add(Word.VARIABLE_SELECTION_POPUP_NO_TYPES, "No types allowed");
         //VariableSelectionPopup
         add(Word.VARIABLE_SELECTION_POPUP_TITLE, "Variable and parameterselection");
-        //Compiler Window
-        add(Word.COMPILER_ERROR_TITLE, "Compileerror");
-        add(Word.COMPILER_ERROR_HEADER_TEXT, "An error occurred during compiling");
-        add(Word.COMPILER_ERROR_CONTENT_TEXT, "Unfortunately a error occurred during the compiling of this program");
+        //Jar-Error Window
+        add(Word.EXECUTOR_ERROR_TITLE, "Executionerror");
+        add(Word.EXECUTOR_ERROR_HEADER_TEXT, "An error occurred during execution a jar file");
+        add(Word.EXECUTOR_ERROR_CONTENT_TEXT, "Unfortunately a error occurred during the execution of a jar file");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_TITLE, "Parameter");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_HEADER_TEXT, "Please enter the missing prameter values");
         add(Word.COMPILER_ENTER_PARAMETER_VALUES_DIALOG_CONTENT_TEXT, "Parameter values");

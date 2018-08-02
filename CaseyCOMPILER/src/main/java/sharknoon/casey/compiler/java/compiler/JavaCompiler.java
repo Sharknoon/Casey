@@ -34,6 +34,7 @@ public class JavaCompiler {
             return runOnJavaCompiler(classpath, mainClassJavaFile) == 0;
         } catch (Exception e) {
             System.err.println("Compiler error: " + e);
+            e.printStackTrace(System.err);
         }
         System.err.println("Could not find a Compiler, please install the Java-JDK 10 or newer");
         return false;

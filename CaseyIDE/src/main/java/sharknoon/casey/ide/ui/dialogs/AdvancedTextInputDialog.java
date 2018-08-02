@@ -81,10 +81,10 @@ public class AdvancedTextInputDialog extends Dialog<String> {
         //dialogPane.setHeaderText(ControlResources.getString("Dialog.confirm.header"));
         dialogPane.getStyleClass().add("text-input-dialog");
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        
-        if (forbiddenValues != null) {
+    
+        if (forbiddenValues != null || regex != null) {
             BindUtils.addListener(textField.textProperty(), (observable, oldValue, newValue) -> {
-                if (forbiddenValues.contains(newValue) || (regex != null && !newValue.matches(regex))) {
+                if ((forbiddenValues != null && forbiddenValues.contains(newValue)) || (regex != null && !newValue.matches(regex))) {
                     this.textField.setStyle("-fx-text-fill: #FF0000;");
                     getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
                 } else {

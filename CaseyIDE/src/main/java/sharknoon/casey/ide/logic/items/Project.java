@@ -19,8 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -34,7 +33,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.apache.commons.exec.*;
+import sharknoon.casey.ide.misc.Executor;
 import sharknoon.casey.ide.serial.Serialisation;
 import sharknoon.casey.ide.ui.MainApplication;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
@@ -45,20 +44,12 @@ import sharknoon.casey.ide.ui.sites.welcome.RecentProject;
 import sharknoon.casey.ide.ui.styles.Styles;
 import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
-import sharknoon.casey.ide.utils.settings.Logger;
 import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -69,7 +60,6 @@ public class Project extends Item<Project, Item, Package> {
     
     private static final String ID = "id";
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
-    private static Runnable onProgramFinish = null;
     
     public static Optional<Project> getCurrentProject() {
         return Optional.ofNullable(currentProject.get());
@@ -79,102 +69,13 @@ public class Project extends Item<Project, Item, Package> {
         return currentProject;
     }
     
-    public static void showErrorWindow(Map<String, Boolean> lines) {
-        TextFlow textFlow = new TextFlow();
-        lines.forEach((line, error) -> {
-            Text text = new Text(line + "\n");
-            if (error) {
-                text.setFill(Color.RED);
-            }
-            textFlow.getChildren().add(text);
-        });
-        Dialogs.showCustionOutputDialog(
-                Word.COMPILER_ERROR_TITLE,
-                Word.COMPILER_ERROR_HEADER_TEXT,
-                Word.COMPILER_ERROR_CONTENT_TEXT,
-                Icon.ERROR,
-                textFlow);
-    }
-    
-    public static Optional<String> getJavaHomeDirectory() {
-        String javaHome = System.getProperty("java.home", "");
-        
-        if (!javaHome.isEmpty()) {
-            try {
-                Path javaPath = Paths.get(javaHome).resolve("bin").resolve("java");
-                String javaPathString = javaPath.toString();
-                return Optional.of(javaPathString);
-            } catch (Exception e) {
-                Logger.error("Could not find Java-Home");
-                return Optional.empty();
-            }
-        }
-        Logger.error("Could not find Java-Home");
-        return Optional.empty();
-    }
-    
     private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
-    private Process process;
     private String id;
+    private Runnable onFinish;
     
     protected Project(Welcome parent, String name) {
         superInit(parent, name);
         init();
-    }
-    
-    public boolean compile(Consumer<String> consumer, List<String> commands) {
-        Optional<String> optionalJavaCommand = getJavaHomeDirectory();
-        if (!optionalJavaCommand.isPresent()) {
-            return false;
-        }
-        String javaCommand = optionalJavaCommand.get();
-        Optional<Path> optionalCaseyCompiler = Resources.getFile("sharknoon/casey/ide/CaseyCOMPILER.jar", true);
-        if (!optionalCaseyCompiler.isPresent()) {
-            Logger.error("Casey-Compiler not found");
-            return false;
-        }
-        String caseyCompiler = optionalCaseyCompiler.get().toAbsolutePath().toString();
-        
-        Map<String, Boolean> output = new LinkedHashMap<>();
-        
-        try {
-            CommandLine commandLine = new CommandLine(javaCommand);
-            commandLine.addArgument("-jar");
-            commandLine.addArgument(caseyCompiler);
-            commandLine.addArguments(commands.toArray(new String[0]));
-            
-            LogOutputStream outStream = new LogOutputStream() {
-                @Override
-                protected void processLine(String line, int logLevel) {
-                    consumer.accept(line);
-                    Logger.debug(line);
-                    output.put(line, false);
-                }
-            };
-            LogOutputStream errStream = new LogOutputStream() {
-                @Override
-                protected void processLine(String line, int logLevel) {
-                    consumer.accept(line);
-                    Logger.debug(line);
-                    output.put(line, true);
-                }
-            };
-            
-            
-            DefaultExecutor executor = new DefaultExecutor();
-            executor.setStreamHandler(new PumpStreamHandler(outStream, errStream));
-            Logger.debug("Executing \"" + String.join(" ", commandLine.toStrings()) + "\" in Working Directory \"" + executor.getWorkingDirectory() + "\"");
-            
-            int result = executor.execute(commandLine);
-            return result == 0;
-        } catch (ExecuteException e) {
-            Logger.error("Could not execute Compiler, Errorcode: " + e.getExitValue() + "\n(1 = Argument parsing, 2 = Casey parsing, 3 = Code generation, 4 = Code compilation)");
-            Platform.runLater(() -> showErrorWindow(output));
-            return false;
-        } catch (Exception e) {
-            Logger.error("Could not execute Compiler", e);
-            return false;
-        }
     }
     
     /**
@@ -184,91 +85,31 @@ public class Project extends Item<Project, Item, Package> {
      * @param mainItem The item which should be executed
      * @return
      */
-    public Boolean execute(Path basePath, Item mainItem) {
-        String title = mainItem.getName();
-        Icon icon = mainItem.getSite().getTabIcon();
-        
-        Optional<String> optionalJavaCommand = getJavaHomeDirectory();
-        if (!optionalJavaCommand.isPresent()) {
-            return false;
+    public boolean execute(Path basePath, Item mainItem) {
+        Path workingDirectory = basePath.toAbsolutePath();
+        String mainClass = mainItem.getFullName();
+        ObjectProperty<Text> errorAndOutputProperty = new SimpleObjectProperty<>();
+        Consumer<String> error = s -> {
+            Text t = new Text(s + "\n");
+            t.setFill(Color.RED);
+            errorAndOutputProperty.set(t);
+        };
+        Consumer<String> output = s -> {
+            Text t = new Text(s + "\n");
+            errorAndOutputProperty.set(t);
+        };
+        StringProperty inputProperty = new SimpleStringProperty();
+        Consumer<String> input = inputProperty::set;
+        BooleanProperty abortProperty = new SimpleBooleanProperty();
+        Platform.runLater(() -> onFinish = showInputOutputWindow(mainItem.getName(), mainItem.getSite().getTabIcon(), input, errorAndOutputProperty, abortProperty::set));
+        int status = Executor.runClass(workingDirectory, mainClass, output, error, inputProperty, abortProperty).join();
+        if (onFinish != null) {
+            onFinish.run();
         }
-        String javaCommand = optionalJavaCommand.get();
-        String classpath = basePath.toAbsolutePath().toString();
-        String mainClassFile = mainItem.getFullName();
-        
-        try {
-            ProcessBuilder pb = new ProcessBuilder(javaCommand, "-cp", classpath, mainClassFile);
-            Logger.debug("Executing \"" + String.join(" ", pb.command()) + "\" in Working Directory \"" + pb.directory() + "\"");
-            
-            ObjectProperty<Text> outAndErr = new SimpleObjectProperty<>();
-    
-            process = pb.start();
-            InputStream outputFromProcess = process.getInputStream();
-            InputStream errorFromProcess = process.getErrorStream();
-            OutputStream inputForProcess = process.getOutputStream();
-            
-            LogOutputStream out = new LogOutputStream() {
-                @Override
-                protected void processLine(String line, int logLevel) {
-                    Text text = new Text(line + "\n");
-                    outAndErr.set(text);
-                    System.out.println(line);
-                }
-            };
-            new Thread(() -> {
-                try {
-                    outputFromProcess.transferTo(out);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }, "ProcessOutputListenerThread").start();
-            
-            LogOutputStream err = new LogOutputStream() {
-                @Override
-                protected void processLine(String line, int logLevel) {
-                    Text text = new Text(line + "\n");
-                    text.setFill(Color.RED);
-                    outAndErr.set(text);
-                    System.out.println(line);
-                }
-            };
-            new Thread(() -> {
-                try {
-                    errorFromProcess.transferTo(err);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }, "ProcessErrorListenerThread").start();
-    
-            ExecutorService pool = Executors.newCachedThreadPool();
-            Consumer<String> in = s -> {
-                pool.submit(() -> {
-                    try {
-                        inputForProcess.write((s + "\n").getBytes(StandardCharsets.UTF_8));
-                        inputForProcess.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            };
-    
-    
-            Platform.runLater(() -> onProgramFinish = showInputOutputWindow(title, icon, in, outAndErr));
-            
-            process.waitFor();
-            return process.exitValue() == 0;
-        } catch (Exception e) {
-            System.err.println("Error running the Java Program: " + e);
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (onProgramFinish != null) {
-                onProgramFinish.run();
-            }
-        }
+        return status == 0;
     }
     
-    public Runnable showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine) {
+    public Runnable showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine, Consumer<Boolean> abortProcess) {
         BorderPane root = new BorderPane();
         
         TextFlow outputs = new TextFlow();
@@ -285,6 +126,7 @@ public class Project extends Item<Project, Item, Package> {
         TextField inputs = new TextField();
         inputs.setOnAction(ae -> {
             inputLine.accept(inputs.getText());
+            inputLine.accept(null);
             inputs.clear();
         });
         root.setBottom(inputs);
@@ -296,15 +138,17 @@ public class Project extends Item<Project, Item, Package> {
         newWindow.getIcons().add(Icons.getImage(icon).orElse(null));
         newWindow.setScene(newScene);
         newWindow.setOnCloseRequest(event -> {
-            if (process != null) {
-                process.destroy();
+            if (abortProcess != null) {
+                abortProcess.accept(true);
             }
         });
         Text textProgramEnded = new Text(Language.get(Word.INPUT_OUTPUT_WINDOW_PROGRAM_ENDED));
         newWindow.show();
         return () -> Platform.runLater(() -> {
             outputs.getChildren().add(textProgramEnded);
-            inputs.setOnAction(event -> newWindow.close());
+            inputs.setOnAction(ae -> {
+            });
+            inputs.setOnKeyPressed(event -> newWindow.close());
         });
     }
     
@@ -380,6 +224,10 @@ public class Project extends Item<Project, Item, Package> {
             Path caseyFile = saveFile.get();
             Path basePath = saveFile.get().getParent();
             return CompletableFuture.runAsync(() -> {
+                Optional<Path> optionalCaseyCompiler = Resources.getFile("sharknoon/casey/ide/CaseyCOMPILER.jar", true);
+                if (!optionalCaseyCompiler.isPresent()) {
+                    return;
+                }
                 List<String> commands = new ArrayList<>();
                 commands.add("-l");
                 commands.add("java");
@@ -395,7 +243,14 @@ public class Project extends Item<Project, Item, Package> {
                         .stream()
                         .map(e -> e.getKey() + "=" + e.getValue())
                         .forEach(commands::add);
-                boolean success = compile(statusProperty, commands);
+                boolean success = Executor.runJar(
+                        optionalCaseyCompiler.get(),
+                        statusProperty,
+                        statusProperty,
+                        null,
+                        null,
+                        commands.toArray(new String[0])
+                ).join() == 0;
                 if (success) {
                     execute(basePath, currentItem);
                 }

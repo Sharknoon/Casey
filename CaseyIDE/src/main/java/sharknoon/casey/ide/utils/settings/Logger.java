@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
- *
  * @author frank
  */
 public class Logger {
-
+    
+    private static final HashMap<Integer, String> SPACES = new HashMap<>();
     //The user-set Loglevel, default is WARNING
     private static LogLevel logLevel = LogLevel.WARNING;
     //The output of the Logger
@@ -43,7 +43,9 @@ public class Logger {
             System.err.println(message.description);
         }
     };
-
+    private static int maxLengthOfClassName = 0;
+    private static int maxLengthOfErrorLevel = 0;
+    
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.
@@ -53,7 +55,7 @@ public class Logger {
     public static void debug(String message) {
         debug(message, null);
     }
-
+    
     /**
      * Sets the LogLevel of the logger, default is WARNING
      *
@@ -65,7 +67,7 @@ public class Logger {
         Logger.logLevel = logLevel;
         return oldLogLevel;
     }
-
+    
     /**
      * Returns the current LogLevel, default is WARNING
      *
@@ -74,7 +76,7 @@ public class Logger {
     public static LogLevel getLogLevel() {
         return Logger.logLevel;
     }
-
+    
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.
@@ -84,12 +86,12 @@ public class Logger {
     public static void debug(Throwable throwable) {
         debug(null, throwable);
     }
-
+    
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
      * be used in development usecases.
      *
-     * @param message The message to be written to the log
+     * @param message   The message to be written to the log
      * @param throwable The Throwable to be written to the log
      */
     public static void debug(String message, Throwable throwable) {
@@ -105,7 +107,7 @@ public class Logger {
     public static void info(Throwable throwable) {
         info(null, throwable);
     }
-
+    
     /**
      * Logs a message as a info log-message. Info means it informs the user
      * about something.
@@ -115,12 +117,12 @@ public class Logger {
     public static void info(String message) {
         info(message, null);
     }
-
+    
     /**
      * Logs a message as a info log-message. Info means it informs the user
      * about something.
      *
-     * @param message The message to be written to the log
+     * @param message   The message to be written to the log
      * @param throwable The Throwable to be written to the log
      */
     public static void info(String message, Throwable throwable) {
@@ -136,7 +138,7 @@ public class Logger {
     public static void warning(Throwable throwable) {
         warning(null, throwable);
     }
-
+    
     /**
      * Logs a message as a warning log-message. Warning means that something
      * <b>should</b> be changed, but it isn't a error (yet)
@@ -146,12 +148,12 @@ public class Logger {
     public static void warning(String message) {
         warning(message, null);
     }
-
+    
     /**
      * Logs a message as a warning log-message. Warning means that something
      * <b>should</b> be changed, but it isn't a error (yet)
      *
-     * @param message The message to be written to the log
+     * @param message   The message to be written to the log
      * @param throwable The Throwable to be written to the log
      */
     public static void warning(String message, Throwable throwable) {
@@ -167,7 +169,7 @@ public class Logger {
     public static void error(Throwable throwable) {
         error(null, throwable);
     }
-
+    
     /**
      * Logs a message as a error log-message. Error means that something failed,
      * but it isn't system critical.
@@ -177,12 +179,12 @@ public class Logger {
     public static void error(String message) {
         error(message, null);
     }
-
+    
     /**
      * Logs a message as a error log-message. Error means that something failed,
      * but it isn't system critical.
      *
-     * @param message The message to be written to the log
+     * @param message   The message to be written to the log
      * @param throwable The Throwable to be written to the log
      */
     public static void error(String message, Throwable throwable) {
@@ -198,7 +200,7 @@ public class Logger {
     public static void fatalError(Throwable throwable) {
         fatalError(null, throwable);
     }
-
+    
     /**
      * Logs a message as a fatalerror log-message. Fatalerror means that
      * something system-critical failed.
@@ -208,18 +210,18 @@ public class Logger {
     public static void fatalError(String message) {
         fatalError(message, null);
     }
-
+    
     /**
      * Logs a message as a fatalerror log-message. Fatalerror means that
      * something system-critical failed.
      *
-     * @param message The message to be written to the log
+     * @param message   The message to be written to the log
      * @param throwable The Throwable to be written to the log
      */
     public static void fatalError(String message, Throwable throwable) {
         log(LogLevel.FATALERROR, message, throwable);
     }
-
+    
     /*
      * Logs the message, message and/or throwable can be null
      */
@@ -253,18 +255,6 @@ public class Logger {
     }
     
     /**
-     * The weight of the LogLevel, 0 means the worst and 5 the best
-     */
-    public enum LogLevel {
-        OFF(0), FATALERROR(1), ERROR(2), WARNING(3), INFO(4), DEBUG(5);
-        public final int level;
-        
-        LogLevel(int level) {
-            this.level = level;
-        }
-    }
-
-    /**
      * Sets the output of the logger
      *
      * @param logMessageConsumer
@@ -272,9 +262,7 @@ public class Logger {
     public static void setLogMessageConsumer(Consumer<LogMessage> logMessageConsumer) {
         Logger.logMessageConsumer = logMessageConsumer;
     }
-
-    private static int maxLengthOfClassName = 0;
-
+    
     //Header: Date + Class#MethodName + Level
     private static String getHeader(LogLevel level) {
         String result = getDateString() + " ";
@@ -288,9 +276,7 @@ public class Logger {
         result += getLevelString(level) + " ";
         return result;
     }
-
-    private static int maxLengthOfErrorLevel = 0;
-
+    
     //Returns the Level as a formatted String
     private static String getLevelString(LogLevel level) {
         String errorLevel = level.name();
@@ -302,26 +288,24 @@ public class Logger {
         result += (maxLengthOfErrorLevel - currentLengthOfErrorLevel) % 2 != 0 ? " " : "";
         return result;
     }
-
+    
     //Returns the Date as a formatted String
     private static String getDateString() {
         return "[" + LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) + "]";
     }
-
-    private static final HashMap<Integer, String> SPACES = new HashMap<>();
-
+    
     //Fast Method to iconToNodeProperty a amount of blanks as a String
     private static String getBlanks(int amount) {
         if (SPACES.containsKey(amount)) {
             return SPACES.get(amount);
         }
-        char[] blanks = new char[amount];
+        char[] blanks = new char[amount < 0 ? 0 : amount];
         Arrays.fill(blanks, ' ');
         String res = new String(blanks);
         SPACES.put(amount, res);
         return res;
     }
-
+    
     //Returns the classname + # + methodname of the caller of the log method
     private static String getClassName() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
@@ -335,44 +319,56 @@ public class Logger {
         }
         return stack.length > 0 ? stack[0].getClass().getSimpleName() + " #" + stack[0].getMethodName() : Logger.class.getSimpleName();
     }
-
+    
     //Cuts of the package path to save some space
     private static String cleanClassName(String className) {
         className = className.substring(className.lastIndexOf(".") + 1);
         return className;
     }
-
+    
+    /**
+     * The weight of the LogLevel, 0 means the worst and 5 the best
+     */
+    public enum LogLevel {
+        OFF(0), FATALERROR(1), ERROR(2), WARNING(3), INFO(4), DEBUG(5);
+        public final int level;
+        
+        LogLevel(int level) {
+            this.level = level;
+        }
+    }
+    
     /**
      * This class is responsible for transporting the messages to the
      * user-specified output. it contains a loglevel and a description.
      */
     public static final class LogMessage {
-
-        public final LogLevel errorLevel;
-        public final String description;
-
+    
         /**
          * Creates a new LogMessage
          *
-         * @param errorLevel The desired LogLevel, from OFF to DEBUG
+         * @param errorLevel  The desired LogLevel, from OFF to DEBUG
          * @param description The desired description, to sxplain what happened
          * @return The new instance of the {@link LogMessage}
          */
         public static LogMessage of(LogLevel errorLevel, String description) {
             return new LogMessage(errorLevel, description);
         }
-
+    
+        public final LogLevel errorLevel;
+        public final String description;
+        
         /**
          * Creates a new LogMessage
          *
-         * @param errorLevel The desired LogLevel, from OFF to DEBUG
+         * @param errorLevel  The desired LogLevel, from OFF to DEBUG
          * @param description The desired description, to sxplain what happened
          */
         public LogMessage(LogLevel errorLevel, String description) {
             this.errorLevel = errorLevel != null ? errorLevel : LogLevel.INFO;
             this.description = description != null ? description : "";
         }
-
+    
         /**
          * Returns the error-level of this logMessage
          *
@@ -381,7 +377,7 @@ public class Logger {
         public LogLevel getErrorLevel() {
             return errorLevel;
         }
-
+    
         /**
          * Returns the description of the LogMessage
          *
@@ -390,7 +386,7 @@ public class Logger {
         public String getDescription() {
             return description;
         }
-
+    
         /**
          * Returns the description, so you can easily write in the parser:
          * <p>
@@ -402,6 +398,6 @@ public class Logger {
         public String toString() {
             return description;
         }
-
+    
     }
 }

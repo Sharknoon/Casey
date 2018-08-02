@@ -25,7 +25,7 @@ import java.util.Optional;
  * @author Josua Frank
  */
 public enum Icon {
-
+    
     AND,
     ARROWRIGHT,
     BACKGROUND,
@@ -99,19 +99,19 @@ public enum Icon {
     FUNCTIONBOOLEAN,
     FUNCTIONCLASS,
     FUNCTIONTEXT,
-    FUNCTIONNUMBER, FUNCTIONVOID;
-    
-    private String path;
-    private boolean isSearched = false;
+    FUNCTIONNUMBER, FUNCTIONVOID, RELOAD, UPDATE;
     
     public static Icon forName(String name) {
         return Enum.valueOf(Icon.class, name.toUpperCase());
     }
     
+    private String path;
+    private boolean isSearched = false;
+    
     Icon() {
         this.path = name().toLowerCase();
     }
-
+    
     public String getPath(boolean asSVG) {
         if (!isSearched) {
             Optional<Path> fullPath = Resources.search(path, true, false, true);
@@ -130,5 +130,5 @@ public enum Icon {
         }
         return path.isEmpty() ? path : path + (asSVG ? ".svg" : ".png");
     }
-
+    
 }

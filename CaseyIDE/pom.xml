@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>CaseyIDE</artifactId>
-    <version>0.1</version>
+
     <packaging>jar</packaging>
 
     <parent>
         <groupId>de.sharknoon</groupId>
         <artifactId>Casey</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -121,6 +121,12 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

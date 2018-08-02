@@ -15,6 +15,8 @@
  */
 package sharknoon.casey.ide.utils.language;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.Labeled;
 import sharknoon.casey.ide.utils.collection.Collections;
 import sharknoon.casey.ide.utils.language.lanugages.English;
@@ -22,6 +24,7 @@ import sharknoon.casey.ide.utils.language.lanugages.German;
 import sharknoon.casey.ide.utils.settings.Props;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -37,25 +40,45 @@ import java.util.function.Supplier;
  */
 public abstract class Language {
     
-    //Static Part---------------------------------------------------------------
+    //The database key for storing the current language
     private static final String LANGUAGE_PROPERTY_KEY = "language";
-    private static final HashMap<Locale, Language> LANGUAGES = new HashMap<>();
-    public static final Language ENGLISH = new English();
-    public static final Language GERMAN = new German();
+    //A list of all languages
+    private static final Map<Locale, Language> LANGUAGES = new HashMap<>();
+    //A list of all controls
+    private static final Map<Labeled, Word> CONTROLS = new HashMap<>();
+    //A list of all customs
+    private static final Set<Custom> CUSTOMS = new HashSet<>();
+    private static final Language ENGLISH = new English();
+    private static final Language GERMAN = new German();
+    //User-specific Part--------------------------------------------------------
+    //The current selected language
+    private static ReadOnlyObjectWrapper<Language> currentLanguage = new ReadOnlyObjectWrapper<>() {
+        @Override
+        protected void fireValueChangedEvent() {
+            super.fireValueChangedEvent();
+            if (get() == null) {
+                set(ENGLISH);
+            } else {
+                Props.set(LANGUAGE_PROPERTY_KEY, get().getLanguageTag());
+                Locale.setDefault(get().getLocale());
+                refreshAllControls();
+                refreshAllCustoms();
+            }
+        }
+    };
     //ADD NEW LANGUAGES HERE
     
+    //Static Part---------------------------------------------------------------
     static {
         Optional<String> languageTagFromDB = Props.get(LANGUAGE_PROPERTY_KEY).join();
         if (!languageTagFromDB.isPresent()) {//If no language has been set
             String languageTagFromSystem = System.getProperty("user.language");
             Locale localeFromSystem = Locale.forLanguageTag(languageTagFromSystem);
-            Locale.setDefault(localeFromSystem);
-            currentLanguage = LANGUAGES.getOrDefault(localeFromSystem, ENGLISH);
-            Props.set(LANGUAGE_PROPERTY_KEY, LANGUAGES.getOrDefault(localeFromSystem, ENGLISH).getLanguageTag());
+            currentLanguage.set(LANGUAGES.get(localeFromSystem));
+            
         } else {//If a language has already been set, either manually or through a previous run
             Locale localeFromDB = Locale.forLanguageTag(languageTagFromDB.get());
-            Locale.setDefault(localeFromDB);
-            currentLanguage = LANGUAGES.getOrDefault(localeFromDB, ENGLISH);
+            currentLanguage.set(LANGUAGES.get(localeFromDB));
         }
     }
     
@@ -79,30 +102,6 @@ public abstract class Language {
         return LANGUAGES.getOrDefault(locale, ENGLISH);
     }
     
-    //Part to be inherited by Language classes----------------------------------
-    private final Map<Word, String> words = new HashMap<>();
-    private final Locale locale;
-    
-    protected Language(Locale locale) {
-        this.locale = locale;
-        LANGUAGES.put(locale, this);
-    }
-    
-    protected final void add(Word word, String translation) {
-        words.put(word, translation);
-    }
-    
-    protected String getLanguageTag() {
-        return locale.toLanguageTag();
-    }
-    
-    public Locale getLocale() {
-        return locale;
-    }
-    
-    //User-specific Part--------------------------------------------------------
-    private static Language currentLanguage;
-    
     /**
      * Returns the requested Word in the Requested Language
      *
@@ -125,11 +124,8 @@ public abstract class Language {
      * @return The requested word in the user language
      */
     public static final String get(Word word) {
-        return currentLanguage.words.getOrDefault(word, word.name());
+        return currentLanguage.get().words.getOrDefault(word, word.name());
     }
-    
-    private static final Map<Labeled, Word> CONTROLS = new HashMap<>();
-    private static final Set<Custom> CUSTOMS = new HashSet<>();
     
     /**
      * Automatically sets the value of the labeled Control, this is useful, if
@@ -238,15 +234,19 @@ public abstract class Language {
     }
     
     public static void changeLanguage(Language language) {
-        currentLanguage = language == null ? currentLanguage : language;
-        Locale.setDefault(currentLanguage.getLocale());
-        Props.set(LANGUAGE_PROPERTY_KEY, currentLanguage.getLanguageTag());
-        refreshAllControls();
-        refreshAllCustoms();
+        currentLanguage.set(language == null ? currentLanguage.get() : language);
+    }
+    
+    public static void addLanguageChangeListener(Consumer<Language> languageListener) {
+        currentLanguage.addListener((observable, oldValue, newValue) -> languageListener.accept(newValue));
     }
     
     public static Language getLanguage() {
-        return currentLanguage;
+        return currentLanguage.get();
+    }
+    
+    public static ReadOnlyObjectProperty<Language> languageProperty() {
+        return currentLanguage.getReadOnlyProperty();
     }
     
     private static void refreshAllCustoms() {
@@ -261,7 +261,7 @@ public abstract class Language {
         Word word = custom.word;
         StringModifier modifier = custom.modifier;
         ValueSetter setter = custom.setter;
-        String translated = word == null ? "" : currentLanguage.words.getOrDefault(word, word.name());
+        String translated = word == null ? "" : currentLanguage.get().words.getOrDefault(word, word.name());
         translated = modifier != null ? modifier.modifyString(translated) : translated;
         if (setter != null) {
             setter.setValue(translated);
@@ -269,10 +269,31 @@ public abstract class Language {
     }
     
     private static void refreshControl(Labeled labeledControl, Word word) {
-        String value = word == null ? "" : currentLanguage.words.getOrDefault(word, word.name());
+        String value = word == null ? "" : currentLanguage.get().words.getOrDefault(word, word.name());
         if (labeledControl != null) {
             labeledControl.setText(value);
         }
+    }
+    
+    //Part to be inherited by Language classes----------------------------------
+    private final Map<Word, String> words = new HashMap<>();
+    private final Locale locale;
+    
+    protected Language(Locale locale) {
+        this.locale = locale;
+        LANGUAGES.put(locale, this);
+    }
+    
+    protected final void add(Word word, String translation) {
+        words.put(word, translation);
+    }
+    
+    private String getLanguageTag() {
+        return locale.toLanguageTag();
+    }
+    
+    public Locale getLocale() {
+        return locale;
     }
     
     @FunctionalInterface

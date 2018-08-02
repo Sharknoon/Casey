@@ -95,7 +95,7 @@ public class WelcomeSite extends Site<Welcome> {
         vBoxProjectButtons.setMinHeight(600);
 
         Button buttonCreateNewProject = SiteUtils.createButton(Word.WELCOME_SITE_CREATE_NEW_PROJECT_BUTTON_TEXT, Icon.PLUS, (t) -> {
-            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG);
+            Optional<String> name = Dialogs.showTextInputDialog(Dialogs.TextInputs.NEW_PROJECT_DIALOG, null, null, "([A-Za-z_])+");
             name.ifPresent(this::createProject);
         });
 

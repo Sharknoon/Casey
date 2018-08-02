@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="CaseyCOMPILER" />
         <module name="CaseyIDE" />
+        <module name="CaseyUPDATER" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

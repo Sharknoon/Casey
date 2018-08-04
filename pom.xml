@@ -5,7 +5,7 @@
 
     <groupId>de.sharknoon</groupId>
     <artifactId>Casey</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <packaging>pom</packaging>
 
@@ -27,7 +27,7 @@
     </modules>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
+        <finalName>${project.name}</finalName>
         <plugins>
             <!-- For building jars -->
             <plugin>
@@ -51,18 +51,56 @@
                 <version>1.6.0</version>
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
-                    <arguments>
-                    </arguments>
+                    <arguments/>
                 </configuration>
+            </plugin>
+            <!-- For setting the project version number in a properties file to keep it all iin this pom file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+
+                                </filter>
+                            </filters>
+                            <outputDirectory>${basedir}/CaseyIDE/src/main/resources/sharknoon/casey/ide
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/CaseyCOMPILER/target/</directory>
+                                    <filtering>true</filtering>
+                                    <includes>CaseyCOMPILER.jar</includes>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/CaseyUPDATER/target/</directory>
+                                    <filtering>true</filtering>
+                                    <includes>CaseyUPDATER.jar</includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/*.jar</exclude>
-                </excludes>
             </resource>
         </resources>
     </build>

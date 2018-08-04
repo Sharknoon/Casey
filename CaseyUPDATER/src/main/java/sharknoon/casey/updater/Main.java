@@ -25,8 +25,11 @@ import sharknoon.casey.updater.cli.CLIArgs;
 import sharknoon.casey.updater.cli.CLIParser;
 import sharknoon.casey.updater.ui.ProgressStage;
 
+import javax.swing.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -42,12 +45,28 @@ public class Main {
     private static final Updater UPDATER = ConfigFactory.create(Updater.class);
     private static String newestVersion = null;
     
+    private static final DoubleProperty PROGRESS_PROPERTY = new SimpleDoubleProperty();
+    private static final StringProperty DESCRIPTION_PROPERTY = new SimpleStringProperty();
+    
     public static void main(String[] args) {
-        int status = go(args);
-        System.exit(status);
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> showErrorDialog(e));
+        try {
+            System.exit(go(args));
+        } catch (Exception e) {
+            showErrorDialog(e);
+        }
+        System.exit(-1);
     }
     
-    public static int go(String[] args) {
+    private static void showErrorDialog(Throwable error) {
+        var sw = new StringWriter();
+        error.printStackTrace(new PrintWriter(sw));
+        var exceptionText = sw.toString();
+        
+        JOptionPane.showMessageDialog(null, "Could not update Casey" + "\n" + exceptionText, "Error during updating", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    public static int go(String[] args) throws Exception {
         System.out.print("Parsing Command Line...");
         Optional<CLIArgs> cliArgs = CLIParser.parseCommandLine(args);
         if (!cliArgs.isPresent()) {
@@ -69,13 +88,11 @@ public class Main {
         return 2;
     }
     
-    public static boolean installNewerVersion(String caseyJar) {
-        DoubleProperty progressProperty = new SimpleDoubleProperty();
-        StringProperty descriptionProperty = new SimpleStringProperty();
-        ProgressStage.show(progressProperty, descriptionProperty);
+    public static boolean installNewerVersion(String caseyJar) throws Exception {
+        ProgressStage.show(PROGRESS_PROPERTY, DESCRIPTION_PROPERTY, () -> System.exit(-1));
         try {
             Path caseyJarPath = Paths.get(caseyJar);
-            boolean success = downloadNewestVersion(caseyJarPath, progressProperty, descriptionProperty);
+            boolean success = downloadNewestVersion(caseyJarPath);
             if (!success) {
                 System.err.println("Could not download newest Casey .jar");
                 return false;
@@ -86,61 +103,62 @@ public class Main {
             pb.start();
             return true;
         } catch (Exception e) {
-            System.err.println("Could not install newest Casey .jar: " + e);
+            throw new Exception("Could not install newest Casey .jar", e);
         }
-        return false;
     }
     
-    public static boolean downloadNewestVersion(Path jarToReplace, DoubleProperty progressProperty, StringProperty descriptionProperty) {
+    public static boolean downloadNewestVersion(Path jarToReplace) throws Exception {
         try {
-            descriptionProperty.set("Getting update-URL from .properties file");
+            DESCRIPTION_PROPERTY.set("Getting update-URL from .properties file");
             String updateurltag = UPDATER.updateurltag();
-            updateurltag = updateurltag.replace("[TAG]", getNewestVersion(descriptionProperty).orElse("0.1"));
+            updateurltag = updateurltag.replace("[TAG]", getNewestVersion(DESCRIPTION_PROPERTY).orElse("0.1"));
             URL updateurltagUrl = new URL(updateurltag);
-            descriptionProperty.set("Deleting old Casey .jar");
+            DESCRIPTION_PROPERTY.set("Deleting old Casey .jar");
             Files.deleteIfExists(jarToReplace);
-            descriptionProperty.set("Opening Channels to the URL");
+            DESCRIPTION_PROPERTY.set("Opening Channels to the URL (" + updateurltag + ")");
             ReadableByteChannel rbc = Channels.newChannel(updateurltagUrl.openStream());
-            ProgressTrackableReadableByteChannel ptrbc = new ProgressTrackableReadableByteChannel(rbc, contentLength(updateurltagUrl, descriptionProperty), progressProperty);
+            ProgressTrackableReadableByteChannel ptrbc = new ProgressTrackableReadableByteChannel(rbc, contentLength(updateurltagUrl), PROGRESS_PROPERTY);
             FileOutputStream fos = new FileOutputStream(jarToReplace.toFile());
-            descriptionProperty.set("Downloading update file...");
+            DESCRIPTION_PROPERTY.set("Downloading update file (" + updateurltagUrl.getFile().substring(updateurltagUrl.getFile().lastIndexOf("/") + 1) + ")");
             fos.getChannel().transferFrom(ptrbc, 0, Long.MAX_VALUE);
             return true;
         } catch (Exception e) {
-            System.err.println("Could not download newest Casey.jar: " + e);
+            throw new Exception("Could not download newest Casey.jar", e);
         }
-        return false;
     }
     
-    private static long contentLength(URL url, StringProperty descriptionProperty) {
+    private static long contentLength(URL url) throws Exception {
         try {
-            descriptionProperty.set("Getting size of the update file");
+            DESCRIPTION_PROPERTY.set("Getting size of the update file");
             return url.openConnection().getContentLengthLong();
         } catch (Exception e) {
-            System.err.println("Couldn't get the size of the Casey.jar File: " + e);
+            throw new Exception("Couldn't get the size of the Casey.jar File", e);
         }
-        return -1;
     }
     
-    public static boolean checkForNewerVersion(String currentVersionString) {
-        if (currentVersionString == null || currentVersionString.isEmpty()) {
-            System.err.println("Wrong current version string: " + currentVersionString);
-            return false;
+    public static boolean checkForNewerVersion(String currentVersionString) throws Exception {
+        try {
+            if (currentVersionString == null || currentVersionString.isEmpty()) {
+                System.err.println("Wrong current version string: " + currentVersionString);
+                return false;
+            }
+            Optional<String> newestVersionOptional = getNewestVersion(new SimpleStringProperty());
+            if (!newestVersionOptional.isPresent()) {
+                System.err.println("Could not get newest version number");
+                return false;
+            }
+            String newestVersionString = newestVersionOptional.get();
+            
+            DefaultArtifactVersion currentVersion = new DefaultArtifactVersion(currentVersionString);
+            DefaultArtifactVersion newestVersion = new DefaultArtifactVersion(newestVersionString);
+            
+            return newestVersion.compareTo(currentVersion) > 0;
+        } catch (Exception e) {
+            throw new Exception("Could not check for newer version", e);
         }
-        Optional<String> newestVersionOptional = getNewestVersion(new SimpleStringProperty());
-        if (!newestVersionOptional.isPresent()) {
-            System.err.println("Could not get newest version number");
-            return false;
-        }
-        String newestVersionString = newestVersionOptional.get();
-        
-        DefaultArtifactVersion currentVersion = new DefaultArtifactVersion(currentVersionString);
-        DefaultArtifactVersion newestVersion = new DefaultArtifactVersion(newestVersionString);
-        
-        return newestVersion.compareTo(currentVersion) > 0;
     }
     
-    public static Optional<String> getNewestVersion(StringProperty descriptionProperty) {
+    public static Optional<String> getNewestVersion(StringProperty descriptionProperty) throws Exception {
         if (newestVersion != null) {
             return Optional.of(newestVersion);
         }
@@ -153,10 +171,9 @@ public class Main {
             String location = con.getHeaderField("Location");
             newestVersion = location.substring(location.lastIndexOf("/") + 1);
             return Optional.of(newestVersion);
-        } catch (IOException e) {
-            System.err.println("Could not retrieve newest version number: " + e);
+        } catch (Exception e) {
+            throw new Exception("Could not retrieve newest version number", e);
         }
-        return Optional.empty();
     }
     
     private static final class ProgressTrackableReadableByteChannel implements ReadableByteChannel {

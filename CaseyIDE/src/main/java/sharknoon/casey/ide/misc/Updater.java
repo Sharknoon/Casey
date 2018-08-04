@@ -14,20 +14,24 @@ package sharknoon.casey.ide.misc;/*
  * limitations under the License.
  */
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Stage;
 import org.aeonbits.owner.ConfigFactory;
 import sharknoon.casey.ide.ui.MainApplication;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
+import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.styles.Styles;
+import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
 import sharknoon.casey.ide.utils.settings.Logger;
 import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Updater {
     
@@ -36,7 +40,7 @@ public class Updater {
     
     public static void init() {
         ScheduledExecutorService updateCheckingSchedulerService = Executors.newScheduledThreadPool(1);
-        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdates, 0, 5, TimeUnit.MINUTES);
+        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdates, 2, 60, TimeUnit.MINUTES);
         MainApplication.registerExitable(() -> {
             if (!updateCheckingSchedulerService.isShutdown()) {
                 updateCheckingSchedulerService.shutdown();
@@ -54,18 +58,75 @@ public class Updater {
             Logger.error("Updater not found");
             return;
         }
-        CompletableFuture<Integer> integerCompletableFuture = Executor.runJar(updater.get().toAbsolutePath(), "-c", "-v", getCurrentVersion().orElse("0.1"));//TODO
+        CompletableFuture<Integer> integerCompletableFuture = Executor.runJar(
+                updater.get().toAbsolutePath(),
+                "-c",
+                getCurrentVersion().orElse("0.1")
+        );
         integerCompletableFuture.thenAccept(result -> {
-            boolean newUpdateAvailable = result == 100;
-            showUpdateDialog(newUpdateAvailable);
             isCheckingForUpdates = false;
-        });
+            boolean newUpdateAvailable = result == 100;
+            Logger.info("Update available: " + newUpdateAvailable);
+            if (!newUpdateAvailable) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE));
+                    alert.setHeaderText(null);
+                    alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
+                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                    stage.getIcons().add(Icons.getImage(Icon.UPDATE).orElse(null));
+                    Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
+                    alert.show();
+                });
+                return;
+            }
+            boolean userWantsUpdate = showUpdateDialog();
+            if (!userWantsUpdate) {
+                return;
+            }
+            update();
+        }).orTimeout(10, TimeUnit.SECONDS).thenRun(() -> isCheckingForUpdates = false);
         
     }
     
-    public static boolean showUpdateDialog(boolean newUpdateAvailable) {
-        System.out.println("Update Available: " + newUpdateAvailable);
-        return Dialogs.showConfirmationDialog(Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, Word.FUNCTION_SITE_FUNCTION_RETURNTYPE, Icon.ERROR, null).orElse(false);
+    public static boolean showUpdateDialog() {
+        try {
+            FutureTask<Boolean> checkIfUserWantsUpdate = new FutureTask<>(() -> Dialogs.showConfirmationDialog(
+                    Word.NEW_UPDATE_AVAILABLE_DIALOG_TITLE,
+                    Word.NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT,
+                    Word.NEW_UPDATE_AVAILABLE_DIALOG_CONTENT_TEXT,
+                    Icon.UPDATE,
+                    null)
+                    .orElse(false));
+            Platform.runLater(checkIfUserWantsUpdate);
+            return checkIfUserWantsUpdate.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    private static void update() {
+        try {
+            Optional<Path> updater = Resources.getFile("sharknoon/casey/ide/CaseyUPDATER.jar", true);
+            if (!updater.isPresent()) {
+                Logger.error("Updater not found");
+                return;
+            }
+            Path path = new java.io.File(Updater.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath())
+                    .toPath();
+            Executor.runJar(
+                    updater.get().toAbsolutePath(),
+                    "-u",
+                    path.toAbsolutePath().toString()
+            );
+            MainApplication.stopApp("Updating...", false);
+        } catch (Exception e) {
+            Logger.error("Could not update Casey", e);
+        }
     }
     
     public static Optional<String> getCurrentVersion() {

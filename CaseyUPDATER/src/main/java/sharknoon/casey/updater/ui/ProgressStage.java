@@ -33,11 +33,13 @@ public class ProgressStage extends Application {
     
     private static DoubleExpression progress;
     private static StringExpression description;
+    private static Runnable onClose;
     
-    public static void show(DoubleExpression progress, StringExpression description) {
+    public static void show(DoubleExpression progress, StringExpression description, Runnable onClose) {
         CompletableFuture.runAsync(() -> {
             ProgressStage.progress = progress;
             ProgressStage.description = description;
+            ProgressStage.onClose = onClose;
             launch();
         });
     }
@@ -68,6 +70,11 @@ public class ProgressStage extends Application {
         stackPaneRoot.getChildren().add(vBoxContent);
         Scene scene = new Scene(stackPaneRoot);
         primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(event -> {
+            if (onClose != null) {
+                onClose.run();
+            }
+        });
         primaryStage.show();
     }
 }

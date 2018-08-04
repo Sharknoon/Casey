@@ -230,6 +230,13 @@ public class English extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_TITLE, "New Object");
         add(Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT, "Please select a type");
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Type");
+        ///Update available
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_TITLE, "Update available");
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT, "A brand new update is finally available \uD83D\uDE03");
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_CONTENT_TEXT, "Please install this new update to correct errors and enjoy the latest features");
+        ///No Update available
+        add(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE, "No Update available");
+        add(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT, "You are rocking the newest version of casey \uD83D\uDE03");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "New values");
         add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "New primitive values");

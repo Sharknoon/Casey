@@ -15,6 +15,8 @@
  */
 package sharknoon.casey.ide.utils.settings;
 
+import sharknoon.casey.ide.ui.MainApplication;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +32,7 @@ import java.util.stream.Stream;
  * @author Josua Frank frank.josua@gmail.com
  */
 public class Resources {
-
+    
     //used to store e.g. IDE settings
     private static final Path PRIVATE_PATH;
     //used to store e.g. Projects of users
@@ -41,9 +43,11 @@ public class Resources {
     private static final String PUBLIC_DIR_NAME = "Casey";
     private static final Map<String, Path> CACHE;
     private static final Map<String, Optional<Path>> SEARCH_CACHE = new HashMap<>();
-
+    private static List<String> KEEP_AFTER_UPDATE;
+    
     static {
         CACHE = new HashMap<>();
+        KEEP_AFTER_UPDATE = List.of("sharknoon\\casey\\ide\\utils\\settings\\casey.db");
         Path privPath = null;
         Path pubPath = null;
         String privateDir = System.getProperty(PRIVATE_DIR);
@@ -66,12 +70,16 @@ public class Resources {
         }
         PRIVATE_PATH = privPath;
         PUBLIC_PATH = pubPath;
-        if (isFirstStart()) {
+        if (MainApplication.wasUpdated()) {
+            updatePrivateDir();
+            updatePublicDir();
+        }
+        if (isFirstStart() || MainApplication.wasUpdated()) {
             initPrivateDir();
             initPublicDir();
         }
     }
-
+    
     /**
      * Returns a Path to the requested File. The Files are contained in the
      * ressources folder in the .jar/.war or the plain File System .<br>
@@ -98,7 +106,7 @@ public class Resources {
         }
         return Optional.empty();
     }
-
+    
     public static Optional<InputStream> getFileAsStream(String fileName, boolean privateFile) {
         return getFile(fileName, privateFile)
                 .map(file -> {
@@ -110,7 +118,7 @@ public class Resources {
                     }
                 });
     }
-
+    
     public static Optional<Path> getDirectory(String directoryName, boolean privateDirectory) {
         Optional<Path> dir = lookup(directoryName, privateDirectory);
         if (dir.isPresent()) {
@@ -127,7 +135,7 @@ public class Resources {
         }
         return Optional.empty();
     }
-
+    
     /**
      * Creates a new File in the ressources Folder under the '/' divided
      * Directory, if it isnt already there, if it is, it does nothing
@@ -152,7 +160,7 @@ public class Resources {
         }
         return false;
     }
-
+    
     public static boolean createDirectory(String path, boolean privateDirectory) {
         Optional<Path> dirSearch = lookup(path, privateDirectory);
         if (!dirSearch.isPresent()) {
@@ -166,7 +174,7 @@ public class Resources {
         }
         return false;
     }
-
+    
     /**
      * Returns the requested File and creates it, if it doesnt exist
      *
@@ -183,7 +191,7 @@ public class Resources {
         }
         return null;
     }
-
+    
     public static InputStream createAndGetFileAsStream(String path, boolean privateField) {
         Path path2 = createAndGetFile(path, privateField);
         if (path2 == null) {
@@ -196,7 +204,7 @@ public class Resources {
         }
         return null;
     }
-
+    
     /**
      * Deletes a File
      *
@@ -216,7 +224,7 @@ public class Resources {
         }
         return false;
     }
-
+    
     public static boolean deleteDirectory(String path, boolean privateDirectory) {
         Optional<Path> dir = lookup(path, privateDirectory);
         if (dir.isPresent()) {
@@ -237,7 +245,7 @@ public class Resources {
         }
         return false;
     }
-
+    
     /**
      * Returns a list of all Files in the specific Directory
      *
@@ -260,7 +268,7 @@ public class Resources {
         }
         return new ArrayList<>();
     }
-
+    
     /**
      * @param pathString the full path to the file/folder e.g. db/alioth.db
      * @return
@@ -301,13 +309,13 @@ public class Resources {
         }
         return Optional.empty();
     }
-
+    
     private static Path createPath(String fileName, boolean privateFile) {
         Path res = privateFile ? PRIVATE_PATH : PUBLIC_PATH;
         fileName = clean(fileName);
         return res.resolve(Paths.get(fileName));
     }
-
+    
     private static String clean(String fileOrDirectory) {
         fileOrDirectory = fileOrDirectory.replace("\\", "/");
         while (fileOrDirectory.startsWith("/")) {
@@ -315,7 +323,7 @@ public class Resources {
         }
         return fileOrDirectory;
     }
-
+    
     private static boolean isFirstStart() {
         try {
             if (Files.list(PRIVATE_PATH).findAny().isPresent()) {
@@ -326,7 +334,7 @@ public class Resources {
         }
         return true;
     }
-
+    
     /**
      * Use this method with caution, it will reset all the ressources like the
      * database or other files. The program is after this method call in the
@@ -342,7 +350,7 @@ public class Resources {
             initPrivateDir();
         }
     }
-
+    
     private static void deleteRessourcesDir(boolean privateRes) {
         Path toDelete = privateRes ? PRIVATE_PATH : PUBLIC_PATH;
         try {
@@ -360,7 +368,12 @@ public class Resources {
             Logger.error("Could not delete Ressources directory", ex);
         }
     }
-
+    
+    public static boolean isInJar() {
+        URL classesPath = Resources.class.getProtectionDomain().getCodeSource().getLocation();
+        return classesPath.getPath().endsWith("jar");
+    }
+    
     /**
      * copying is only allowed to the private dir
      */
@@ -368,7 +381,7 @@ public class Resources {
         try {
             URL classesPath = Resources.class.getProtectionDomain().getCodeSource().getLocation();
             final String rootPackage = Resources.class.getPackage().getName().substring(0, Resources.class.getName().indexOf("."));
-            if (classesPath.getPath().endsWith("jar")) {//Compiled in a jar
+            if (isInJar()) {//Compiled in a jar
                 JarFile jar = new JarFile(new File(classesPath.toURI()));
                 jar.stream()
                         .filter(entry -> !entry.getName().endsWith("class"))
@@ -418,7 +431,35 @@ public class Resources {
             Logger.error("Could not iconToNodeProperty the executing jar", ex);
         }
     }
-
+    
+    
+    private static void updatePrivateDir() {
+        Path toDelete = PRIVATE_PATH;
+        try {
+            Files.walk(toDelete)
+                    .sorted(Comparator.reverseOrder())
+                    .filter(file -> !file.equals(toDelete))
+                    .filter(file -> {
+                        file = PRIVATE_PATH.relativize(file);
+                        for (String toKeep : KEEP_AFTER_UPDATE) {
+                            if (toKeep.contains(file.toString())) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
+                    .forEachOrdered(file -> {
+                        try {
+                            Files.deleteIfExists(file);
+                        } catch (IOException ex) {
+                            Logger.error("Could not delete file while resetting ressources", ex);
+                        }
+                    });
+        } catch (IOException ex) {
+            Logger.error("Could not delete Ressources directory", ex);
+        }
+    }
+    
     /**
      * copies ressources from the private dir to the public dir
      *
@@ -444,13 +485,17 @@ public class Resources {
             }
         }
     }
-
+    
     public static void initPublicDir() {
         createDirectory("/Projects", false);
         createDirectory("/Backgroundimages", false);
         copyDirectory("sharknoon/casey/ide/ui/backgroundimages", "Backgroundimages");
     }
-
+    
+    private static void updatePublicDir() {
+        //No op atm
+    }
+    
     public static String getPackageNameOfCaller() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement elem : stack) {
@@ -463,15 +508,15 @@ public class Resources {
         }
         return stack.length > 0 ? stack[0].getClass().getPackage().getName() : "";
     }
-
+    
     public static Optional<Path> search(String fileName, boolean privateRes) {
         return search(fileName, privateRes, false, false);
     }
-
+    
     public static Optional<Path> search(String fileName, boolean privateRes, boolean ignoreCase) {
         return search(fileName, privateRes, ignoreCase, false);
     }
-
+    
     public static Optional<Path> search(String fileName, boolean privateRes, boolean ignoreCase, boolean ignoreFileextension) {
         final String name;
         if (ignoreFileextension && fileName.contains(".")) {
@@ -506,5 +551,5 @@ public class Resources {
         SEARCH_CACHE.put(name, Optional.empty());
         return Optional.empty();
     }
-
+    
 }

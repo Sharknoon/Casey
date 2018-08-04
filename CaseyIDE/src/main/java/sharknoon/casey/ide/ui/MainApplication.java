@@ -41,6 +41,7 @@ public class MainApplication extends Application {
     //Initlialisables and Exitables
     private static final List<Initializable> INITIALIZABLES = new ArrayList<>();
     private static final List<Exitable> EXITABLES = new ArrayList<>();
+    private static boolean wasUpdated = false;
     
     public static void registerInitializable(Initializable initializable) {
         INITIALIZABLES.add(initializable);
@@ -58,13 +59,15 @@ public class MainApplication extends Application {
         launch(args);
     }
     
-    public static void stopApp(String error) {
-        showError(Thread.currentThread(), new Exception(error));
-        if (Platform.isFxApplicationThread()) {
-            Platform.exit();
-        } else {
-            System.exit(1);
+    public static void stopApp(String message) {
+        stopApp(message, true);
+    }
+    
+    public static void stopApp(String message, boolean wasError) {
+        if (wasError) {
+            showError(Thread.currentThread(), new Exception(message));
         }
+        Platform.exit();
     }
     
     //Error handling
@@ -74,11 +77,19 @@ public class MainApplication extends Application {
         ExceptionDialog.show("An unexpected error occurred in " + t, e);
     }
     
+    public static boolean wasUpdated() {
+        return wasUpdated;
+    }
+    
     private Scene scene;
     
     @Override
     public void init() throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(MainApplication::showError);
+    
+        if (getParameters().getUnnamed().contains("-u")) {
+            wasUpdated = true;
+        }
         
         var loader = new FXMLLoader();
         var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/casey/ide/ui/MainFXML.fxml", true);

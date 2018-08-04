@@ -20,16 +20,15 @@ import sharknoon.casey.ide.ui.MainApplication;
 import sharknoon.casey.ide.utils.settings.Logger;
 
 /**
- *
  * @author Josua Frank
  */
 public class Main {
-
+    
     public static void main(String[] args) {
         System.setProperty("javafx.animation.framerate", "144");
         //System.setProperty("javafx.preloader", SplashScreen.class.getLanguageDependentName());
         Logger.setLogLevel(Logger.LogLevel.DEBUG);
         //Resources.resetResources(true);
-        Application.launch(MainApplication.class);
+        Application.launch(MainApplication.class, args);
     }
 }

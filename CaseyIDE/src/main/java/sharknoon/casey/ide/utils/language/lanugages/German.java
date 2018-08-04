@@ -230,6 +230,13 @@ public class German extends Language {
         add(Word.NEW_OBJECT_VALUE_DIALOG_TITLE, "Neues Objekt");
         add(Word.NEW_OBJECT_VALUE_DIALOG_HEADER_TEXT, "Bitte Typ auswählen");
         add(Word.NEW_OBJECT_VALUE_DIALOG_CONTENT_TEXT, "Typ");
+        ///Update available
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_TITLE, "Update verfügbar");
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT, "Es ist endlich ein neues Update verfügbar \uD83D\uDE03");
+        add(Word.NEW_UPDATE_AVAILABLE_DIALOG_CONTENT_TEXT, "Bitte installieren Sie neue Updates, um Fehler zu beheben und neue Funktionen zu genießen.");
+        ///No Update available
+        add(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE, "Kein neues Update verfügbar");
+        add(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT, "Herzlichen Glückwunsch, Sie besitzen bereits die aktuellste Version von Casey \uD83D\uDE03");
         //ValueSelectionPopup
         add(Word.VALUE_SELECTION_POPUP_NEW_VALUES, "Neue Werte");
         add(Word.VALUE_SELECTION_POPUP_NEW_PRIMITIVE_VALUES, "Neue Primitivwerte");

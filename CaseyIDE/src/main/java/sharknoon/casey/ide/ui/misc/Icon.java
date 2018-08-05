@@ -99,7 +99,7 @@ public enum Icon {
     FUNCTIONBOOLEAN,
     FUNCTIONCLASS,
     FUNCTIONTEXT,
-    FUNCTIONNUMBER, FUNCTIONVOID, RELOAD, UPDATE;
+    FUNCTIONNUMBER, FUNCTIONVOID, RELOAD, UPDATE, INFO, CASEY;
     
     public static Icon forName(String name) {
         return Enum.valueOf(Icon.class, name.toUpperCase());

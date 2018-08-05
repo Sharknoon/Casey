@@ -40,7 +40,7 @@ public class Updater {
     
     public static void init() {
         ScheduledExecutorService updateCheckingSchedulerService = Executors.newScheduledThreadPool(1);
-        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdates, 2, 60, TimeUnit.MINUTES);
+        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdatesSilently, 2, 60, TimeUnit.MINUTES);
         MainApplication.registerExitable(() -> {
             if (!updateCheckingSchedulerService.isShutdown()) {
                 updateCheckingSchedulerService.shutdown();
@@ -49,6 +49,14 @@ public class Updater {
     }
     
     public static void checkForUpdates() {
+        checkForUpdates(false);
+    }
+    
+    public static void checkForUpdatesSilently() {
+        checkForUpdates(true);
+    }
+    
+    private static void checkForUpdates(boolean silent) {
         if (isCheckingForUpdates) {
             return;
         }
@@ -68,16 +76,18 @@ public class Updater {
             boolean newUpdateAvailable = result == 100;
             Logger.info("Update available: " + newUpdateAvailable);
             if (!newUpdateAvailable) {
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE));
-                    alert.setHeaderText(null);
-                    alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
-                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-                    stage.getIcons().add(Icons.getImage(Icon.UPDATE).orElse(null));
-                    Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
-                    alert.show();
-                });
+                if (!silent) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE));
+                        alert.setHeaderText(null);
+                        alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
+                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        stage.getIcons().add(Icons.getImage(Icon.UPDATE).orElse(null));
+                        Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
+                        alert.show();
+                    });
+                }
                 return;
             }
             boolean userWantsUpdate = showUpdateDialog();

@@ -25,6 +25,7 @@ import javafx.scene.text.Text;
 import sharknoon.casey.ide.logic.items.Project;
 import sharknoon.casey.ide.logic.items.Welcome;
 import sharknoon.casey.ide.misc.Updater;
+import sharknoon.casey.ide.ui.about.About;
 import sharknoon.casey.ide.ui.background.Background;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
@@ -61,7 +62,8 @@ public class MenuBarInit {
                 initOptionsLanguageMenu(),
                 initOptionsBackgroundMenu(),
                 initOptionsStylesMenu(),
-                initOptionsUpdateMenu()
+                initOptionsUpdateMenu(),
+                initOptionsAboutMenu()
         );
         
         menubar.getMenus().add(menuOptions);
@@ -199,6 +201,16 @@ public class MenuBarInit {
         menuItemUpdate.setOnAction(e -> Updater.checkForUpdates());
         
         return menuItemUpdate;
+    }
+    
+    private static MenuItem initOptionsAboutMenu() {
+        MenuItem menuItemAbout = new MenuItem();
+        Language.setCustom(Word.MENUBAR_OPTIONS_ABOUT_TEXT, menuItemAbout::setText);
+        Icons.setCustom(Icon.INFO, menuItemAbout::setGraphic);
+        
+        menuItemAbout.setOnAction(e -> About.show());
+        
+        return menuItemAbout;
     }
     
     private static void initProjectMenu() {

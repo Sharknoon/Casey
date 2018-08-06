@@ -16,10 +16,10 @@
 package sharknoon.casey.ide.utils.settings;
 
 import javafx.scene.input.KeyEvent;
+import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.logic.blocks.Block;
 import sharknoon.casey.ide.logic.blocks.BlockType;
 import sharknoon.casey.ide.logic.items.ItemType;
-import sharknoon.casey.ide.ui.MainApplication;
 import sharknoon.casey.ide.ui.frames.Frame;
 import sharknoon.casey.ide.ui.frames.Frames;
 import sharknoon.casey.ide.ui.lines.Line;

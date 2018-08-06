@@ -15,7 +15,7 @@
  */
 package sharknoon.casey.ide.utils.settings;
 
-import sharknoon.casey.ide.ui.MainApplication;
+import sharknoon.casey.ide.MainApplication;
 
 import java.io.File;
 import java.io.IOException;

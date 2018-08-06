@@ -9,7 +9,7 @@ import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
 import org.dizitart.no2.objects.ObjectFilter;
 import org.dizitart.no2.objects.ObjectRepository;
-import sharknoon.casey.ide.ui.MainApplication;
+import sharknoon.casey.ide.MainApplication;
 
 import java.util.Collections;
 import java.util.List;

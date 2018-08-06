@@ -19,7 +19,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import org.aeonbits.owner.ConfigFactory;
-import sharknoon.casey.ide.ui.MainApplication;
+import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;

@@ -18,7 +18,7 @@ package sharknoon.casey.ide.misc;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.aac.SampleBuffer;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
-import sharknoon.casey.ide.ui.MainApplication;
+import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.utils.settings.Logger;
 
 import javax.sound.sampled.*;

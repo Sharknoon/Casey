@@ -45,6 +45,7 @@ public class Logger {
     };
     private static int maxLengthOfClassName = 0;
     private static int maxLengthOfErrorLevel = 0;
+    private static int maxLengthOfThreadName = 0;
     
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
@@ -247,10 +248,12 @@ public class Logger {
         message = "";
         String header = getHeader(level);
         String headerBlanks = linesToPrint.length > 1 ? getBlanks(header.length()) : "";
+        StringBuilder messageBuilder = new StringBuilder(message);
         for (int i = 0; i < linesToPrint.length; i++) {
             linesToPrint[i] = linesToPrint[i].length() > 500 ? linesToPrint[i].substring(0, 499) + "... line is too long to be logged" : linesToPrint[i];
-            message += (i == 0 ? header : headerBlanks) + linesToPrint[i] + (i + 1 < linesToPrint.length ? System.lineSeparator() : "");
+            messageBuilder.append(i == 0 ? header : headerBlanks).append(linesToPrint[i]).append(i + 1 < linesToPrint.length ? System.lineSeparator() : "");
         }
+        message = messageBuilder.toString();
         logMessageConsumer.accept(LogMessage.of(level, message));
     }
     
@@ -263,35 +266,30 @@ public class Logger {
         Logger.logMessageConsumer = logMessageConsumer;
     }
     
-    //Header: Date + Class#MethodName + Level
+    //Header: Date + Thread + Class#MethodName + Level
     private static String getHeader(LogLevel level) {
-        String result = getDateString() + " ";
-        String className = getClassName();
-        int currentLengthOfClassName = className.length();
-        maxLengthOfClassName = Math.max(currentLengthOfClassName, maxLengthOfClassName);
-        result += getBlanks((maxLengthOfClassName - currentLengthOfClassName) / 2);
-        result += "[" + className + "] ";
-        result += getBlanks((maxLengthOfClassName - currentLengthOfClassName) / 2);
-        result += (maxLengthOfClassName - currentLengthOfClassName) % 2 != 0 ? " " : "";
-        result += getLevelString(level) + " ";
-        return result;
+        return getDateString() +
+                " " +
+                getThreadName() +
+                " " +
+                getClassName() +
+                " " +
+                getLevelString(level) +
+                " ";
     }
     
     //Returns the Level as a formatted String
     private static String getLevelString(LogLevel level) {
         String errorLevel = level.name();
-        int currentLengthOfErrorLevel = errorLevel.length();
-        maxLengthOfErrorLevel = Math.max(currentLengthOfErrorLevel, maxLengthOfErrorLevel);
-        String result = getBlanks((maxLengthOfErrorLevel - currentLengthOfErrorLevel) / 2);
-        result += "[" + errorLevel + "]";
-        result += getBlanks((maxLengthOfErrorLevel - currentLengthOfErrorLevel) / 2);
-        result += (maxLengthOfErrorLevel - currentLengthOfErrorLevel) % 2 != 0 ? " " : "";
-        return result;
+        return center(errorLevel, Center.LOGLEVEL);
     }
     
     //Returns the Date as a formatted String
     private static String getDateString() {
-        return "[" + LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) + "]";
+        LocalDateTime now = LocalDateTime.now();
+        String millis = String.valueOf(now.getNano());
+        millis = millis.length() <= 6 ? "0" : millis.substring(0, millis.length() - 6);
+        return "[" + now.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) + "::" + millis + "]";
     }
     
     //Fast Method to iconToNodeProperty a amount of blanks as a String
@@ -306,13 +304,23 @@ public class Logger {
         return res;
     }
     
-    //Returns the classname + # + methodname of the caller of the log method
+    private static String getThreadName() {
+        String threadName = Thread.currentThread().getName();
+        return center(threadName, Center.THREAD);
+    }
+    
     private static String getClassName() {
+        String className = getClassNameFromStacktrace();
+        return center(className, Center.CLASSNAME);
+    }
+    
+    //Returns the classname + # + methodname of the caller of the log method
+    private static String getClassNameFromStacktrace() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement elem : stack) {
             try {
                 if (!Logger.class.isAssignableFrom(Class.forName(elem.getClassName()))) {
-                    return cleanClassName(elem.getClassName()) + " #" + elem.getMethodName() + ":" + elem.getLineNumber();
+                    return cleanClassName(elem.getClassName()) + " #" + elem.getMethodName() + " :" + elem.getLineNumber();
                 }
             } catch (ClassNotFoundException ex) {
             }
@@ -324,6 +332,23 @@ public class Logger {
     private static String cleanClassName(String className) {
         className = className.substring(className.lastIndexOf(".") + 1);
         return className;
+    }
+    
+    private static String center(String toCenter, Center type) {
+        int currentLength = toCenter.length();
+        type.maxLength = Math.max(currentLength, type.maxLength);
+        int maxLength = type.maxLength;
+        String result = getBlanks((maxLength - currentLength) / 2);
+        result += "[" + toCenter + "]";
+        result += getBlanks((maxLength - currentLength) / 2);
+        result += (maxLength - currentLength) % 2 != 0 ? " " : "";
+        return result;
+    }
+    
+    private enum Center {
+        THREAD, CLASSNAME, LOGLEVEL;
+        public int maxLength;
+        
     }
     
     /**

@@ -53,11 +53,11 @@ public class Block {
     }
     
     public static class BlockContent {
-        
-        //The statement of the block
+    
+        //The statement of the block (only for assignment, call, decision, end, output)
         public Statement statement;
-        
-        //The variable the statement is assigned to or the input is being stored into
+    
+        //The variable the statement is assigned to or the input is being stored into (only for assignment, input)
         public String variable;
         
         @Override

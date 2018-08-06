@@ -40,6 +40,7 @@ public class English extends Language {
         add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dark");
         add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Bright");
         add(Word.MENUBAR_OPTIONS_UPDATE_TEXT, "Check for Updates");
+        add(Word.MENUBAR_OPTIONS_ABOUT_TEXT, "About Casey");
         add(Word.MENUBAR_PROJECT_TEXT, "Project");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Close");
         //ToolBar

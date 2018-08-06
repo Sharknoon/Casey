@@ -40,6 +40,7 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_STYLE_DARK_TEXT, "Dunkel");
         add(Word.MENUBAR_OPTIONS_STYLE_LIGHT_TEXT, "Hell");
         add(Word.MENUBAR_OPTIONS_UPDATE_TEXT, "Auf Aktualisierungen überprüfen");
+        add(Word.MENUBAR_OPTIONS_ABOUT_TEXT, "Über Casey");
         add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar

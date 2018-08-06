@@ -3,9 +3,9 @@
         xmlns:dc="http://purl.org/dc/elements/1.1/"
         xmlns:cc="http://creativecommons.org/ns#"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.w3.org/2000/svg"
         xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
         xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-        xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 419 419"
         height="419"
         width="419"
@@ -14,8 +14,8 @@
         sodipodi:docname="logo.svg"
         inkscape:version="0.92.3 (2405546, 2018-03-11)"
         inkscape:export-filename="C:\Users\frank\IdeaProjects\Casey\CaseyIDE\src\main\resources\sharknoon\casey\ide\ui\icons\logo.png"
-        inkscape:export-xdpi="96"
-        inkscape:export-ydpi="96">
+        inkscape:export-xdpi="22.911694"
+        inkscape:export-ydpi="22.911694">
     <sodipodi:namedview
             pagecolor="#ffffff"
             bordercolor="#666666"
@@ -30,9 +30,9 @@
             id="namedview10"
             showgrid="false"
             inkscape:zoom="1.1710681"
-            inkscape:cx="216.62892"
+            inkscape:cx="157.28139"
             inkscape:cy="125.17866"
-            inkscape:window-x="1912"
+            inkscape:window-x="3832"
             inkscape:window-y="-8"
             inkscape:window-maximized="1"
             inkscape:current-layer="layer1"/>

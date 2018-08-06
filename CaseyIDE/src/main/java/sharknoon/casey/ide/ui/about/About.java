@@ -25,6 +25,7 @@ public class About {
         DialogPane dialogPane = alert.getDialogPane();
         GridPane gridPaneRoot = new GridPane();
         gridPaneRoot.setVgap(10);
+        gridPaneRoot.setMouseTransparent(true);
         Stage stage = (Stage) dialogPane.getScene().getWindow();
         stage.getIcons().add(Icons.getImage(Icon.LOGO).orElse(null));
         dialogPane.setPrefSize(250, 350);

@@ -11,8 +11,5 @@
         <module name="CaseyUPDATER" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="DualCOMPILER" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
 </project>

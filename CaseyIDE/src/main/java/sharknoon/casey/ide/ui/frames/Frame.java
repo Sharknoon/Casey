@@ -37,7 +37,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
@@ -65,7 +64,7 @@ public abstract class Frame<S extends Shape> implements Moveable, MouseConsumabl
     
     private static Shape createPredictionShadow(Shape original) {
         var shadow = Shape.union(original, original);
-        shadow.setFill(Color.rgb(0, 0, 0, 0));
+        shadow.setFill(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR.deriveColor(0, 0, 0, 0.5));
         shadow.setStroke(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_COLOR);
         shadow.setStrokeWidth(UISettings.BLOCK_PREDICTION_SHADOW_STROKE_WIDTH);
         shadow.setStrokeType(StrokeType.INSIDE);

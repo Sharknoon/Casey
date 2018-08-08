@@ -45,27 +45,29 @@ public abstract class Block {
     private final String id;
     //The type of this block
     private final BlockType type;
-    //The UI Component of this block
-    private final Frame<?> frame;
+    //The origin coordinates of this Frame
+    private final Point2D origin;
     //The connections to other blocks
     private final Map<Side, Map<Block, Side>> connections = new HashMap<>();
+    //The UI Component of this block
+    private Frame<?> frame;
     //The optional Statement of this block
     private ObjectProperty<Statement<?, ?, ?>> statement = new SimpleObjectProperty<>();
     //The optional ValueHoldable (variable or parameter) of this block
     private ObjectProperty<ValueHoldable<?>> variable = new SimpleObjectProperty<>();
     
-    
     Block(Function function, BlockType type) {
         this(function, type, UUID.randomUUID().toString(), new Point2D(-1, -1));
     }
+    
     
     Block(Function function, BlockType type, String id, Point2D origin) {
         this.function = function;
         this.id = id == null ? UUID.randomUUID().toString() : id;
         this.type = type;
-        this.frame = Frames.createFrame(this, origin);
+        this.origin = origin;
+//        this.frame = Frames.createFrame(this, origin);
     }
-    
     
     /**
      * Gets the sides of this blocktype, where there are output dots
@@ -99,7 +101,7 @@ public abstract class Block {
      * Destroyes this block completely
      */
     public void remove() {
-        frame.remove();
+        getFrame().remove();
         function.blocksProperty().remove(this);
     }
     
@@ -116,6 +118,9 @@ public abstract class Block {
     }
     
     public Frame<?> getFrame() {
+        if (frame == null) {
+            frame = Frames.createFrame(this, origin);
+        }
         return frame;
     }
     
@@ -133,7 +138,7 @@ public abstract class Block {
         }
         connections.get(originSide).put(destinationBlock, destinationSide);
         if (addToUI) {//In the case where the line comes from the serialisation and not from the ui
-            Line line = Lines.createLine(frame.getFunctionSite(), frame.getOutputDot(originSide).orElse(null));
+            Line line = Lines.createLine(getFrame().getFunctionSite(), getFrame().getOutputDot(originSide).orElse(null));
             line.setEndDot(destinationBlock.getFrame().getInputDot(destinationSide).orElse(null));
         }
     }

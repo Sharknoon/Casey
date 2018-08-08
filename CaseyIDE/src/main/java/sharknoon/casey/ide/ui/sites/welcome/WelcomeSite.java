@@ -136,45 +136,39 @@ public class WelcomeSite extends Site<Welcome> {
     private void refreshRecentProjects() {
         VBox vBoxLastProjects = new VBox(10);
         RecentProject.getAllProjects()
-                .thenAccept((rpc) -> {
-                    rpc
-                            .stream()
-                            .sorted((p1, p2) -> p2.getTime().compareTo(p1.getTime()))
-                            .forEach((lastProject) -> {
-                                VBox vBoxLastProject = new VBox(10);
-                                vBoxLastProject.setPadding(new Insets(5));
-
-                                Text textRecentProjectName = new Text();
-                                textRecentProjectName.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListTitle.name());
-                                textRecentProjectName.setText(lastProject.getName());
-
-                                Text textRecentProjectDate = new Text();
-                                textRecentProjectDate.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListDate.name());
-                                textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
-
-                                vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
-
-                                vBoxLastProject.setOnMouseClicked((event) -> {
-                                    String pathString = lastProject.getPath();
-                                    if (pathString.isEmpty()) {
-                                        RecentProject.removeProject(lastProject);
-                                        return;
-                                    }
-                                    Path pathToFile = Paths.get(lastProject.getPath());
-                                    if (Files.exists(pathToFile)) {
-                                        loadProject(pathToFile);
-                                    } else {
-                                        RecentProject.removeProject(lastProject);
-                                    }
-                                });
-
-                                vBoxLastProjects.getChildren().add(vBoxLastProject);
+                .thenAccept((rpc) -> rpc
+                        .stream()
+                        .sorted((p1, p2) -> p2.getTime().compareTo(p1.getTime()))
+                        .forEach((lastProject) -> {
+                            VBox vBoxLastProject = new VBox(10);
+                            vBoxLastProject.setPadding(new Insets(5));
+                    
+                            Text textRecentProjectName = new Text();
+                            textRecentProjectName.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListTitle.name());
+                            textRecentProjectName.setText(lastProject.getName());
+                    
+                            Text textRecentProjectDate = new Text();
+                            textRecentProjectDate.getStyleClass().add(StyleClasses.textWelcomeSiteProjectListDate.name());
+                            textRecentProjectDate.setText(lastProject.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+                    
+                            vBoxLastProject.getChildren().addAll(textRecentProjectName, textRecentProjectDate);
+                    
+                            vBoxLastProject.setOnMouseClicked((event) -> {
+                                String pathString = lastProject.getPath();
+                                if (pathString.isEmpty()) {
+                                    RecentProject.removeProject(lastProject);
+                                    return;
+                                }
+                                Path pathToFile = Paths.get(lastProject.getPath());
+                                if (Files.exists(pathToFile)) {
+                                    loadProject(pathToFile);
+                                } else {
+                                    RecentProject.removeProject(lastProject);
+                                }
                             });
-                }).thenRun(() -> {
-            Platform.runLater(() -> {
-                scrollPaneRecentProjects.setContent(vBoxLastProjects);
-            });
-        });
+                    
+                            vBoxLastProjects.getChildren().add(vBoxLastProject);
+                        })).thenRun(() -> Platform.runLater(() -> scrollPaneRecentProjects.setContent(vBoxLastProjects)));
     }
 
     private static void loadProject(Path path) {

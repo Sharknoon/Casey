@@ -106,6 +106,7 @@
                 <configuration>
                     <nonFilteredFileExtensions>
                         <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>svg</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
                 </configuration>
                 <executions>

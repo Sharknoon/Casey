@@ -49,9 +49,9 @@ public class UISettings {
     //The color of the stroke of the border
     public static final Color BLOCK_BORDER_STROKE_COLOR = Color.WHITE;
     //The grid snapping of the x axis of a block, typically the same as the y axis
-    public static final double BLOCK_GRID_SNAPPING_X = 100;
+    public static final double BLOCK_GRID_SNAPPING_X = 25;
     //The grid spapping of the y axis of a block
-    public static final double BLOCK_GRID_SNAPPING_Y = 100;
+    public static final double BLOCK_GRID_SNAPPING_Y = 25;
     //The duration of the selection shadow to appear
     public static final Duration BLOCK_SELECTION_SHADOW_DURATION = Duration.millis(50);
     //The radius of the selection shadow

@@ -118,7 +118,7 @@ public class FrameMoving implements MouseConsumable {
             lastGridX.put(frame, currentGridX);
             lastDragSwitch = currentDragSwitch;
         }
-        if (currentDragSwitch != lastDragSwitch || !lastGridY.containsKey(frame)) {
+        if (!lastGridY.containsKey(frame)) {
             lastGridY.put(frame, currentGridY);
             lastDragSwitch = currentDragSwitch;
         }

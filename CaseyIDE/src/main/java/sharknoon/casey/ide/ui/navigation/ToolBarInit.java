@@ -46,8 +46,8 @@ public class ToolBarInit {
     private static ToolBar toolBar;
     private static BooleanProperty running = new SimpleBooleanProperty();
     
-    public static void init(ToolBar buttonBar) {
-        toolBar = buttonBar;
+    public static void init(ToolBar toolBar) {
+        ToolBarInit.toolBar = toolBar;
         initSaveButton();
         initRunButton();
     }

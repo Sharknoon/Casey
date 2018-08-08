@@ -334,7 +334,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
                     Logger.error("Body is no type, should never occur");
                 }
                 Paint strokeColor = shape.getStroke();
-                errorProperty.addListener((observable, oldValue, newValue) -> {
+                BindUtils.addListener(errorProperty, (observable, oldValue, newValue) -> {
                     if (newValue) {
                         shape.setStroke(Color.CRIMSON);
                     } else {

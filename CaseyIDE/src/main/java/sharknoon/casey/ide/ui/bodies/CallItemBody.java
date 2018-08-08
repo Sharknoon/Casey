@@ -45,7 +45,6 @@ import sharknoon.casey.ide.ui.misc.Icons;
 import sharknoon.casey.ide.ui.styles.StyleClasses;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
 import sharknoon.casey.ide.utils.javafx.bindings.AggregatedObservableList;
-import sharknoon.casey.ide.utils.settings.Logger;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -208,7 +207,7 @@ public class CallItemBody extends Body<CallItem<?>> {
     }
     
     private ObjectExpression<Insets> getPadding(ObjectExpression<Type> parent, DoubleExpression height, ObjectExpression<Type> leftType, ObjectExpression<Type> rightType) {
-        Logger.debug("GETTING PADDING FOR parent:" + parent.get() + ", left:" + leftType.get() + ", right:" + rightType.get());
+        //Logger.debug("GETTING PADDING FOR parent:" + parent.get() + ", left:" + leftType.get() + ", right:" + rightType.get());
         DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftType, height);
         DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, rightType, height);
         return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding, leftPadding);

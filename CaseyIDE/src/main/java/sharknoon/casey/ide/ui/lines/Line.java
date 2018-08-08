@@ -55,17 +55,17 @@ public class Line implements Moveable, MouseConsumable {
     private final ObjectProperty<Dot> endDot = new SimpleObjectProperty<>();
     //The contextmenu for a line
     private final LineContextMenu menu = new LineContextMenu(this);
-    private final ChangeListener<Dot> onDotChange = (ObservableValue<? extends Dot> o, Dot od, Dot nd) -> {
-        if (od != null) {
-            od.removeLine(this);
-        }
-        if (nd != null) {
-            nd.addLine(this);
-        }
-    };
     private boolean selected;
     
     Line(Dot dot, FunctionSite functionSite) {
+        ChangeListener<Dot> onDotChange = (ObservableValue<? extends Dot> o, Dot od, Dot nd) -> {
+            if (od != null) {
+                od.removeLine(this);
+            }
+            if (nd != null) {
+                nd.addLine(this);
+            }
+        };
         startDot.addListener(onDotChange);
         endDot.addListener(onDotChange);
         this.functionSite = functionSite;

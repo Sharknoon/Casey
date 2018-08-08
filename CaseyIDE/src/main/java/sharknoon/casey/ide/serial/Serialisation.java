@@ -44,7 +44,7 @@ public class Serialisation {
     private static final String CHILDREN = "children";
     private static final Map<Item, Map<String, JsonNode>> ADDITIONAL_NODES = new HashMap<>();
     
-    private static Optional<Item> deserializeItem(ObjectNode item, Item... parentItem) {
+    private static Optional<Item> deserializeItem(ObjectNode item, Item parentItem) {
         JsonNode nameNode = null;
         JsonNode commentsNode = null;
         JsonNode typeNode = null;
@@ -82,7 +82,8 @@ public class Serialisation {
         if (typeNode == null) {
             return Optional.empty();
         }
-        Item result = Item.createItem(type, parentItem.length > 0 ? parentItem[0] : null, name);
+//        long start = System.currentTimeMillis();
+        Item result = Item.createItem(type, parentItem, name);
         if (result != null) {
             result.setComments(comments);
             if (additionalNodes != null) {
@@ -99,13 +100,13 @@ public class Serialisation {
                 }
             }
         }
-        if (parentItem.length < 1) {
+        //After all the items are initilized
+        if (parentItem == null) {
             //HUGE bugfix, need to initialize the variables and the parameters first, otherwise if a
             // e.g. assignment-block uses a variable, which isn't initialized yet and has the texttype for the variable
             // to be assigned by default, changing the type of the variable to its right type during its initialisation
             // can cause the deletion of the already assigned value, because the type isn't right anymore
             // Should normally initialise 1. ALL Items, 2. ALL Blocks, 3. ALL Statements
-    
             ADDITIONAL_NODES.entrySet().stream()
                     .filter(e -> e.getKey().getType() == ItemType.VARIABLE || e.getKey().getType() == ItemType.PARAMETER)
                     .forEach(e -> e.getKey().setAdditionalProperties(e.getValue()));
@@ -114,6 +115,7 @@ public class Serialisation {
                     .forEach(e -> e.getKey().setAdditionalProperties(e.getValue()));
             ADDITIONAL_NODES.clear();
         }
+//        System.out.println("ITEM " + result + " " + (System.currentTimeMillis() - start));
         return Optional.ofNullable(result);
     }
     
@@ -127,16 +129,14 @@ public class Serialisation {
         ArrayNode array = object.putArray(CHILDREN);
         item.childrenProperty().forEach(c -> {
             Optional<ObjectNode> sc = serializeItem(c);
-            if (sc.isPresent()) {
-                array.add(sc.get());
-            }
+            sc.ifPresent(array::add);
         });
         return Optional.ofNullable(object);
     }
     
     public static Optional<Project> loadProject(Path path) {
         try {
-            Optional<Item> item = deserializeItem((ObjectNode) MAPPER.readTree(path.toFile()));
+            Optional<Item> item = deserializeItem((ObjectNode) MAPPER.readTree(path.toFile()), null);
             Optional<Project> project = item.map(i -> (Project) i);
             project.ifPresent(p -> {
                 p.setSaveFile(path);
@@ -164,11 +164,4 @@ public class Serialisation {
         }
     }
     
-    public static class FileEmptyException extends Exception {
-        
-        public FileEmptyException(String message) {
-            super(message);
-        }
-        
-    }
 }

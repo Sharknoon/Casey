@@ -60,7 +60,6 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
         this.lastChild.bind(bindLastChild(childs));
         this.returnType.bind(bindReturnType(lastChild));
         this.expectedReturnType = expectedReturnType;
-        addAutoDestroyOnEmptyCallItems();
     }
     
     private ObjectExpression<Statement<Type, Type, Type>> bindFirstChild(ObservableList<Statement<Type, Type, Type>> childs) {
@@ -81,14 +80,6 @@ public class Call<I extends Item<?, ?, ?> & ValueReturnable> extends Statement<T
             }
         });
         return returnType;
-    }
-    
-    private void addAutoDestroyOnEmptyCallItems() {
-        childsProperty().emptyProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                destroy();
-            }
-        });
     }
     
     public BooleanExpression isExtensible() {

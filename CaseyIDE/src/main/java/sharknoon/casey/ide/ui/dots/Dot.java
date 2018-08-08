@@ -174,8 +174,7 @@ public class Dot {
             Lines.setLineDrawing(functionSite, line);
         } else {
             var line = Lines.getDrawingLine(functionSite);
-            if (!Lines.isDuplicate(functionSite, line, this)
-                    && Lines.isConnectionAllowed(line.getStartDot(), this)) {
+            if (Lines.isConnectionAllowed(line.getStartDot(), this)) {
                 line.setEndDot(this);
                 lines.add(line);
                 Lines.removeLineDrawing(functionSite);

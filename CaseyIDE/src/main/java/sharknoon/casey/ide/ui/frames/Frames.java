@@ -20,7 +20,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
 import sharknoon.casey.ide.logic.blocks.Block;
 import sharknoon.casey.ide.ui.UISettings;
@@ -87,13 +86,13 @@ public class Frames {
             FRAMES.get(functionSite).add(frame);
         } else {
             ObservableSet<Frame<?>> list = FXCollections.observableSet();
-            list.addListener((SetChangeListener.Change<? extends Frame<?>> change) -> {
-                if (change.wasAdded()) {
-                    Logger.debug("Added Frame " + change.getElementAdded().toString());
-                } else if (change.wasRemoved()) {
-                    Logger.debug("Removed Frame " + change.getElementRemoved().toString());
-                }
-            });
+//            list.addListener((SetChangeListener.Change<? extends Frame<?>> change) -> {
+//                if (change.wasAdded()) {
+//                    Logger.debug("Added Frame " + change.getElementAdded().toString());
+//                } else if (change.wasRemoved()) {
+//                    Logger.debug("Removed Frame " + change.getElementRemoved().toString());
+//                }
+//            });
             list.add(frame);
             FRAMES.put(functionSite, list);
         }

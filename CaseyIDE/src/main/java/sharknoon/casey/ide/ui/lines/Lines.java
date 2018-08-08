@@ -26,29 +26,28 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Josua Frank
  */
 public class Lines {
     
+    private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();
+    
     public static Line createLine(FunctionSite functionSite, Dot startDot) {
         return new Line(startDot, functionSite);
     }
-
-    private static final Map<FunctionSite, Line> CURRENT_DRAWING_LINE = new HashMap<>();
-
+    
     public static void setLineDrawing(FunctionSite functionSite, Line line) {
         CURRENT_DRAWING_LINE.put(functionSite, line);
     }
-
+    
     public static boolean isLineDrawing(FunctionSite functionSite) {
         return CURRENT_DRAWING_LINE.containsKey(functionSite);
     }
-
+    
     public static void removeLineDrawing(FunctionSite functionSite) {
         CURRENT_DRAWING_LINE.remove(functionSite);
     }
-
+    
     public static Line getDrawingLine(FunctionSite functionSite) {
         return CURRENT_DRAWING_LINE.get(functionSite);
     }
@@ -56,7 +55,7 @@ public class Lines {
     public static void unselectAll(FunctionSite functionSite) {
         getAllLines(functionSite).forEach(Line::unselect);
     }
-
+    
     public static Stream<Line> getAllLines(FunctionSite functionSite) {
         return Frames
                 .getAllFrames(functionSite)
@@ -65,22 +64,23 @@ public class Lines {
                 .map(Dot::getLines)
                 .flatMap(Set::stream);
     }
-
-    public static boolean isDuplicate(FunctionSite functionSite, Line line, Dot endDot) {
-          var dot1 = line.getOutputDot();
-          var dot2 = endDot;
-        return getAllLines(functionSite)
-                .filter(l -> l != line)
-                .anyMatch(l -> {
-                      var dot1l = l.getOutputDot();
-                      var dot2l = l.getInputDot();
-                    return (dot1 == dot1l && dot2 == dot2l)
-                            || (dot1 == dot2l && dot2 == dot1l);
-                });
-    }
-
+    
+    //Duplicates are no longer possible, it isnt possible to connect two line to a output dot
+//    public static boolean isDuplicate(FunctionSite functionSite, Line line, Dot endDot) {
+//        var dot1 = line.getOutputDot();
+//        var dot2 = endDot;
+//        return getAllLines(functionSite)
+//                .filter(l -> l != line)
+//                .anyMatch(l -> {
+//                    var dot1l = l.getOutputDot();
+//                    var dot2l = l.getInputDot();
+//                    return (dot1 == dot1l && dot2 == dot2l)
+//                            || (dot1 == dot2l && dot2 == dot1l);
+//                });
+//    }
+    
     public static boolean isConnectionAllowed(Dot dot1, Dot dot2) {
         return dot1.isInputDot() != dot2.isInputDot();
     }
-
+    
 }

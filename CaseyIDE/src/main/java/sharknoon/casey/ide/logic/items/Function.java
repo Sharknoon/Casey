@@ -147,6 +147,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                     Type.valueOf(value.asText()).ifPresentOrElse(returnType::set, () -> returnType.set(PrimitiveType.VOID));
                     break;
                 case BLOCKS:
+//                    long start = System.currentTimeMillis();
                     ArrayNode blocks = (ArrayNode) value;
                     for (JsonNode b : blocks) {
                         var blockNode = (ObjectNode) b;
@@ -171,6 +172,7 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                             }
                         }
                     }
+//                    System.out.println("BLOCKS " + getName() + " " + (System.currentTimeMillis() - start));
                     break;
             }
         });
@@ -190,12 +192,14 @@ public class Function extends Item<Function, Item<? extends Item, ? extends Item
                 }
             });
         });
+//        long start = System.currentTimeMillis();
         variablesMap.forEach((block, variable) -> {
             block.setVariable((ValueHoldable) Items.forName(variable).orElse(null));
         });
         statementMap.forEach((block, statement) -> {
             block.setStatement(Statement.deserialize(null, statement));
         });
+//        System.out.println("STATEMENTS " + getName() + " " + (System.currentTimeMillis() - start));
     }
     
     @Override

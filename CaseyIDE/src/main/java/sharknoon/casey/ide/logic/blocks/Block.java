@@ -45,8 +45,6 @@ public abstract class Block {
     private final String id;
     //The type of this block
     private final BlockType type;
-    //The origin coordinates of this Frame
-    private final Point2D origin;
     //The connections to other blocks
     private final Map<Side, Map<Block, Side>> connections = new HashMap<>();
     //The UI Component of this block
@@ -65,8 +63,7 @@ public abstract class Block {
         this.function = function;
         this.id = id == null ? UUID.randomUUID().toString() : id;
         this.type = type;
-        this.origin = origin;
-//        this.frame = Frames.createFrame(this, origin);
+        this.frame = Frames.createFrame(this, origin);
     }
     
     /**
@@ -118,9 +115,6 @@ public abstract class Block {
     }
     
     public Frame<?> getFrame() {
-        if (frame == null) {
-            frame = Frames.createFrame(this, origin);
-        }
         return frame;
     }
     

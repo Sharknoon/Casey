@@ -492,11 +492,11 @@ public class Dialogs {
         return dialog.showAndWait();
     }
     
-    public static void showCustionOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content) {
-        showCustionOutputDialog(title, headerText, contentText, icon, content, null);
+    public static void showCustomOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content) {
+        showCustomOutputDialog(title, headerText, contentText, icon, content, null);
     }
     
-    public static void showCustionOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content, Map<String, String> variables) {
+    public static void showCustomOutputDialog(Word title, Word headerText, Word contentText, Icon icon, Node content, Map<String, String> variables) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle(fill(Language.get(title), variables));
         dialog.setHeaderText(fill(Language.get(headerText), variables));

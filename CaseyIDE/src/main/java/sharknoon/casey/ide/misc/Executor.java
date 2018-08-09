@@ -22,6 +22,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.LogOutputStream;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.utils.language.Word;
@@ -46,7 +48,7 @@ public class Executor {
      *
      * @return
      */
-    public static Optional<String> getJavaHomeDirectory() {
+    private static Optional<String> getJavaHomeDirectory() {
         String javaHome = System.getProperty("java.home", "");
         
         if (!javaHome.isEmpty()) {
@@ -63,16 +65,19 @@ public class Executor {
         return Optional.empty();
     }
     
-    public static CompletableFuture<Integer> runJar(Path jarPath, String... args) {
-        return runJar(jarPath, null, null, null, null, args);
-    }
-    
     /**
      * @param jarPath path to the .jar file
      * @param args
      * @return
      */
-    public static CompletableFuture<Integer> runJar(Path jarPath, Consumer<String> outputConsumer, Consumer<String> errorConsumer, StringExpression input, BooleanExpression abortProcess, String... args) {
+    private static CompletableFuture<Integer> runJar(@NotNull Path jarPath,
+                                                     @Nullable Consumer<String> outputConsumer,
+                                                     @Nullable Consumer<String> errorConsumer,
+                                                     @Nullable StringExpression input,
+                                                     @Nullable BooleanExpression abortProcess,
+                                                     @Nullable List<Integer> expectedExitValues,
+                                                     @Nullable Consumer<Map<String, Boolean>> onError,
+                                                     @Nullable String... args) {
         return CompletableFuture.supplyAsync(() -> {
             Optional<String> optionalJavaCommand = getJavaHomeDirectory();
             if (!optionalJavaCommand.isPresent()) {
@@ -88,9 +93,9 @@ public class Executor {
             commands.add(javaCommand);
             commands.add("-jar");
             commands.add(jarFile);
-            commands.addAll(Arrays.asList(args));
-            
-            Runnable onError = () -> Platform.runLater(() -> showErrorWindow(output));
+            if (args != null) {
+                commands.addAll(List.of(args));
+            }
             
             Consumer<String> newOutputConsumer = s -> {
                 if (outputConsumer != null) {
@@ -105,12 +110,22 @@ public class Executor {
                 }
                 output.put(s, true);
             };
-            
-            return run(jarPath.getParent().toFile(), commands, newOutputConsumer, newErrorConsumer, input, onError, abortProcess);
+    
+            Runnable onErrorOccured = onError != null ? () -> onError.accept(output) : null;
+    
+            return run(jarPath.getParent().toFile(), commands, newOutputConsumer, newErrorConsumer, input, onErrorOccured, expectedExitValues, abortProcess);
         });
     }
     
-    public static CompletableFuture<Integer> runClass(Path workingDirectory, String mainClass, Consumer<String> outputConsumer, Consumer<String> errorConsumer, StringExpression input, BooleanExpression abortProcess, String... args) {
+    public static CompletableFuture<Integer> runClass(@NotNull Path workingDirectory,
+                                                      @NotNull String mainClass,
+                                                      @Nullable Consumer<String> outputConsumer,
+                                                      @Nullable Consumer<String> errorConsumer,
+                                                      @Nullable StringExpression input,
+                                                      @Nullable BooleanExpression abortProcess,
+                                                      @Nullable List<Integer> expectedExitValues,
+                                                      @Nullable Consumer<Map<String, Boolean>> onError,
+                                                      @Nullable String... args) {
         return CompletableFuture.supplyAsync(() -> {
             Optional<String> optionalJavaCommand = getJavaHomeDirectory();
             if (!optionalJavaCommand.isPresent()) {
@@ -123,29 +138,32 @@ public class Executor {
             List<String> commands = new ArrayList<>();
             commands.add(javaCommand);
             commands.add(mainClass);
-            commands.addAll(Arrays.asList(args));
-            
-            Runnable onError = () -> Platform.runLater(() -> showErrorWindow(output));
-            
-            Consumer<String> newOutputConsumer = s -> {
-                if (outputConsumer != null) {
-                    outputConsumer.accept(s);
-                }
+            if (args != null) {
+                commands.addAll(List.of(args));
+            }
+    
+            Consumer<String> newOutputConsumer = outputConsumer == null ? null : s -> {
+                outputConsumer.accept(s);
                 output.put(s, false);
             };
-            
-            Consumer<String> newErrorConsumer = s -> {
-                if (errorConsumer != null) {
-                    errorConsumer.accept(s);
-                }
+    
+            Consumer<String> newErrorConsumer = errorConsumer == null ? null : s -> {
+                errorConsumer.accept(s);
                 output.put(s, true);
             };
-            
-            return run(workingDirectory.toAbsolutePath().toFile(), commands, newOutputConsumer, newErrorConsumer, input, onError, abortProcess);
+    
+            return run(workingDirectory.toAbsolutePath().toFile(), commands, newOutputConsumer, newErrorConsumer, input, onError != null ? () -> onError.accept(output) : null, expectedExitValues, abortProcess);
         });
     }
     
-    private static int run(File workingDirectory, List<String> commands, Consumer<String> outputConsumer, Consumer<String> errorConsumer, StringExpression input, Runnable onError, BooleanExpression abortProcess) {
+    private static int run(@NotNull File workingDirectory,
+                           @NotNull List<String> commands,
+                           @Nullable Consumer<String> outputConsumer,
+                           @Nullable Consumer<String> errorConsumer,
+                           @Nullable StringExpression input,
+                           @Nullable Runnable onError,
+                           @Nullable List<Integer> expectedExitValues,
+                           @Nullable BooleanExpression abortProcess) {
         try {
             ProcessBuilder builder = new ProcessBuilder();
             
@@ -212,7 +230,11 @@ public class Executor {
                 });
             }
             start.waitFor();
-            return start.exitValue();
+            int exitValue = start.exitValue();
+            if ((onError != null) && (expectedExitValues != null) && !expectedExitValues.contains(exitValue)) {
+                onError.run();
+            }
+            return exitValue;
         } catch (ExecuteException e) {
             Logger.error("Could not execute Java-File, Errorcode: " + e.getExitValue());
             if (onError != null) {
@@ -234,11 +256,167 @@ public class Executor {
             }
             textFlow.getChildren().add(text);
         });
-        Dialogs.showCustionOutputDialog(
+        Dialogs.showCustomOutputDialog(
                 Word.EXECUTOR_ERROR_TITLE,
                 Word.EXECUTOR_ERROR_HEADER_TEXT,
                 Word.EXECUTOR_ERROR_CONTENT_TEXT,
                 Icon.ERROR,
                 textFlow);
+    }
+    
+    public abstract static class ExecutorBuilder<B extends ExecutorBuilder> {
+        public static JarExecutorBuilder executeJar(Path jarPath) {
+            return new JarExecutorBuilder(jarPath);
+        }
+        
+        public static ClassExecutorBuilder executeClass(Path workingDirectory, String mainClass) {
+            return new ClassExecutorBuilder(workingDirectory, mainClass);
+        }
+        
+        String[] args;
+        Consumer<String> outputConsumer;
+        Consumer<String> errorConsumer;
+        StringExpression input;
+        BooleanExpression abortProcess;
+        List<Integer> expectedExitValues;
+        Consumer<Map<String, Boolean>> onError = m -> Platform.runLater(() -> showErrorWindow(m));
+        
+        public String[] getArgs() {
+            return args;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setArgs(List<String> args) {
+            this.args = args.toArray(new String[0]);
+            return (B) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setArgs(String... args) {
+            this.args = args;
+            return (B) this;
+        }
+        
+        public Consumer<String> getOutputConsumer() {
+            return outputConsumer;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setOutputConsumer(Consumer<String> outputConsumer) {
+            this.outputConsumer = outputConsumer;
+            return (B) this;
+        }
+        
+        public Consumer<String> getErrorConsumer() {
+            return errorConsumer;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setErrorConsumer(Consumer<String> errorConsumer) {
+            this.errorConsumer = errorConsumer;
+            return (B) this;
+        }
+        
+        public StringExpression getInput() {
+            return input;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setInput(StringExpression input) {
+            this.input = input;
+            return (B) this;
+        }
+        
+        public BooleanExpression getAbortProcess() {
+            return abortProcess;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setAbortProcess(BooleanExpression abortProcess) {
+            this.abortProcess = abortProcess;
+            return (B) this;
+        }
+        
+        public List<Integer> getExpectedExitValues() {
+            return expectedExitValues;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setExpectedExitValues(List<Integer> expectedExitValues) {
+            this.expectedExitValues = expectedExitValues;
+            return (B) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setExpectedExitValues(Integer... expectedExitValues) {
+            this.expectedExitValues = List.of(expectedExitValues);
+            return (B) this;
+        }
+        
+        public Consumer<Map<String, Boolean>> getOnError() {
+            return onError;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B setOnError(Consumer<Map<String, Boolean>> onError) {
+            this.onError = onError;
+            return (B) this;
+        }
+        
+        public abstract CompletableFuture<Integer> execute();
+        
+        public static class JarExecutorBuilder extends ExecutorBuilder<JarExecutorBuilder> {
+            Path jarPath;
+            
+            public JarExecutorBuilder(Path jarPath) {
+                this.jarPath = jarPath;
+            }
+            
+            public Path getJarPath() {
+                return jarPath;
+            }
+            
+            public JarExecutorBuilder setJarPath(Path jarPath) {
+                this.jarPath = jarPath;
+                return this;
+            }
+            
+            public CompletableFuture<Integer> execute() {
+                return runJar(jarPath, outputConsumer, errorConsumer, input, abortProcess, expectedExitValues, onError, args);
+            }
+            
+        }
+        
+        public static class ClassExecutorBuilder extends ExecutorBuilder<ClassExecutorBuilder> {
+            Path workingDirectory;
+            String mainClass;
+            
+            public ClassExecutorBuilder(Path workingDirectory, String mainClass) {
+                this.workingDirectory = workingDirectory;
+                this.mainClass = mainClass;
+            }
+            
+            public Path getWorkingDirectory() {
+                return workingDirectory;
+            }
+            
+            public ClassExecutorBuilder setWorkingDirectory(Path workingDirectory) {
+                this.workingDirectory = workingDirectory;
+                return this;
+            }
+            
+            public String getMainClass() {
+                return mainClass;
+            }
+            
+            public ClassExecutorBuilder setMainClass(String mainClass) {
+                this.mainClass = mainClass;
+                return this;
+            }
+            
+            public CompletableFuture<Integer> execute() {
+                return runClass(workingDirectory, mainClass, outputConsumer, errorConsumer, input, abortProcess, expectedExitValues, onError, args);
+            }
+        }
     }
 }

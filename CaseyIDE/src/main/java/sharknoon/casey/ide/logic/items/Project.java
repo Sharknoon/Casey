@@ -34,7 +34,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import sharknoon.casey.ide.MainApplication;
-import sharknoon.casey.ide.misc.Executor;
+import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.serial.Serialisation;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
@@ -78,38 +78,7 @@ public class Project extends Item<Project, Item, Package> {
         init();
     }
     
-    /**
-     * Executes the compiled version of this item
-     *
-     * @param basePath The base path where the .casey file is in
-     * @param mainItem The item which should be executed
-     * @return
-     */
-    public boolean execute(Path basePath, Item mainItem) {
-        Path workingDirectory = basePath.toAbsolutePath();
-        String mainClass = mainItem.getFullName();
-        ObjectProperty<Text> errorAndOutputProperty = new SimpleObjectProperty<>();
-        Consumer<String> error = s -> {
-            Text t = new Text(s + "\n");
-            t.setFill(Color.RED);
-            errorAndOutputProperty.set(t);
-        };
-        Consumer<String> output = s -> {
-            Text t = new Text(s + "\n");
-            errorAndOutputProperty.set(t);
-        };
-        StringProperty inputProperty = new SimpleStringProperty();
-        Consumer<String> input = inputProperty::set;
-        BooleanProperty abortProperty = new SimpleBooleanProperty();
-        Platform.runLater(() -> onFinish = showInputOutputWindow(mainItem.getName(), mainItem.getSite().getTabIcon(), input, errorAndOutputProperty, abortProperty::set));
-        int status = Executor.runClass(workingDirectory, mainClass, output, error, inputProperty, abortProperty).join();
-        if (onFinish != null) {
-            onFinish.run();
-        }
-        return status == 0;
-    }
-    
-    public Runnable showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine, Consumer<Boolean> abortProcess) {
+    private Runnable showInputOutputWindow(String title, Icon icon, Consumer<String> inputLine, ObjectExpression<Text> errorAndOutputLine, Consumer<Boolean> abortProcess) {
         BorderPane root = new BorderPane();
         
         TextFlow outputs = new TextFlow();
@@ -235,6 +204,8 @@ public class Project extends Item<Project, Item, Package> {
                 commands.add(String.valueOf(caseyFile));
                 commands.add("-f");
                 commands.add(currentItem.getFullName());
+                //For leaving out the comments
+                //commands.add("-i");
                 if (parameterValues.size() > 0) {
                     commands.add("-pa");
                 }
@@ -243,16 +214,38 @@ public class Project extends Item<Project, Item, Package> {
                         .stream()
                         .map(e -> e.getKey() + "=" + e.getValue())
                         .forEach(commands::add);
-                boolean success = Executor.runJar(
-                        optionalCaseyCompiler.get(),
-                        statusProperty,
-                        statusProperty,
-                        null,
-                        null,
-                        commands.toArray(new String[0])
-                ).join() == 0;
+                boolean success = ExecutorBuilder.executeJar(optionalCaseyCompiler.get())
+                        .setOutputConsumer(statusProperty)
+                        .setErrorConsumer(statusProperty)
+                        .setArgs(commands)
+                        .setExpectedExitValues(0)
+                        .execute()
+                        .join() == 0;
                 if (success) {
-                    execute(basePath, currentItem);
+                    ObjectProperty<Text> errorAndOutputProperty = new SimpleObjectProperty<>();
+                    Consumer<String> error = s -> {
+                        Text t = new Text(s + "\n");
+                        t.setFill(Color.RED);
+                        errorAndOutputProperty.set(t);
+                    };
+                    Consumer<String> output = s -> {
+                        Text t = new Text(s + "\n");
+                        errorAndOutputProperty.set(t);
+                    };
+                    StringProperty inputProperty = new SimpleStringProperty();
+                    Consumer<String> input = inputProperty::set;
+                    BooleanProperty abortProperty = new SimpleBooleanProperty();
+                    Platform.runLater(() -> onFinish = showInputOutputWindow(currentItem.getName(), currentItem.getSite().getTabIcon(), input, errorAndOutputProperty, abortProperty::set));
+                    ExecutorBuilder.executeClass(basePath.toAbsolutePath(), currentItem.getFullName())
+                            .setOutputConsumer(output)
+                            .setErrorConsumer(error)
+                            .setInput(inputProperty)
+                            .setAbortProcess(abortProperty)
+                            .execute()
+                            .join();
+                    if (onFinish != null) {
+                        onFinish.run();
+                    }
                 }
             });
         }

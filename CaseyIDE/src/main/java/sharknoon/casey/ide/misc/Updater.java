@@ -20,6 +20,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import org.aeonbits.owner.ConfigFactory;
 import sharknoon.casey.ide.MainApplication;
+import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
@@ -66,11 +67,10 @@ public class Updater {
             Logger.error("Updater not found");
             return;
         }
-        CompletableFuture<Integer> integerCompletableFuture = Executor.runJar(
-                updater.get().toAbsolutePath(),
-                "-c",
-                getCurrentVersion().orElse("0.1")
-        );
+        CompletableFuture<Integer> integerCompletableFuture = ExecutorBuilder
+                .executeJar(updater.get().toAbsolutePath())
+                .setArgs("-c", getCurrentVersion().orElse("0.1"))
+                .execute();
         integerCompletableFuture.thenAccept(result -> {
             isCheckingForUpdates = false;
             boolean newUpdateAvailable = result == 100;
@@ -128,11 +128,9 @@ public class Updater {
                     .getLocation()
                     .getPath())
                     .toPath();
-            Executor.runJar(
-                    updater.get().toAbsolutePath(),
-                    "-u",
-                    path.toAbsolutePath().toString()
-            );
+            ExecutorBuilder
+                    .executeJar(updater.get().toAbsolutePath())
+                    .setArgs("-u", path.toAbsolutePath().toString());
             MainApplication.stopApp("Updating...", false);
         } catch (Exception e) {
             Logger.error("Could not update Casey", e);

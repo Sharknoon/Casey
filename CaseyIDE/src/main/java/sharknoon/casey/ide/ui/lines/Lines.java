@@ -65,7 +65,7 @@ public class Lines {
                 .flatMap(Set::stream);
     }
     
-    //Duplicates are no longer possible, it isnt possible to connect two line to a output dot
+    //Duplicates are no longer possible, it isn't possible to connect two line to a output dot
 //    public static boolean isDuplicate(FunctionSite functionSite, Line line, Dot endDot) {
 //        var dot1 = line.getOutputDot();
 //        var dot2 = endDot;

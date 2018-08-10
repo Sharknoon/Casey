@@ -15,7 +15,6 @@
  */
 package sharknoon.casey.ide.ui.misc;
 
-import afester.javafx.svg.SvgLoader;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -24,15 +23,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.FillRule;
-import javafx.scene.shape.SVGPath;
+import javafx.scene.layout.BorderPane;
+import org.apache.batik.anim.dom.SVGOMDocument;
+import sharknoon.casey.ide.utils.javafx.svg.ChachedSvgLoader;
 import sharknoon.casey.ide.utils.settings.Logger;
 import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Josua Frank
@@ -41,8 +41,8 @@ public class Icons {
     
     private static final double DEFAULT_SIZE = 30;
     private static final Map<Icon, Image> IMAGE_CACHE = new HashMap<>();
-    private static final Map<Icon, SVG> SVG_CACHE = new HashMap<>();
-    private static final SvgLoader SVG_LOADER = new SvgLoader();
+    private static final Map<Icon, SVGOMDocument> SVG_CACHE = new HashMap<>();
+    private static final ChachedSvgLoader SVG_LOADER = new ChachedSvgLoader();
     
     public static Node get(Icon icon) {
         return get(icon, DEFAULT_SIZE);
@@ -92,13 +92,13 @@ public class Icons {
         Optional<Group> svg = getSVG(icon);
         if (svg.isPresent()) {
             Group group = svg.get();
-            double originalHeight = group.prefHeight(0.0);
-            double originalWidth = group.prefWidth(0.0);
+            double originalHeight = group.prefHeight(42);//42 is ignored
+            double originalWidth = group.prefWidth(42);//42 is ignored
             double originalSideLength = originalHeight > originalWidth ? originalHeight : originalWidth;
             double scale = desiredSize / originalSideLength;
             group.setScaleX(scale);
             group.setScaleY(scale);
-            StackPane result = new StackPane(new Group(group));
+            BorderPane result = new BorderPane(new Group(group));
             result.setPrefSize(desiredSize, desiredSize);
             return result;
         }
@@ -144,10 +144,10 @@ public class Icons {
                 if (stream.isPresent()) {
                     try {
                         //Takes 1.364 seconds on the first start :/
-                        var svgPaths = SVG_LOADER.loadSvg(stream.get());
-                        var svg = new SVG(svgPaths);
-                        SVG_CACHE.put(icon, svg);
-                        return Optional.of(svgPaths);
+                        var svgDoc = SVG_LOADER.loadSvgDocument(stream.get());
+                        var svg = SVG_LOADER.loadSvg(svgDoc);
+                        SVG_CACHE.put(icon, svgDoc);
+                        return Optional.of(svg);
                     } catch (Exception e) {
                         Logger.error("Could not load SVG-Icon " + icon.name(), e);
                         return Optional.empty();
@@ -159,11 +159,11 @@ public class Icons {
                 }
             }
         } else {
-            SVG svg = SVG_CACHE.get(icon);
-            if (svg == null) {
+            var svgDoc = SVG_CACHE.get(icon);
+            if (svgDoc == null) {
                 return Optional.empty();
             }
-            Group result = svg.createSVG();
+            Group result = SVG_LOADER.loadSvg(svgDoc);
             return Optional.of(result);
         }
     }
@@ -172,94 +172,6 @@ public class Icons {
     public interface ValueSetter<T> {
         
         void setValue(T value);
-    }
-    
-    private static class SVG {
-        private final List<SVGShape> svgShapes;
-        private final List<SVG> containers;
-        private final int hashCode;
-        
-        public SVG(Group g) {
-            svgShapes = new ArrayList<>();
-            containers = new ArrayList<>();
-            for (Node child : g.getChildren()) {
-                if (child instanceof SVGPath) {
-                    var path = (SVGPath) child;
-                    SVGShape svgShape = new SVGShape();
-                    svgShape.content = path.getContent();
-                    svgShape.fillRule = path.getFillRule();
-                    svgShape.fill = path.getFill();
-                    svgShapes.add(svgShape);
-                } else if (child instanceof Group) {
-                    containers.add(new SVG((Group) child));
-                } else {
-                    Logger.error("Unknown SVG content: " + child);
-                }
-            }
-            hashCode = svgShapes.hashCode() + containers.hashCode();
-        }
-        
-        Group createSVG() {
-            var result = new Group();
-            var children = result.getChildren();
-            for (SVGShape svgShape : svgShapes) {
-                var svg = new SVGPath();
-                svg.setContent(svgShape.content);
-                svg.setFillRule(svgShape.fillRule);
-                svg.setFill(svgShape.fill);
-                children.add(svg);
-            }
-            for (SVG container : containers) {
-                var svgc = container.createSVG();
-                children.add(svgc);
-            }
-            return result;
-        }
-        
-        @Override
-        public int hashCode() {
-            return hashCode;
-        }
-        
-        private final static class SVGShape {
-            //From SVGPath
-            String content;
-            FillRule fillRule;
-            //From Shape
-            Paint fill;
-            
-            int hashCode = -1;
-            
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-                
-                SVGShape svgShape = (SVGShape) o;
-                
-                return hashCode() == svgShape.hashCode();
-            }
-            
-            @Override
-            public int hashCode() {
-                if (hashCode == -1) {
-                    hashCode = Objects.hash(content, fillRule, fill);
-                }
-                return hashCode;
-            }
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            
-            SVG svg = (SVG) o;
-            
-            return hashCode() == svg.hashCode();
-        }
-        
-        
     }
     
 }

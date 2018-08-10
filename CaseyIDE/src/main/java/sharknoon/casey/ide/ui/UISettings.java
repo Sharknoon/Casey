@@ -101,6 +101,7 @@ public class UISettings {
     //The value how sharp the curves should be
     public static final double LINE_CONTROL_OFFSET = 100;
     //
-    //***General
+    //***Body***
     //
+    public static final double STATEMENT_BUTTON_SIZE = 22;
 }

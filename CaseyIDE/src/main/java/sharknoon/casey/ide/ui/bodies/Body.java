@@ -43,6 +43,7 @@ import sharknoon.casey.ide.logic.types.PrimitiveType.NumberType;
 import sharknoon.casey.ide.logic.types.PrimitiveType.TextType;
 import sharknoon.casey.ide.logic.types.PrimitiveType.VoidType;
 import sharknoon.casey.ide.logic.types.Type;
+import sharknoon.casey.ide.ui.UISettings;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
 import sharknoon.casey.ide.ui.misc.MouseConsumable;
@@ -186,13 +187,13 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     public abstract BooleanExpression isClosingAllowed();
     
     private void initCloseButton() {
-        closeIcon = Icons.get(Icon.CLOSEROUND, 25);
+        closeIcon = Icons.get(Icon.CLOSEROUND, UISettings.STATEMENT_BUTTON_SIZE);
         closeIcon.setOnMouseClicked((event) -> {
             if (statement != null) {
                 statement.destroy();
             }
         });
-        closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
+        closeIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(UISettings.STATEMENT_BUTTON_SIZE));
         closeIcon.setLayoutY(0);
         closeIcon.setVisible(false);
         getChildren().add(closeIcon);
@@ -203,10 +204,10 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     public abstract BooleanExpression isExtendingAllowed();
     
     private void initPlusButton() {
-        extendIcon = Icons.get(Icon.PLUSROUND, 25);
+        extendIcon = Icons.get(Icon.PLUSROUND, UISettings.STATEMENT_BUTTON_SIZE);
         extendIcon.setOnMouseClicked((event) -> extend());
-        extendIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-        extendIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2).subtract(12));
+        extendIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(UISettings.STATEMENT_BUTTON_SIZE));
+        extendIcon.layoutYProperty().bind(contentPane.heightProperty().divide(2.0).subtract(UISettings.STATEMENT_BUTTON_SIZE / 2.0));
         extendIcon.setVisible(false);
         getChildren().add(extendIcon);
         extendIcon.visibleProperty().bind(hoverProperty().and(isExtendingAllowed()).and(BindUtils.getLast(currentExtendButton).isEqualTo(extendIcon)));
@@ -219,10 +220,10 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     public abstract BooleanExpression isReducingAllowed();
     
     private void initMinusButton() {
-        reduceIcon = Icons.get(Icon.MINUSROUND, 25);
+        reduceIcon = Icons.get(Icon.MINUSROUND, UISettings.STATEMENT_BUTTON_SIZE);
         reduceIcon.setOnMouseClicked((event) -> reduce());
-        reduceIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(25));
-        reduceIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(25));
+        reduceIcon.layoutXProperty().bind(contentPane.widthProperty().subtract(UISettings.STATEMENT_BUTTON_SIZE));
+        reduceIcon.layoutYProperty().bind(contentPane.heightProperty().subtract(UISettings.STATEMENT_BUTTON_SIZE));
         reduceIcon.setVisible(false);
         getChildren().add(reduceIcon);
         reduceIcon.visibleProperty().bind(hoverProperty().and(isReducingAllowed()).and(BindUtils.getLast(currentReduceButton).isEqualTo(reduceIcon)));

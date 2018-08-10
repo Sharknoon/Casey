@@ -128,5 +128,10 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>de.saxsys</groupId>
+            <artifactId>svgfx</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 </project>

@@ -43,7 +43,7 @@ public class OnFunction {
                             System.err.println("Function "
                                     + ItemUtils.getFullName(item)
                                     + " has wrong parameters actual: ("
-                                    + parameters.keySet().stream().collect(Collectors.joining(", "))
+                                    + String.join(", ", parameters.keySet())
                                     + ") expected: ("
                                     + item.children.stream()
                                     .filter(p -> p.item == ItemType.PARAMETER)
@@ -63,7 +63,7 @@ public class OnFunction {
             MethodSpec mainMethod = MethodSpec.methodBuilder("main")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(String[].class, "args")
-                    .addStatement(className + "." + className + "(" + paramterValuesInRightOrder.stream().collect(Collectors.joining(", ")) + ")")
+                    .addStatement(className + "." + className + "(" + String.join(", ", paramterValuesInRightOrder) + ")")
                     .build();
             methods.add(mainMethod);
         }

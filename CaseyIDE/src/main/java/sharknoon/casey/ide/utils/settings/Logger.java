@@ -43,9 +43,6 @@ public class Logger {
             System.err.println(message.description);
         }
     };
-    private static int maxLengthOfClassName = 0;
-    private static int maxLengthOfErrorLevel = 0;
-    private static int maxLengthOfThreadName = 0;
     
     /**
      * Logs a message as a debug log-message. Debug means it is only intended to
@@ -286,10 +283,21 @@ public class Logger {
     
     //Returns the Date as a formatted String
     private static String getDateString() {
+        StringBuilder result = new StringBuilder();
+        result.append('[');
         LocalDateTime now = LocalDateTime.now();
-        String millis = String.valueOf(now.getNano());
-        millis = millis.length() <= 6 ? "0" : millis.substring(0, millis.length() - 6);
-        return "[" + now.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) + "::" + millis + "]";
+        result.append(now.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+        result.append("::");
+        int milli = now.getNano() / 1000000;
+        if (milli < 100) {
+            if (milli < 10) {
+                result.append('0');
+            }
+            result.append('0');
+        }
+        result.append(milli);
+        result.append(']');
+        return result.toString();
     }
     
     //Fast Method to iconToNodeProperty a amount of blanks as a String

@@ -110,10 +110,10 @@ public class OnClass {
                 return null;
             }
             TypeName typeName = optionalTypeName.get();
-            String className = child.name;
+            String fieldName = child.name;
             
             try {
-                FieldSpec variable = FieldSpec.builder(typeName, className)
+                FieldSpec variable = FieldSpec.builder(typeName, fieldName)
                         .addJavadoc(ItemUtils.getJavaDoc(args, child))
                         .addModifiers(Modifier.PUBLIC)
                         .initializer(ItemUtils.getFieldInitializer(typeName))

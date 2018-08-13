@@ -36,7 +36,7 @@ public class ItemUtils {
      * Extracts the HTML of the item, checks for nulls and encapsulates the body from the comment
      *
      * @param args The CLIArgs to check if comments should be ignored
-     * @param item The item which the comments shold be extracted
+     * @param item The item which the comments should be extracted
      * @return The comments or a empty string of a error occurs
      */
     static String getJavaDoc(CLIArgs args, Item item) {
@@ -50,7 +50,7 @@ public class ItemUtils {
             return EMPTY;
         }
         try {
-            return Jsoup.parse(item.comments).body().child(0).toString() + "\n";
+            return Jsoup.parse(item.comments).body().html() + "\n";
         } catch (Exception e) {
             System.out.println("Warning, could not load comments " + e);
         }

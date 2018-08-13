@@ -3,10 +3,10 @@ package sharknoon.casey.compiler.java.generator.block;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.TypeName;
-import javafx.geometry.Side;
 import sharknoon.casey.compiler.general.CaseyParser;
 import sharknoon.casey.compiler.general.beans.Block;
 import sharknoon.casey.compiler.general.beans.Block.BlockContent;
+import sharknoon.casey.compiler.general.beans.Block.ConnectionSide;
 import sharknoon.casey.compiler.general.beans.CLIArgs;
 import sharknoon.casey.compiler.general.beans.Item;
 import sharknoon.casey.compiler.general.beans.Statement;
@@ -377,7 +377,7 @@ public class OnBlock {
             System.err.println("Could not get the connections for the block " + block);
             return null;
         }
-        Map<UUID, Side> destination = block.blockconnections.values().iterator().next();
+        Map<UUID, ConnectionSide> destination = block.blockconnections.values().iterator().next();
         if (destination == null || destination.isEmpty()) {
             System.err.println("The destinations of this block connections are null, cant get next block " + block);
             return null;
@@ -387,15 +387,15 @@ public class OnBlock {
     }
     
     private static Block getTrueBlock(Block block) {
-        return getDecisionConditionBlock(block, Side.RIGHT);
+        return getDecisionConditionBlock(block, ConnectionSide.RIGHT);
     }
     
-    private static Block getDecisionConditionBlock(Block block, Side right) {
+    private static Block getDecisionConditionBlock(Block block, ConnectionSide right) {
         if (block.blockconnections == null || block.blockconnections.isEmpty()) {
             System.err.println("Could not get the connections for the block " + block);
             return null;
         }
-        Map<UUID, Side> destination = block.blockconnections.get(right);
+        Map<UUID, ConnectionSide> destination = block.blockconnections.get(right);
         if (destination.isEmpty()) {
             System.err.println("The destinations of this block connections are null, cant get next block " + block);
             return null;
@@ -405,7 +405,7 @@ public class OnBlock {
     }
     
     private static Block getFalseBlock(Block block) {
-        return getDecisionConditionBlock(block, Side.LEFT);
+        return getDecisionConditionBlock(block, ConnectionSide.LEFT);
     }
     
 }

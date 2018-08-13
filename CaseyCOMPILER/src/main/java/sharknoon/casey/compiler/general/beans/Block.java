@@ -14,8 +14,6 @@ package sharknoon.casey.compiler.general.beans;/*
  * limitations under the License.
  */
 
-import javafx.geometry.Side;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,7 +30,7 @@ public class Block {
     public BlockType blocktype;
     
     //The connections from this to other blocks
-    public Map<Side, Map<UUID, Side>> blockconnections = Map.of();
+    public Map<ConnectionSide, Map<UUID, ConnectionSide>> blockconnections = Map.of();
     
     //The statements of this block
     public BlockContent blockcontent;
@@ -51,6 +49,14 @@ public class Block {
         INPUT,
         OUTPUT
     }
+    
+    public enum ConnectionSide {
+        TOP,
+        BOTTOM,
+        LEFT,
+        RIGHT
+    }
+    
     
     public static class BlockContent {
     

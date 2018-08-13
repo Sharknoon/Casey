@@ -21,16 +21,24 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import sharknoon.casey.ide.logic.items.Item;
 import sharknoon.casey.ide.logic.items.ItemType;
 import sharknoon.casey.ide.logic.items.Project;
+import sharknoon.casey.ide.ui.fields.ValueField;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.ui.misc.Icons;
 import sharknoon.casey.ide.ui.sites.Site;
+import sharknoon.casey.ide.ui.styles.Styles;
 import sharknoon.casey.ide.utils.language.Language;
 import sharknoon.casey.ide.utils.language.Word;
 
@@ -50,6 +58,7 @@ public class ToolBarInit {
         ToolBarInit.toolBar = toolBar;
         initSaveButton();
         initRunButton();
+        tmp();
     }
     
     private static void initSaveButton() {
@@ -99,6 +108,22 @@ public class ToolBarInit {
                         .and(running.not());
         buttonRun.disableProperty().bind(enabledBinding.not());
         toolBar.getItems().addAll(buttonRun, labelRunStatus);
+    }
+    
+    public static void tmp() {
+        Button buttonTMP = new Button("Debug");
+        buttonTMP.setOnAction(e -> {
+            ValueField vf = new ValueField();
+            TextFlow t = new TextFlow();
+            Bindings.bindContent(t.getChildren(), vf.toText());
+            BorderPane root = new BorderPane(new Group(new VBox(vf, t)));
+            Scene scene = new Scene(root, 1000, 500);
+            Styles.bindStyleSheets(scene.getStylesheets());
+            Stage s = new Stage();
+            s.setScene(scene);
+            s.show();
+        });
+        toolBar.getItems().add(buttonTMP);
     }
     
 }

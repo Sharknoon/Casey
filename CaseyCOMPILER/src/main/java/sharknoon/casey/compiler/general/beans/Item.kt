@@ -1,4 +1,8 @@
-package sharknoon.casey.compiler.general.beans;/*
+package sharknoon.casey.compiler.general.beans
+
+import java.util.*
+
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,55 +14,61 @@ package sharknoon.casey.compiler.general.beans;/*
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific languageString governing permissions and
  * limitations under the License.
  */
 
-import java.util.List;
-import java.util.UUID;
+class Item {
 
-public class Item {
-    
-    
     //The name of the item (required)
-    public String name = "";
-    
+    var name = ""
+
     //Comments of this item (required)
-    public String comments = "";
-    
+    var comments = ""
+
     //The type of this item (required)
-    public ItemType item;
-    
+    var item: ItemType? = null
+
     //The list of children of this item (required)
-    public List<Item> children = List.of();
-    
+    var children = listOf<Item>()
+
     //The id of this project (only for projects)
-    public UUID id;
-    
+    var id: UUID? = null
+
     //The type of this variable or parameter (only for variables and parameters)
-    public String type;
-    
+    var type: String? = null
+
     //The returntype of this function (only for functions)
-    public String returntype;
-    
+    var returntype: String? = null
+
     //The list of blocks of this function (only for functions)
-    public List<Block> blocks = List.of();
-    
-    @Override
-    public String toString() {
-        return "Item{" +
-                "name='" + name + '\'' +
-                ", comments='" + comments + '\'' +
-                ", item=" + item +
-                ", children= size=" + (children != null ? children.size() : 0) +
-                ", id=" + id +
-                ", type='" + type + '\'' +
-                ", returntype='" + returntype + '\'' +
-                ", blocks= size=" + (blocks != null ? blocks.size() : 0) +
-                '}';
+    var blocks = listOf<Block>()
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Item
+
+        if (name != other.name) return false
+        if (children != other.children) return false
+
+        return true
     }
-    
-    public enum ItemType {
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + children.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Item(name='$name', comments='$comments', item=$item, children=$children, id=$id, type=$type, returntype=$returntype, blocks=$blocks)"
+    }
+
+
+    enum class ItemType {
         FUNCTION,
         PROJECT,
         PACKAGE,

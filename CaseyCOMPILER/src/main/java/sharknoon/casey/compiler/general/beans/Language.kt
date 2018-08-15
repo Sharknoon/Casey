@@ -1,4 +1,6 @@
-package sharknoon.casey.compiler;/*
+package sharknoon.casey.compiler.general.beans
+
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,13 +12,13 @@ package sharknoon.casey.compiler;/*
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific languageString governing permissions and
  * limitations under the License.
  */
 
-public enum Language {
-    
-    JAVA,
+enum class Language {
+
+    JAVA
     //LUA maybe in the future
-    
+
 }

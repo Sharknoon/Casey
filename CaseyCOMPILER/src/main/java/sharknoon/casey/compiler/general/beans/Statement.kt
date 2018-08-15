@@ -1,4 +1,6 @@
-package sharknoon.casey.compiler.general.beans;/*
+package sharknoon.casey.compiler.general.beans
+
+/*
  * Copyright 2018 Shark Industries.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,32 +12,26 @@ package sharknoon.casey.compiler.general.beans;/*
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific languageString governing permissions and
  * limitations under the License.
  */
 
-import java.util.List;
+class Statement {
 
-public class Statement {
-    
     //The type of the statement (required)
-    public StatementType type;
-    
+    var type: StatementType? = null
+
     //The value of this value (only for number, boolean, text and object)
-    public Object value;
-    
+    var value: Any? = null
+
     //The parameter of this operator (only for operators)
-    public List<Statement> parameter = List.of();
-    
+    var parameter = listOf<Statement>()
+
     //The calls of this call (only for call)
-    public List<Call> calls = List.of();
-    
-    @Override
-    public String toString() {
-        return type != null ? type.name() : "ERROR";
-    }
-    
-    public enum StatementType {
+    var calls = listOf<Call>()
+
+
+    enum class StatementType {
         //Values
         NUMBER,
         BOOLEAN,
@@ -61,22 +57,25 @@ public class Statement {
         //Call
         CALL
     }
-    
-    public static class Call {
-        
+
+    class Call {
+
         //The parameter of this function (only for functions)
-        public List<Statement> parameter = List.of();
-    
+        var parameter = listOf<Statement>()
+
         //The type of this call (variable-, parameter- or functionname)
-        public String type;
-    
-        @Override
-        public String toString() {
+        var type: String? = null
+
+        override fun toString(): String {
             return "Call{" +
                     "parameter=" + parameter +
-                    ", type='" + type + '\'' +
-                    '}';
+                    ", type='" + type + '\''.toString() +
+                    '}'.toString()
         }
     }
-    
+
+    override fun toString(): String {
+        return type?.name ?: "ERROR"
+    }
+
 }

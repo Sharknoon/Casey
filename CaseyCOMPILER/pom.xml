@@ -19,28 +19,6 @@
         <mainClass>${mainCOMPILERClass}</mainClass>
     </properties>
 
-    <build>
-        <plugins>
-            <!-- for running the Project -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <configuration>
-                    <mainClass>${mainCOMPILERClass}</mainClass>
-                    <arguments>
-                        <argument>-p</argument>
-                        <argument>tmp/Demo.casey</argument>
-                        <argument>-l</argument>
-                        <argument>java</argument>
-                        <argument>-f</argument>
-                        <argument>Demo.root.testfunktion</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <!-- For writing Java-Source -->
         <dependency>

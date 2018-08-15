@@ -20,30 +20,21 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.*;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.Window;
+import javafx.scene.text.*;
+import javafx.stage.*;
 import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.serial.Serialisation;
-import sharknoon.casey.ide.ui.dialogs.Dialogs;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.dialogs.*;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.sites.Site;
 import sharknoon.casey.ide.ui.sites.welcome.RecentProject;
 import sharknoon.casey.ide.ui.styles.Styles;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.io.File;
@@ -136,6 +127,11 @@ public class Project extends Item<Project, Item, Package> {
     
     public Optional<Path> getSaveFile() {
         return Optional.ofNullable(saveFile.get());
+    }
+    
+    public Path forceGetSaveFile() {
+        requestSaveFile();
+        return saveFile.get();
     }
     
     public void setSaveFile(Path path) {
@@ -291,19 +287,29 @@ public class Project extends Item<Project, Item, Package> {
         }
     }
     
-    public void requestSaveFile() {
+    private void requestSaveFile() {
         if (saveFile.get() == null) {//If the programm has no path (hasnt been saved yet)
-            FileChooser chooser = new FileChooser();
-            chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-            chooser.setInitialFileName(nameProperty().get());
-            chooser.setTitle(Language.get(Word.SAVE_DIALOG_TITLE));
-            chooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_CASEY_PROJECT), "*.casey")
-            );
-            Window ownerWindow = Stage.getWindows().size() > 0 ? Stage.getWindows().get(0) : null;
-            File file = chooser.showSaveDialog(ownerWindow);
-            if (file != null) {
-                saveFile.set(file.toPath());
+            //Get standard save location
+            Path projectsDirectory = Resources.createAndGetDirectory("/Projects", false);
+            if (projectsDirectory != null) {
+                saveFile.set(projectsDirectory.resolve(nameProperty().get() + ".casey"));
+                //Ask the user for a location (should nearly never happen)
+            } else {
+                FileChooser chooser = new FileChooser();
+                chooser.setInitialDirectory(Resources.getPublicPath().resolve("Projects").toFile());
+                chooser.setInitialFileName(nameProperty().get());
+                chooser.setTitle(Language.get(Word.SAVE_DIALOG_TITLE));
+                chooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter(Language.get(Word.SAVE_DIALOG_EXTENSION_FILTER_CASEY_PROJECT), "*.casey")
+                );
+                Window ownerWindow = Stage.getWindows().size() > 0 ? Stage.getWindows().get(0) : null;
+                File file = chooser.showSaveDialog(ownerWindow);
+                if (file != null) {//User may closed the dialog
+                    saveFile.set(file.toPath());
+                }
+            }
+            if (saveFile.get() == null) {
+                ExceptionDialog.show("Could not save File!", new Exception());
             }
         }
     }

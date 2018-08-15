@@ -15,8 +15,7 @@
  */
 package sharknoon.casey.ide.utils.language.lanugages;
 
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 
 import java.util.Locale;
 
@@ -42,6 +41,7 @@ public class German extends Language {
         add(Word.MENUBAR_OPTIONS_UPDATE_TEXT, "Auf Aktualisierungen überprüfen");
         add(Word.MENUBAR_OPTIONS_ABOUT_TEXT, "Über Casey");
         add(Word.MENUBAR_PROJECT_TEXT, "Projekt");
+        add(Word.MENUBAR_PROJECT_OPEN_FOLDER_TEXT, "Projektordner öffnen");
         add(Word.MENUBAR_PROJECT_CLOSE_TEXT, "Schließen");
         //ToolBar
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");

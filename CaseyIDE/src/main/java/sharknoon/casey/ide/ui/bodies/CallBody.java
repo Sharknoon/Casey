@@ -15,19 +15,11 @@ package sharknoon.casey.ide.ui.bodies;
  * limitations under the License.
  */
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ObjectExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.beans.binding.*;
+import javafx.beans.property.*;
+import javafx.beans.value.*;
+import javafx.collections.*;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -35,11 +27,9 @@ import sharknoon.casey.ide.logic.ValueReturnable;
 import sharknoon.casey.ide.logic.items.Class;
 import sharknoon.casey.ide.logic.items.Class.ObjectType;
 import sharknoon.casey.ide.logic.statements.Statement;
-import sharknoon.casey.ide.logic.statements.calls.Call;
-import sharknoon.casey.ide.logic.statements.calls.CallItem;
+import sharknoon.casey.ide.logic.statements.calls.*;
 import sharknoon.casey.ide.logic.types.Type;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.StyleClasses;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
 
@@ -64,7 +54,8 @@ public class CallBody extends Body<Call<?>> {
         var hBoxContent = new HBox();
         hBoxContent.setPrefSize(0, 0);
         hBoxContent.setAlignment(Pos.CENTER_LEFT);
-        
+    
+        //Bind Error
         var isUndefinedExpected = call.getExpectedReturnType() == Type.UNDEFINED;
         bindError(Bindings.createBooleanBinding(() -> isUndefinedExpected)
                 .or(call

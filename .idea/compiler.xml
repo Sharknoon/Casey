@@ -14,7 +14,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="CaseyIDE" options="--add-modules=javafx.graphics,javafx.fxml,javafx.controls,javafx.base" />
+      <module name="CaseyIDE" options="--add-modules=javafx.graphics,javafx.base,javafx.controls" />
     </option>
   </component>
 </project>

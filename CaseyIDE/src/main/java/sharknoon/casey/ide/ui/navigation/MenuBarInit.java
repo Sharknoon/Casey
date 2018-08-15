@@ -20,24 +20,22 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import sharknoon.casey.ide.logic.items.Project;
-import sharknoon.casey.ide.logic.items.Welcome;
+import sharknoon.casey.ide.logic.items.*;
 import sharknoon.casey.ide.misc.Updater;
 import sharknoon.casey.ide.ui.about.About;
 import sharknoon.casey.ide.ui.background.Background;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.Styles;
 import sharknoon.casey.ide.utils.javafx.SnapSlider;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.awt.*;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -225,8 +223,32 @@ public class MenuBarInit {
                 menuProject.setDisable(false);
             }
         });
-        menubar.getMenus().add(menuProject);
+    
+        menuProject.getItems().addAll(
+                initProjectOpenFolderMenu(),
+                initProjectCloseMenu()
+        );
         
+        menubar.getMenus().add(menuProject);
+    }
+    
+    private static MenuItem initProjectOpenFolderMenu() {
+        MenuItem menuOpenProjectFolder = new MenuItem();
+        Language.setCustom(Word.MENUBAR_PROJECT_OPEN_FOLDER_TEXT, menuOpenProjectFolder::setText);
+        Icons.setCustom(Icon.LOAD, menuOpenProjectFolder::setGraphic);
+        menuOpenProjectFolder.setOnAction((event) -> {
+            Project.getCurrentProject().ifPresent(p -> {
+                try {
+                    Desktop d = Desktop.getDesktop();
+                    d.open(p.forceGetSaveFile().getParent().toFile());
+                } catch (Exception ignored) {
+                }
+            });
+        });
+        return menuOpenProjectFolder;
+    }
+    
+    private static MenuItem initProjectCloseMenu() {
         MenuItem menuCloseProject = new MenuItem();
         Language.setCustom(Word.MENUBAR_PROJECT_CLOSE_TEXT, menuCloseProject::setText);
         Icons.setCustom(Icon.CLOSE, menuCloseProject::setGraphic);
@@ -234,6 +256,6 @@ public class MenuBarInit {
             Project.getCurrentProject().ifPresent(Project::close);
             Welcome.getWelcome().getSite().select();
         });
-        menuProject.getItems().add(menuCloseProject);
+        return menuCloseProject;
     }
 }

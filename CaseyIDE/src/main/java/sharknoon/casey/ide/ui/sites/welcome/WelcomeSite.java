@@ -16,39 +16,25 @@
 package sharknoon.casey.ide.ui.sites.welcome;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.beans.property.*;
+import javafx.geometry.*;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import sharknoon.casey.ide.logic.items.Item;
-import sharknoon.casey.ide.logic.items.ItemType;
-import sharknoon.casey.ide.logic.items.Project;
-import sharknoon.casey.ide.logic.items.Welcome;
+import sharknoon.casey.ide.logic.items.*;
 import sharknoon.casey.ide.serial.Serialisation;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.sites.Site;
-import sharknoon.casey.ide.ui.sites.SiteUtils;
+import sharknoon.casey.ide.ui.sites.*;
 import sharknoon.casey.ide.ui.styles.StyleClasses;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
-import sharknoon.casey.ide.utils.settings.Props;
+import sharknoon.casey.ide.utils.language.*;
+import sharknoon.casey.ide.utils.settings.*;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+import java.nio.file.*;
+import java.time.format.*;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -106,7 +92,7 @@ public class WelcomeSite extends Site<Welcome> {
             if (lastDirectory.isPresent() && Files.exists(Paths.get(lastDirectory.get()))) {
                 chooser.setInitialDirectory(new File(lastDirectory.get()));
             } else {
-                chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+                chooser.setInitialDirectory(Resources.getPublicPath().resolve("Projects").toFile());
             }
             chooser.setTitle(Language.get(Word.OPEN_DIALOG_TITLE));
             chooser.getExtensionFilters().add(

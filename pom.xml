@@ -10,8 +10,11 @@
     <packaging>pom</packaging>
 
     <properties>
+        <compilerName>${project.artifactId}COMPILER</compilerName>
+        <ideName>${project.artifactId}IDE</ideName>
+        <updaterName>${project.artifactId}UPDATER</updaterName>
         <mainClass>${mainIDEClass}</mainClass>
-        <mainCOMPILERClass>sharknoon.casey.compiler.Main</mainCOMPILERClass>
+        <mainCOMPILERClass>sharknoon.casey.compiler.MainKt</mainCOMPILERClass>
         <mainIDEClass>sharknoon.casey.ide.MainApplication</mainIDEClass>
         <mainUPDATERClass>sharknoon.casey.updater.Main</mainUPDATERClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,9 +62,11 @@
     <build>
         <finalName>${project.name}</finalName>
         <plugins>
+            <!-- for compiling kotlin -->
             <!-- For building jars -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -74,7 +79,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
-            <!--&lt;!&ndash; for running the Project &ndash;&gt;-->
+            <!-- for running the Project -->
             <!--<plugin>-->
             <!--<groupId>org.codehaus.mojo</groupId>-->
             <!--<artifactId>exec-maven-plugin</artifactId>-->
@@ -102,7 +107,7 @@
             <!--<argument>-appclass</argument>-->
             <!--<argument>${mainClass}</argument>-->
             <!--<argument>-srcfiles</argument>-->
-            <!--<argument>${project.build.directory}/CaseyIDE/target/CaseyIDE.jar</argument>-->
+            <!--<argument>${project.build.directory}/${ideName}/target/${ideName}.jar</argument>-->
             <!--<argument>-outdir</argument>-->
             <!--<argument>./target</argument>-->
             <!--<argument>-outfile</argument>-->
@@ -132,18 +137,18 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/CaseyIDE/src/main/resources/sharknoon/casey/ide
+                            <outputDirectory>${basedir}/${ideName}/src/main/resources/sharknoon/casey/ide
                             </outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/CaseyCOMPILER/target/</directory>
+                                    <directory>${basedir}/${compilerName}/target/</directory>
                                     <filtering>true</filtering>
-                                    <includes>CaseyCOMPILER.jar</includes>
+                                    <includes>${compilerName}.jar</includes>
                                 </resource>
                                 <resource>
-                                    <directory>${basedir}/CaseyUPDATER/target/</directory>
+                                    <directory>${basedir}/${updaterName}/target/</directory>
                                     <filtering>true</filtering>
-                                    <includes>CaseyUPDATER.jar</includes>
+                                    <includes>${updaterName}.jar</includes>
                                 </resource>
                             </resources>
                         </configuration>
@@ -161,6 +166,12 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>
@@ -168,6 +179,12 @@
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>

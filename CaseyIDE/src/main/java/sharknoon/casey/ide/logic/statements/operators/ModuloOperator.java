@@ -18,9 +18,8 @@ package sharknoon.casey.ide.logic.statements.operators;
 import sharknoon.casey.ide.logic.statements.Statement;
 import sharknoon.casey.ide.logic.statements.values.PrimitiveValue.NumberValue;
 import sharknoon.casey.ide.logic.statements.values.Value;
-import sharknoon.casey.ide.logic.types.PrimitiveType;
+import sharknoon.casey.ide.logic.types.*;
 import sharknoon.casey.ide.logic.types.PrimitiveType.NumberType;
-import sharknoon.casey.ide.logic.types.Type;
 
 import java.util.List;
 
@@ -39,8 +38,7 @@ public class ModuloOperator extends Operator<NumberType, NumberType> {
         List<Statement<NumberType, NumberType, Type>> parameters = getParameters();
         double result = Double.NaN;
         int iterations = 0;
-        for (int i = 0; i < parameters.size(); i++) {
-            Statement<NumberType, NumberType, Type> par = parameters.get(i);
+        for (var par : parameters) {
             if (par != null) {
                 double value = Value.toNumberValue(par.calculateResult()).getValue();
                 if (Double.isNaN(result)) {

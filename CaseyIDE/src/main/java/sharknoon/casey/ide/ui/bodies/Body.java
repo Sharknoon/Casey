@@ -15,43 +15,28 @@
  */
 package sharknoon.casey.ide.ui.bodies;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.ObjectExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.binding.*;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Group;
-import javafx.scene.Node;
+import javafx.collections.*;
+import javafx.scene.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import sharknoon.casey.ide.logic.statements.Statement;
-import sharknoon.casey.ide.logic.statements.calls.Call;
-import sharknoon.casey.ide.logic.statements.calls.CallItem;
+import sharknoon.casey.ide.logic.statements.calls.*;
 import sharknoon.casey.ide.logic.statements.operators.Operator;
 import sharknoon.casey.ide.logic.statements.values.Value;
-import sharknoon.casey.ide.logic.types.PrimitiveType.BooleanType;
-import sharknoon.casey.ide.logic.types.PrimitiveType.NumberType;
-import sharknoon.casey.ide.logic.types.PrimitiveType.TextType;
-import sharknoon.casey.ide.logic.types.PrimitiveType.VoidType;
+import sharknoon.casey.ide.logic.types.PrimitiveType.*;
 import sharknoon.casey.ide.logic.types.Type;
 import sharknoon.casey.ide.ui.UISettings;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
-import sharknoon.casey.ide.ui.misc.MouseConsumable;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
 import sharknoon.casey.ide.utils.settings.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Helper class
@@ -125,7 +110,6 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     
     private final S statement;
     private final StackPane contentPane = new StackPane();
-    private final ObjectBinding<Shape> backgroundShape;
     private BooleanProperty errorProperty = new SimpleBooleanProperty(false);
     private List<Runnable> onDestroy;
     private Node closeIcon;
@@ -147,7 +131,7 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     private Body(ObjectExpression<Type> type, S statement) {
         super();
         this.statement = statement;
-        this.backgroundShape = typeToShapeBinding(type);
+        ObjectBinding<Shape> backgroundShape = typeToShapeBinding(type);
         init();
         getChildren().addAll(backgroundShape.get(), contentPane);
         backgroundShape.addListener((observable, oldValue, newValue) -> {
@@ -168,6 +152,10 @@ public abstract class Body<S extends Statement> extends Group implements MouseCo
     protected void bindError(BooleanExpression error) {
         errorProperty.unbind();
         errorProperty.bind(error);
+    }
+    
+    public BooleanProperty errorProperty() {
+        return errorProperty;
     }
     
     @Override

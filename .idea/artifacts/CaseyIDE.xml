@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CaseyIDE">
+    <output-path>$PROJECT_DIR$/out/artifacts/CaseyIDE</output-path>
+    <root id="archive" name="CaseyIDE.jar">
+      <element id="archive" name="CaseyIDE.jar">
+        <element id="module-output" name="CaseyIDE" />
+      </element>
+    </root>
+  </artifact>
+</component>

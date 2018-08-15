@@ -17,16 +17,12 @@ package sharknoon.casey.ide.utils.settings;
 
 import sharknoon.casey.ide.MainApplication;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 /**
  * @author Josua Frank frank.josua@gmail.com
@@ -78,6 +74,14 @@ public class Resources {
             initPrivateDir();
             initPublicDir();
         }
+    }
+    
+    public static Path getPrivatePath() {
+        return PRIVATE_PATH;
+    }
+    
+    public static Path getPublicPath() {
+        return PUBLIC_PATH;
     }
     
     /**
@@ -161,19 +165,6 @@ public class Resources {
         return false;
     }
     
-    public static boolean createDirectory(String path, boolean privateDirectory) {
-        Optional<Path> dirSearch = lookup(path, privateDirectory);
-        if (!dirSearch.isPresent()) {
-            Path file = createPath(path, privateDirectory);
-            try {
-                Files.createDirectories(file);
-                return true;
-            } catch (UnsupportedOperationException | IOException | SecurityException ex) {
-                Logger.error("Error creating Directory " + path, ex);
-            }
-        }
-        return false;
-    }
     
     /**
      * Returns the requested File and creates it, if it doesnt exist
@@ -201,6 +192,30 @@ public class Resources {
             return Files.newInputStream(path2);
         } catch (UnsupportedOperationException | IOException | SecurityException ex) {
             Logger.warning("Could not open or create File as Stream: " + path, ex);
+        }
+        return null;
+    }
+    
+    public static boolean createDirectory(String path, boolean privateDirectory) {
+        Optional<Path> dirSearch = lookup(path, privateDirectory);
+        if (!dirSearch.isPresent()) {
+            Path file = createPath(path, privateDirectory);
+            try {
+                Files.createDirectories(file);
+            } catch (UnsupportedOperationException | IOException | SecurityException ex) {
+                Logger.error("Error creating Directory " + path, ex);
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static Path createAndGetDirectory(String path, boolean privateDirectory) {
+        try {
+            createDirectory(path, privateDirectory);
+            return getDirectory(path, privateDirectory).orElse(null);
+        } catch (InvalidPathException ex) {
+            Logger.error("Could not create File " + path, ex);
         }
         return null;
     }

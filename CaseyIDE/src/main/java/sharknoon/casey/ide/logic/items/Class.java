@@ -16,23 +16,17 @@
 package sharknoon.casey.ide.logic.items;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.*;
+import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
 import sharknoon.casey.ide.logic.statements.Statement;
 import sharknoon.casey.ide.logic.statements.values.ObjectValue;
-import sharknoon.casey.ide.logic.types.PrimitiveType;
-import sharknoon.casey.ide.logic.types.Type;
+import sharknoon.casey.ide.logic.types.*;
 import sharknoon.casey.ide.ui.browsers.TypeBrowser;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
 import sharknoon.casey.ide.ui.misc.Icon;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -15,8 +15,7 @@
  */
 package sharknoon.casey.ide.ui.misc;
 
-import sharknoon.casey.ide.utils.settings.Logger;
-import sharknoon.casey.ide.utils.settings.Resources;
+import sharknoon.casey.ide.utils.settings.*;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -99,10 +98,15 @@ public enum Icon {
     FUNCTIONBOOLEAN,
     FUNCTIONCLASS,
     FUNCTIONTEXT,
-    FUNCTIONNUMBER, FUNCTIONVOID, RELOAD, UPDATE, INFO, CASEY;
+    FUNCTIONNUMBER, FUNCTIONVOID, RELOAD, UPDATE, INFO, CASEY, JAVA;
+    
     
     public static Icon forName(String name) {
-        return Enum.valueOf(Icon.class, name.toUpperCase());
+        try {
+            return Icon.valueOf(name.toUpperCase());
+        } catch (Exception e) {
+            return Icon.ERROR;
+        }
     }
     
     private String path;

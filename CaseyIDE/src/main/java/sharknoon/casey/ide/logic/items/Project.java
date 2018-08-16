@@ -27,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.*;
 import sharknoon.casey.ide.MainApplication;
+import sharknoon.casey.ide.logic.CompileLanguage;
 import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.serial.Serialisation;
 import sharknoon.casey.ide.ui.dialogs.*;
@@ -51,6 +52,7 @@ public class Project extends Item<Project, Item, Package> {
     
     private static final String ID = "id";
     private static ObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
+    private static ObjectProperty<CompileLanguage> currentCompileLanguage = new SimpleObjectProperty<>(CompileLanguage.Java);
     
     public static Optional<Project> getCurrentProject() {
         return Optional.ofNullable(currentProject.get());
@@ -58,6 +60,14 @@ public class Project extends Item<Project, Item, Package> {
     
     public static ObjectProperty<Project> currentProjectProperty() {
         return currentProject;
+    }
+    
+    public static CompileLanguage getCurrentCompileLanguage() {
+        return currentCompileLanguage.get();
+    }
+    
+    public static ObjectProperty<CompileLanguage> currentCompileLanguageProperty() {
+        return currentCompileLanguage;
     }
     
     private final ObjectProperty<Path> saveFile = new SimpleObjectProperty<>();
@@ -195,7 +205,7 @@ public class Project extends Item<Project, Item, Package> {
                 }
                 List<String> commands = new ArrayList<>();
                 commands.add("-l");
-                commands.add("java");
+                commands.add(currentCompileLanguage.get().name().toLowerCase());
                 commands.add("-p");
                 commands.add(String.valueOf(caseyFile));
                 commands.add("-f");

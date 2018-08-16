@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package sharknoon.casey.ide.utils.language;
+
 //
 //
 //To have the same height as the language files to compare them more easily
@@ -303,5 +304,5 @@ public enum Word {
     CONCAT,
     LENGTH,
     DELETE,
-    VOID,
+    VOID
 }

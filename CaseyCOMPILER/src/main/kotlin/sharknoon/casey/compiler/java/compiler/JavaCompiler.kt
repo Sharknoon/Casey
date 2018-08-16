@@ -28,8 +28,8 @@ private val javacPath: Path? =
                     ?: checkProgramFilesEnvironmentVariable()
                     ?: checkPathEnvironmentVariable()
             if (jdkPath != null) {
-                val javacPath = jdkPath.resolve("bin").resolve("javac")
-                if (Files.isRegularFile(javacPath)) {
+                val javacPath = jdkPath.resolve("bin").resolve("javac.exe")
+                if (Files.exists(javacPath)) {
                     javacPath
                 } else {
                     null
@@ -92,7 +92,7 @@ private fun checkPathEnvironmentVariable(): Path? {
     val paths = System.getenv("Path") ?: return null
     return paths
             .split(';')
-            .filter { scanFile(it) }
+            .filter { checkJDKDirectoryName(it) }
             .map { Paths.get(it) }
             .mapNotNull { it.parent }
             .firstOrNull()
@@ -102,7 +102,7 @@ private fun checkJDKDirectory(jdkDirectory: String = ""): Path? {
     try {
         if (!jdkDirectory.isEmpty()) {
             val javaPath = Paths.get(jdkDirectory)
-            return if (scanFile(javaPath)) {
+            return if (checkJDKDirectoryName(javaPath)) {
                 javaPath
             } else {
                 val parent = javaPath.parent
@@ -130,16 +130,16 @@ private fun checkJDKDirectories(parentJdkDirectory: String = ""): Path? {
 }
 
 private fun checkJDKDirectories(parentJdkDirectory: Path?): Path? {
-    return if (parentJdkDirectory == null) null else scanDirectory(parentJdkDirectory)
+    return if (parentJdkDirectory == null) null else scanDirectoryContent(parentJdkDirectory)
 }
 
-private fun scanDirectory(directoryToScan: Path): Path? {
+private fun scanDirectoryContent(directoryToScan: Path): Path? {
     if (!Files.isDirectory(directoryToScan)) {
         return null
     }
     return try {
         Files.list(directoryToScan)
-                .filter { scanFile(it) }
+                .filter { checkJDKDirectoryName(it) }
                 .findAny()
                 .orElse(null)
     } catch (e: IOException) {
@@ -149,15 +149,15 @@ private fun scanDirectory(directoryToScan: Path): Path? {
 
 }
 
-private fun scanFile(fileToScan: Path): Boolean {
-    if (!Files.isRegularFile(fileToScan)) {
+private fun checkJDKDirectoryName(directoryToScan: Path): Boolean {
+    if (!Files.isDirectory(directoryToScan)) {
         return false
     }
-    val fileName = fileToScan.fileName.toString()
-    return scanFile(fileName)
+    val fileName = directoryToScan.fileName.toString()
+    return checkJDKDirectoryName(fileName)
 }
 
-private fun scanFile(fileNameToScan: String?): Boolean {
+private fun checkJDKDirectoryName(fileNameToScan: String?): Boolean {
     return fileNameToScan != null && fileNameToScan.matches(".*jdk.*[1-9][0-9]{1,2}.*".toRegex())
 }
 

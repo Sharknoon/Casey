@@ -16,8 +16,9 @@ package sharknoon.casey.compiler.java.generator
  * limitations under the License.
  */
 
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Item.ItemType.*
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Item
+import sharknoon.casey.compiler.general.parser.beans.Item.ItemType.*
 import sharknoon.casey.compiler.java.generator.item.*
 import java.nio.file.*
 
@@ -36,7 +37,6 @@ fun generate(args: CLIArgs, currentPath: Path, item: Item): Boolean {
             System.err.println("Parameters not allowed outside of functions")
             false
         }
-        else -> false
     }
 }
 

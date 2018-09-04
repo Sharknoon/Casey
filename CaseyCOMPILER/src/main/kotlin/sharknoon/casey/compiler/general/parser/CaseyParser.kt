@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general
+package sharknoon.casey.compiler.general.parser
 
 /*
  * Copyright 2018 Shark Industries.
@@ -17,8 +17,9 @@ package sharknoon.casey.compiler.general
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Item.ItemType
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import sharknoon.casey.compiler.general.parser.beans.*
+import sharknoon.casey.compiler.general.parser.beans.Item.ItemType
 import java.nio.file.*
 import java.util.*
 
@@ -51,7 +52,7 @@ fun parseCasey(path: Path): Item? {
 }
 
 private fun getItem(path: Path): Item? {
-    val mapper = ObjectMapper()
+    val mapper = ObjectMapper().registerKotlinModule()
     try {
         return mapper.readValue<Item>(Files.newInputStream(path), Item::class.java)
     } catch (e: Exception) {
@@ -75,7 +76,7 @@ private fun buildNameDirectories(i: Item, p: Item?, currentPath: String) {
         buildNameDirectories(c, i, newCurrentPath)
     }
     for (block in i.blocks) {
-        val id = block.blockid ?: continue
+        val id = block.blockid
         NAME_TO_BLOCK[id] = block
     }
 

@@ -15,21 +15,14 @@
  */
 package sharknoon.casey.ide.ui;
 
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeView;
+import javafx.fxml.*;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import sharknoon.casey.ide.logic.items.Item;
-import sharknoon.casey.ide.logic.items.Welcome;
+import sharknoon.casey.ide.logic.items.*;
 import sharknoon.casey.ide.misc.Updater;
 import sharknoon.casey.ide.ui.background.Background;
-import sharknoon.casey.ide.ui.navigation.ItemTabPane;
-import sharknoon.casey.ide.ui.navigation.ItemTreeView;
-import sharknoon.casey.ide.ui.navigation.MenuBarInit;
-import sharknoon.casey.ide.ui.navigation.ToolBarInit;
+import sharknoon.casey.ide.ui.navigation.*;
+import sharknoon.casey.ide.ui.tutorial.Tutorial;
 import sharknoon.casey.ide.utils.settings.Keyboard;
 
 import java.net.URL;
@@ -74,6 +67,7 @@ public class MainController implements Initializable {
         ItemTabPane.init(tabPane);
         Keyboard.init();
         Updater.init();
+        Tutorial.init();
         Welcome.getWelcome().getSite().select();
     }
 

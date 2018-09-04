@@ -17,7 +17,8 @@ package sharknoon.casey.compiler.java.generator.item
  */
 
 
-import sharknoon.casey.compiler.general.beans.*
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Item
 import sharknoon.casey.compiler.java.generator.generate
 import java.nio.file.*
 

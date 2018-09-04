@@ -15,13 +15,10 @@
  */
 package sharknoon.casey.ide.utils.settings;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.time.format.*;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -421,7 +418,7 @@ public class Logger {
         }
     
         /**
-         * Returns the description, so you can easily write in the parser:
+         * Returns the description, so you can easily write in the beans:
          * <p>
          * System.out::println</p>
          *

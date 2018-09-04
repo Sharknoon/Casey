@@ -31,6 +31,7 @@ import sharknoon.casey.ide.ui.about.About;
 import sharknoon.casey.ide.ui.background.Background;
 import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.Styles;
+import sharknoon.casey.ide.ui.tutorial.Tutorial;
 import sharknoon.casey.ide.utils.javafx.SnapSlider;
 import sharknoon.casey.ide.utils.language.*;
 
@@ -61,6 +62,7 @@ public class MenuBarInit {
                 initOptionsBackgroundMenu(),
                 initOptionsStylesMenu(),
                 initOptionsUpdateMenu(),
+                initOptionsHelpMenu(),
                 initOptionsAboutMenu()
         );
         
@@ -199,6 +201,16 @@ public class MenuBarInit {
         menuItemUpdate.setOnAction(e -> Updater.checkForUpdates());
         
         return menuItemUpdate;
+    }
+    
+    private static MenuItem initOptionsHelpMenu() {
+        MenuItem menuItemHelp = new MenuItem();
+        Language.setCustom(Word.HELP, menuItemHelp::setText);
+        Icons.setCustom(Icon.HELP, menuItemHelp::setGraphic);
+        
+        menuItemHelp.setOnAction(e -> Tutorial.showTutorial());
+        
+        return menuItemHelp;
     }
     
     private static MenuItem initOptionsAboutMenu() {

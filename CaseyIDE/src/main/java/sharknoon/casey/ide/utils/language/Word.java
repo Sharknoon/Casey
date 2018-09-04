@@ -304,5 +304,6 @@ public enum Word {
     CONCAT,
     LENGTH,
     DELETE,
-    VOID
+    VOID,
+    HELP
 }

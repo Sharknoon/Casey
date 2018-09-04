@@ -39,6 +39,11 @@
             <artifactId>jackson-databind</artifactId>
             <version>LATEST</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>LATEST</version>
+        </dependency>
         <!-- General IO Tools e.g. for deleting directories -->
         <dependency>
             <groupId>commons-io</groupId>
@@ -54,7 +59,7 @@
         </dependency>
         <!-- HTML Parser for the item comments -->
         <dependency>
-            <!-- jsoup HTML parser library @ https://jsoup.org/ -->
+            <!-- jsoup HTML beans library @ https://jsoup.org/ -->
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>LATEST</version>

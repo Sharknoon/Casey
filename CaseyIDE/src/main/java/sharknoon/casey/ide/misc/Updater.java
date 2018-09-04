@@ -22,13 +22,10 @@ import org.aeonbits.owner.ConfigFactory;
 import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.Styles;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
-import sharknoon.casey.ide.utils.settings.Logger;
-import sharknoon.casey.ide.utils.settings.Resources;
+import sharknoon.casey.ide.utils.language.*;
+import sharknoon.casey.ide.utils.settings.*;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -41,7 +38,7 @@ public class Updater {
     
     public static void init() {
         ScheduledExecutorService updateCheckingSchedulerService = Executors.newScheduledThreadPool(1);
-        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdatesSilently, 2, 60, TimeUnit.MINUTES);
+        updateCheckingSchedulerService.scheduleAtFixedRate(Updater::checkForUpdatesSilently, 20, 3600, TimeUnit.SECONDS);
         MainApplication.registerExitable(() -> {
             if (!updateCheckingSchedulerService.isShutdown()) {
                 updateCheckingSchedulerService.shutdown();

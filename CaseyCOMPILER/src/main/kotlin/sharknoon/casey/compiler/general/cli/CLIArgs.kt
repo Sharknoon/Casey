@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general.beans
+package sharknoon.casey.compiler.general.cli
 
 /*
  * Copyright 2018 Shark Industries.
@@ -36,7 +36,8 @@ data class CLIArgs(
      *
      * @return
      */
-    val basePath: Path = if (this.caseyPath.parent != null) this.caseyPath.parent else Paths.get("")
+    val basePath: Path = caseyPath.parent ?: Paths.get("")
+
     /**
      * The path to the main class .java file (base path + function path + '.java')
      *
@@ -45,13 +46,19 @@ data class CLIArgs(
     val functionPath: Path = basePath.resolve(function.replace('.', '/') + ".java")
 
     val language = Language.valueOf(languageString.toUpperCase())
-
     override fun toString(): String {
-        return "CLIArgs{" +
-                "function='" + function + '\''.toString() +
-                ", caseyPathString='" + caseyPathString + '\''.toString() +
-                ", languageString='" + languageString + '\''.toString() +
-                ", parameters=" + parameters +
-                '}'.toString()
+        return "CLIArgs(function='$function', " +
+                "parameters=$parameters, " +
+                "ignoreComments=$ignoreComments, " +
+                "caseyPath=$caseyPath, " +
+                "basePath=$basePath, " +
+                "functionPath=$functionPath, " +
+                "language=$language)"
     }
+
+    enum class Language {
+        JAVA
+        //LUA maybe in the future
+    }
+
 }

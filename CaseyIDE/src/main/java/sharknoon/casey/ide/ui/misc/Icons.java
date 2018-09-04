@@ -15,24 +15,18 @@
  */
 package sharknoon.casey.ide.ui.misc;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.Group;
-import javafx.scene.Node;
+import javafx.scene.*;
 import javafx.scene.control.Labeled;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.*;
 import javafx.scene.layout.BorderPane;
 import org.apache.batik.anim.dom.SVGOMDocument;
 import sharknoon.casey.ide.utils.javafx.svg.ChachedSvgLoader;
-import sharknoon.casey.ide.utils.settings.Logger;
-import sharknoon.casey.ide.utils.settings.Resources;
+import sharknoon.casey.ide.utils.settings.*;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Josua Frank
@@ -49,16 +43,25 @@ public class Icons {
     }
     
     public static Node get(Icon icon, double size) {
-        return create(icon, size);
+        return get(icon, size, -1);
     }
+    
+    public static Node get(Icon icon, double maxX, double maxY) {
+        return create(icon, maxX, maxY);
+    }
+    
     
     public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon) {
         return iconToNodeProperty(icon, DEFAULT_SIZE);
     }
     
     public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon, double size) {
+        return iconToNodeProperty(icon, size, -1);
+    }
+    
+    public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon, double maxX, double maxY) {
         ObjectProperty<Node> result = new SimpleObjectProperty<>();
-        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> result.set(get(newValue, size));
+        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> result.set(get(newValue, maxX, maxY));
         icon.addListener(listener);
         listener.changed(icon, null, icon.get());
         return result;
@@ -73,33 +76,50 @@ public class Icons {
     }
     
     public static void set(Icon icon, Labeled labeled) {
-        labeled.setGraphic(create(icon, DEFAULT_SIZE));
+        set(icon, labeled, DEFAULT_SIZE);
     }
     
     public static void set(Icon icon, Labeled labeled, double size) {
-        labeled.setGraphic(create(icon, size));
+        set(icon, labeled, size, -1);
+    }
+    
+    public static void set(Icon icon, Labeled labeled, double maxX, double maxY) {
+        labeled.setGraphic(create(icon, maxX, maxY));
     }
     
     public static void setCustom(Icon icon, ValueSetter<Node> valueSetter) {
-        valueSetter.setValue(create(icon, DEFAULT_SIZE));
+        setCustom(icon, valueSetter, DEFAULT_SIZE);
     }
     
     public static void setCustom(Icon icon, ValueSetter<Node> valueSetter, double size) {
-        valueSetter.setValue(create(icon, size));
+        setCustom(icon, valueSetter, size, -1);
     }
     
-    private static Node create(Icon icon, double desiredSize) {
+    public static void setCustom(Icon icon, ValueSetter<Node> valueSetter, double maxX, double maxY) {
+        valueSetter.setValue(create(icon, maxX, maxY));
+    }
+    
+    private static Node create(Icon icon, double maxX, double maxY) {
         Optional<Group> svg = getSVG(icon);
         if (svg.isPresent()) {
             Group group = svg.get();
-            double originalHeight = group.prefHeight(42);//42 is ignored
             double originalWidth = group.prefWidth(42);//42 is ignored
-            double originalSideLength = originalHeight > originalWidth ? originalHeight : originalWidth;
-            double scale = desiredSize / originalSideLength;
-            group.setScaleX(scale);
-            group.setScaleY(scale);
+            double originalHeight = group.prefHeight(42);//42 is ignored
+            double widthDifferenceMultiplier = maxX / originalWidth;
+            double heightDifferenceMultiplier = maxY < 0 ? maxX / originalHeight : maxY / originalHeight;
+            double differenceMultiplier = widthDifferenceMultiplier < heightDifferenceMultiplier ? widthDifferenceMultiplier : heightDifferenceMultiplier;
+            group.setScaleX(differenceMultiplier);
+            group.setScaleY(differenceMultiplier);
             BorderPane result = new BorderPane(new Group(group));
-            result.setPrefSize(desiredSize, desiredSize);
+            if (maxY < 0) {
+                if (originalWidth > originalHeight) {
+                    result.setPrefSize(originalWidth * differenceMultiplier, originalWidth * differenceMultiplier);
+                } else {
+                    result.setPrefSize(originalHeight * differenceMultiplier, originalHeight * differenceMultiplier);
+                }
+            } else {
+                result.setPrefSize(originalWidth * differenceMultiplier, originalHeight * differenceMultiplier);
+            }
             return result;
         }
         ImageView view = new ImageView();
@@ -107,10 +127,11 @@ public class Icons {
         if (imageOpt.isPresent()) {
             view.setPreserveRatio(true);
             Image image = imageOpt.get();
-            if (image.getWidth() > image.getHeight()) {
-                view.setFitWidth(desiredSize);
+            view.setFitWidth(maxX);
+            if (maxY < 0) {
+                view.setFitHeight(maxX);
             } else {
-                view.setFitHeight(desiredSize);
+                view.setFitHeight(maxY);
             }
             view.setImage(image);
         } else {

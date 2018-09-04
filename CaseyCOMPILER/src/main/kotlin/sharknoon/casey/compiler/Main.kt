@@ -1,7 +1,7 @@
 package sharknoon.casey.compiler
 
-import sharknoon.casey.compiler.general.*
-import sharknoon.casey.compiler.general.beans.Language
+import sharknoon.casey.compiler.general.cli.*
+import sharknoon.casey.compiler.general.parser.parseCasey
 import sharknoon.casey.compiler.java.compiler.compile
 import sharknoon.casey.compiler.java.generator.generate
 import kotlin.system.exitProcess
@@ -43,7 +43,7 @@ fun go(args: Array<String>): Int {
     //---------------------
     var success = false
     when (cliArgs.language) {
-        Language.JAVA -> success = generate(cliArgs, item)
+        CLIArgs.Language.JAVA -> success = generate(cliArgs, item)
         //Maybe add more languages
     }
     if (success) {
@@ -55,7 +55,7 @@ fun go(args: Array<String>): Int {
     //---------------------
     success = false
     when (cliArgs.language) {
-        Language.JAVA -> success = compile(cliArgs)
+        CLIArgs.Language.JAVA -> success = compile(cliArgs)
         //Maybe add more languages
     }
     if (success) {

@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general
+package sharknoon.casey.compiler.general.cli
 
 /*
  * Copyright 2018 Shark Industries.
@@ -17,7 +17,6 @@ package sharknoon.casey.compiler.general
  */
 
 import org.apache.commons.cli.*
-import sharknoon.casey.compiler.general.beans.*
 
 private var options = initOptions()
 
@@ -31,8 +30,7 @@ fun parseCommandLine(args: Array<String>): CLIArgs? {
         val parameter = cmd.getOptionValues("pa")?.toList() ?: listOf()
         val parameterMap = parameter.zipWithNext().toMap()
         val ignoreComments = cmd.hasOption("i")
-        val cliargs = CLIArgs(function, path, language, parameterMap, ignoreComments)
-        return cliargs
+        return CLIArgs(function, path, language, parameterMap, ignoreComments)
     } catch (e: Exception) {
         println(e.message)
         val formatter = HelpFormatter()
@@ -80,7 +78,7 @@ private fun initOptions(): Options {
             .argName("name")
             .required()
             .desc("The languageString this project should be compiled to (" +
-                    Language.values().joinToString()
+                    CLIArgs.Language.values().joinToString()
             )
             .build()
 

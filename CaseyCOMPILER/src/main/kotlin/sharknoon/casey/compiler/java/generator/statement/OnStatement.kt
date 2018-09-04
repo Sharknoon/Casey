@@ -1,10 +1,11 @@
 package sharknoon.casey.compiler.java.generator.statement
 
 import com.squareup.javapoet.CodeBlock
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Item.ItemType
-import sharknoon.casey.compiler.general.beans.Statement.StatementType
-import sharknoon.casey.compiler.general.getItem
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Item.ItemType
+import sharknoon.casey.compiler.general.parser.beans.Statement
+import sharknoon.casey.compiler.general.parser.beans.Statement.StatementType
+import sharknoon.casey.compiler.general.parser.getItem
 import sharknoon.casey.compiler.java.generator.item.*
 import java.util.*
 
@@ -12,11 +13,6 @@ private const val EMPTY = ""
 private const val AND = " && "
 
 fun acceptStatement(args: CLIArgs, statement: Statement): CodeBlock? {
-    if (statement.type == null) {
-        System.err.println("Type of the statement is null")
-        return null
-    }
-
     when (statement.type) {
         //Values
         Statement.StatementType.NUMBER,
@@ -91,7 +87,6 @@ fun acceptStatement(args: CLIArgs, statement: Statement): CodeBlock? {
         //Calls
         Statement.StatementType.CALL -> return onCall(args, statement)
     }
-    return null
 }
 
 /**

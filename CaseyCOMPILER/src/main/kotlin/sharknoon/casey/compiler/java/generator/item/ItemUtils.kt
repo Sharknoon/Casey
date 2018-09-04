@@ -2,11 +2,12 @@ package sharknoon.casey.compiler.java.generator.item
 
 import com.squareup.javapoet.*
 import org.jsoup.Jsoup
-import sharknoon.casey.compiler.general.*
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Block.BlockType
-import sharknoon.casey.compiler.general.beans.Item.ItemType
-import sharknoon.casey.compiler.java.generator.block.acceptBlock
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.*
+import sharknoon.casey.compiler.general.parser.beans.Block.BlockType
+import sharknoon.casey.compiler.general.parser.beans.Item
+import sharknoon.casey.compiler.general.parser.beans.Item.ItemType
+import sharknoon.casey.compiler.java.generator.block.acceptFunctionBlocks
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
@@ -226,10 +227,6 @@ internal fun getFieldInitializer(type: TypeName): CodeBlock {
  * @return A optional if methodspec
  */
 internal fun getFunction(args: CLIArgs, functionItem: Item, isStatic: Boolean): MethodSpec? {
-    if (functionItem.item == null) {
-        System.err.println("Type of this function is not specified " + getFullName(functionItem))
-        return null
-    }
     if (ItemType.FUNCTION != functionItem.item) {
         return null
     }
@@ -251,7 +248,7 @@ internal fun getFunction(args: CLIArgs, functionItem: Item, isStatic: Boolean): 
     }
     for (block in functionItem.blocks) {
         if (block.blocktype === BlockType.START) {
-            val codeBlock = acceptBlock(args, block)
+            val codeBlock = acceptFunctionBlocks(args, block)
             if (codeBlock == null) {
                 System.err.println("Something in the function " + getFullName(functionItem) + " went wrong")
                 return null
@@ -286,10 +283,6 @@ internal fun getFunction(args: CLIArgs, functionItem: Item, isStatic: Boolean): 
 private fun getParameters(functionItem: Item): List<ParameterSpec> {
     val parameters = mutableListOf<ParameterSpec>()
     for (child in functionItem.children) {
-        if (child.item == null) {
-            System.err.println("Could not determine type of item " + getFullName(child))
-            return parameters
-        }
         if (ItemType.PARAMETER != child.item) {
             continue
         }
@@ -313,7 +306,7 @@ private fun getParameterJavaDoc(args: CLIArgs, item: Item): String {
     }
     val builder = StringBuilder()
     for (child in item.children) {
-        if (child.item == null || child.comments.isEmpty()) {
+        if (child.comments.isEmpty()) {
             continue
         }
         if (ItemType.PARAMETER != child.item) {
@@ -330,10 +323,6 @@ private fun getParameterJavaDoc(args: CLIArgs, item: Item): String {
 private fun getVariables(args: CLIArgs, item: Item): List<CodeBlock> {
     val variables = mutableListOf<CodeBlock>()
     for (child in item.children) {
-        if (child.item == null) {
-            System.err.println("Type of this variable is not specified " + getFullName(child))
-            return variables
-        }
         if (ItemType.VARIABLE != child.item) {
             continue
         }

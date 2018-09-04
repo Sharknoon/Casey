@@ -17,8 +17,9 @@ package sharknoon.casey.compiler.java.generator.item
  */
 
 import com.squareup.javapoet.*
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Item.ItemType
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Item
+import sharknoon.casey.compiler.general.parser.beans.Item.ItemType
 import java.nio.file.Path
 import java.util.*
 import javax.lang.model.element.Modifier.PUBLIC
@@ -65,10 +66,6 @@ private fun getFunctions(args: CLIArgs, item: Item): List<MethodSpec>? {
 private fun getVariables(args: CLIArgs, item: Item): List<FieldSpec>? {
     val variables = ArrayList<FieldSpec>()
     for (child in item.children) {
-        if (child.item == null) {
-            System.err.println("Type of class item not specified: " + getFullName(child))
-            return null
-        }
         if (ItemType.VARIABLE != child.item) {
             continue
         }

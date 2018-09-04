@@ -2,63 +2,192 @@ package sharknoon.casey.compiler.java.generator.block
 
 import com.squareup.javapoet.*
 import sharknoon.casey.compiler.general.*
-import sharknoon.casey.compiler.general.beans.*
-import sharknoon.casey.compiler.general.beans.Block.BlockType.*
-import sharknoon.casey.compiler.general.beans.Block.ConnectionSide
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Block
+import sharknoon.casey.compiler.general.parser.beans.Block.BlockType.*
+import sharknoon.casey.compiler.general.parser.getItem
 import sharknoon.casey.compiler.java.generator.item.*
 import sharknoon.casey.compiler.java.generator.statement.acceptStatement
 import java.util.*
 
 private val EMPTY_CODE_BLOCK = CodeBlock.builder().build()
 
-fun acceptBlock(args: CLIArgs, block: Block): CodeBlock? {
+fun acceptFunctionBlocks(args: CLIArgs, startBlock: Block): CodeBlock? {
     val builder = CodeBlock.builder()
-    if (block.blocktype == null) {
-        System.err.println("The Type of the block $block is null")
+    if (startBlock.blocktype != START) {
+        System.err.println("The start of this function is not null ($startBlock)")
         return null
     }
-    when (block.blocktype) {
-        START -> {
-            val startBlock = onStartBlock(args, block) ?: return null
-            builder.add(startBlock)
+
+    val skeleton = getSkeleton(startBlock) ?: return null
+    for (subSkeleton in skeleton.SubSkeletons) {
+        val codeBlock = when (subSkeleton) {
+            is SingleBlock -> acceptSingleBlock(args, subSkeleton) ?: return null
+            is Decision -> acceptDecisionSkeleton(args, subSkeleton) ?: return null
+            is Loop -> acceptLoopSkeleton(args, subSkeleton) ?: return null
+            else -> return null
         }
-        END -> {
-            val endBlock = onEndBlock(args, block) ?: return null
-            builder.add(endBlock)
-        }
-        DECISION -> {
-            val decisionBlock = onDecisionBlock(args, block) ?: return null
-            builder.add(decisionBlock)
-        }
-        CALL -> {
-            val callBlock = onCallBlock(args, block) ?: return null
-            builder.add(callBlock)
-        }
-        ASSIGNMENT -> {
-            val assignmentBlock = onAssignmentBlock(args, block) ?: return null
-            builder.add(assignmentBlock)
-        }
-        INPUT -> {
-            val inputBlock = onInputBlock(args, block) ?: return null
-            builder.add(inputBlock)
-        }
-        OUTPUT -> {
-            val outputBlock = onOutputBlock(args, block) ?: return null
-            builder.add(outputBlock)
-        }
+        builder.add(codeBlock)
     }
+
     return builder.build()
 }
 
-private fun onStartBlock(args: CLIArgs, block: Block): CodeBlock? {
-    val nextBlock = getNextBlock(block)
-    if (nextBlock == null) {
-        System.err.println("The Start-Block $block has no next Block")
-        return null
+private fun acceptSingleBlock(args: CLIArgs, singleBlock: SingleBlock): CodeBlock? = onSingleBlock(args, singleBlock.block)
+
+private fun acceptDecisionSkeleton(args: CLIArgs, decision: Decision): CodeBlock? = onDecisionBlock(args, decision.condition, decision.trueBlocks, decision.falseBlocks)
+
+private fun acceptLoopSkeleton(args: CLIArgs, loop: Loop): CodeBlock? = onLoopBlock(args, loop.condition, loop.beforeCondition, loop.afterCondition)
+
+private fun onSingleBlock(args: CLIArgs, block: Block): CodeBlock? {
+    return when (block.blocktype) {
+        START -> EMPTY_CODE_BLOCK
+        END -> onEndBlock(args, block) ?: return null
+        //DECISION -> onDecisionBlock(args, block) ?: return null
+        CALL -> onCallBlock(args, block) ?: return null
+        ASSIGNMENT -> onAssignmentBlock(args, block) ?: return null
+        INPUT -> onInputBlock(block) ?: return null
+        OUTPUT -> onOutputBlock(args, block) ?: return null
+        else -> null
     }
-    return acceptBlock(args, nextBlock)
 }
 
+private fun onDecisionBlock(args: CLIArgs, decisionBlock: Block, trueBlocks: List<Block>, falseBlocks: List<Block>): CodeBlock? {
+    val blockcontent = decisionBlock.blockcontent
+    if (blockcontent == null) {
+        System.err.println("The Decisionblock $decisionBlock has no condition statement")
+        return null
+    }
+    val conditionStatement = blockcontent.statement
+    if (conditionStatement == null) {
+        System.err.println("The Decisionblock $decisionBlock has no condition statement")
+        return null
+    }
+
+    val conditionCodeBlock = acceptStatement(args, conditionStatement)
+    if (conditionCodeBlock == null) {
+        System.err.println("DecisionBlock $decisionBlock has no condition")
+        return null
+    }
+
+    val trueCodeBlock = CodeBlock.builder()
+    for (trueBlock in trueBlocks) {
+        val block = onSingleBlock(args, trueBlock)
+        if (block == null) {
+            System.err.println("Error in the true-Condition of this condition-block $decisionBlock")
+            return null
+        }
+        trueCodeBlock.add(block)
+    }
+
+    val falseCodeBlock = CodeBlock.builder()
+    for (falseBlock in falseBlocks) {
+        val block = onSingleBlock(args, falseBlock)
+        if (block == null) {
+            System.err.println("Error in the false-Condition of this condition-block $decisionBlock")
+            return null
+        }
+        falseCodeBlock.add(block)
+    }
+
+
+    return if (!falseCodeBlock.isEmpty)
+        CodeBlock
+                .builder()
+                .beginControlFlow("if (\$L)", conditionCodeBlock)
+                .add(trueCodeBlock.build())
+                .nextControlFlow("else")
+                .add(falseCodeBlock.build())
+                .endControlFlow()
+                .build()
+    else
+        CodeBlock
+                .builder()
+                .beginControlFlow("if (\$L)", conditionCodeBlock)
+                .add(trueCodeBlock.build())
+                .endControlFlow()
+                .build()
+}
+
+private fun onLoopBlock(args: CLIArgs, decisionBlock: Block, beforeCondition: List<Block>, afterCondition: List<Block>): CodeBlock? {
+    val blockcontent = decisionBlock.blockcontent
+    if (blockcontent == null) {
+        System.err.println("The Decisionblock $decisionBlock has no Decisionblock statement")
+        return null
+    }
+    val conditionStatement = blockcontent.statement
+    if (conditionStatement == null) {
+        System.err.println("The Decisionblock $decisionBlock has no Decisionblock statement")
+        return null
+    }
+
+    val conditionCodeBlock = acceptStatement(args, conditionStatement)
+    if (conditionCodeBlock == null) {
+        System.err.println("DecisionBlock $decisionBlock has no condition")
+        return null
+    }
+
+    if (beforeCondition.isEmpty() && afterCondition.isEmpty()) {
+        System.err.println("Both conditions of the loop with the Decisionblock $decisionBlock are empty")
+        return null
+    }
+
+    val beforeCodeBlock = CodeBlock.builder()
+    for (beforeBlock in beforeCondition) {
+        val block = onSingleBlock(args, beforeBlock)
+        if (block == null) {
+            System.err.println("Error in the Loop before the Decisionblock $decisionBlock")
+            return null
+        }
+        beforeCodeBlock.add(block)
+    }
+
+    val afterCodeBlock = CodeBlock.builder()
+    for (afterBlock in afterCondition) {
+        val block = onSingleBlock(args, afterBlock)
+        if (block == null) {
+            System.err.println("Error in the Loop after the Decisionblock $decisionBlock")
+            return null
+        }
+        afterCodeBlock.add(block)
+    }
+
+    if (beforeCondition.isEmpty() && afterCondition.isNotEmpty()) {
+        return CodeBlock
+                .builder()
+                .beginControlFlow("while (\$L)", conditionCodeBlock)
+                .add(afterCodeBlock.build())
+                .endControlFlow()
+                .build()
+    }
+
+    if (beforeCondition.isNotEmpty() && afterCondition.isEmpty()) {
+        return CodeBlock
+                .builder()
+                .beginControlFlow("do")
+                .add(beforeCodeBlock.build())
+                .endControlFlow("while (\$L)", conditionCodeBlock)
+                .build()
+    }
+
+    return CodeBlock
+            .builder()
+            .add(beforeCodeBlock.build())
+            .beginControlFlow("while (\$L)", conditionCodeBlock)
+            .add(afterCodeBlock.build())
+            .add(beforeCodeBlock.build())
+            .endControlFlow()
+            .build()
+}
+
+//private fun moveToNextBlock(args: CLIArgs, currentBlock: Block): CodeBlock? {
+//    val nextBlock = getNextBlock(currentBlock)
+//    if (nextBlock == null) {
+//        System.err.println("The Block $currentBlock no next Block")
+//        return null
+//    }
+//    return acceptFunctionBlocks(args, nextBlock)
+//}
 private fun onEndBlock(args: CLIArgs, block: Block): CodeBlock? {
     val blockcontent = block.blockcontent
     if (blockcontent == null) {
@@ -80,63 +209,6 @@ private fun onEndBlock(args: CLIArgs, block: Block): CodeBlock? {
             .build()
 }
 
-private fun onDecisionBlock(args: CLIArgs, block: Block): CodeBlock? {
-    val blockcontent = block.blockcontent
-    if (blockcontent == null) {
-        System.err.println("The Decisionblock $block has no condition statement")
-        return null
-    }
-    val conditionStatement = blockcontent.statement
-    if (conditionStatement == null) {
-        System.err.println("The Decisionblock $block has no condition statement")
-        return null
-    }
-    val condition = acceptStatement(args, conditionStatement)
-    if (condition == null) {
-        System.err.println("DecisionBlock $block has no condition")
-        return null
-    }
-    val trueBlock = getTrueBlock(block)
-    val falseBlock = getFalseBlock(block)
-    if (trueBlock == null && falseBlock == null) {
-        System.err.println("DecisionBlock $block has no next Blocks")
-        return null
-    }
-    var whenTrue: CodeBlock = EMPTY_CODE_BLOCK
-    if (trueBlock != null) {
-        whenTrue = acceptBlock(args, trueBlock) ?: EMPTY_CODE_BLOCK
-        if (whenTrue == null) {
-            System.err.println("The Block for the True-Decision is null")
-            return null
-        }
-    }
-    var whenFalse: CodeBlock? = null
-    if (falseBlock != null) {
-        whenFalse = acceptBlock(args, falseBlock)
-        if (whenFalse == null) {
-            System.err.println("The Block for the False-Decision is null")
-            return null
-        }
-    }
-
-    return if (whenFalse != null)
-        CodeBlock
-                .builder()
-                .beginControlFlow("if (\$L)", condition)
-                .add(whenTrue)
-                .nextControlFlow("else")
-                .add(whenFalse)
-                .endControlFlow()
-                .build()
-    else
-        CodeBlock
-                .builder()
-                .beginControlFlow("if (\$L)", condition)
-                .add(whenTrue)
-                .endControlFlow()
-                .build()
-}
-
 private fun onCallBlock(args: CLIArgs, block: Block): CodeBlock? {
     val blockcontent = block.blockcontent
     if (blockcontent == null) {
@@ -149,20 +221,10 @@ private fun onCallBlock(args: CLIArgs, block: Block): CodeBlock? {
         System.err.println("The Statement for this Call-Block is null")
         return null
     }
-    val nextBlock = getNextBlock(block)
-    if (nextBlock == null) {
-        System.err.println("The Call-Block $block has no next Block")
-        return null
-    }
-    val nextCode = acceptBlock(args, nextBlock)
-    if (nextCode == null) {
-        System.err.println("The following Code for this Call-Block is null")
-        return null
-    }
+
     return CodeBlock
             .builder()
             .addStatement("\$L", callCode)
-            .add(nextCode)
             .build()
 }
 
@@ -188,21 +250,15 @@ private fun onAssignmentBlock(args: CLIArgs, block: Block): CodeBlock? {
     if (variableName.toString() == assignmentStatementCodeBlock.toString()) {
         variableName = CodeBlock.of("this.\$L", variableName)
     }
-    val nextBlock = getNextBlock(block)
-    if (nextBlock == null) {
-        System.err.println("The Block $block has no next Block")
-        return null
-    }
-    val nextCode = acceptBlock(args, nextBlock) ?: return null
+
     return CodeBlock
             .builder()
             .addStatement("\$L = \$L", variableName, assignmentStatementCodeBlock)
-            .add(nextCode)
             .build()
 }
 
 
-private fun onInputBlock(args: CLIArgs, block: Block): CodeBlock? {
+private fun onInputBlock(block: Block): CodeBlock? {
     val blockcontent = block.blockcontent ?: return null
     val inputVariable = blockcontent.variable ?: return null
     val variable = getItem(inputVariable) ?: return null
@@ -228,12 +284,6 @@ private fun onInputBlock(args: CLIArgs, block: Block): CodeBlock? {
     }
 
     val variableName = getVariableName(variable)
-    val nextBlock = getNextBlock(block)
-    if (nextBlock == null) {
-        System.err.println("The Block $block has no next Block")
-        return null
-    }
-    val nextCode = acceptBlock(args, nextBlock) ?: return null
     return CodeBlock
             .builder()
             .beginControlFlow("try")
@@ -243,7 +293,6 @@ private fun onInputBlock(args: CLIArgs, block: Block): CodeBlock? {
             .addStatement("\$L = $defaultValue", variableName)
             .addStatement("\$T.err.println(\$S)", System::class.java, "Entered value not correct, using $defaultValue instead")
             .endControlFlow()
-            .add(nextCode)
             .build()
 }
 
@@ -256,55 +305,53 @@ private fun onOutputBlock(args: CLIArgs, block: Block): CodeBlock? {
         return null
     }
 
-    val nextBlock = getNextBlock(block)
-    if (nextBlock == null) {
-        System.err.println("The Block $block has no next Block")
-        return null
-    }
-    val nextCode = acceptBlock(args, nextBlock) ?: return null
     return CodeBlock
             .builder()
             .addStatement("\$T.out.println(\$L)", System::class.java, outputCodeBlock)
-            .add(nextCode)
             .build()
 }
 
-private fun getNextBlock(block: Block): Block? {
-    block.blockconnections
-    if (block.blockconnections.isEmpty()) {
-        System.err.println("Could not get the connections for the block $block")
-        return null
-    }
-    val destination = block.blockconnections.values.iterator().next()
-    if (destination.isEmpty()) {
-        System.err.println("The destinations of this block connections are null, cant get next block $block")
-        return null
-    }
-    val next = destination.keys.iterator().next()
-    return getBlock(next)
-}
+//private fun getNextBlock(block: Block): Block? {
+//    block.blockconnections
+//    if (block.blockconnections.isEmpty()) {
+//        System.err.println("Could not get the connections for the block $block")
+//        return null
+//    }
+//    val destination = block.blockconnections.values.iterator().next()
+//    if (destination.isEmpty()) {
+//        System.err.println("The destinations of this block connections are null, cant get next block $block")
+//        return null
+//    }
+//    val next = destination.keys.iterator().next()
+//    return getBlock(next)
+//}
+//
+//private fun getTrueBlock(block: Block): Block? {
+//    val trueblock = getDecisionConditionBlock(block, ConnectionSide.RIGHT)
+//    if (trueblock == null) {
+//        System.err.println("Could not get the required block for the true-condition of this condition-block $block")
+//    }
+//    return trueblock
+//}
+//
+//private fun getFalseBlock(block: Block): Block? {
+//    return getDecisionConditionBlock(block, ConnectionSide.LEFT)
+//}
+//
+//private fun getDecisionConditionBlock(block: Block, side: ConnectionSide): Block? {
+//    if (block.blockconnections.isEmpty()) {
+//        //System.err.println("Could not get the connections for the block $block")
+//        return null
+//    }
+//    val destination = block.blockconnections[side]
+//    if (destination == null || destination.isEmpty()) {
+//        //System.err.println("The destinations of this block connections are null, cant get next block $block")
+//        return null
+//    }
+//    val next = destination.keys.iterator().next()
+//    return getBlock(next)
+//}
 
-private fun getTrueBlock(block: Block): Block? {
-    return getDecisionConditionBlock(block, ConnectionSide.RIGHT)
-}
 
-private fun getDecisionConditionBlock(block: Block, right: ConnectionSide): Block? {
-    block.blockconnections
-    if (block.blockconnections.isEmpty()) {
-        System.err.println("Could not get the connections for the block $block")
-        return null
-    }
-    val destination = block.blockconnections[right]
-    if (destination == null || destination.isEmpty()) {
-        System.err.println("The destinations of this block connections are null, cant get next block $block")
-        return null
-    }
-    val next = destination.keys.iterator().next()
-    return getBlock(next)
-}
-
-private fun getFalseBlock(block: Block): Block? {
-    return getDecisionConditionBlock(block, ConnectionSide.LEFT)
-}
 
 

@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general.beans
+package sharknoon.casey.compiler.general.parser.beans
 
 import java.util.*
 
@@ -18,55 +18,24 @@ import java.util.*
  * limitations under the License.
  */
 
-class Item {
-
-    //The name of the item (required)
-    var name = ""
+data class Item(
+        //The name of the item (required)
+        var name: String,
+        //The list of children of this item (required)
+        var children: List<Item>) {
 
     //Comments of this item (required)
-    var comments = ""
-
+    var comments: String = ""
     //The type of this item (required)
-    var item: ItemType? = null
-
-    //The list of children of this item (required)
-    var children = listOf<Item>()
-
+    var item: ItemType = ItemType.PROJECT
     //The id of this project (only for projects)
     var id: UUID? = null
-
     //The type of this variable or parameter (only for variables and parameters)
     var type: String? = null
-
     //The returntype of this function (only for functions)
     var returntype: String? = null
-
     //The list of blocks of this function (only for functions)
-    var blocks = listOf<Block>()
-
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Item
-
-        if (name != other.name) return false
-        if (children != other.children) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + children.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Item(name='$name', comments='$comments', item=$item, children=$children, id=$id, type=$type, returntype=$returntype, blocks=$blocks)"
-    }
-
+    var blocks: List<Block> = listOf()
 
     enum class ItemType {
         FUNCTION,

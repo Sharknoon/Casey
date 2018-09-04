@@ -303,6 +303,7 @@ public class German extends Language {
         add(Word.LENGTH, "Länge");
         add(Word.DELETE, "Löschen");
         add(Word.VOID, "Nichts");
+        add(Word.HELP, "Hilfe");
     }
     
     public German() {

@@ -16,7 +16,7 @@ package sharknoon.casey.compiler.java.compiler
  * limitations under the License.
  */
 
-import sharknoon.casey.compiler.general.beans.CLIArgs
+import sharknoon.casey.compiler.general.cli.CLIArgs
 import java.io.IOException
 import java.nio.file.*
 import javax.tools.ToolProvider

@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general.beans
+package sharknoon.casey.compiler.general.parser.beans
 
 /*
  * Copyright 2018 Shark Industries.
@@ -17,48 +17,23 @@ package sharknoon.casey.compiler.general.beans
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-
 import java.util.*
 
-class Block {
-
-    //The id of this block
-    var blockid: UUID? = null
+data class Block(
+        //The id of this block
+        var blockid: UUID) {
 
     //The coordinates of this block (not used)
     @JsonIgnore
-    var blockX = 0.0
+    var blockX: Double = 0.0
     @JsonIgnore
-    var blockY = 0.0
-
+    var blockY: Double = 0.0
     //The type of this block
-    var blocktype: BlockType? = null
-
+    var blocktype: BlockType = BlockType.START
     //The connections from this to other blocks
-    var blockconnections = mapOf<ConnectionSide, Map<UUID, ConnectionSide>>()
-
+    var blockconnections: Map<ConnectionSide, Map<UUID, ConnectionSide>> = mapOf()
     //The statements of this block
     var blockcontent: BlockContent? = null
-
-
-    override fun toString(): String {
-        return blocktype?.toString() + " ($blockid)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Block
-
-        if (blockid != other.blockid) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return blockid?.hashCode() ?: 0
-    }
 
     enum class BlockType {
         START,
@@ -78,18 +53,9 @@ class Block {
     }
 
 
-    class BlockContent {
-
-        //The statement of the block (only for assignment, call, decision, end, output)
-        var statement: Statement? = null
-
-        //The variable the statement is assigned to or the input is being stored into (only for assignment, input)
-        var variable: String? = null
-
-        override fun toString(): String {
-            return "BlockContent(statement=$statement, variable=$variable)"
-        }
-
-
-    }
+    data class BlockContent(
+            //The statement of the block (only for assignment, call, decision, end, output)
+            var statement: Statement? = null,
+            //The variable the statement is assigned to or the input is being stored into (only for assignment, input)
+            var variable: String? = null)
 }

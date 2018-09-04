@@ -303,6 +303,7 @@ public class English extends Language {
         add(Word.LENGTH, "Length");
         add(Word.DELETE, "Delete");
         add(Word.VOID, "Void");
+        add(Word.HELP, "Help");
     }
     
     public English() {

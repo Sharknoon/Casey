@@ -15,26 +15,20 @@
  */
 package sharknoon.casey.ide.ui.dots;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleExpression;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import javafx.beans.binding.*;
+import javafx.collections.*;
 import javafx.geometry.Side;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 import javafx.util.Duration;
 import sharknoon.casey.ide.ui.UISettings;
 import sharknoon.casey.ide.ui.frames.Frame;
 import sharknoon.casey.ide.ui.lines.Line;
-import sharknoon.casey.ide.ui.lines.Lines;
+import sharknoon.casey.ide.ui.lines.*;
 import sharknoon.casey.ide.ui.sites.function.FunctionSite;
 
 import java.util.Set;
@@ -165,7 +159,7 @@ public class Dot {
     }
     
     public void onMouseClicked(MouseEvent event) {
-        if (lines.size() > 0) {
+        if (lines.size() > 0 && !isInputDot()) {
             return;
         }
         if (!Lines.isLineDrawing(functionSite)) {

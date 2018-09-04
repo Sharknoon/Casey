@@ -1,4 +1,4 @@
-package sharknoon.casey.compiler.general.beans
+package sharknoon.casey.compiler.general.parser.beans
 
 /*
  * Copyright 2018 Shark Industries.
@@ -16,19 +16,15 @@ package sharknoon.casey.compiler.general.beans
  * limitations under the License.
  */
 
-class Statement {
-
-    //The type of the statement (required)
-    var type: StatementType? = null
-
-    //The value of this value (only for number, boolean, text and object)
-    var value: Any? = null
-
-    //The parameter of this operator (only for operators)
-    var parameter = listOf<Statement>()
-
-    //The calls of this call (only for call)
-    var calls = listOf<Call>()
+data class Statement(
+        //The type of the statement (required)
+        var type: StatementType,
+        //The value of this value (only for number, boolean, text and object)
+        var value: Any? = null,
+        //The parameter of this operator (only for operators)
+        var parameter: List<Statement> = listOf(),
+        //The calls of this call (only for call)
+        var calls: List<Call> = listOf()) {
 
 
     enum class StatementType {
@@ -58,24 +54,10 @@ class Statement {
         CALL
     }
 
-    class Call {
-
-        //The parameter of this function (only for functions)
-        var parameter = listOf<Statement>()
-
-        //The type of this call (variable-, parameter- or functionname)
-        var type: String? = null
-
-        override fun toString(): String {
-            return "Call{" +
-                    "parameter=" + parameter +
-                    ", type='" + type + '\''.toString() +
-                    '}'.toString()
-        }
-    }
-
-    override fun toString(): String {
-        return type?.name ?: "ERROR"
-    }
+    data class Call(
+            //The parameter of this function (only for functions)
+            var parameter: List<Statement> = listOf(),
+            //The type of this call (variable-, parameter- or functionname)
+            var type: String? = null)
 
 }

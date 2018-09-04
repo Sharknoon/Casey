@@ -17,7 +17,8 @@ package sharknoon.casey.compiler.java.generator.item
  */
 
 import com.squareup.javapoet.*
-import sharknoon.casey.compiler.general.beans.*
+import sharknoon.casey.compiler.general.cli.CLIArgs
+import sharknoon.casey.compiler.general.parser.beans.Item
 import java.nio.file.Path
 import javax.lang.model.element.Modifier.*
 

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 26.5 26.5">
+    <g transform="translate(0 -270.5)">
+        <rect width="26.458334" height="10.583333" y="270.5" fill="#3f51b5" ry="2.4096069"/>
+        <rect width="26.458334" height="22.489584" y="274.5" fill="#bbdefb" ry="0"/>
+        <g fill="#1976d2" stroke-width=".26458332" aria-label="(x)" font-family="Franklin Gothic Medium"
+           font-size="14.11111069px" font-weight="400" letter-spacing="0" style="line-height:1.25" word-spacing="0">
+            <path d="M9.8 291.7H9q-2.3-2.6-2.3-6 0-2 .8-3.6t1.5-2.3h1q-1.2 1.6-1.6 3-.4 1.4-.4 3t.5 3.1q.5 1.6 1.4 2.8zM16.3 289.3h-1.8l-1.4-2.5-1.6 2.5h-1.3l2.2-3.6-2-3.4h1.8l1.2 2 1.2-2H16l-2 3zM16.6 279.8h1q2.2 2.6 2.2 6 0 2-.7 3.6-.8 1.6-1.6 2.3h-.9q1.1-1.6 1.5-3 .5-1.4.5-3 0-3.2-2-5.9z"
+                  style="-inkscape-font-specification:'Franklin Gothic Medium, '"/>
+        </g>
+    </g>
+</svg>

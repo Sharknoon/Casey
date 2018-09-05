@@ -22,7 +22,6 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -123,28 +122,21 @@ public class Tutorial {
                     });
                 }
             });
-            
-            ImageView imageViewLeft = Icons.getImage(Icon.ARROWLEFTROUND).map(ImageView::new).orElse(new ImageView());
-            imageViewLeft.setFitWidth(arrowsize - 16);//The padding around the arrow
-            imageViewLeft.setPreserveRatio(true);
+    
+            Node imageLeft = Icons.get(Icon.ARROWLEFTROUND, arrowsize - 16);//The padding around the arrow
             Button leftButton = new Button();
             BorderPane.setAlignment(leftButton, Pos.CENTER);
-            leftButton.setGraphic(imageViewLeft);
+            leftButton.setGraphic(imageLeft);
             leftButton.disableProperty().bind(currentImageIndex.lessThanOrEqualTo(0));
             leftButton.setOnMouseClicked(e -> currentImageIndex.set(currentImageIndex.get() - 1));
             leftButton.setStyle("-fx-background-color: transparent");
             
-            ImageView imageViewRight = Icons.getImage(Icon.ARROWRIGHTROUND).map(ImageView::new).orElse(new ImageView());
-            imageViewRight.setFitWidth(arrowsize - 16);
-            imageViewRight.setPreserveRatio(true);
             Button rightButton = new Button();
             BorderPane.setAlignment(rightButton, Pos.CENTER);
-            rightButton.setGraphic(imageViewRight);
-            imageViewRight.imageProperty().bind(
-                    Bindings
-                            .when(currentImageIndex.greaterThanOrEqualTo(images.size() - 1))
-                            .then(Icons.getImage(Icon.CLOSEROUND).orElse(null))
-                            .otherwise(Icons.getImage(Icon.ARROWRIGHTROUND).orElse(null))
+            rightButton.graphicProperty().bind(
+                    Bindings.when(currentImageIndex.greaterThanOrEqualTo(images.size() - 1))
+                            .then(Icons.get(Icon.CLOSEROUND, arrowsize - 16))
+                            .otherwise(Icons.get(Icon.ARROWRIGHTROUND, arrowsize - 16))
             );
             rightButton.setOnMouseClicked(e -> {
                 if (currentImageIndex.get() >= images.size() - 1) {

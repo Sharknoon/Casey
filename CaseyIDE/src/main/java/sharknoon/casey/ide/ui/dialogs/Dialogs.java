@@ -22,17 +22,12 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.stage.Stage;
 import org.apache.commons.text.StringSubstitutor;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.Styles;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.function.Function;
 
 import static sharknoon.casey.ide.utils.language.Word.*;
@@ -521,8 +516,7 @@ public class Dialogs {
     
     private static void setIcon(Icon icon, Dialog dialog) {
         var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        var image = Icons.getImage(icon);
-        image.ifPresent(i -> stage.getIcons().add(i));//TODO convert evtl svg to image
+        Icons.getImage(icon).ifPresent(stage.getIcons()::add);
     }
     
     private static void setStyle(Dialog dialog) {

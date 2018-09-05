@@ -15,39 +15,26 @@ package sharknoon.casey.ide.ui.bodies;/*
  */
 
 import javafx.beans.binding.*;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import javafx.collections.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import sharknoon.casey.ide.logic.items.Item;
-import sharknoon.casey.ide.logic.items.ItemType;
+import javafx.scene.text.*;
+import sharknoon.casey.ide.logic.items.*;
 import sharknoon.casey.ide.logic.statements.Statement;
 import sharknoon.casey.ide.logic.statements.calls.CallItem;
-import sharknoon.casey.ide.logic.types.PrimitiveType;
-import sharknoon.casey.ide.logic.types.Type;
+import sharknoon.casey.ide.logic.types.*;
 import sharknoon.casey.ide.ui.misc.Icons;
 import sharknoon.casey.ide.ui.styles.StyleClasses;
 import sharknoon.casey.ide.utils.javafx.BindUtils;
 import sharknoon.casey.ide.utils.javafx.bindings.AggregatedObservableList;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 public class CallItemBody extends Body<CallItem<?>> {
     
@@ -78,21 +65,74 @@ public class CallItemBody extends Body<CallItem<?>> {
     public void onMouseExited(MouseEvent event) {
     }
     
+    @Override
+    public BooleanExpression isClosingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public BooleanExpression isExtendingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public BooleanExpression isReducingAllowed() {
+        return Bindings.createBooleanBinding(() -> false);
+    }
+    
+    @Override
+    public ObservableList<Text> toText() {
+        CallItem<?> callItem = getStatement();
+        
+        Item<?, ?, ?> item = callItem.getItem();
+        ObservableList<ObservableList<Text>> result = FXCollections.observableArrayList();
+        
+        Text textName = new Text();
+        textName.textProperty().bind(item.nameProperty());
+        textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
+        result.add(FXCollections.observableArrayList(textName));
+        
+        ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
+        BindUtils.addListener(childs, c -> {
+            if (item.getType() == ItemType.FUNCTION) {
+                result.remove(1, result.size());
+                Text textOpenBracket = new Text("(");
+                textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
+                result.add(FXCollections.observableArrayList(textOpenBracket));
+
+//                AggregatedObservableList<Text> aggTexts2 = childs.stream()
+//                        .map(p -> p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null")))
+//                        .collect(AggregatedObservableList::new, AggregatedObservableList::appendList, AggregatedObservableList::mergeWith);
+                
+                AggregatedObservableList<Text> aggTexts = new AggregatedObservableList<>();
+                for (int i = 0; i < childs.size(); i++) {
+                    var p = childs.get(i);
+                    ObservableList<Text> texts = p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
+                    aggTexts.appendList(texts);
+                    if (i < childs.size() - 1) {
+                        ObservableList<Text> delimiter = FXCollections.observableArrayList(new Text(", "));
+                        aggTexts.appendList(delimiter);
+                    }
+                }
+                result.add(aggTexts);
+                
+                Text textCloseBracket = new Text(")");
+                textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
+                result.add(FXCollections.observableArrayList(textCloseBracket));
+            }
+        });
+        
+        return BindUtils.concatFromList(result);
+    }
+    
     private ObservableList<Node> getNodes() {
         ObservableList<Node> nodeList = FXCollections.observableArrayList();
         
         CallItem<?> callItem = getStatement();
-        
-        ObjectProperty<Image> image = getIcon();
-        ImageView icon = new ImageView();
-        icon.setPreserveRatio(true);
-        Image im = image.get();
-        if (im.getWidth() > im.getHeight()) {
-            icon.setFitWidth(50);
-        } else {
-            icon.setFitHeight(50);
-        }
-        icon.imageProperty().bind(image);
+    
+        ObjectProperty<Node> image = getIcon();
+        Group icon = new Group();
+        BindUtils.addListener(image, (o, old, newValue) -> icon.getChildren().setAll(newValue));
         
         StringProperty name = getName();
         Label label = new Label();
@@ -175,8 +215,8 @@ public class CallItemBody extends Body<CallItem<?>> {
         return pb;
     }
     
-    private ObjectProperty<Image> getIcon() {
-        return Icons.iconToImageProperty(getStatement().getItem().getSite().tabIconProperty());
+    private ObjectProperty<Node> getIcon() {
+        return Icons.iconToNodeProperty(getStatement().getItem().getSite().tabIconProperty(), 50, 50);
     }
     
     private StringProperty getName() {
@@ -211,65 +251,5 @@ public class CallItemBody extends Body<CallItem<?>> {
         DoubleBinding leftPadding = BodyUtils.calculateDistance(parent, leftType, height);
         DoubleBinding rightPadding = BodyUtils.calculateDistance(parent, rightType, height);
         return Bindings.createObjectBinding(() -> new Insets(0, rightPadding.get(), 0, leftPadding.get()), rightPadding, leftPadding);
-    }
-    
-    @Override
-    public BooleanExpression isClosingAllowed() {
-        return Bindings.createBooleanBinding(() -> false);
-    }
-    
-    @Override
-    public BooleanExpression isExtendingAllowed() {
-        return Bindings.createBooleanBinding(() -> false);
-    }
-    
-    @Override
-    public BooleanExpression isReducingAllowed() {
-        return Bindings.createBooleanBinding(() -> false);
-    }
-    
-    @Override
-    public ObservableList<Text> toText() {
-        CallItem<?> callItem = getStatement();
-        
-        Item<?, ?, ?> item = callItem.getItem();
-        ObservableList<ObservableList<Text>> result = FXCollections.observableArrayList();
-        
-        Text textName = new Text();
-        textName.textProperty().bind(item.nameProperty());
-        textName.getStyleClass().add(StyleClasses.textStatementCallItemName.name());
-        result.add(FXCollections.observableArrayList(textName));
-        
-        ObservableList<Statement<Type, Type, Type>> childs = callItem.childsProperty();
-        BindUtils.addListener(childs, c -> {
-            if (item.getType() == ItemType.FUNCTION) {
-                result.remove(1, result.size());
-                Text textOpenBracket = new Text("(");
-                textOpenBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                result.add(FXCollections.observableArrayList(textOpenBracket));
-
-//                AggregatedObservableList<Text> aggTexts2 = childs.stream()
-//                        .map(p -> p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null")))
-//                        .collect(AggregatedObservableList::new, AggregatedObservableList::appendList, AggregatedObservableList::mergeWith);
-                
-                AggregatedObservableList<Text> aggTexts = new AggregatedObservableList<>();
-                for (int i = 0; i < childs.size(); i++) {
-                    var p = childs.get(i);
-                    ObservableList<Text> texts = p != null ? p.getBody().toText() : FXCollections.observableArrayList(new Text("null"));
-                    aggTexts.appendList(texts);
-                    if (i < childs.size() - 1) {
-                        ObservableList<Text> delimiter = FXCollections.observableArrayList(new Text(", "));
-                        aggTexts.appendList(delimiter);
-                    }
-                }
-                result.add(aggTexts);
-                
-                Text textCloseBracket = new Text(")");
-                textCloseBracket.getStyleClass().add(StyleClasses.textStatementCallItemFunctionBrackets.name());
-                result.add(FXCollections.observableArrayList(textCloseBracket));
-            }
-        });
-    
-        return BindUtils.concatFromList(result);
     }
 }

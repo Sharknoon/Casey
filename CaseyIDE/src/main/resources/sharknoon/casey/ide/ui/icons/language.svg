@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 26.5 26.5">
+    <path fill="#2196f3" d="M2.6 0A2.6 2.6 0 0 0 0 2.6v23.9l5.6-5.6H16L10.6 0h-8z"/>
+    <path fill="#cfd8dc" d="M10.6 0L16 20.9h7.8c1.5 0 2.7-1.2 2.7-2.6V2.6c0-1.4-1.2-2.6-2.7-2.6z"/>
+    <g style="line-height:1.25;-inkscape-font-specification:Arial">
+        <path fill="#fff" stroke-width=".26458332"
+              d="M11.5 14.7h-2l-.7-2H5.3l-.7 2h-2l3.5-8.9H8zm-3.3-3.5L7 7.9l-1.2 3.3z" aria-label="A"
+              font-family="Arial" font-size="12.34722233px" font-weight="700" letter-spacing="0"
+              style="-inkscape-font-specification:'Arial Bold'" word-spacing="0"/>
+    </g>
+    <g style="line-height:1.25">
+        <path fill="#546e7a" stroke="#546e7a" stroke-width=".7686802211841001"
+              d="M20 12c-1.1 1.1-2.4 1.8-3.6 2.2l-.4-.9a9 9 0 0 0 3.5-1.8 7 7 0 0 1-1.7-3.2H16v-.7h3.5V6.2h.8v1.4H24v.7h-1.7a6.7 6.7 0 0 1-1.6 3.2 8 8 0 0 0 3.4 1.7l-.3.8a9 9 0 0 1-3.6-2zm0-1c.8-1 1.2-1.8 1.4-2.7h-2.8c.1.8.6 1.7 1.5 2.6z"
+              aria-label="文" font-family="Arial" font-size="10.23055649px" font-weight="700" letter-spacing="0"
+              style="-inkscape-font-specification:'Arial Bold'" word-spacing="0"/>
+    </g>
+</svg>

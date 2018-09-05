@@ -80,7 +80,7 @@ public class Updater {
                         alert.setHeaderText(null);
                         alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
                         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-                        stage.getIcons().add(Icons.getImage(Icon.UPDATE).orElse(null));
+                        Icons.getImage(Icon.UPDATE).ifPresent(stage.getIcons()::add);
                         Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
                         alert.show();
                     });

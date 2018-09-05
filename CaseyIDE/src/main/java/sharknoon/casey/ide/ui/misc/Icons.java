@@ -22,6 +22,7 @@ import javafx.scene.control.Labeled;
 import javafx.scene.image.*;
 import javafx.scene.layout.BorderPane;
 import org.apache.batik.anim.dom.SVGOMDocument;
+import sharknoon.casey.ide.utils.javafx.BindUtils;
 import sharknoon.casey.ide.utils.javafx.svg.ChachedSvgLoader;
 import sharknoon.casey.ide.utils.settings.*;
 
@@ -61,9 +62,7 @@ public class Icons {
     
     public static ObjectProperty<Node> iconToNodeProperty(ObjectProperty<Icon> icon, double maxX, double maxY) {
         ObjectProperty<Node> result = new SimpleObjectProperty<>();
-        ChangeListener<? super Icon> listener = (observable, oldValue, newValue) -> result.set(get(newValue, maxX, maxY));
-        icon.addListener(listener);
-        listener.changed(icon, null, icon.get());
+        BindUtils.addListener(icon, (o, old, newValue) -> result.set(get(newValue, maxX, maxY)));
         return result;
     }
     

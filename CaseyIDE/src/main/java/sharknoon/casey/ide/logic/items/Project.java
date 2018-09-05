@@ -105,7 +105,7 @@ public class Project extends Item<Project, Item, Package> {
         Styles.bindStyleSheets(newScene.getStylesheets());
         Stage newWindow = new Stage();
         newWindow.setTitle(title);
-        newWindow.getIcons().add(Icons.getImage(icon).orElse(null));
+        Icons.getImage(icon).ifPresent(newWindow.getIcons()::add);
         newWindow.setScene(newScene);
         newWindow.setOnCloseRequest(event -> {
             if (abortProcess != null) {
@@ -139,15 +139,15 @@ public class Project extends Item<Project, Item, Package> {
         return Optional.ofNullable(saveFile.get());
     }
     
-    public Path forceGetSaveFile() {
-        requestSaveFile();
-        return saveFile.get();
-    }
-    
     public void setSaveFile(Path path) {
         if (path != null) {
             saveFile.set(path);
         }
+    }
+    
+    public Path forceGetSaveFile() {
+        requestSaveFile();
+        return saveFile.get();
     }
     
     @Override

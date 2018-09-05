@@ -2,18 +2,14 @@ package sharknoon.casey.ide.ui.about;
 
 import javafx.geometry.HPos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import sharknoon.casey.ide.misc.Updater;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.ui.misc.Icons;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.styles.Styles;
-import sharknoon.casey.ide.utils.language.Language;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.utils.language.*;
 
 public class About {
     
@@ -27,7 +23,7 @@ public class About {
         gridPaneRoot.setVgap(10);
         gridPaneRoot.setMouseTransparent(true);
         Stage stage = (Stage) dialogPane.getScene().getWindow();
-        stage.getIcons().add(Icons.getImage(Icon.LOGO).orElse(null));
+        Icons.getImage(Icon.LOGO).ifPresent(stage.getIcons()::add);
         dialogPane.setPrefSize(250, 350);
         Styles.bindStyleSheets(dialogPane.getStylesheets());
         Node logo = Icons.get(Icon.CASEY, 300);

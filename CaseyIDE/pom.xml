@@ -69,12 +69,6 @@
             <artifactId>controlsfx</artifactId>
             <version>LATEST</version>
         </dependency>
-        <!-- Additional JavaFX components like SVG-Reader -->
-        <dependency>
-            <groupId>com.github.afester.javafx</groupId>
-            <artifactId>FranzXaver</artifactId>
-            <version>LATEST</version>
-        </dependency>
         <!-- For filling in parameters in language strings -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -126,11 +120,21 @@
             <groupId>org.aeonbits.owner</groupId>
             <artifactId>owner</artifactId>
             <version>RELEASE</version>
-            <scope>compile</scope>
+        </dependency>
+        <!-- SVG-Files -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-anim</artifactId>
+            <version>LATEST</version>
         </dependency>
         <dependency>
-            <groupId>de.saxsys</groupId>
-            <artifactId>svgfx</artifactId>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-bridge</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
             <version>LATEST</version>
         </dependency>
     </dependencies>

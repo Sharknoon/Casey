@@ -5,7 +5,7 @@
 
     <groupId>de.sharknoon</groupId>
     <artifactId>Casey</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
 
     <packaging>pom</packaging>
 
@@ -16,7 +16,7 @@
         <mainClass>${mainIDEClass}</mainClass>
         <mainCOMPILERClass>sharknoon.casey.compiler.MainKt</mainCOMPILERClass>
         <mainIDEClass>sharknoon.casey.ide.MainApplication</mainIDEClass>
-        <mainUPDATERClass>sharknoon.casey.updater.Main</mainUPDATERClass>
+        <mainUPDATERClass>sharknoon.casey.updater.MainKt</mainUPDATERClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>10</maven.compiler.source>

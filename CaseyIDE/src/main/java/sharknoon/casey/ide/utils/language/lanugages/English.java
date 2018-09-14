@@ -47,6 +47,7 @@ public class English extends Language {
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Save");
         add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Run");
         add(Word.TOOLBAR_BUTTON_RUN_TOOLTIP, "Run package function");
+        add(Word.TOOLBAR_BUTTON_CODEVIEWER_TEXT, "Source Code Viewer");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Welcome");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Recent projects");
@@ -214,7 +215,7 @@ public class English extends Language {
         ///Class in Use
         add(Word.CLASS_IN_USE_DIALOG_TITLE, "Class in use");
         add(Word.CLASS_IN_USE_DIALOG_HEADER_TEXT, "The class is still in use");
-        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "The class could not be deleted due to the folowing dependencies:\n${LIST}");
+        add(Word.CLASS_IN_USE_DIALOG_CONTENT_TEXT, "The class could not be deleted due to the folowing dependencies:\n${LIST}");
         ///New Text value
         add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "New text");
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Please enter a text");

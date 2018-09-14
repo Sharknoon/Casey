@@ -18,42 +18,53 @@ package sharknoon.casey.compiler.general.cli
 
 import org.apache.commons.cli.*
 
-private var options = initOptions()
+private var regularOptions = initRegularOptions()
+private var helpOptions = initHelpOptions()
 
 fun parseCommandLine(args: Array<String>): CLIArgs? {
     val parser = DefaultParser()
     try {
-        val cmd = parser.parse(options, args)
-        val path = cmd.getOptionValue("p")
-        val function = cmd.getOptionValue("f")
-        val language = cmd.getOptionValue("l")
-        val parameter = cmd.getOptionValues("pa")?.toList() ?: listOf()
-        val parameterMap = parameter.zipWithNext().toMap()
-        val ignoreComments = cmd.hasOption("i")
-        return CLIArgs(function, path, language, parameterMap, ignoreComments)
+        val helpcmd = parser.parse(helpOptions, args)
+        if (helpcmd.hasOption("h")) {
+            printHelp()
+            System.exit(0)
+        }
     } catch (e: Exception) {
-        println(e.message)
-        val formatter = HelpFormatter()
-        val header = "\n" +
-                "-----------------------\n" +
-                "-    CaseyCOMPILER    -\n" +
-                "-----------------------\n" +
-                "\n"
-        formatter.printHelp(
-                100,
-                "CaseyCOMPILER",
-                header,
-                options,
-                "",
-                true
-        )
+        try {
+            val regularcmd = parser.parse(regularOptions, args)
+            val path = regularcmd.getOptionValue("p")
+            val function = regularcmd.getOptionValue("f")
+            val language = regularcmd.getOptionValue("l")
+            val parameter = regularcmd.getOptionValues("pa")?.toList() ?: listOf()
+            val parameterMap = parameter.zipWithNext().toMap()
+            val ignoreComments = regularcmd.hasOption("i")
+            return CLIArgs(function, path, language, parameterMap, ignoreComments)
+        } catch (e: Exception) {
+            println(e.message)
+            printHelp()
+        }
     }
-
     return null
 }
 
+private fun printHelp() {
+    val formatter = HelpFormatter()
+    val header =
+            "-----------------------\n" +
+                    "-    CaseyCOMPILER    -\n" +
+                    "-----------------------\n" +
+                    "\n"
+    formatter.printHelp(
+            100,
+            "CaseyCOMPILER",
+            header,
+            regularOptions,
+            "",
+            true
+    )
+}
 
-private fun initOptions(): Options {
+private fun initRegularOptions(): Options {
     val options = Options()
 
     val path = Option.builder("p")
@@ -78,7 +89,7 @@ private fun initOptions(): Options {
             .argName("name")
             .required()
             .desc("The languageString this project should be compiled to (" +
-                    CLIArgs.Language.values().joinToString()
+                    CLIArgs.Language.values().joinToString() + ")"
             )
             .build()
 
@@ -100,6 +111,19 @@ private fun initOptions(): Options {
     options.addOption(language)
     options.addOption(parameters)
     options.addOption(ignoreComments)
+
+    return options
+}
+
+private fun initHelpOptions(): Options {
+    val options = Options()
+
+    val help = Option.builder("h")
+            .longOpt("help")
+            .desc("Shows a help message")
+            .build()
+
+    options.addOption(help)
 
     return options
 }

@@ -46,3 +46,20 @@ data class Item(
         CLASS
     }
 }
+
+private val START_BLOCKS = mutableMapOf<Item, Block>()
+val Item.startBlock: Block
+    get() {
+        if (START_BLOCKS.containsKey(this)) {
+            return START_BLOCKS.computeIfAbsent(this) { Block(UUID.randomUUID()) }
+        }
+        for (block in this.blocks) {
+            if (block.blocktype == Block.BlockType.START) {
+                START_BLOCKS[this] = block
+                return block
+            }
+        }
+        System.err.println("No start block for item $this")
+        System.exit(2)
+        return Block(UUID.randomUUID())//Never occurs
+    }

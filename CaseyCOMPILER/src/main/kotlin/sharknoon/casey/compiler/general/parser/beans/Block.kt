@@ -58,4 +58,10 @@ data class Block(
             var statement: Statement? = null,
             //The variable the statement is assigned to or the input is being stored into (only for assignment, input)
             var variable: String? = null)
+
+    override fun toString(): String {
+        return "Block(blockid=$blockid, blocktype=$blocktype, blockcontent=$blockcontent)"
+    }
+
+
 }

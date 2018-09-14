@@ -33,9 +33,9 @@ public class Resources {
     private static final Path PRIVATE_PATH;
     //used to store e.g. Projects of users
     private static final Path PUBLIC_PATH;
-    private static final String PRIVATE_DIR = "user.dir";
+    private static final String PRIVATE_DIR = "user.home";
     private static final String PUBLIC_DIR = "user.home";
-    private static final String PRIVATE_DIR_NAME = ".casey";
+    private static final String PRIVATE_DIR_NAME = "Casey/.casey";
     private static final String PUBLIC_DIR_NAME = "Casey";
     private static final Map<String, Path> CACHE;
     private static final Map<String, Optional<Path>> SEARCH_CACHE = new HashMap<>();
@@ -52,6 +52,7 @@ public class Resources {
             privPath = Paths.get(privateDir);
             privPath = privPath.resolve(PRIVATE_DIR_NAME);
             Files.createDirectories(privPath);
+            Files.setAttribute(privPath, "dos:hidden", Boolean.TRUE);
         } catch (IllegalArgumentException | FileSystemNotFoundException
                 | SecurityException | UnsupportedOperationException | IOException ex) {
             System.err.println("Error during private folder generation \n" + ex);//Logger not yet initialized

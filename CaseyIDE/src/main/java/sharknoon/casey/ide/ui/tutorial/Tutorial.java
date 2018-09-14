@@ -164,7 +164,8 @@ public class Tutorial {
             stage.initStyle(StageStyle.TRANSPARENT);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
-            stage.showAndWait();
+            stage.show();
+            Platform.runLater(stage::toFront);
         });
         
         isShowing = false;

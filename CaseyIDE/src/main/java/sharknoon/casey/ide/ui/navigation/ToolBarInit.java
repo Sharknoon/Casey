@@ -20,18 +20,25 @@ import javafx.beans.binding.*;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.scene.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import sharknoon.casey.ide.logic.CompileLanguage;
 import sharknoon.casey.ide.logic.items.*;
+import sharknoon.casey.ide.ui.dialogs.*;
+import sharknoon.casey.ide.ui.dialogs.Dialogs.Errors;
 import sharknoon.casey.ide.ui.fields.ValueField;
 import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.ui.sites.Site;
 import sharknoon.casey.ide.ui.styles.Styles;
 import sharknoon.casey.ide.utils.language.*;
+import sharknoon.casey.ide.utils.settings.Resources;
 
+import java.awt.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
@@ -48,8 +55,8 @@ public class ToolBarInit {
         toolBar.getItems().addAll(
                 initSaveButton(),
                 initRunButton(),
+                initCodeViewerButton(),
                 initLanguageSelectionChoiceBox(),
-                //tmp(),
                 initConsoleOutputLabel()
         );
         Platform.runLater(toolBar::requestFocus);
@@ -106,6 +113,69 @@ public class ToolBarInit {
         buttonRun.disableProperty().bind(enabledBinding.not());
         buttonRun.setFocusTraversable(false);
         return buttonRun;
+    }
+    
+    private static Button initCodeViewerButton() {
+        Button buttonCodeViewer = new Button();
+        Icons.set(Icon.CODE, buttonCodeViewer);
+        Language.set(Word.TOOLBAR_BUTTON_CODEVIEWER_TEXT, buttonCodeViewer);
+        
+        ObjectProperty<Item<?, ?, ?>> currentSite = Site.currentSelectedProperty();
+        buttonCodeViewer.setOnAction(e -> {
+            try {
+                Item<?, ?, ?> currentItem = currentSite.get();
+                if (currentItem == null) {
+                    return;
+                }
+                ItemType type = currentItem.getType();
+                Path projectsPath = Resources.getPublicPath().resolve("Projects");
+                Item<?, ?, ?> itemToOpen = currentItem;
+                while(itemToOpen.getParent().isPresent() && itemToOpen.getParent().get().getType() != ItemType.PACKAGE){
+                    itemToOpen = itemToOpen.getParent().get();
+                }
+                String fullName = itemToOpen.getFullName().replace('.', '/');
+                Path toOpen = null;
+                switch (type) {
+                    case FUNCTION:
+                    case VARIABLE:
+                    case CLASS:
+                        fullName += ".java";
+                        //No break!
+                    case PACKAGE:
+                        toOpen = projectsPath.resolve(fullName);
+                        break;
+                    case PROJECT:
+                        toOpen = projectsPath.resolve(fullName + ".casey");
+                        break;
+                    case PARAMETER:
+                    case WELCOME:
+                        return;
+                }
+                if (Files.notExists(toOpen)) {
+                    Dialogs.showErrorDialog(Errors.ITEM_NOT_COMPILED_DIALOG, null, Map.of("$ITEM", currentItem.getName()));
+                    return;
+                }
+                Desktop.getDesktop().open(toOpen.toFile());
+            } catch (Exception e1) {
+                ExceptionDialog.show("Could not open File", e1);
+            }
+        });
+        BooleanBinding enabledBinding =
+                Bindings
+                        .createBooleanBinding(
+                                () -> currentSite.get() != null && (
+                                        currentSite.get().getType() == ItemType.FUNCTION ||
+                                                currentSite.get().getType() == ItemType.VARIABLE ||
+                                                currentSite.get().getType() == ItemType.CLASS ||
+                                                currentSite.get().getType() == ItemType.PACKAGE ||
+                                                currentSite.get().getType() == ItemType.PROJECT
+                                ),
+                                currentSite
+                        )
+                        .and(running.not());
+        buttonCodeViewer.disableProperty().bind(enabledBinding.not());
+        buttonCodeViewer.setFocusTraversable(false);
+        return buttonCodeViewer;
     }
     
     private static ComboBox<CompileLanguage> initLanguageSelectionChoiceBox() {

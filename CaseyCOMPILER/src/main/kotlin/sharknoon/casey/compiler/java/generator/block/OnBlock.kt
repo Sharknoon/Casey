@@ -3,7 +3,7 @@ package sharknoon.casey.compiler.java.generator.block
 import com.squareup.javapoet.*
 import sharknoon.casey.compiler.general.*
 import sharknoon.casey.compiler.general.cli.CLIArgs
-import sharknoon.casey.compiler.general.parser.beans.Block
+import sharknoon.casey.compiler.general.parser.beans.*
 import sharknoon.casey.compiler.general.parser.beans.Block.BlockType.*
 import sharknoon.casey.compiler.general.parser.getItem
 import sharknoon.casey.compiler.java.generator.item.*
@@ -12,50 +12,50 @@ import java.util.*
 
 private val EMPTY_CODE_BLOCK = CodeBlock.builder().build()
 
-fun acceptFunctionBlocks(args: CLIArgs, startBlock: Block): CodeBlock? {
+fun acceptFunctionBlocks(args: CLIArgs, function: Item, startBlock: Block): CodeBlock? {
     val builder = CodeBlock.builder()
     if (startBlock.blocktype != START) {
         System.err.println("The start of this function is not null ($startBlock)")
         return null
     }
 
-    val skeleton = getSkeleton(startBlock) ?: return null
-    for (subSkeleton in skeleton.SubSkeletons) {
-        val codeBlock = when (subSkeleton) {
-            is SingleBlock -> acceptSingleBlock(args, subSkeleton) ?: return null
-            is Decision -> acceptDecisionSkeleton(args, subSkeleton) ?: return null
-            is Loop -> acceptLoopSkeleton(args, subSkeleton) ?: return null
-            else -> return null
-        }
+    val skeleton = getSkeleton(function) ?: return null
+    for (subSkeleton in skeleton.skeletons) {
+        val codeBlock = acceptSkeleton(args, subSkeleton)
         builder.add(codeBlock)
     }
 
     return builder.build()
 }
 
-private fun acceptSingleBlock(args: CLIArgs, singleBlock: SingleBlock): CodeBlock? = onSingleBlock(args, singleBlock.block)
+private fun acceptSkeleton(args: CLIArgs, skeleton: SubSkeleton): CodeBlock? = when (skeleton) {
+    is SingleBlock -> onSingleBlock(args, skeleton)
+    is Decision -> onDecision(args, skeleton)
+    is Loop -> onLoop(args, skeleton)
+    else -> null
+}
 
-private fun acceptDecisionSkeleton(args: CLIArgs, decision: Decision): CodeBlock? = onDecisionBlock(args, decision.condition, decision.trueBlocks, decision.falseBlocks)
-
-private fun acceptLoopSkeleton(args: CLIArgs, loop: Loop): CodeBlock? = onLoopBlock(args, loop.condition, loop.beforeCondition, loop.afterCondition)
-
-private fun onSingleBlock(args: CLIArgs, block: Block): CodeBlock? {
-    return when (block.blocktype) {
+private fun onSingleBlock(args: CLIArgs, skeleton: SingleBlock): CodeBlock? {
+    return when (skeleton.block.blocktype) {
         START -> EMPTY_CODE_BLOCK
-        END -> onEndBlock(args, block) ?: return null
-        //DECISION -> onDecisionBlock(args, block) ?: return null
-        CALL -> onCallBlock(args, block) ?: return null
-        ASSIGNMENT -> onAssignmentBlock(args, block) ?: return null
-        INPUT -> onInputBlock(block) ?: return null
-        OUTPUT -> onOutputBlock(args, block) ?: return null
+        END -> onEndBlock(args, skeleton.block) ?: return null
+        //DECISION -> onDecision(args, skeleton) ?: return null
+        CALL -> onCallBlock(args, skeleton.block) ?: return null
+        ASSIGNMENT -> onAssignmentBlock(args, skeleton.block) ?: return null
+        INPUT -> onInputBlock(skeleton.block) ?: return null
+        OUTPUT -> onOutputBlock(args, skeleton.block) ?: return null
         else -> null
     }
 }
 
-private fun onDecisionBlock(args: CLIArgs, decisionBlock: Block, trueBlocks: List<Block>, falseBlocks: List<Block>): CodeBlock? {
+private fun onDecision(args: CLIArgs, decision: Decision): CodeBlock? {
+    val decisionBlock = decision.condition
+    val trueBlocks = decision.trueSkeletons
+    val falseBlocks = decision.falseSkeletons
+
     val blockcontent = decisionBlock.blockcontent
     if (blockcontent == null) {
-        System.err.println("The Decisionblock $decisionBlock has no condition statement")
+        System.err.println("The DecisionBlock $decisionBlock has no condition statement")
         return null
     }
     val conditionStatement = blockcontent.statement
@@ -72,7 +72,7 @@ private fun onDecisionBlock(args: CLIArgs, decisionBlock: Block, trueBlocks: Lis
 
     val trueCodeBlock = CodeBlock.builder()
     for (trueBlock in trueBlocks) {
-        val block = onSingleBlock(args, trueBlock)
+        val block = acceptSkeleton(args, trueBlock)
         if (block == null) {
             System.err.println("Error in the true-Condition of this condition-block $decisionBlock")
             return null
@@ -82,7 +82,7 @@ private fun onDecisionBlock(args: CLIArgs, decisionBlock: Block, trueBlocks: Lis
 
     val falseCodeBlock = CodeBlock.builder()
     for (falseBlock in falseBlocks) {
-        val block = onSingleBlock(args, falseBlock)
+        val block = acceptSkeleton(args, falseBlock)
         if (block == null) {
             System.err.println("Error in the false-Condition of this condition-block $decisionBlock")
             return null
@@ -109,7 +109,11 @@ private fun onDecisionBlock(args: CLIArgs, decisionBlock: Block, trueBlocks: Lis
                 .build()
 }
 
-private fun onLoopBlock(args: CLIArgs, decisionBlock: Block, beforeCondition: List<Block>, afterCondition: List<Block>): CodeBlock? {
+private fun onLoop(args: CLIArgs, loop: Loop): CodeBlock? {
+    val decisionBlock = loop.condition
+    val beforeCondition = loop.beforeCondition
+    val afterCondition = loop.afterCondition
+
     val blockcontent = decisionBlock.blockcontent
     if (blockcontent == null) {
         System.err.println("The Decisionblock $decisionBlock has no Decisionblock statement")
@@ -134,7 +138,7 @@ private fun onLoopBlock(args: CLIArgs, decisionBlock: Block, beforeCondition: Li
 
     val beforeCodeBlock = CodeBlock.builder()
     for (beforeBlock in beforeCondition) {
-        val block = onSingleBlock(args, beforeBlock)
+        val block = acceptSkeleton(args, beforeBlock)
         if (block == null) {
             System.err.println("Error in the Loop before the Decisionblock $decisionBlock")
             return null
@@ -144,7 +148,7 @@ private fun onLoopBlock(args: CLIArgs, decisionBlock: Block, beforeCondition: Li
 
     val afterCodeBlock = CodeBlock.builder()
     for (afterBlock in afterCondition) {
-        val block = onSingleBlock(args, afterBlock)
+        val block = acceptSkeleton(args, afterBlock)
         if (block == null) {
             System.err.println("Error in the Loop after the Decisionblock $decisionBlock")
             return null
@@ -326,31 +330,7 @@ private fun onOutputBlock(args: CLIArgs, block: Block): CodeBlock? {
 //    return getBlock(next)
 //}
 //
-//private fun getTrueBlock(block: Block): Block? {
-//    val trueblock = getDecisionConditionBlock(block, ConnectionSide.RIGHT)
-//    if (trueblock == null) {
-//        System.err.println("Could not get the required block for the true-condition of this condition-block $block")
-//    }
-//    return trueblock
-//}
-//
-//private fun getFalseBlock(block: Block): Block? {
-//    return getDecisionConditionBlock(block, ConnectionSide.LEFT)
-//}
-//
-//private fun getDecisionConditionBlock(block: Block, side: ConnectionSide): Block? {
-//    if (block.blockconnections.isEmpty()) {
-//        //System.err.println("Could not get the connections for the block $block")
-//        return null
-//    }
-//    val destination = block.blockconnections[side]
-//    if (destination == null || destination.isEmpty()) {
-//        //System.err.println("The destinations of this block connections are null, cant get next block $block")
-//        return null
-//    }
-//    val next = destination.keys.iterator().next()
-//    return getBlock(next)
-//}
+
 
 
 

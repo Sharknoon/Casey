@@ -27,8 +27,8 @@ import java.net.*
 import java.nio.ByteBuffer
 import java.nio.channels.*
 import java.nio.file.*
-import java.util.*
 import javax.swing.JOptionPane
+import kotlin.math.roundToInt
 
 private val UPDATER = ConfigFactory.create(Updater::class.java)
 private var newestVersion: String? = null
@@ -57,19 +57,16 @@ private fun showErrorDialog(error: Throwable) {
 
 @Throws(Exception::class)
 fun go(args: Array<String>): Int {
-    print("Parsing Command Line...")
+    println("Parsing Command Line...")
     val (oldVersion, caseyJarPath) = parseCommandLine(args) ?: return 1
-    println("done")
     if (oldVersion != null) {
-        print("Checking for new version...")
+        println("Checking for new version...")
         val status = if (checkForNewerVersion(oldVersion)) 100 else 200
-        println("done")
         return status
     }
     if (caseyJarPath != null) {
-        print("Installing new version...")
+        println("Installing new version...")
         val status = if (installNewerVersion(caseyJarPath)) 100 else 200
-        println("done")
         return status
     }
 
@@ -78,15 +75,23 @@ fun go(args: Array<String>): Int {
 
 @Throws(Exception::class)
 fun installNewerVersion(caseyJar: String?): Boolean {
+    PROGRESS_PROPERTY.addListener { _, oldN, newN ->
+        val old = (oldN.toDouble() * 100).roundToInt()
+        val new = (newN.toDouble() * 100).roundToInt()
+        if (new > old && new % 5 == 0) {
+            println("$new%")
+        }
+    }
+    DESCRIPTION_PROPERTY.addListener { _, _, new -> println(new) }
     show(PROGRESS_PROPERTY, DESCRIPTION_PROPERTY, Runnable { System.exit(-1) })
     try {
-        val caseyJarPath = Paths.get(caseyJar)
+        val caseyJarPath = Paths.get(caseyJar).toAbsolutePath()
         val success = downloadNewestVersion(caseyJarPath)
         if (!success) {
             System.err.println("Could not download newest Casey .jar")
             return false
         }
-        val pb = ProcessBuilder("java", "-jar", caseyJarPath.toAbsolutePath().toString(), "-u")
+        val pb = ProcessBuilder("java", "-jar", caseyJarPath.toString(), "-u")
         pb.directory(caseyJarPath.parent.toFile())
         println("Executing " + pb.command().joinToString(" "))
         pb.start()
@@ -102,11 +107,13 @@ fun downloadNewestVersion(jarToReplace: Path): Boolean {
     try {
         DESCRIPTION_PROPERTY.set("Getting update-URL from .properties file")
         var updateurltag = UPDATER.updateurltag()
-        updateurltag = updateurltag.replace("[TAG]", getNewestVersion(DESCRIPTION_PROPERTY).orElse("0.1"))
+        updateurltag = updateurltag.replace("[TAG]", getNewestVersion() ?: "0.1")
         val updateurltagUrl = URL(updateurltag)
+        DESCRIPTION_PROPERTY.set("  Update-URL: $updateurltag")
         DESCRIPTION_PROPERTY.set("Deleting old Casey .jar")
         Files.deleteIfExists(jarToReplace)
-        DESCRIPTION_PROPERTY.set("Opening Channels to the URL ($updateurltag)")
+        DESCRIPTION_PROPERTY.set("  Deletion finished")
+        DESCRIPTION_PROPERTY.set("Opening Channel to the URL ($updateurltag)")
         val rbc = Channels.newChannel(updateurltagUrl.openStream())
         val ptrbc = ProgressTrackableReadableByteChannel(rbc, contentLength(updateurltagUrl), PROGRESS_PROPERTY)
         val fos = FileOutputStream(jarToReplace.toFile())
@@ -123,55 +130,60 @@ fun downloadNewestVersion(jarToReplace: Path): Boolean {
 private fun contentLength(url: URL): Long {
     try {
         DESCRIPTION_PROPERTY.set("Getting size of the update file")
-        return url.openConnection().contentLengthLong
+        val size = url.openConnection().contentLengthLong
+        DESCRIPTION_PROPERTY.set("  Size of update file: $size")
+        return size
     } catch (e: Exception) {
         throw Exception("Couldn't get the size of the Casey.jar File", e)
     }
-
 }
 
 @Throws(Exception::class)
-fun checkForNewerVersion(currentVersionString: String?): Boolean {
+fun checkForNewerVersion(currentVersionString: String = ""): Boolean {
     try {
-        if (currentVersionString == null || currentVersionString.isEmpty()) {
-            System.err.println("Wrong current version string: " + currentVersionString!!)
+        if (currentVersionString.isEmpty()) {
+            System.err.println("Wrong current version string: $currentVersionString")
             return false
         }
-        val newestVersionOptional = getNewestVersion(SimpleStringProperty())
-        if (!newestVersionOptional.isPresent) {
+        val newestVersionString = getNewestVersion()
+        if (newestVersionString == null) {
             System.err.println("Could not get newest version number")
             return false
         }
-        val newestVersionString = newestVersionOptional.get()
 
         val currentVersion = DefaultArtifactVersion(currentVersionString)
         val newestVersion = DefaultArtifactVersion(newestVersionString)
 
-        return newestVersion.compareTo(currentVersion) > 0
+        val newVersionAvailable = newestVersion > currentVersion
+        if (newVersionAvailable) {
+            println("New Casey-Version available! ($currentVersion -> $newestVersion)")
+        } else {
+            println("No newer Casey-Version available :) The version ($newestVersion) is the newest version")
+        }
+        return newVersionAvailable
     } catch (e: Exception) {
         throw Exception("Could not check for newer version", e)
     }
-
 }
 
 @Throws(Exception::class)
-fun getNewestVersion(descriptionProperty: StringProperty): Optional<String> {
+fun getNewestVersion(): String? {
     if (newestVersion != null) {
-        return Optional.of(newestVersion!!)
+        return newestVersion
     }
     try {
-        descriptionProperty.set("Getting newest version number")
+        DESCRIPTION_PROPERTY.set("Getting newest version number")
         val updateurllatest = UPDATER.updateurllatest()
         val con = updateurllatest.openConnection() as HttpURLConnection
         con.instanceFollowRedirects = false
         con.connect()
         val location = con.getHeaderField("Location")
         newestVersion = location.substring(location.lastIndexOf("/") + 1)
-        return Optional.of(newestVersion!!)
+        DESCRIPTION_PROPERTY.set("  Newest version number: $newestVersion")
+        return newestVersion
     } catch (e: Exception) {
         throw Exception("Could not retrieve newest version number", e)
     }
-
 }
 
 private class ProgressTrackableReadableByteChannel(private val originalRBC: ReadableByteChannel, private val expectedSize: Long, private val progressProperty: DoubleProperty) : ReadableByteChannel {

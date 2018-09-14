@@ -347,6 +347,10 @@ public class Dialogs {
         return Optional.empty();
     }
     
+    public static void showErrorDialog(Errors type) {
+        showErrorDialog(type, null, null);
+    }
+    
     public static void showErrorDialog(Errors type, Exception exception) {
         showErrorDialog(type, exception, null);
     }
@@ -366,8 +370,16 @@ public class Dialogs {
                 showErrorDialog(
                         CLASS_IN_USE_DIALOG_TITLE,
                         CLASS_IN_USE_DIALOG_HEADER_TEXT,
-                        TCLASS_IN_USE_DIALOG_CONTENT_TEXT,
+                        CLASS_IN_USE_DIALOG_CONTENT_TEXT,
                         Icon.CLASS,
+                        null,
+                        variables);
+            case ITEM_NOT_COMPILED_DIALOG:
+                showErrorDialog(
+                        ITEM_NOT_COMPILED_DIALOG_TITLE,
+                        ITEM_NOT_COMPILED_DIALOG_HEADER_TEXT,
+                        ITEM_NOT_COMPILED_DIALOG_CONTENT_TEXT,
+                        Icon.CODE,
                         null,
                         variables);
         }
@@ -568,7 +580,8 @@ public class Dialogs {
     
     public enum Errors implements DialogTypes {
         PROJECT_CORRUPT_DIALOG,
-        TYPE_IN_USE_DIALOG
+        TYPE_IN_USE_DIALOG,
+        ITEM_NOT_COMPILED_DIALOG
     }
     
     public interface DialogTypes {

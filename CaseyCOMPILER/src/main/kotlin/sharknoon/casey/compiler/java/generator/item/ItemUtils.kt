@@ -248,12 +248,13 @@ internal fun getFunction(args: CLIArgs, functionItem: Item, isStatic: Boolean): 
     }
     for (block in functionItem.blocks) {
         if (block.blocktype === BlockType.START) {
-            val codeBlock = acceptFunctionBlocks(args, block)
+            val codeBlock = acceptFunctionBlocks(args, functionItem, block)
             if (codeBlock == null) {
                 System.err.println("Something in the function " + getFullName(functionItem) + " went wrong")
                 return null
             }
             variablesAndBlocksBuilder.add(codeBlock)
+            break
         }
     }
     val variablesAndBlocks = variablesAndBlocksBuilder.build()

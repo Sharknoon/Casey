@@ -47,6 +47,7 @@ public class German extends Language {
         add(Word.TOOLBAR_BUTTON_SAVE_TEXT, "Speichern");
         add(Word.TOOLBAR_BUTTON_RUN_TEXT, "Ausführen");
         add(Word.TOOLBAR_BUTTON_RUN_TOOLTIP, "Paketfunktionen ausgeführen");
+        add(Word.TOOLBAR_BUTTON_CODEVIEWER_TEXT, "Quellcode anzeigen");
         //Welcomesite
         add(Word.WELCOME_SITE_TAB_TITLE, "Willkommen");
         add(Word.WELCOMESITE_RECENT_PROJECTS, "Zuletzt verwendet");
@@ -214,7 +215,7 @@ public class German extends Language {
         ///Class in Use
         add(Word.CLASS_IN_USE_DIALOG_TITLE, "Klasse noch in Benutzung");
         add(Word.CLASS_IN_USE_DIALOG_HEADER_TEXT, "Die Klasse ist noch in Benutzung");
-        add(Word.TCLASS_IN_USE_DIALOG_CONTENT_TEXT, "Die Klasse konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:\n${LIST}");
+        add(Word.CLASS_IN_USE_DIALOG_CONTENT_TEXT, "Die Klasse konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:\n${LIST}");
         ///New Text value
         add(Word.NEW_TEXT_VALUE_DIALOG_TITLE, "Neuer Text");
         add(Word.NEW_TEXT_VALUE_DIALOG_HEADER_TEXT, "Bitte Text eingeben");

@@ -24,7 +24,7 @@ import javafx.scene.input.MouseEvent;
 import sharknoon.casey.ide.logic.blocks.BlockType;
 import sharknoon.casey.ide.logic.blocks.Blocks;
 import sharknoon.casey.ide.ui.UISettings;
-import sharknoon.casey.ide.ui.misc.MouseConsumable;
+import sharknoon.casey.ide.ui.misc.*;
 import sharknoon.casey.ide.utils.language.Language;
 
 import java.util.EnumSet;
@@ -83,6 +83,7 @@ public class WorkspaceContextMenu implements MouseConsumable {
                 .forEach(blockType -> {
                     var menuItemAddNewBlock = new MenuItem();
                     menuItemAddNewBlock.setId(blockType.name());
+                    menuItemAddNewBlock.setGraphic(Icons.get(blockType.getIconContextMenuAddBlock()));
                     Language.setCustom(blockType.getContextMenuAddBlockWord(), menuItemAddNewBlock::setText);
                     menuItemAddNewBlock.setOnAction(e -> {
                         Blocks.createBlock(blockType, functionSite.getItem(), UUID.randomUUID().toString(), workspaceOrigin);

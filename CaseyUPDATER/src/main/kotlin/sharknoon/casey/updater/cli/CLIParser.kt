@@ -19,40 +19,53 @@ package sharknoon.casey.updater.cli
 import org.apache.commons.cli.*
 
 
-private var options: Options = initOptions()
-private const val HEADER = "\n" +
-        "-----------------------\n" +
-        "-    CaseyUPDATER     -\n" +
-        "-----------------------\n" +
-        "\n"
+private val regularOptions = initRegularOptions()
+private val helpOptions = initHelpOptions()
 
 fun parseCommandLine(args: Array<String>): CLIArgs? {
     val parser = DefaultParser()
     try {
-        val cmd = parser.parse(options, args)
-        if (cmd.options.isEmpty()) {
-            throw Exception()
+        val helpcmd = parser.parse(helpOptions, args)
+        if (helpcmd.hasOption("h")) {
+            printHelp()
+            System.exit(0)
         }
-        val check = cmd.getOptionValue("c")
-        val update = cmd.getOptionValue("u")
-        return CLIArgs(check, update)
     } catch (e: Exception) {
-        println(e.message)
-        val formatter = HelpFormatter()
-        formatter.printHelp(
-                100,
-                "CaseyUPDATER",
-                HEADER,
-                options,
-                "",
-                true
-        )
+        try {
+            val regularcmd = parser.parse(regularOptions, args)
+            if (regularcmd.options.isEmpty()) {
+                throw MissingArgumentException("Missing either a check or a update argument")
+            }
+            val check = regularcmd.getOptionValue("c")
+            val update = regularcmd.getOptionValue("u")
+            return CLIArgs(check, update)
+        } catch (e: Exception) {
+            println(e.message)
+            printHelp()
+        }
     }
 
     return null
 }
 
-private fun initOptions(): Options {
+private fun printHelp() {
+    val formatter = HelpFormatter()
+    val header =
+            "-----------------------\n" +
+                    "-    CaseyUPDATER     -\n" +
+                    "-----------------------\n" +
+                    "\n"
+    formatter.printHelp(
+            100,
+            "CaseyUPDATER",
+            header,
+            regularOptions,
+            "",
+            true
+    )
+}
+
+private fun initRegularOptions(): Options {
     val options = Options()
 
     val check = Option.builder("c")
@@ -75,3 +88,15 @@ private fun initOptions(): Options {
     return options
 }
 
+private fun initHelpOptions(): Options {
+    val options = Options()
+
+    val help = Option.builder("h")
+            .longOpt("help")
+            .desc("Shows a help message")
+            .build()
+
+    options.addOption(help)
+
+    return options
+}

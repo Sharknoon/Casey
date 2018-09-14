@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 26.5 26.5">
+  <g transform="translate(0 -270.5)">
+    <rect width="26.458334" height="26.458334" y="270.5" fill="#cfd8dc" ry="0"/>
+    <circle cx="2.3151042" cy="272.85675" r="0.9921875" fill="#90a4ae"/>
+    <circle cx="5.622396" cy="272.85675" r="0.9921875" fill="#90a4ae"/>
+    <path fill="#263238" d="M1.3 275.2h23.8v20.5H1.3z"/>
+    <g fill="#76ff03" stroke-width=".26458332" aria-label="&lt;/&gt;" font-family="Consolas" font-size="10.58333302px" font-weight="700" letter-spacing="0" style="line-height:1.25" word-spacing="0">
+      <path d="M8.7 288.5l-3.4-2.8 3.4-2.8.7.8-2.4 2 2.4 2zM12 289.5h-1.2l3.5-8.1h1.2zM17.8 282.9l3.4 2.8-3.4 2.8-.8-.8 2.5-2-2.5-2z" style="-inkscape-font-specification:'Consolas Bold'"/>
+    </g>
+  </g>
+</svg>

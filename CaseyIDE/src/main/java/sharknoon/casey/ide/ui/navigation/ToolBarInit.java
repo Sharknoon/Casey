@@ -127,29 +127,38 @@ public class ToolBarInit {
                 if (currentItem == null) {
                     return;
                 }
+                Project.getCurrentProject().ifPresent(Project::save);
                 ItemType type = currentItem.getType();
                 Path projectsPath = Resources.getPublicPath().resolve("Projects");
                 Item<?, ?, ?> itemToOpen = currentItem;
-                while(itemToOpen.getParent().isPresent() && itemToOpen.getParent().get().getType() != ItemType.PACKAGE){
+                while (itemToOpen.getParent().isPresent() && !(itemToOpen.getParent().get().getType() == ItemType.PACKAGE || itemToOpen.getParent().get().getType() == ItemType.PROJECT)) {
                     itemToOpen = itemToOpen.getParent().get();
                 }
-                String fullName = itemToOpen.getFullName().replace('.', '/');
+                CompileLanguage compileLanguage = Project.getCurrentCompileLanguage();
                 Path toOpen = null;
-                switch (type) {
-                    case FUNCTION:
-                    case VARIABLE:
-                    case CLASS:
-                        fullName += ".java";
-                        //No break!
-                    case PACKAGE:
-                        toOpen = projectsPath.resolve(fullName);
-                        break;
-                    case PROJECT:
-                        toOpen = projectsPath.resolve(fullName + ".casey");
-                        break;
-                    case PARAMETER:
-                    case WELCOME:
-                        return;
+    
+                if (compileLanguage == CompileLanguage.Java) {
+                    String fullName = itemToOpen.getFullName().replace('.', '/');
+                    switch (type) {
+                        case FUNCTION:
+                        case VARIABLE:
+                        case CLASS:
+                            fullName += ".java";
+                            //No break!
+                        case PACKAGE:
+                            toOpen = projectsPath.resolve(fullName);
+                            break;
+                        case PROJECT:
+                            toOpen = projectsPath.resolve(fullName + ".casey");
+                            break;
+                        case PARAMETER:
+                        case WELCOME:
+                            return;
+                    }
+                }
+    
+                if (toOpen == null) {
+                    return;
                 }
                 if (Files.notExists(toOpen)) {
                     Dialogs.showErrorDialog(Errors.ITEM_NOT_COMPILED_DIALOG, null, Map.of("$ITEM", currentItem.getName()));

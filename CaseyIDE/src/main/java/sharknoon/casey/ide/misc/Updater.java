@@ -15,12 +15,16 @@ package sharknoon.casey.ide.misc;/*
  */
 
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Stage;
 import org.aeonbits.owner.ConfigFactory;
 import sharknoon.casey.ide.MainApplication;
 import sharknoon.casey.ide.misc.Executor.ExecutorBuilder;
 import sharknoon.casey.ide.ui.dialogs.Dialogs;
-import sharknoon.casey.ide.ui.misc.Icon;
-import sharknoon.casey.ide.utils.language.Word;
+import sharknoon.casey.ide.ui.misc.*;
+import sharknoon.casey.ide.ui.styles.Styles;
+import sharknoon.casey.ide.utils.language.*;
 import sharknoon.casey.ide.utils.settings.*;
 
 import java.nio.file.Path;
@@ -68,21 +72,21 @@ public class Updater {
             isCheckingForUpdates = false;
             boolean newUpdateAvailable = result == 100;
             Logger.info("Update available: " + newUpdateAvailable);
-//            if (!newUpdateAvailable) {
-//                if (!silent) {
-//                    Platform.runLater(() -> {
-//                        Alert alert = new Alert(AlertType.INFORMATION);
-//                        alert.setTitle(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE));
-//                        alert.setHeaderText(null);
-//                        alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
-//                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-//                        Icons.getImage(Icon.UPDATE).ifPresent(stage.getIcons()::add);
-//                        Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
-//                        alert.show();
-//                    });
-//                }
-//                return;
-//            }
+            if (!newUpdateAvailable) {
+                if (!silent) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_TITLE));
+                        alert.setHeaderText(null);
+                        alert.setContentText(Language.get(Word.NO_NEW_UPDATE_AVAILABLE_DIALOG_HEADER_TEXT));
+                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        Icons.getImage(Icon.UPDATE).ifPresent(stage.getIcons()::add);
+                        Styles.bindStyleSheets(alert.getDialogPane().getStylesheets());
+                        alert.show();
+                    });
+                }
+                return;
+            }
             boolean userWantsUpdate = showUpdateDialog();
             if (!userWantsUpdate) {
                 return;

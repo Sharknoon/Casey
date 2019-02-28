@@ -137,5 +137,21 @@
             <artifactId>log4j-core</artifactId>
             <version>LATEST</version>
         </dependency>
+        <!-- The new JavaFX by OpenJFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 </project>

@@ -21,7 +21,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>10</maven.compiler.source>
         <maven.compiler.target>10</maven.compiler.target>
-        <kotlin.version>1.2.60</kotlin.version>
+        <kotlin.version>1.3.21</kotlin.version>
     </properties>
 
     <dependencies>
@@ -79,45 +79,6 @@
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
-            <!-- for running the Project -->
-            <!--<plugin>-->
-            <!--<groupId>org.codehaus.mojo</groupId>-->
-            <!--<artifactId>exec-maven-plugin</artifactId>-->
-            <!--<version>1.6.0</version>-->
-            <!--<configuration>-->
-            <!--<mainClass>${mainClass}</mainClass>-->
-            <!--</configuration>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>package-native</id>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>exec</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<executable>-->
-            <!--${env.JAVA_HOME}/bin/javapackager-->
-            <!--</executable>-->
-            <!--<arguments>-->
-            <!--<argument>-deploy</argument>-->
-            <!--<argument>-native</argument>-->
-            <!--<argument>exe</argument>-->
-            <!--<argument>-name</argument>-->
-            <!--<argument>${project.artifactId}</argument>-->
-            <!--<argument>-appclass</argument>-->
-            <!--<argument>${mainClass}</argument>-->
-            <!--<argument>-srcfiles</argument>-->
-            <!--<argument>${project.build.directory}/${ideName}/target/${ideName}.jar</argument>-->
-            <!--<argument>-outdir</argument>-->
-            <!--<argument>./target</argument>-->
-            <!--<argument>-outfile</argument>-->
-            <!--<argument>${project.artifactId}-app</argument>-->
-            <!--<argument>-v</argument>-->
-            <!--</arguments>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
             <!-- For setting the project version number in a properties file to keep it all iin this pom file -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -189,6 +150,31 @@
                 </executions>
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
+                </configuration>
+            </plugin>
+            <!-- Needed in order to compile it with the new standalone JavaFX -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <!-- Needed to run this with the new standalone JavaFX -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>de.sharknoon.casey.ide.MainApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

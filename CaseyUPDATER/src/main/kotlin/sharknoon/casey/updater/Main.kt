@@ -17,16 +17,25 @@ package sharknoon.casey.updater
  */
 
 
-import javafx.beans.property.*
+import javafx.beans.property.DoubleProperty
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleStringProperty
 import org.aeonbits.owner.ConfigFactory
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import sharknoon.casey.updater.cli.parseCommandLine
 import sharknoon.casey.updater.ui.show
-import java.io.*
-import java.net.*
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import java.nio.ByteBuffer
-import java.nio.channels.*
-import java.nio.file.*
+import java.nio.channels.Channels
+import java.nio.channels.ReadableByteChannel
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import javax.swing.JOptionPane
 import kotlin.math.roundToInt
 

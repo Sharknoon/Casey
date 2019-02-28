@@ -33,6 +33,7 @@ import sharknoon.casey.ide.utils.settings.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author frank
@@ -98,8 +99,9 @@ public class MainApplication extends Application {
         
         var loader = new FXMLLoader();
         var fxmlStream = Resources.createAndGetFileAsStream("sharknoon/casey/ide/ui/MainFXML.fxml", true);
-        
-        Parent root = loader.load(fxmlStream);
+
+        //Loads the Maincontroller, which loads all the UI Things
+        Parent root = loader.load(Objects.requireNonNull(fxmlStream));
         scene = new Scene(root);
         Styles.bindStyleSheets(scene.getStylesheets());
         INITIALIZABLES.forEach(i -> i.init(scene));

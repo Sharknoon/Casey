@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
  *
  * @author Josua Frank
  */
-public class MainController implements Initializable {
+public class MainController {
 
     @FXML
     private TabPane tabPane;
@@ -58,8 +58,8 @@ public class MainController implements Initializable {
         controller = this;
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    @FXML
+    public void initialize() {
         Background.init(imageView1, imageView2);
         MenuBarInit.init(menubar);
         ToolBarInit.init(toolbar);

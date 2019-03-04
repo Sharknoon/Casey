@@ -18,6 +18,9 @@ package sharknoon.casey.updater.cli
 
 import org.apache.commons.cli.*
 
+enum class ACTIONS {
+    CHECK_VERSION(oldVersion:Version), UPDATE_CASEY(caseyJarPath:String)
+}
 
 private val regularOptions = initRegularOptions()
 private val helpOptions = initHelpOptions()

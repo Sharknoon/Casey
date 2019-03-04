@@ -1,9 +1,12 @@
 package sharknoon.casey.compiler.general
 
-import sharknoon.casey.compiler.general.parser.beans.*
+import sharknoon.casey.compiler.general.parser.beans.Block
+import sharknoon.casey.compiler.general.parser.beans.Item
+import sharknoon.casey.compiler.general.parser.beans.startBlock
 import sharknoon.casey.compiler.general.parser.getBlock
 import sharknoon.casey.compiler.utils.Result
-import sharknoon.casey.compiler.utils.Result.*
+import sharknoon.casey.compiler.utils.Result.Error
+import sharknoon.casey.compiler.utils.Result.Success
 
 /*
  * Copyright 2018 Shark Industries.
@@ -194,10 +197,10 @@ class Skeleton(val function: Item) {
         return SingleBlock(decisionBlock)
     }
 
-    fun resolveNormalBlock(normalBlock: Block) {
-        val normal = SingleBlock(normalBlock)
-        //TODO Adding normal to the skeletonslist
-    }
+//    fun resolveNormalBlock(normalBlock: Block) {
+//        val normal = SingleBlock(normalBlock)
+//        //TODO Adding normal to the skeletonslist
+//    }
 
     fun buildDecisionMap(): Result<Nothing> {
         while (currentBlock.hasNextBlock()) {

@@ -1,4 +1,6 @@
 /target/
 /.casey/
 /CaseyIDE/.casey/
-/CaseyCOMPILER/tmp
+/CaseyCOMPILER/tmp/
+.idea/
+*.iml

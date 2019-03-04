@@ -70,13 +70,11 @@ fun go(args: Array<String>): Int {
     val (oldVersion, caseyJarPath) = parseCommandLine(args) ?: return 1
     if (oldVersion != null) {
         println("Checking for new version...")
-        val status = if (checkForNewerVersion(oldVersion)) 100 else 200
-        return status
+        return if (checkForNewerVersion(oldVersion)) 100 else 200
     }
     if (caseyJarPath != null) {
         println("Installing new version...")
-        val status = if (installNewerVersion(caseyJarPath)) 100 else 200
-        return status
+        return if (installNewerVersion(caseyJarPath)) 100 else 200
     }
 
     return 2

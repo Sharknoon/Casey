@@ -21,7 +21,7 @@ sealed class Result<out T> {
 }
 
 fun <T, R> Result<T>.ifSuccessful(func: (T?) -> R) {
-    when (this) {
-        is Result.Success -> func(this.value)
+    if (this is Result.Success) {
+        func(this.value)
     }
 }

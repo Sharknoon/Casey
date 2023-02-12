@@ -29,59 +29,55 @@ private val FUNCTIONS: MutableMap<Item, Skeleton> = mutableMapOf()
 
 fun getSkeleton(function: Item): Skeleton? {
     if (FUNCTIONS.containsKey(function)) return FUNCTIONS[function]
-    val skeleton = createSkeleton(function)
-    if (skeleton == null) {
-        System.err.println("Could not create skeleton of function $function")
-        return null
-    }
+    val skeleton = Skeleton(function)
     FUNCTIONS[function] = skeleton
     return skeleton
 }
 
-private fun createSkeleton(function: Item): Skeleton? {
-    val s = Skeleton(function)
-    s.buildMergeMap()
-    s.buildDecisionMap()
-
-    return s
-}
-
 class Skeleton(val function: Item) {
 
-    private var mergeMap = mutableMapOf<Block, MutableList<Block>>()//Key= Block itself, value= merges of other blocks into
-    private var decisionMap = mutableMapOf<Block, Pair<Block, Block>>()//Key= Decision itself, value= merge with another line (end of the decision)
+    private var previousBlocksMap =
+        mutableMapOf<Block, MutableList<Block>>()//Key= Block itself, value= merges of other blocks into
+    private var decisionMap =
+        mutableMapOf<Block, Pair<Block, Block>>()//Key= Decision itself, value= merge with another line (end of the decision)
     var skeletons = mutableListOf<SubSkeleton>()
-
-    fun buildMergeMap() {
-        for (block in function.blocks) {
-            block
-                    .blockconnections
-                    .values
-                    .stream()
-                    .map { it.keys }
-                    .flatMap { it.stream() }
-                    .map { getBlock(it) }//Stream of destination blocks
-                    .forEach { destinationBlock ->
-                        if (destinationBlock == null) {
-                            return@forEach
-                        }
-                        mergeMap.getOrPut(destinationBlock) { mutableListOf() }.add(block)
-                    }
-        }
-    }
-
-    fun Block.hasMultipleInputs() = mergeMap[this]?.size ?: 0 > 1
-
+    private var visitedBlocks = mutableSetOf<Block>()
     private var currentBlock = function.startBlock
         set(value) {
             visitedBlocks.add(field)
             field = value
         }
-    private var visitedBlocks = mutableSetOf<Block>()
+
+    init {
+        buildPreviousBlocksMap()
+        buildDecisionMap()
+
+    }
+
+    fun buildPreviousBlocksMap() {
+        for (block in function.blocks) {
+            block
+                .blockconnections
+                .values
+                .stream()
+                .map { it.keys }
+                .flatMap { it.stream() }
+                .map { getBlock(it) }//Stream of destination blocks
+                .forEach { destinationBlock ->
+                    if (destinationBlock == null) {
+                        return@forEach
+                    }
+                    previousBlocksMap.getOrPut(destinationBlock) { mutableListOf() }.add(block)
+                }
+        }
+    }
+
+    fun Block.hasMultipleInputs() = (previousBlocksMap[this]?.size ?: 0) > 1
+
     fun Block.alreadyVisited() = visitedBlocks.contains(this)
 
     /**
-     * Runs both arms until the meet a block with two ore more inputs, if both arms met at the same input, this is a if
+     * Runs both arms until the meet a block with two or more inputs, if both arms met at the same input, this is an if
      */
     fun isIf(decisionBlock: Block): Boolean {
         val oldCurrentBlock = currentBlock
@@ -187,7 +183,7 @@ class Skeleton(val function: Item) {
         return false
     }
 
-    fun resolveDecisionBlock(decisionBlock: Block):SubSkeleton {
+    fun resolveDecisionBlock(decisionBlock: Block): SubSkeleton {
         if (isIf(decisionBlock)) {
 
         } else if (isWhile(decisionBlock)) {
@@ -239,7 +235,8 @@ private fun getDecisionConditionBlock(block: Block, side: Block.ConnectionSide):
 
 fun Block.isDecisionBlock() = this.blocktype == Block.BlockType.DECISION
 
-fun Block.hasNextBlock() = this.blockconnections.isNotEmpty() && this.blockconnections.values.iterator().next().isNotEmpty()
+fun Block.hasNextBlock() =
+    this.blockconnections.isNotEmpty() && this.blockconnections.values.iterator().next().isNotEmpty()
 
 /**
  * Warning, can run into a loop when this is a while, check beforehand if this block is a decision block with a loop!
@@ -270,15 +267,19 @@ data class SingleBlock(val block: Block) : SubSkeleton
  * A Decision: When the condition matches, the trueSkeletons are exited, the falseSkeletons otherwise.
  * Then the Decision exits.
  */
-data class Decision(val condition: Block,
-                    val trueSkeletons: List<SubSkeleton> = listOf(),
-                    val falseSkeletons: List<SubSkeleton> = listOf()) : SubSkeleton
+data class Decision(
+    val condition: Block,
+    val trueSkeletons: List<SubSkeleton> = listOf(),
+    val falseSkeletons: List<SubSkeleton> = listOf()
+) : SubSkeleton
 
 /**
  * A Loop: The blocks beforeCondition are executed first, then, when the condition matches, afterCondition blocks are
  * executed, then the beforeCondition block, then the condition is checked again, when the condition is false, the
  * Loop exits
  */
-data class Loop(val beforeCondition: List<SubSkeleton> = listOf(),
-                val condition: Block,
-                val afterCondition: List<SubSkeleton> = listOf()) : SubSkeleton
+data class Loop(
+    val beforeCondition: List<SubSkeleton> = listOf(),
+    val condition: Block,
+    val afterCondition: List<SubSkeleton> = listOf()
+) : SubSkeleton

@@ -15,77 +15,77 @@ private const val AND = " && "
 fun acceptStatement(args: CLIArgs, statement: Statement): CodeBlock? {
     when (statement.type) {
         //Values
-        Statement.StatementType.NUMBER,
-        Statement.StatementType.BOOLEAN,
-        Statement.StatementType.TEXT,
-        Statement.StatementType.OBJECT -> return onValue(statement)
+        StatementType.NUMBER,
+        StatementType.BOOLEAN,
+        StatementType.TEXT,
+        StatementType.OBJECT -> return onValue(statement)
         //Operators
-        Statement.StatementType.ADD -> return onSimpleOperator(args, statement, " + ")
-        Statement.StatementType.AND -> return onSimpleOperator(args, statement, AND)
-        Statement.StatementType.CONCAT -> return onSimpleOperator(args, statement, ") + String.valueOf(", CodeBlock.of("\$T.valueOf(", String::class.java), CodeBlock.of(")"))
-        Statement.StatementType.DIVIDE -> return onSimpleOperator(args, statement, " / ")
-        Statement.StatementType.EQUALS -> {
+        StatementType.ADD -> return onSimpleOperator(args, statement, " + ")
+        StatementType.AND -> return onSimpleOperator(args, statement, AND)
+        StatementType.CONCAT -> return onSimpleOperator(args, statement, ") + String.valueOf(", CodeBlock.of("\$T.valueOf(", String::class.java), CodeBlock.of(")"))
+        StatementType.DIVIDE -> return onSimpleOperator(args, statement, " / ")
+        StatementType.EQUALS -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Not Equals Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, ", ", AND, CodeBlock.of("\$T.equals(", Objects::class.java), CodeBlock.of(")"))
         }
-        Statement.StatementType.GREATER_OR_EQUAL_THAN -> {
+        StatementType.GREATER_OR_EQUAL_THAN -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Greater Or Equals Than Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, " >= ", AND)
         }
-        Statement.StatementType.GREATER_THAN -> {
+        StatementType.GREATER_THAN -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Greater Than Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, " > ", AND)
         }
-        Statement.StatementType.LENGTH -> {
+        StatementType.LENGTH -> {
             if (statement.parameter.size != 1) {
                 System.err.println("The Length Operator needs to have exactly one parameter")
                 return null
             }
             return onSimpleOperator(args, statement, EMPTY, null, CodeBlock.of(".length()"))
         }
-        Statement.StatementType.LESS_OR_EQUAL_THAN -> {
+        StatementType.LESS_OR_EQUAL_THAN -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Less Or Equal Than Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, " <= ", AND)
         }
-        Statement.StatementType.LESS_THAN -> {
+        StatementType.LESS_THAN -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Less Than Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, " < ", AND)
         }
-        Statement.StatementType.MODULO -> return onSimpleOperator(args, statement, " % ")
-        Statement.StatementType.MULTIPLY -> return onSimpleOperator(args, statement, " * ")
-        Statement.StatementType.NOT_EQUALS -> {
+        StatementType.MODULO -> return onSimpleOperator(args, statement, " % ")
+        StatementType.MULTIPLY -> return onSimpleOperator(args, statement, " * ")
+        StatementType.NOT_EQUALS -> {
             if (statement.parameter.size < 2) {
                 System.err.println("The Not Equals Operator needs to have two or more parameters")
                 return null
             }
             return onComplexOperator(args, statement, ", ", AND, CodeBlock.of("!\$T.equals(", Objects::class.java), CodeBlock.of(")"))
         }
-        Statement.StatementType.NOT -> {
+        StatementType.NOT -> {
             if (statement.parameter.size != 1) {
                 System.err.println("The NOT Operator needs to have exactly one parameter")
                 return null
             }
             return onSimpleOperator(args, statement, EMPTY, CodeBlock.of("!"), null)
         }
-        Statement.StatementType.OR -> return onSimpleOperator(args, statement, " || ")
-        Statement.StatementType.SUBTRACT -> return onSimpleOperator(args, statement, " - ")
+        StatementType.OR -> return onSimpleOperator(args, statement, " || ")
+        StatementType.SUBTRACT -> return onSimpleOperator(args, statement, " - ")
         //Calls
-        Statement.StatementType.CALL -> return onCall(args, statement)
+        StatementType.CALL -> return onCall(args, statement)
     }
 }
 

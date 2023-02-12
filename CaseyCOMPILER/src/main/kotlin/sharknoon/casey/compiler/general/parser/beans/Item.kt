@@ -1,6 +1,7 @@
 package sharknoon.casey.compiler.general.parser.beans
 
 import java.util.*
+import kotlin.system.exitProcess
 
 /*
  * Copyright 2018 Shark Industries.
@@ -60,6 +61,5 @@ val Item.startBlock: Block
             }
         }
         System.err.println("No start block for item $this")
-        System.exit(2)
-        return Block(UUID.randomUUID())//Never occurs
+        exitProcess(2)
     }

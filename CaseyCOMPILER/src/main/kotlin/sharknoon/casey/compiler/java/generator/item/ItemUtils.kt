@@ -11,6 +11,7 @@ import sharknoon.casey.compiler.java.generator.block.acceptFunctionBlocks
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
+import java.util.*
 import java.util.function.Function
 import javax.lang.model.element.Modifier.*
 
@@ -171,7 +172,7 @@ fun getTypeName(typeNameString: String): TypeName? {
  * IMPORTANT, the brackets needed to be added seperatly
  */
 fun getFunctionName(function: Item): CodeBlock? {
-    return getVariableOrFunctionName(function, Function { isStaticFunction(it) })
+    return getVariableOrFunctionName(function, { isStaticFunction(it) })
 }
 
 /**
@@ -179,14 +180,14 @@ fun getFunctionName(function: Item): CodeBlock? {
  * it returns name.name and imports the class, otherwise returns name
  */
 fun getVariableName(variable: Item): CodeBlock? {
-    return getVariableOrFunctionName(variable, Function { isStaticVariable(it) })
+    return getVariableOrFunctionName(variable, { isStaticVariable(it) })
 }
 
 private fun getVariableOrFunctionName(item: Item, validItemFunction: Function<Item, Boolean>): CodeBlock? {
     if (validItemFunction.apply(item)) {
         val typeName = getTypeName(getFullName(item))
         if (typeName == null) {
-            System.err.println("TypeName for " + item.item.toString().toLowerCase() + " " + getFullName(item) + " could not be determined")
+            System.err.println("TypeName for " + item.item.toString().lowercase() + " " + getFullName(item) + " could not be determined")
             return null
         }
         return CodeBlock.of("\$T." + item.name, typeName)
@@ -198,7 +199,7 @@ private fun getVariableOrFunctionName(item: Item, validItemFunction: Function<It
 /**
  * Initializes a field with a basic type to avoid null
  *
- * @param type The type be be initialized
+ * @param type The type to be initialized
  * @return The initializing Codeblock
  */
 internal fun getFieldInitializer(type: TypeName): CodeBlock {
